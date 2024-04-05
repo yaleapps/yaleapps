@@ -33,8 +33,10 @@ import {
 	seasons,
 	tfidf_similars,
 } from '../schema';
+import { db } from '../db';
 
-const COURSETABLE_COOKIE = process.env.COURSETABLE_COOKIE as string;
+const COURSETABLE_COOKIE = process.env.COURSETABLE_COOKIE
+if (!COURSETABLE_COOKIE) throw new Error('COURSETABLE_COOKIE not set');
 const BATCH_SIZE = 500;
 const TABLES = [
 	{
