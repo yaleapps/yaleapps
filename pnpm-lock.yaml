@@ -32,6 +32,9 @@ importers:
       '@libsql/client':
         specifier: ^0.6.0
         version: 0.6.0
+      '@t3-oss/env-core':
+        specifier: ^0.9.2
+        version: 0.9.2(typescript@5.4.4)(zod@3.22.4)
       astro:
         specifier: ^4.5.16
         version: 4.5.16(typescript@5.4.4)
@@ -44,6 +47,9 @@ importers:
       typescript:
         specifier: ^5.4.4
         version: 5.4.4
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       drizzle-kit:
         specifier: ^0.20.14
@@ -1379,6 +1385,19 @@ packages:
 
   /@shikijs/core@1.2.4:
     resolution: {integrity: sha512-ClaUWpt8oTzjcF0MM1P81AeWyzc1sNSJlAjMG80CbwqbFqXSNz+NpQVUC0icobt3sZn43Sn27M4pHD/Jmp3zHw==}
+    dev: false
+
+  /@t3-oss/env-core@0.9.2(typescript@5.4.4)(zod@3.22.4):
+    resolution: {integrity: sha512-KgWXljUTHgO3o7GMZQPAD5+P+HqpauMNNHowlm7V2b9IeMitSUpNKwG6xQrup/xARWHTdxRVIl0mSI4wCevQhQ==}
+    peerDependencies:
+      typescript: '>=5.0.0'
+      zod: ^3.0.0
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+    dependencies:
+      typescript: 5.4.4
+      zod: 3.22.4
     dev: false
 
   /@types/babel__core@7.20.5:
