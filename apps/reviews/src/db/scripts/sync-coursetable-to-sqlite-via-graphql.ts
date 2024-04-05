@@ -315,6 +315,9 @@ const TABLES = [
 	},
 ] as const;
 
+type Table = (typeof TABLES)[number]
+type TableName = Table['name']
+
 export async function syncCourseTableToSqlite() {
 	try {
 		const tablesWithLength = await Promise.all(
@@ -340,7 +343,7 @@ export async function syncCourseTableToSqlite() {
 	}
 }
 
-async function getTableLength(tableName: (typeof TABLES)[number]['name']): Promise<number> {
+async function getTableLength(tableName: TableName): Promise<number> {
 	const tableNameAggregate = `${tableName}_aggregate` as const;
 	const tableCountQuery = `query {
 		${tableNameAggregate} {
