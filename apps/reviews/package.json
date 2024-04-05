@@ -10,8 +10,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^4.5.16",
     "@astrojs/check": "^0.5.10",
+    "@libsql/client": "^0.6.0",
+    "astro": "^4.5.16",
+    "drizzle-orm": "^0.30.7",
+    "drizzle-zod": "^0.5.1",
     "typescript": "^5.4.4"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.20.14"
   }
 }
