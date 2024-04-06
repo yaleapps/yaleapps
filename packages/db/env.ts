@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 export const env = createEnv({
 	server: {
-		DATABASE_URL: z.string().url(),
 		TURSO_SYNC_URL: z.string().url(),
 		TURSO_TOKEN: z.string(),
 		TURSO_READONLY_TOKEN: z.string(),
