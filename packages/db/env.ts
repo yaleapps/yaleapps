@@ -7,7 +7,7 @@ export const env = createEnv({
 		TURSO_SYNC_URL: z.string().url(),
 		TURSO_TOKEN: z.string(),
 		TURSO_READONLY_TOKEN: z.string(),
-		COURSETABLE_COOKIE: z.string()
+		COURSETABLE_COOKIE: z.string(),
 	},
 
 	/**
@@ -37,5 +37,5 @@ export const env = createEnv({
 	 * In order to solve these issues, we recommend that all new projects
 	 * explicitly specify this option as true.
 	 */
-	emptyStringAsUndefined: true
+	emptyStringAsUndefined: true,
 });

@@ -34,7 +34,7 @@ import {
 	tfidf_similars,
 } from '../schema';
 import { db } from '../db';
-import { env } from '../../../../apps/reviews/src/env';
+import { env } from '../../env';
 import { graphql } from 'gql.tada';
 
 const BATCH_SIZE = 500;
