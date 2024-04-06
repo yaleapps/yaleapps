@@ -5,7 +5,8 @@ export default {
 	out: './drizzle',
 	driver: 'turso',
 	dbCredentials: {
-		url: process.env.TURSO_SYNC_URL!,
-		authToken: process.env.TURSO_TOKEN!,
+		url: 'file:./courses.sqlite',
+		// url: env.TURSO_SYNC_URL!,
+		// authToken: env.TURSO_TOKEN!,
 	},
 } satisfies Config;
