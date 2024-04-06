@@ -34,19 +34,22 @@ import {
 	tfidf_similars,
 } from '../schema';
 import { db } from '../db';
-import { env } from '../../env';
+import { env } from '../../../apps/reviews/src/env';
+import { graphql } from 'gql.tada';
 
 const BATCH_SIZE = 500;
 const TABLES = [
 	{
 		name: 'seasons',
-		query: `query ($offset: Int, $limit: Int) {
-			seasons (offset: $offset, limit: $limit) {
-				season_code
-				term
-				year
+		query: graphql(`
+			query Seasons($offset: Int, $limit: Int) {
+				seasons(offset: $offset, limit: $limit) {
+					season_code
+					term
+					year
+				}
 			}
-		}`,
+		`),
 		table: seasons,
 		schema: z.object({ seasons: insertSeasonSchema.array() }).transform(({ seasons }) => seasons),
 	},

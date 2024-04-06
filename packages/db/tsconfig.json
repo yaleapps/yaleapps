@@ -1,0 +1,26 @@
+{
+	"compilerOptions": {
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"isolatedModules": true,
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"preserveWatchOutput": true,
+		"skipLibCheck": true,
+		"noEmit": true,
+		"strict": true,
+		"plugins": [
+			{
+				"name": "@0no-co/graphqlsp",
+				"schema": {
+					"url": "https://api.coursetable.com/ferry/v1/graphql",
+					"headers": {
+						"Accept": "application/graphql-response+json"
+					}
+				},
+				"tadaOutputLocation": "./graphql-env.d.ts"
+			}
+		]
+	},
+	"exclude": ["node_modules"]
+}
