@@ -34,9 +34,8 @@ import {
 	tfidf_similars,
 } from '../schema';
 import { db } from '../db';
+import { env } from '../../env';
 
-const COURSETABLE_COOKIE = process.env.COURSETABLE_COOKIE
-if (!COURSETABLE_COOKIE) throw new Error('COURSETABLE_COOKIE not set');
 const BATCH_SIZE = 500;
 const TABLES = [
 	{
@@ -49,7 +48,7 @@ const TABLES = [
 			}
 		}`,
 		table: seasons,
-		schema: z.object({ seasons: insertSeasonSchema.array() }).transform(({ seasons} ) => seasons),
+		schema: z.object({ seasons: insertSeasonSchema.array() }).transform(({ seasons }) => seasons),
 	},
 	{
 		name: 'courses',
@@ -95,7 +94,7 @@ const TABLES = [
 			}
 		}`,
 		table: courses,
-		schema: z.object({ courses: insertCourseSchema.array() }).transform(({ courses} ) => courses),
+		schema: z.object({ courses: insertCourseSchema.array() }).transform(({ courses }) => courses),
 	},
 	{
 		name: 'listings',
@@ -113,7 +112,9 @@ const TABLES = [
 			}
 		}`,
 		table: listings,
-		schema: z.object({ listings: insertListingSchema.array() }).transform(({ listings} ) => listings),
+		schema: z
+			.object({ listings: insertListingSchema.array() })
+			.transform(({ listings }) => listings),
 	},
 	{
 		name: 'discussions',
@@ -132,7 +133,7 @@ const TABLES = [
 		table: discussions,
 		schema: z
 			.object({ discussions: insertDiscussionSchema.array() })
-			.transform(({ discussions} ) => discussions),
+			.transform(({ discussions }) => discussions),
 	},
 	{
 		name: 'flags',
@@ -143,7 +144,7 @@ const TABLES = [
 			}
 		}`,
 		table: flags,
-		schema: z.object({ flags: insertFlagSchema.array() }).transform(({ flags} ) => flags),
+		schema: z.object({ flags: insertFlagSchema.array() }).transform(({ flags }) => flags),
 	},
 	{
 		name: 'demand_statistics',
@@ -158,7 +159,7 @@ const TABLES = [
 		table: demand_statistics,
 		schema: z
 			.object({ demand_statistics: insertDemandStatisticsSchema.array() })
-			.transform(({ demand_statistics} ) => demand_statistics),
+			.transform(({ demand_statistics }) => demand_statistics),
 	},
 	{
 		name: 'professors',
@@ -174,7 +175,7 @@ const TABLES = [
 		table: professors,
 		schema: z
 			.object({ professors: insertProfessorSchema.array() })
-			.transform(({ professors} ) => professors),
+			.transform(({ professors }) => professors),
 	},
 	{
 		name: 'evaluation_statistics',
@@ -194,7 +195,7 @@ const TABLES = [
 		table: evaluation_statistics,
 		schema: z
 			.object({ evaluation_statistics: insertEvaluationStatisticsSchema.array() })
-			.transform(({ evaluation_statistics} ) => evaluation_statistics),
+			.transform(({ evaluation_statistics }) => evaluation_statistics),
 	},
 	{
 		name: 'evaluation_questions',
@@ -210,7 +211,7 @@ const TABLES = [
 		table: evaluation_questions,
 		schema: z
 			.object({ evaluation_questions: insertEvaluationQuestionSchema.array() })
-			.transform(({ evaluation_questions} ) => evaluation_questions),
+			.transform(({ evaluation_questions }) => evaluation_questions),
 	},
 	{
 		name: 'evaluation_narratives',
@@ -229,7 +230,7 @@ const TABLES = [
 		table: evaluation_narratives,
 		schema: z
 			.object({ evaluation_narratives: insertEvaluationNarrativeSchema.array() })
-			.transform(({ evaluation_narratives} ) => evaluation_narratives),
+			.transform(({ evaluation_narratives }) => evaluation_narratives),
 	},
 	{
 		name: 'evaluation_ratings',
@@ -244,7 +245,7 @@ const TABLES = [
 		table: evaluation_ratings,
 		schema: z
 			.object({ evaluation_ratings: insertEvaluationRatingSchema.array() })
-			.transform(({ evaluation_ratings} ) => evaluation_ratings),
+			.transform(({ evaluation_ratings }) => evaluation_ratings),
 	},
 	{
 		name: 'course_professors',
@@ -257,7 +258,7 @@ const TABLES = [
 		table: course_professors,
 		schema: z
 			.object({ course_professors: insertCourseProfessorSchema.array() })
-			.transform(({ course_professors} ) => course_professors),
+			.transform(({ course_professors }) => course_professors),
 	},
 	{
 		name: 'course_discussions',
@@ -270,7 +271,7 @@ const TABLES = [
 		table: course_discussions,
 		schema: z
 			.object({ course_discussions: insertCourseDiscussionSchema.array() })
-			.transform(({ course_discussions} ) => course_discussions),
+			.transform(({ course_discussions }) => course_discussions),
 	},
 	{
 		name: 'course_flags',
@@ -283,7 +284,7 @@ const TABLES = [
 		table: course_flags,
 		schema: z
 			.object({ course_flags: insertCourseFlagSchema.array() })
-			.transform(({ course_flags} ) => course_flags),
+			.transform(({ course_flags }) => course_flags),
 	},
 	{
 		name: 'fasttext_similars',
@@ -297,7 +298,7 @@ const TABLES = [
 		table: fasttext_similars,
 		schema: z
 			.object({ fasttext_similars: insertFasttextSimilarSchema.array() })
-			.transform(({ fasttext_similars} ) => fasttext_similars),
+			.transform(({ fasttext_similars }) => fasttext_similars),
 	},
 	{
 		name: 'tfidf_similars',
@@ -311,12 +312,12 @@ const TABLES = [
 		table: tfidf_similars,
 		schema: z
 			.object({ tfidf_similars: insertTfidfSimilarSchema.array() })
-			.transform(({ tfidf_similars} ) => tfidf_similars),
+			.transform(({ tfidf_similars }) => tfidf_similars),
 	},
 ] as const;
 
-type Table = (typeof TABLES)[number]
-type TableName = Table['name']
+type Table = (typeof TABLES)[number];
+type TableName = Table['name'];
 
 export async function syncCourseTableToSqlite() {
 	try {
@@ -379,7 +380,7 @@ async function fetchGraphQl<T>({
 	const response = await fetch('https://api.coursetable.com/ferry/v1/graphql', {
 		method: 'POST',
 		headers: {
-			cookie: COURSETABLE_COOKIE,
+			cookie: env.COURSETABLE_COOKIE,
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({ query, variables }),
