@@ -1,7 +1,9 @@
 {
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto"
-    }
-  ]
+	"eslint.workingDirectories": [
+		{
+			"mode": "auto"
+		}
+	],
+	"typescript.tsdk": "packages/db/node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true
 }
