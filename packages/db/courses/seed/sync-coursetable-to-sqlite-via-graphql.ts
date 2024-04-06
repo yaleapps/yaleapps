@@ -43,7 +43,7 @@ const TABLES = [
 		name: 'seasons',
 		query: graphql(`
 			query Seasons($offset: Int, $limit: Int) {
-				seasons(offset: $offset, limit: $limit) {
+				seasons (offset: $offset, limit: $limit) {
 					season_code
 					term
 					year
