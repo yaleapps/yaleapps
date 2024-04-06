@@ -368,13 +368,13 @@ async function getTableLength(tableName: TableName): Promise<number> {
 	return data[tableNameAggregate].aggregate.count;
 }
 
-async function fetchGraphQl<T>({
+async function fetchGraphQl<T extends z.ZodTypeAny>({
 	query,
 	schema,
 	variables,
 }: {
 	query: string;
-	schema: z.ZodSchema<T>;
+	schema: T;
 	variables: Record<string, number>;
 }) {
 	const response = await fetch('https://api.coursetable.com/ferry/v1/graphql', {
