@@ -62,6 +62,7 @@ export const allCourseColumnNames = [
 	'last_enrollment_course_id',
 	'last_enrollment',
 	'last_enrollment_season_code',
+	'last_enrollment_same_professors',
 	'average_comment_neg',
 	'average_comment_neg_n',
 	'average_comment_neu',
@@ -115,6 +116,7 @@ export const courses = sqliteTable('courses', {
 	last_enrollment: integer('last_enrollment'),
 	last_enrollment_season_code: text('last_enrollment_season_code'),
 	// .references(() => seasons.season_code),
+	last_enrollment_same_professors: integer('last_enrollment_same_professors', { mode: 'boolean' }),
 	average_comment_neg: real('average_comment_neg'),
 	average_comment_neg_n: integer('average_comment_neg_n'),
 	average_comment_neu: real('average_comment_neu'),
@@ -158,16 +160,10 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	}),
 	listings: many(listings),
 	courseFlags: many(course_flags),
-	demandStatistics: many(demand_statistics),
 	evaluationStatistics: many(evaluation_statistics),
 	evaluationNarratives: many(evaluation_narratives),
 	evaluationRatings: many(evaluation_ratings),
 	courseProfessors: many(course_professors),
-	courseDiscussions: many(course_discussions),
-	fasttextSimilarsSource: many(fasttext_similars),
-	fasttextSimilarsTarget: many(fasttext_similars),
-	tfidfSimilarsSource: many(tfidf_similars),
-	tfidfSimilarsTarget: many(tfidf_similars),
 }));
 
 export const insertCourseSchema = createInsertSchema(courses, {
@@ -220,23 +216,6 @@ export const listingsRelations = relations(listings, ({ one }) => ({
 
 export const insertListingSchema = createInsertSchema(listings);
 
-export const discussions = sqliteTable('discussions', {
-	discussion_id: integer('discussion_id').primaryKey(),
-	subject: text('subject').notNull(),
-	number: text('number').notNull(),
-	info: text('info'),
-	locations_summary: text('locations_summary'),
-	times_long_summary: text('times_long_summary'),
-	times_summary: text('times_summary'),
-	times_by_day: text('times_by_day'),
-});
-
-export const discussionsRelations = relations(discussions, ({ many }) => ({
-	courseDiscussions: many(course_discussions),
-}));
-
-export const insertDiscussionSchema = createInsertSchema(discussions);
-
 export const flags = sqliteTable('flags', {
 	flag_id: integer('flag_id').primaryKey(),
 	flag_text: text('flag_text').notNull(),
@@ -247,22 +226,6 @@ export const flagsRelations = relations(flags, ({ many }) => ({
 }));
 
 export const insertFlagSchema = createInsertSchema(flags);
-
-export const demand_statistics = sqliteTable('demand_statistics', {
-	course_id: integer('course_id').primaryKey(),
-	// .references(() => courses.course_id),
-	latest_demand: integer('latest_demand'),
-	latest_demand_date: text('latest_demand_date'),
-	demand: text('demand', { mode: 'json' }),
-});
-
-export const demandStatisticsRelations = relations(demand_statistics, ({ one }) => ({
-	course: one(courses),
-}));
-
-export const insertDemandStatisticsSchema = createInsertSchema(demand_statistics, {
-	demand: z.record(z.string()),
-});
 
 export const professors = sqliteTable('professors', {
 	professor_id: integer('professor_id').primaryKey(),
@@ -286,7 +249,7 @@ export const evaluation_statistics = sqliteTable('evaluation_statistics', {
 	responses: integer('responses'),
 	declined: integer('declined'),
 	no_response: integer('no_response'),
-	extras: text('extras'),
+	extras: text('extras', { mode: 'json' }),
 	avg_rating: real('avg_rating'),
 	avg_workload: real('avg_workload'),
 });
@@ -395,37 +358,6 @@ export const courseProfessorsRelations = relations(course_professors, ({ one }) 
 
 export const insertCourseProfessorSchema = createInsertSchema(course_professors);
 
-export const course_discussions = sqliteTable(
-	'course_discussions',
-	{
-		course_id: integer('course_id'),
-		// .references(() => courses.course_id),
-		discussion_id: integer('discussion_id'),
-		// .references(() => discussions.discussion_id),
-	},
-	(table) => {
-		return {
-			pk0: primaryKey({
-				columns: [table.course_id, table.discussion_id],
-				name: 'course_discussions_course_id_discussion_id_pk',
-			}),
-		};
-	},
-);
-
-export const courseDiscussionsRelations = relations(course_discussions, ({ one }) => ({
-	course: one(courses, {
-		fields: [course_discussions.course_id],
-		references: [courses.course_id],
-	}),
-	discussion: one(discussions, {
-		fields: [course_discussions.discussion_id],
-		references: [discussions.discussion_id],
-	}),
-}));
-
-export const insertCourseDiscussionSchema = createInsertSchema(course_discussions);
-
 export const course_flags = sqliteTable(
 	'course_flags',
 	{
@@ -456,67 +388,3 @@ export const courseFlagsRelations = relations(course_flags, ({ one }) => ({
 }));
 
 export const insertCourseFlagSchema = createInsertSchema(course_flags);
-
-export const fasttext_similars = sqliteTable(
-	'fasttext_similars',
-	{
-		source: integer('source'),
-		// .references(() => courses.course_id),
-		target: integer('target'),
-		// .references(() => courses.course_id),
-		rank: integer('rank'),
-	},
-	(table) => {
-		return {
-			pk0: primaryKey({
-				columns: [table.source, table.target],
-				name: 'fasttext_similars_source_target_pk',
-			}),
-		};
-	},
-);
-
-export const fasttextSimilarsRelations = relations(fasttext_similars, ({ one }) => ({
-	sourceCourse: one(courses, {
-		fields: [fasttext_similars.source],
-		references: [courses.course_id],
-	}),
-	targetCourse: one(courses, {
-		fields: [fasttext_similars.target],
-		references: [courses.course_id],
-	}),
-}));
-
-export const insertFasttextSimilarSchema = createInsertSchema(fasttext_similars);
-
-export const tfidf_similars = sqliteTable(
-	'tfidf_similars',
-	{
-		source: integer('source'),
-		// .references(() => courses.course_id),
-		target: integer('target'),
-		// .references(() => courses.course_id),
-		rank: integer('rank'),
-	},
-	(table) => {
-		return {
-			pk0: primaryKey({
-				columns: [table.source, table.target],
-				name: 'tfidf_similars_source_target_pk',
-			}),
-		};
-	},
-);
-
-export const tfidfSimilarsRelations = relations(tfidf_similars, ({ one }) => ({
-	sourceCourse: one(courses, {
-		fields: [tfidf_similars.source],
-		references: [courses.course_id],
-	}),
-	targetCourse: one(courses, {
-		fields: [tfidf_similars.target],
-		references: [courses.course_id],
-	}),
-}));
-
-export const insertTfidfSimilarSchema = createInsertSchema(tfidf_similars);
