@@ -42,8 +42,8 @@ const TABLES = [
 	{
 		name: 'seasons',
 		query: graphql(`
-			query Seasons($offset: Int, $limit: Int) {
-				seasons (offset: $offset, limit: $limit) {
+			query seasons($offset: Int, $limit: Int) {
+				seasons(offset: $offset, limit: $limit) {
 					season_code
 					term
 					year
@@ -55,65 +55,69 @@ const TABLES = [
 	},
 	{
 		name: 'courses',
-		query: `query ($offset: Int, $limit: Int) {
-			courses (offset: $offset, limit: $limit) {
-				course_id
-				season_code
-				title
-				short_title
-				description
-				requirements
-				locations_summary
-				times_long_summary
-				times_summary
-				times_by_day
-				skills
-				areas
-				credits
-				syllabus_url
-				course_home_url
-				regnotes
-				extra_info
-				rp_attr
-				classnotes
-				final_exam
-				fysem
-				sysem
-				colsem
-				average_rating
-				average_rating_n
-				average_workload
-				average_workload_n
-				average_rating_same_professors
-				average_rating_same_professors_n
-				average_workload_same_professors
-				average_workload_same_professors_n
-				last_offered_course_id
-				same_course_id
-				same_course_and_profs_id
-				last_enrollment_course_id
-				last_enrollment
-				last_enrollment_season_code
+		query: graphql(`
+			query courses($offset: Int, $limit: Int) {
+				courses(offset: $offset, limit: $limit) {
+					course_id
+					season_code
+					title
+					short_title
+					description
+					requirements
+					locations_summary
+					times_long_summary
+					times_summary
+					times_by_day
+					skills
+					areas
+					credits
+					syllabus_url
+					course_home_url
+					regnotes
+					extra_info
+					rp_attr
+					classnotes
+					final_exam
+					fysem
+					sysem
+					colsem
+					average_rating
+					average_rating_n
+					average_workload
+					average_workload_n
+					average_rating_same_professors
+					average_rating_same_professors_n
+					average_workload_same_professors
+					average_workload_same_professors_n
+					last_offered_course_id
+					same_course_id
+					same_course_and_profs_id
+					last_enrollment_course_id
+					last_enrollment
+					last_enrollment_season_code
+				}
 			}
-		}`,
+		`),
 		table: courses,
 		schema: z.object({ courses: insertCourseSchema.array() }).transform(({ courses }) => courses),
 	},
 	{
 		name: 'listings',
-		query: `query ($offset: Int, $limit: Int) {
-			listings (offset: $offset, limit: $limit) {
-				listing_id
-				course_id
-				school
-				subject
-				number
-				course_code
-				section
-				season_code
-				crn
+		query: graphql(`
+			query listings($offset: Int, $limit: Int) {
+				listings(offset: $offset, limit: $limit) {
+					listing_id
+					course_id
+					school
+					subject
+					number
+					course_code
+					section
+					season_code
+					crn
+				}
 			}
-		}`,
+		`),
 		table: listings,
 		schema: z
 			.object({ listings: insertListingSchema.array() })
@@ -121,18 +125,20 @@ const TABLES = [
 	},
 	{
 		name: 'discussions',
-		query: `query ($offset: Int, $limit: Int) {
-			discussions (offset: $offset, limit: $limit) {
-				discussion_id
-				subject
-				number
-				info
-				locations_summary
-				times_long_summary
-				times_summary
-				times_by_day
+		query: graphql(`
+			query discussions($offset: Int, $limit: Int) {
+				discussions(offset: $offset, limit: $limit) {
+					discussion_id
+					subject
+					number
+					info
+					locations_summary
+					times_long_summary
+					times_summary
+					times_by_day
+				}
 			}
-		}`,
+		`),
 		table: discussions,
 		schema: z
 			.object({ discussions: insertDiscussionSchema.array() })
@@ -140,25 +146,29 @@ const TABLES = [
 	},
 	{
 		name: 'flags',
-		query: `query ($offset: Int, $limit: Int) {
-			flags (offset: $offset, limit: $limit) {
-				flag_id
-				flag_text
+		query: graphql(`
+			query flags($offset: Int, $limit: Int) {
+				flags(offset: $offset, limit: $limit) {
+					flag_id
+					flag_text
+				}
 			}
-		}`,
+		`),
 		table: flags,
 		schema: z.object({ flags: insertFlagSchema.array() }).transform(({ flags }) => flags),
 	},
 	{
 		name: 'demand_statistics',
-		query: `query ($offset: Int, $limit: Int) {
-			demand_statistics (offset: $offset, limit: $limit) {
-				course_id
-				latest_demand
-				latest_demand_date
-				demand
+		query: graphql(`
+			query demand_statistics($offset: Int, $limit: Int) {
+				demand_statistics(offset: $offset, limit: $limit) {
+					course_id
+					latest_demand
+					latest_demand_date
+					demand
+				}
 			}
-		}`,
+		`),
 		table: demand_statistics,
 		schema: z
 			.object({ demand_statistics: insertDemandStatisticsSchema.array() })
@@ -166,15 +176,17 @@ const TABLES = [
 	},
 	{
 		name: 'professors',
-		query: `query ($offset: Int, $limit: Int) {
-			professors (offset: $offset, limit: $limit) {
-				professor_id
-				name
-				email
-				average_rating
-				average_rating_n
+		query: graphql(`
+			query professors($offset: Int, $limit: Int) {
+				professors(offset: $offset, limit: $limit) {
+					professor_id
+					name
+					email
+					average_rating
+					average_rating_n
+				}
 			}
-		}`,
+		`),
 		table: professors,
 		schema: z
 			.object({ professors: insertProfessorSchema.array() })
@@ -182,19 +194,21 @@ const TABLES = [
 	},
 	{
 		name: 'evaluation_statistics',
-		query: `query ($offset: Int, $limit: Int) {
-			evaluation_statistics (offset: $offset, limit: $limit) {
-				course_id
-				enrollment
-				enrolled
-				responses
-				declined
-				no_response
-				extras
-				avg_rating
-				avg_workload
+		query: graphql(`
+			query evaluation_statistics($offset: Int, $limit: Int) {
+				evaluation_statistics(offset: $offset, limit: $limit) {
+					course_id
+					enrollment
+					enrolled
+					responses
+					declined
+					no_response
+					extras
+					avg_rating
+					avg_workload
+				}
 			}
-		}`,
+		`),
 		table: evaluation_statistics,
 		schema: z
 			.object({ evaluation_statistics: insertEvaluationStatisticsSchema.array() })
@@ -202,15 +216,17 @@ const TABLES = [
 	},
 	{
 		name: 'evaluation_questions',
-		query: `query ($offset: Int, $limit: Int) {
-			evaluation_questions (offset: $offset, limit: $limit) {
-				question_code
-				is_narrative
-				question_text
-				options
-				tag
+		query: graphql(`
+			query evaluation_questions($offset: Int, $limit: Int) {
+				evaluation_questions(offset: $offset, limit: $limit) {
+					question_code
+					is_narrative
+					question_text
+					options
+					tag
+				}
 			}
-		}`,
+		`),
 		table: evaluation_questions,
 		schema: z
 			.object({ evaluation_questions: insertEvaluationQuestionSchema.array() })
@@ -218,18 +234,20 @@ const TABLES = [
 	},
 	{
 		name: 'evaluation_narratives',
-		query: `query ($offset: Int, $limit: Int) {
-			evaluation_narratives (offset: $offset, limit: $limit) {
-				id
-				course_id
-				question_code
-				comment
-				comment_neg
-				comment_neu
-				comment_pos
-				comment_compound
+		query: graphql(`
+			query evaluation_narratives($offset: Int, $limit: Int) {
+				evaluation_narratives(offset: $offset, limit: $limit) {
+					id
+					course_id
+					question_code
+					comment
+					comment_neg
+					comment_neu
+					comment_pos
+					comment_compound
+				}
 			}
-		}`,
+		`),
 		table: evaluation_narratives,
 		schema: z
 			.object({ evaluation_narratives: insertEvaluationNarrativeSchema.array() })
@@ -237,14 +255,16 @@ const TABLES = [
 	},
 	{
 		name: 'evaluation_ratings',
-		query: `query ($offset: Int, $limit: Int) {
-			evaluation_ratings (offset: $offset, limit: $limit) {
-				id
-				course_id
-				question_code
-				rating
+		query: graphql(`
+			query evaluation_ratings($offset: Int, $limit: Int) {
+				evaluation_ratings(offset: $offset, limit: $limit) {
+					id
+					course_id
+					question_code
+					rating
+				}
 			}
-		}`,
+		`),
 		table: evaluation_ratings,
 		schema: z
 			.object({ evaluation_ratings: insertEvaluationRatingSchema.array() })
@@ -252,12 +272,14 @@ const TABLES = [
 	},
 	{
 		name: 'course_professors',
-		query: `query ($offset: Int, $limit: Int) {
-			course_professors (offset: $offset, limit: $limit) {
-				course_id
-				professor_id
+		query: graphql(`
+			query course_professors($offset: Int, $limit: Int) {
+				course_professors(offset: $offset, limit: $limit) {
+					course_id
+					professor_id
+				}
 			}
-		}`,
+		`),
 		table: course_professors,
 		schema: z
 			.object({ course_professors: insertCourseProfessorSchema.array() })
@@ -265,12 +287,14 @@ const TABLES = [
 	},
 	{
 		name: 'course_discussions',
-		query: `query ($offset: Int, $limit: Int) {
-			course_discussions (offset: $offset, limit: $limit) {
-				course_id
-				discussion_id
+		query: graphql(`
+			query course_discussions($offset: Int, $limit: Int) {
+				course_discussions(offset: $offset, limit: $limit) {
+					course_id
+					discussion_id
+				}
 			}
-		}`,
+		`),
 		table: course_discussions,
 		schema: z
 			.object({ course_discussions: insertCourseDiscussionSchema.array() })
@@ -278,12 +302,14 @@ const TABLES = [
 	},
 	{
 		name: 'course_flags',
-		query: `query ($offset: Int, $limit: Int) {
-			course_flags (offset: $offset, limit: $limit) {
-				course_id
-				flag_id
+		query: graphql(`
+			query course_flags($offset: Int, $limit: Int) {
+				course_flags(offset: $offset, limit: $limit) {
+					course_id
+					flag_id
+				}
 			}
-		}`,
+		`),
 		table: course_flags,
 		schema: z
 			.object({ course_flags: insertCourseFlagSchema.array() })
@@ -291,13 +317,15 @@ const TABLES = [
 	},
 	{
 		name: 'fasttext_similars',
-		query: `query ($offset: Int, $limit: Int) {
-			fasttext_similars (offset: $offset, limit: $limit) {
-				source
-				target
-				rank
+		query: graphql(`
+			query fasttext_similars($offset: Int, $limit: Int) {
+				fasttext_similars(offset: $offset, limit: $limit) {
+					source
+					target
+					rank
+				}
 			}
-		}`,
+		`),
 		table: fasttext_similars,
 		schema: z
 			.object({ fasttext_similars: insertFasttextSimilarSchema.array() })
@@ -305,13 +333,15 @@ const TABLES = [
 	},
 	{
 		name: 'tfidf_similars',
-		query: `query ($offset: Int, $limit: Int) {
-			tfidf_similars (offset: $offset, limit: $limit) {
-				source
-				target
-				rank
+		query: graphql(`
+			query tfidf_similars($offset: Int, $limit: Int) {
+				tfidf_similars(offset: $offset, limit: $limit) {
+					source
+					target
+					rank
+				}
 			}
-		}`,
+		`),
 		table: tfidf_similars,
 		schema: z
 			.object({ tfidf_similars: insertTfidfSimilarSchema.array() })
@@ -349,13 +379,13 @@ export async function syncCourseTableToSqlite() {
 
 async function getTableLength(tableName: TableName): Promise<number> {
 	const tableNameAggregate = `${tableName}_aggregate` as const;
-	const tableCountQuery = `query {
+	const tableCountQuery = graphql(`query {
 		${tableNameAggregate} {
 			aggregate {
 				count
 			}
 		}
-	}`;
+	}`);
 	const data = await fetchGraphQl({
 		query: tableCountQuery,
 		schema: z.object({
