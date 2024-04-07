@@ -28,7 +28,6 @@ const client = new Client({
 const BATCH_SIZE = 500;
 const TABLES = [
 	{
-		name: 'seasons',
 		query: graphql(`
 			query seasons($offset: Int, $limit: Int) {
 				seasons(offset: $offset, limit: $limit) {
@@ -41,7 +40,6 @@ const TABLES = [
 		table: seasons,
 	},
 	{
-		name: 'courses',
 		query: graphql(`
 			query courses($offset: Int, $limit: Int) {
 				courses(offset: $offset, limit: $limit) {
@@ -89,7 +87,6 @@ const TABLES = [
 		table: courses,
 	},
 	{
-		name: 'listings',
 		query: graphql(`
 			query listings($offset: Int, $limit: Int) {
 				listings(offset: $offset, limit: $limit) {
@@ -108,7 +105,6 @@ const TABLES = [
 		table: listings,
 	},
 	{
-		name: 'flags',
 		query: graphql(`
 			query flags($offset: Int, $limit: Int) {
 				flags(offset: $offset, limit: $limit) {
@@ -120,7 +116,6 @@ const TABLES = [
 		table: flags,
 	},
 	{
-		name: 'professors',
 		query: graphql(`
 			query professors($offset: Int, $limit: Int) {
 				professors(offset: $offset, limit: $limit) {
@@ -135,7 +130,6 @@ const TABLES = [
 		table: professors,
 	},
 	{
-		name: 'evaluation_statistics',
 		query: graphql(`
 			query evaluation_statistics($offset: Int, $limit: Int) {
 				evaluation_statistics(offset: $offset, limit: $limit) {
@@ -154,7 +148,6 @@ const TABLES = [
 		table: evaluation_statistics,
 	},
 	{
-		name: 'evaluation_questions',
 		query: graphql(`
 			query evaluation_questions($offset: Int, $limit: Int) {
 				evaluation_questions(offset: $offset, limit: $limit) {
@@ -169,7 +162,6 @@ const TABLES = [
 		table: evaluation_questions,
 	},
 	{
-		name: 'evaluation_narratives',
 		query: graphql(`
 			query evaluation_narratives($offset: Int, $limit: Int) {
 				evaluation_narratives(offset: $offset, limit: $limit) {
@@ -187,7 +179,6 @@ const TABLES = [
 		table: evaluation_narratives,
 	},
 	{
-		name: 'evaluation_ratings',
 		query: graphql(`
 			query evaluation_ratings($offset: Int, $limit: Int) {
 				evaluation_ratings(offset: $offset, limit: $limit) {
@@ -201,7 +192,6 @@ const TABLES = [
 		table: evaluation_ratings,
 	},
 	{
-		name: 'course_professors',
 		query: graphql(`
 			query course_professors($offset: Int, $limit: Int) {
 				course_professors(offset: $offset, limit: $limit) {
@@ -213,7 +203,6 @@ const TABLES = [
 		table: course_professors,
 	},
 	{
-		name: 'course_flags',
 		query: graphql(`
 			query course_flags($offset: Int, $limit: Int) {
 				course_flags(offset: $offset, limit: $limit) {
