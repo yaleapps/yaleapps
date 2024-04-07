@@ -5,7 +5,7 @@ export default {
 	presets: [base],
 	content: [
 		'./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
-		'../../packages/ui/src/components/**/*.{ts,tsx}',
+		'../../packages/ui/**/*.{js,jsx,ts,tsx}',
 	],
 	theme: {
 		extend: {},

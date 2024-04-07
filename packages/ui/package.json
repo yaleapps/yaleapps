@@ -53,5 +53,8 @@
 		"./tailwind.config": "./tailwind.config.ts",
 		"./lib/*": "./src/lib/*.ts",
 		"./components/*": "./src/components/ui/*.tsx"
+	},
+	"devDependencies": {
+		"tailwindcss": "^3.4.3"
 	}
 }
