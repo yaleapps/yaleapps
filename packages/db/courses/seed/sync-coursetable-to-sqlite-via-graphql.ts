@@ -226,6 +226,7 @@ export async function syncCourseTableToSqlite() {
 				continue;
 			}
 			try {
+				// @ts-ignore
 				await db.insert(table).values(batch[tableName]).onConflictDoNothing();
 			} catch (e) {
 				console.error(`Error inserting data into table ${tableName}:`, error);
@@ -249,5 +250,6 @@ async function getTableLength(table: (typeof TABLES)[number]['table']): Promise<
 		console.error(`Error fetching data for table ${tableName}:`, error);
 		return 0;
 	}
+	// @ts-ignore
 	return data[tableNameAggregate].aggregate.count;
 }
