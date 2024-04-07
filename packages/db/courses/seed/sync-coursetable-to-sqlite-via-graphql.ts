@@ -40,6 +40,45 @@ const TABLES = [
 		`),
 	},
 	{
+		table: evaluation_questions,
+		query: graphql(`
+			query evaluation_questions($offset: Int, $limit: Int) {
+				evaluation_questions(offset: $offset, limit: $limit) {
+					question_code
+					is_narrative
+					question_text
+					options
+					tag
+				}
+			}
+		`),
+	},
+	{
+		table: flags,
+		query: graphql(`
+			query flags($offset: Int, $limit: Int) {
+				flags(offset: $offset, limit: $limit) {
+					flag_id
+					flag_text
+				}
+			}
+		`),
+	},
+	{
+		table: professors,
+		query: graphql(`
+			query professors($offset: Int, $limit: Int) {
+				professors(offset: $offset, limit: $limit) {
+					professor_id
+					name
+					email
+					average_rating
+					average_rating_n
+				}
+			}
+		`),
+	},
+	{
 		table: courses,
 		query: graphql(`
 			query courses($offset: Int, $limit: Int) {
@@ -105,31 +144,6 @@ const TABLES = [
 		`),
 	},
 	{
-		table: flags,
-		query: graphql(`
-			query flags($offset: Int, $limit: Int) {
-				flags(offset: $offset, limit: $limit) {
-					flag_id
-					flag_text
-				}
-			}
-		`),
-	},
-	{
-		table: professors,
-		query: graphql(`
-			query professors($offset: Int, $limit: Int) {
-				professors(offset: $offset, limit: $limit) {
-					professor_id
-					name
-					email
-					average_rating
-					average_rating_n
-				}
-			}
-		`),
-	},
-	{
 		table: evaluation_statistics,
 		query: graphql(`
 			query evaluation_statistics($offset: Int, $limit: Int) {
@@ -143,20 +157,6 @@ const TABLES = [
 					extras
 					avg_rating
 					avg_workload
-				}
-			}
-		`),
-	},
-	{
-		table: evaluation_questions,
-		query: graphql(`
-			query evaluation_questions($offset: Int, $limit: Int) {
-				evaluation_questions(offset: $offset, limit: $limit) {
-					question_code
-					is_narrative
-					question_text
-					options
-					tag
 				}
 			}
 		`),
