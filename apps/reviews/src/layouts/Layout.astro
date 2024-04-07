@@ -1,9 +1,15 @@
 ---
+import { Image } from 'astro:assets'
+import logoImage from './logo.png'
+import GithubLogo from '~icons/mdi/github'
+import { buttonVariants } from '@repo/ui/components/button'
+import '@repo/ui/globals.css'
+
 interface Props {
-	title: string;
+	title: string
 }
 
-const { title } = Astro.props;
+const { title } = Astro.props
 ---
 
 <!doctype html>
@@ -17,35 +23,38 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
+		<header
+			class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b shadow-sm backdrop-blur"
+			style="view-transition-name: header"
+		>
+			<div class="container flex h-14 w-full max-w-screen-2xl items-center justify-between">
+				<a class="flex items-center gap-2" href="/">
+					<Image
+						src={logoImage}
+						alt="YaleApps Reviews Logo"
+						height="32"
+						width="32"
+						class="rounded-md"
+					/>
+					<span class="text-lg font-bold">yaleapps / reviews</span>
+				</a>
+				<div class="flex gap-2">
+					<a
+						class={buttonVariants({ variant: 'ghost' })}
+						href="https://github.com/yaleapps/yaleapps"
+						target="_blank"
+						rel="noreferrer"
+					>
+						<GithubLogo class="h-6 w-6" aria-hidden="true" />
+					</a>
+					<a class={buttonVariants({ variant: 'ghost' })} href="/about">About</a>
+					<a class={buttonVariants({ variant: 'ghost' })} href="/about">Search</a>
+				</div>
+			</div>
+		</header>
+		<main class="flex flex-1 justify-center p-4">
+			<slot />
+		</main>
 		<slot />
 	</body>
 </html>
-<style is:global>
-	:root {
-		--accent: 136, 58, 234;
-		--accent-light: 224, 204, 250;
-		--accent-dark: 49, 10, 101;
-		--accent-gradient: linear-gradient(
-			45deg,
-			rgb(var(--accent)),
-			rgb(var(--accent-light)) 30%,
-			white 60%
-		);
-	}
-	html {
-		font-family: system-ui, sans-serif;
-		background: #13151a;
-		background-size: 224px;
-	}
-	code {
-		font-family:
-			Menlo,
-			Monaco,
-			Lucida Console,
-			Liberation Mono,
-			DejaVu Sans Mono,
-			Bitstream Vera Sans Mono,
-			Courier New,
-			monospace;
-	}
-</style>
