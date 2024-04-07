@@ -3,7 +3,8 @@ import { z } from 'zod';
 
 export const env = createEnv({
 	server: {
-		TURSO_SYNC_URL: z.string().url(),
+		/** TURSO_URL is the URL of the Turso server or `file:${path of the SQLite database}`. */
+		TURSO_URL: z.union([z.string().url(), z.string().regex(/^file:.*\.(sqlite|db)$/)]),
 		TURSO_TOKEN: z.string(),
 		TURSO_READONLY_TOKEN: z.string(),
 		COURSETABLE_COOKIE: z.string(),
