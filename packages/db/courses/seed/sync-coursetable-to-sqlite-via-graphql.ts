@@ -216,7 +216,7 @@ const TABLES = [
 ] as const;
 
 export async function syncCourseTableToSqlite() {
-	for (const { query, table } of TABLES.slice(1, 2)) {
+	for (const { query, table } of TABLES) {
 		const name = getTableName(table);
 		const totalRows = await getTableLength(table);
 		for (let offset = 0; offset < totalRows; offset += BATCH_SIZE) {
