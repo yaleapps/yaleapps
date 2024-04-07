@@ -217,17 +217,18 @@ const TABLES = [
 
 export async function syncCourseTableToSqlite() {
 	for (const { query, table } of TABLES.slice(1, 2)) {
+		const name = getTableName(table);
 		const totalRows = await getTableLength(table);
 		for (let offset = 0; offset < totalRows; offset += BATCH_SIZE) {
-			const { data: batchData, error } = await client.query(query, { offset, limit: BATCH_SIZE });
-			if (!batchData) {
-				console.error(`Error fetching data for table ${getTableName(table)}:`, error);
+			const { data: batch, error } = await client.query(query, { offset, limit: BATCH_SIZE });
+			if (!batch) {
+				console.error(`Error fetching data for table ${name}:`, error);
 				continue;
 			}
 			try {
-				await db.insert(table).values(batchData[name]).onConflictDoNothing();
+				await db.insert(table).values(batch[name]).onConflictDoNothing();
 			} catch (e) {
-				console.error(`Error inserting data into table ${getTableName(table)}:`, error);
+				console.error(`Error inserting data into table ${name}:`, error);
 			}
 		}
 	}
