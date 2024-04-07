@@ -230,33 +230,33 @@ type Table = (typeof TABLES)[number];
 type TableName = Table['name'];
 
 export async function syncCourseTableToSqlite() {
-	try {
-		for (const { name, query, table } of TABLES) {
-			let offset = 0;
-			let hasNext = true;
-			while (hasNext) {
-				const {
-					data: batchData,
-					error,
-					hasNext: isHasNext,
-				} = await client.query(query, { offset, limit: BATCH_SIZE });
-				if (!batchData || error) {
-					console.error(`Error fetching data for table ${getTableName(table)}:`, error);
-					continue;
-				}
-				if (batchData[name].length === 0) {
-					break;
-				}
-				try {
-					await db.insert(table).values(batchData[name]).onConflictDoNothing();
-				} catch (e) {
-					console.error('Error inserting batchData', e, batchData);
-				}
-				offset += BATCH_SIZE;
-				hasNext = isHasNext;
+	for (const { name, query, table } of TABLES.slice(1, 2)) {
+		const totalRows = await getTableLength(name);
+		for (let offset = 0; offset < totalRows; offset += BATCH_SIZE) {
+			const { data: batchData, error } = await client.query(query, { offset, limit: BATCH_SIZE });
+			if (!batchData) {
+				console.error(`Error fetching data for table ${getTableName(table)}:`, error);
+				continue;
+			}
+			try {
+				await db.insert(table).values(batchData[name]).onConflictDoNothing();
+			} catch (e) {
+				console.error('Error inserting batchData', e, batchData);
 			}
 		}
-	} catch (e) {
-		console.error(e);
 	}
+}
+
+async function getTableLength(tableName: TableName): Promise<number> {
+	const tableNameAggregate = `${tableName}_aggregate` as const;
+	const tableCountQuery = graphql(`query {
+		${tableNameAggregate} {
+			aggregate {
+				count
+			}
+		}
+	}`);
+	const { data, error } = await client.query(tableCountQuery, {});
+	if (!data) throw new Error(`Error fetching data for table ${tableName}: ${error}`);
+	return data[tableNameAggregate].aggregate.count;
 }
