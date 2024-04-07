@@ -229,7 +229,7 @@ export async function syncCourseTableToSqlite() {
 				// @ts-ignore
 				await db.insert(table).values(batch[tableName]).onConflictDoNothing();
 			} catch (e) {
-				console.error(`Error inserting data into table ${tableName}:`, error);
+				console.error(`Error inserting data into table ${tableName}:`, e);
 			}
 		}
 	}
