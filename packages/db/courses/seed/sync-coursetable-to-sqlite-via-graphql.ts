@@ -1,41 +1,29 @@
-import { z } from 'zod';
+import { Client, cacheExchange, fetchExchange } from '@urql/core';
+import { getTableName } from 'drizzle-orm';
+import { env } from '../../env';
+import { db } from '../db';
+import { graphql } from '../graphql';
 import {
-	course_discussions,
 	course_flags,
 	course_professors,
 	courses,
-	demand_statistics,
-	discussions,
 	evaluation_narratives,
 	evaluation_questions,
 	evaluation_ratings,
 	evaluation_statistics,
-	fasttext_similars,
 	flags,
-	insertCourseDiscussionSchema,
-	insertCourseFlagSchema,
-	insertCourseProfessorSchema,
-	insertCourseSchema,
-	insertDemandStatisticsSchema,
-	insertDiscussionSchema,
-	insertEvaluationNarrativeSchema,
-	insertEvaluationQuestionSchema,
-	insertEvaluationRatingSchema,
-	insertEvaluationStatisticsSchema,
-	insertFasttextSimilarSchema,
-	insertFlagSchema,
-	insertListingSchema,
-	insertProfessorSchema,
-	insertSeasonSchema,
-	insertTfidfSimilarSchema,
 	listings,
 	professors,
 	seasons,
-	tfidf_similars,
 } from '../schema';
-import { db } from '../db';
-import { env } from '../../env';
-import { graphql } from 'gql.tada';
+
+const client = new Client({
+	url: 'https://api.coursetable.com/ferry/v1/graphql',
+	exchanges: [cacheExchange, fetchExchange],
+	fetchOptions: () => ({
+		headers: { Cookie: env.COURSETABLE_COOKIE, 'Content-Type': 'application/json' },
+	}),
+});
 
 const BATCH_SIZE = 500;
 const TABLES = [
@@ -51,7 +39,6 @@ const TABLES = [
 			}
 		`),
 		table: seasons,
-		schema: z.object({ seasons: insertSeasonSchema.array() }).transform(({ seasons }) => seasons),
 	},
 	{
 		name: 'courses',
@@ -95,11 +82,11 @@ const TABLES = [
 					last_enrollment_course_id
 					last_enrollment
 					last_enrollment_season_code
+					last_enrollment_same_professors
 				}
 			}
 		`),
 		table: courses,
-		schema: z.object({ courses: insertCourseSchema.array() }).transform(({ courses }) => courses),
 	},
 	{
 		name: 'listings',
@@ -119,30 +106,6 @@ const TABLES = [
 			}
 		`),
 		table: listings,
-		schema: z
-			.object({ listings: insertListingSchema.array() })
-			.transform(({ listings }) => listings),
-	},
-	{
-		name: 'discussions',
-		query: graphql(`
-			query discussions($offset: Int, $limit: Int) {
-				discussions(offset: $offset, limit: $limit) {
-					discussion_id
-					subject
-					number
-					info
-					locations_summary
-					times_long_summary
-					times_summary
-					times_by_day
-				}
-			}
-		`),
-		table: discussions,
-		schema: z
-			.object({ discussions: insertDiscussionSchema.array() })
-			.transform(({ discussions }) => discussions),
 	},
 	{
 		name: 'flags',
@@ -155,24 +118,6 @@ const TABLES = [
 			}
 		`),
 		table: flags,
-		schema: z.object({ flags: insertFlagSchema.array() }).transform(({ flags }) => flags),
-	},
-	{
-		name: 'demand_statistics',
-		query: graphql(`
-			query demand_statistics($offset: Int, $limit: Int) {
-				demand_statistics(offset: $offset, limit: $limit) {
-					course_id
-					latest_demand
-					latest_demand_date
-					demand
-				}
-			}
-		`),
-		table: demand_statistics,
-		schema: z
-			.object({ demand_statistics: insertDemandStatisticsSchema.array() })
-			.transform(({ demand_statistics }) => demand_statistics),
 	},
 	{
 		name: 'professors',
@@ -188,9 +133,6 @@ const TABLES = [
 			}
 		`),
 		table: professors,
-		schema: z
-			.object({ professors: insertProfessorSchema.array() })
-			.transform(({ professors }) => professors),
 	},
 	{
 		name: 'evaluation_statistics',
@@ -210,9 +152,6 @@ const TABLES = [
 			}
 		`),
 		table: evaluation_statistics,
-		schema: z
-			.object({ evaluation_statistics: insertEvaluationStatisticsSchema.array() })
-			.transform(({ evaluation_statistics }) => evaluation_statistics),
 	},
 	{
 		name: 'evaluation_questions',
@@ -228,9 +167,6 @@ const TABLES = [
 			}
 		`),
 		table: evaluation_questions,
-		schema: z
-			.object({ evaluation_questions: insertEvaluationQuestionSchema.array() })
-			.transform(({ evaluation_questions }) => evaluation_questions),
 	},
 	{
 		name: 'evaluation_narratives',
@@ -249,9 +185,6 @@ const TABLES = [
 			}
 		`),
 		table: evaluation_narratives,
-		schema: z
-			.object({ evaluation_narratives: insertEvaluationNarrativeSchema.array() })
-			.transform(({ evaluation_narratives }) => evaluation_narratives),
 	},
 	{
 		name: 'evaluation_ratings',
@@ -266,9 +199,6 @@ const TABLES = [
 			}
 		`),
 		table: evaluation_ratings,
-		schema: z
-			.object({ evaluation_ratings: insertEvaluationRatingSchema.array() })
-			.transform(({ evaluation_ratings }) => evaluation_ratings),
 	},
 	{
 		name: 'course_professors',
@@ -281,24 +211,6 @@ const TABLES = [
 			}
 		`),
 		table: course_professors,
-		schema: z
-			.object({ course_professors: insertCourseProfessorSchema.array() })
-			.transform(({ course_professors }) => course_professors),
-	},
-	{
-		name: 'course_discussions',
-		query: graphql(`
-			query course_discussions($offset: Int, $limit: Int) {
-				course_discussions(offset: $offset, limit: $limit) {
-					course_id
-					discussion_id
-				}
-			}
-		`),
-		table: course_discussions,
-		schema: z
-			.object({ course_discussions: insertCourseDiscussionSchema.array() })
-			.transform(({ course_discussions }) => course_discussions),
 	},
 	{
 		name: 'course_flags',
@@ -311,41 +223,6 @@ const TABLES = [
 			}
 		`),
 		table: course_flags,
-		schema: z
-			.object({ course_flags: insertCourseFlagSchema.array() })
-			.transform(({ course_flags }) => course_flags),
-	},
-	{
-		name: 'fasttext_similars',
-		query: graphql(`
-			query fasttext_similars($offset: Int, $limit: Int) {
-				fasttext_similars(offset: $offset, limit: $limit) {
-					source
-					target
-					rank
-				}
-			}
-		`),
-		table: fasttext_similars,
-		schema: z
-			.object({ fasttext_similars: insertFasttextSimilarSchema.array() })
-			.transform(({ fasttext_similars }) => fasttext_similars),
-	},
-	{
-		name: 'tfidf_similars',
-		query: graphql(`
-			query tfidf_similars($offset: Int, $limit: Int) {
-				tfidf_similars(offset: $offset, limit: $limit) {
-					source
-					target
-					rank
-				}
-			}
-		`),
-		table: tfidf_similars,
-		schema: z
-			.object({ tfidf_similars: insertTfidfSimilarSchema.array() })
-			.transform(({ tfidf_similars }) => tfidf_similars),
 	},
 ] as const;
 
@@ -354,75 +231,32 @@ type TableName = Table['name'];
 
 export async function syncCourseTableToSqlite() {
 	try {
-		const tablesWithLength = await Promise.all(
-			TABLES.map(async (table) => ({ ...table, totalRows: await getTableLength(table.name) })),
-		);
-		for (const { query, schema, table, totalRows } of tablesWithLength) {
-			for (let offset = 0; offset < totalRows; offset += BATCH_SIZE) {
-				const batchData = await fetchGraphQl({
-					query,
-					schema,
-					variables: { offset, limit: BATCH_SIZE },
-				});
-				if (!batchData) break;
+		for (const { name, query, table } of TABLES) {
+			let offset = 0;
+			let hasNext = true;
+			while (hasNext) {
+				const {
+					data: batchData,
+					error,
+					hasNext: isHasNext,
+				} = await client.query(query, { offset, limit: BATCH_SIZE });
+				if (!batchData || error) {
+					console.error(`Error fetching data for table ${getTableName(table)}:`, error);
+					continue;
+				}
+				if (batchData[name].length === 0) {
+					break;
+				}
 				try {
-					await db.insert(table).values(batchData).onConflictDoNothing();
+					await db.insert(table).values(batchData[name]).onConflictDoNothing();
 				} catch (e) {
 					console.error('Error inserting batchData', e, batchData);
 				}
+				offset += BATCH_SIZE;
+				hasNext = isHasNext;
 			}
 		}
 	} catch (e) {
 		console.error(e);
-	}
-}
-
-async function getTableLength(tableName: TableName): Promise<number> {
-	const tableNameAggregate = `${tableName}_aggregate` as const;
-	const tableCountQuery = graphql(`query {
-		${tableNameAggregate} {
-			aggregate {
-				count
-			}
-		}
-	}`);
-	const data = await fetchGraphQl({
-		query: tableCountQuery,
-		schema: z.object({
-			[tableNameAggregate]: z.object({
-				aggregate: z.object({
-					count: z.number(),
-				}),
-			}),
-		}),
-		variables: {},
-	});
-	if (!data) throw new Error(`getTableLength: count query returns undefined for ${tableName}`);
-	return data[tableNameAggregate].aggregate.count;
-}
-
-async function fetchGraphQl<T extends z.ZodTypeAny>({
-	query,
-	schema,
-	variables,
-}: {
-	query: string;
-	schema: T;
-	variables: Record<string, number>;
-}) {
-	const response = await fetch('https://api.coursetable.com/ferry/v1/graphql', {
-		method: 'POST',
-		headers: {
-			cookie: env.COURSETABLE_COOKIE,
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({ query, variables }),
-	});
-	const json = await response.json();
-	try {
-		const parsedResponse = z.object({ data: schema }).parse(json);
-		return parsedResponse.data;
-	} catch (e) {
-		console.error(JSON.stringify(e).slice(0, 1000), JSON.stringify(json).slice(0, 1000));
 	}
 }
