@@ -227,7 +227,7 @@ export async function syncCourseTableToSqlite() {
 			try {
 				await db.insert(table).values(batchData[name]).onConflictDoNothing();
 			} catch (e) {
-				console.error('Error inserting batchData', e, batchData);
+				console.error(`Error inserting data into table ${getTableName(table)}:`, error);
 			}
 		}
 	}
@@ -243,6 +243,9 @@ async function getTableLength(table: (typeof TABLES)[number]['table']): Promise<
 		}
 	}`);
 	const { data, error } = await client.query(tableCountQuery, {});
-	if (!data) throw new Error(`Error fetching data for table ${table}: ${error}`);
+	if (!data) {
+		console.error(`Error fetching data for table ${getTableName(table)}:`, error);
+		return 0;
+	}
 	return data[tableNameAggregate].aggregate.count;
 }
