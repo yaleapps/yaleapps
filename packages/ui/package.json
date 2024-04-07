@@ -47,5 +47,11 @@
 		"typescript": "latest",
 		"vaul": "^0.9.0",
 		"zod": "^3.22.4"
+	},
+	"exports": {
+		"./globals.css": "./src/globals.css",
+		"./tailwind.config": "./tailwind.config.ts",
+		"./lib/*": "./src/lib/*.ts",
+		"./components/*": "./src/components/*.tsx"
 	}
 }
