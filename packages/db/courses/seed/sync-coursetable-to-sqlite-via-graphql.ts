@@ -226,12 +226,9 @@ const TABLES = [
 	},
 ] as const;
 
-type Table = (typeof TABLES)[number];
-type TableName = Table['name'];
-
 export async function syncCourseTableToSqlite() {
-	for (const { name, query, table } of TABLES.slice(1, 2)) {
-		const totalRows = await getTableLength(name);
+	for (const { query, table } of TABLES.slice(1, 2)) {
+		const totalRows = await getTableLength(table);
 		for (let offset = 0; offset < totalRows; offset += BATCH_SIZE) {
 			const { data: batchData, error } = await client.query(query, { offset, limit: BATCH_SIZE });
 			if (!batchData) {
@@ -247,8 +244,8 @@ export async function syncCourseTableToSqlite() {
 	}
 }
 
-async function getTableLength(tableName: TableName): Promise<number> {
-	const tableNameAggregate = `${tableName}_aggregate` as const;
+async function getTableLength(table: (typeof TABLES)[number]['table']): Promise<number> {
+	const tableNameAggregate = `${getTableName(table)}_aggregate` as const;
 	const tableCountQuery = graphql(`query {
 		${tableNameAggregate} {
 			aggregate {
@@ -257,6 +254,6 @@ async function getTableLength(tableName: TableName): Promise<number> {
 		}
 	}`);
 	const { data, error } = await client.query(tableCountQuery, {});
-	if (!data) throw new Error(`Error fetching data for table ${tableName}: ${error}`);
+	if (!data) throw new Error(`Error fetching data for table ${table}: ${error}`);
 	return data[tableNameAggregate].aggregate.count;
 }
