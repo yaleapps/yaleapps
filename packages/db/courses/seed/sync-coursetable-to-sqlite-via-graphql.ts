@@ -82,7 +82,7 @@ const TABLES = [
 		table: courses,
 		query: graphql(`
 			query courses($offset: Int, $limit: Int) {
-				courses(offset: $offset, limit: $limit) {
+				courses(offset: $offset, limit: $limit, order_by: { course_id: asc }) {
 					course_id
 					season_code
 					title
