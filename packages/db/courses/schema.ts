@@ -75,8 +75,9 @@ export const allCourseColumnNames = [
 
 export const courses = sqliteTable('courses', {
 	course_id: integer('course_id').primaryKey(),
-	season_code: text('season_code').notNull(),
-	// .references(() => seasons.season_code),
+	season_code: text('season_code')
+		.notNull()
+		.references(() => seasons.season_code),
 	title: text('title'),
 	short_title: text('short_title'),
 	description: text('description'),
@@ -107,15 +108,16 @@ export const courses = sqliteTable('courses', {
 	average_rating_same_professors_n: integer('average_rating_same_professors_n'),
 	average_workload_same_professors: real('average_workload_same_professors'),
 	average_workload_same_professors_n: integer('average_workload_same_professors_n'),
-	last_offered_course_id: integer('last_offered_course_id'),
-	// .references(() => courses.course_id),
+	last_offered_course_id: integer('last_offered_course_id').references(() => courses.course_id),
 	same_course_id: integer('same_course_id').notNull(),
 	same_course_and_profs_id: integer('same_course_and_profs_id').notNull(),
-	last_enrollment_course_id: integer('last_enrollment_course_id'),
-	// .references(() => courses.course_id),
+	last_enrollment_course_id: integer('last_enrollment_course_id').references(
+		() => courses.course_id,
+	),
 	last_enrollment: integer('last_enrollment'),
-	last_enrollment_season_code: text('last_enrollment_season_code'),
-	// .references(() => seasons.season_code),
+	last_enrollment_season_code: text('last_enrollment_season_code').references(
+		() => seasons.season_code,
+	),
 	last_enrollment_same_professors: integer('last_enrollment_same_professors', { mode: 'boolean' }),
 	average_comment_neg: real('average_comment_neg'),
 	average_comment_neg_n: integer('average_comment_neg_n'),
@@ -176,15 +178,17 @@ export const listings = sqliteTable(
 	'listings',
 	{
 		listing_id: integer('listing_id').primaryKey(),
-		course_id: integer('course_id').notNull(),
-		// .references(() => courses.course_id),
+		course_id: integer('course_id')
+			.notNull()
+			.references(() => courses.course_id),
 		school: text('school'),
 		subject: text('subject').notNull(),
 		number: text('number').notNull(),
 		course_code: text('course_code'),
 		section: text('section').notNull(),
-		season_code: text('season_code').notNull(),
-		// .references(() => seasons.season_code),
+		season_code: text('season_code')
+			.notNull()
+			.references(() => seasons.season_code),
 		crn: integer('crn').notNull(),
 	},
 	(table) => {
@@ -242,8 +246,9 @@ export const professorsRelations = relations(professors, ({ many }) => ({
 export const insertProfessorSchema = createInsertSchema(professors);
 
 export const evaluation_statistics = sqliteTable('evaluation_statistics', {
-	course_id: integer('course_id').primaryKey(),
-	// .references(() => courses.course_id),
+	course_id: integer('course_id')
+		.primaryKey()
+		.references(() => courses.course_id),
 	enrollment: integer('enrollment'),
 	enrolled: integer('enrolled'),
 	responses: integer('responses'),
@@ -279,10 +284,12 @@ export const insertEvaluationQuestionSchema = createInsertSchema(evaluation_ques
 
 export const evaluation_narratives = sqliteTable('evaluation_narratives', {
 	id: integer('id').primaryKey(),
-	course_id: integer('course_id').notNull(),
-	// .references(() => courses.course_id),
-	question_code: text('question_code').notNull(),
-	// .references(() => evaluation_questions.question_code),
+	course_id: integer('course_id')
+		.notNull()
+		.references(() => courses.course_id),
+	question_code: text('question_code')
+		.notNull()
+		.references(() => evaluation_questions.question_code),
 	comment: text('comment'),
 	comment_neg: real('comment_neg'),
 	comment_neu: real('comment_neu'),
@@ -305,10 +312,12 @@ export const insertEvaluationNarrativeSchema = createInsertSchema(evaluation_nar
 
 export const evaluation_ratings = sqliteTable('evaluation_ratings', {
 	id: integer('id').primaryKey(),
-	course_id: integer('course_id').notNull(),
-	// .references(() => courses.course_id),
-	question_code: text('question_code').notNull(),
-	// .references(() => evaluation_questions.question_code),
+	course_id: integer('course_id')
+		.notNull()
+		.references(() => courses.course_id),
+	question_code: text('question_code')
+		.notNull()
+		.references(() => evaluation_questions.question_code),
 	rating: text('rating', { mode: 'json' }).$type<number[]>(),
 });
 
@@ -330,10 +339,8 @@ export const insertEvaluationRatingSchema = createInsertSchema(evaluation_rating
 export const course_professors = sqliteTable(
 	'course_professors',
 	{
-		course_id: integer('course_id'),
-		// .references(() => courses.course_id),
-		professor_id: integer('professor_id'),
-		// .references(() => professors.professor_id),
+		course_id: integer('course_id').references(() => courses.course_id),
+		professor_id: integer('professor_id').references(() => professors.professor_id),
 	},
 	(table) => {
 		return {
@@ -361,10 +368,8 @@ export const insertCourseProfessorSchema = createInsertSchema(course_professors)
 export const course_flags = sqliteTable(
 	'course_flags',
 	{
-		course_id: integer('course_id'),
-		// .references(() => courses.course_id),
-		flag_id: integer('flag_id'),
-		// .references(() => flags.flag_id),
+		course_id: integer('course_id').references(() => courses.course_id),
+		flag_id: integer('flag_id').references(() => flags.flag_id),
 	},
 	(table) => {
 		return {
