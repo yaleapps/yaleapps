@@ -1,0 +1,16 @@
+---
+import { db } from '@repo/db/courses'
+import Layout from '../../layouts/Layout.astro'
+import { CoursesDataTable } from './_/CoursesDataTable'
+
+const allCourses = await db.query.courses.findMany({
+	limit: 10,
+	with: {
+		listings: true,
+	},
+})
+---
+
+<Layout title="Welcome to Astro.">
+	<CoursesDataTable courses={allCourses} client:load />
+</Layout>

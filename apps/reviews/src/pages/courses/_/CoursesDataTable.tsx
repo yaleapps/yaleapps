@@ -19,20 +19,134 @@ import React from 'react';
 
 export const columns: ColumnDef<Course>[] = [
 	{
+		accessorKey: 'code',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Code
+				</Button>
+			);
+		},
+	},
+	{
 		accessorKey: 'title',
-		header: 'Title',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Title
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'professors',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Professors
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'times_summary',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Meets
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'locations_summary',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Location
+				</Button>
+			);
+		},
 	},
 	{
 		accessorKey: 'description',
-		header: 'Description',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Description
+				</Button>
+			);
+		},
 	},
 	{
 		accessorKey: 'credits',
-		header: 'Credits',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Credits
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'last_enrollment',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Last Enrollment
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'skills',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Skills
+				</Button>
+			);
+		},
 	},
 	{
 		accessorKey: 'areas',
-		header: 'Areas',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Areas
+				</Button>
+			);
+		},
 	},
 	{
 		accessorKey: 'average_rating',
@@ -49,15 +163,29 @@ export const columns: ColumnDef<Course>[] = [
 	},
 	{
 		accessorKey: 'average_workload',
-		header: 'Average Workload',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Workload
+				</Button>
+			);
+		},
 	},
 	{
-		accessorKey: 'last_enrollment',
-		header: 'Last Enrollment',
-	},
-	{
-		accessorKey: 'last_enrollment_season_code',
-		header: 'Last Enrollment Season Code',
+		accessorKey: 'average_comment_compound',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Compound
+				</Button>
+			);
+		},
 	},
 ];
 
