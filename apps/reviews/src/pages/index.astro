@@ -1,10 +1,47 @@
 ---
+import { courses, db, type Course } from '@repo/db/courses'
+import type { ColumnDef } from '@tanstack/react-table'
 import Layout from '../layouts/Layout.astro'
-import { db, courses } from '@repo/db/courses'
+import { DataTable } from './courses/_/DataTable'
 
 const allCourses = await db.select().from(courses).limit(10)
+
+const columns: ColumnDef<Course>[] = [
+	{
+		accessorKey: 'title',
+		header: 'Title',
+	},
+	{
+		accessorKey: 'description',
+		header: 'Description',
+	},
+	{
+		accessorKey: 'credits',
+		header: 'Credits',
+	},
+	{
+		accessorKey: 'areas',
+		header: 'Areas',
+	},
+	{
+		accessorKey: 'average_rating',
+		header: 'Average Rating',
+	},
+	{
+		accessorKey: 'average_workload',
+		header: 'Average Workload',
+	},
+	{
+		accessorKey: 'last_enrollment',
+		header: 'Last Enrollment',
+	},
+	{
+		accessorKey: 'last_enrollment_season_code',
+		header: 'Last Enrollment Season Code',
+	},
+]
 ---
 
 <Layout title="Welcome to Astro.">
-	{JSON.stringify(allCourses)}
+	<DataTable data={allCourses} {columns} client:load />
 </Layout>
