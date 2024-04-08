@@ -1,6 +1,6 @@
-import { relations, type InferSelectModel } from 'drizzle-orm';
+import { relations } from 'drizzle-orm';
 import {
-	AnySQLiteColumn,
+	type AnySQLiteColumn,
 	index,
 	integer,
 	primaryKey,
@@ -128,7 +128,7 @@ export const courses = sqliteTable('courses', {
 	average_comment_compound_n: integer('average_comment_compound_n'),
 } satisfies Record<(typeof allCourseColumnNames)[number], unknown>);
 
-export type SelectCourse = InferSelectModel<typeof courses>;
+export type Course = typeof courses.$inferSelect;
 
 export const coursesRelations = relations(courses, ({ one, many }) => ({
 	season: one(seasons, {
