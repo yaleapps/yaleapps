@@ -8,8 +8,6 @@ import {
 	text,
 	uniqueIndex,
 } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema } from 'drizzle-zod';
-import { z } from 'zod';
 
 export const seasons = sqliteTable('seasons', {
 	season_code: text('season_code').primaryKey(),
@@ -21,8 +19,6 @@ export const seasonsRelations = relations(seasons, ({ many }) => ({
 	courses: many(courses),
 	listings: many(listings),
 }));
-
-export const insertSeasonSchema = createInsertSchema(seasons);
 
 export const allCourseColumnNames = [
 	'course_id',
@@ -168,12 +164,6 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 	courseProfessors: many(course_professors),
 }));
 
-export const insertCourseSchema = createInsertSchema(courses, {
-	times_by_day: z.record(z.string().array().array()),
-	skills: z.string().array(),
-	areas: z.string().array(),
-});
-
 export const listings = sqliteTable(
 	'listings',
 	{
@@ -218,8 +208,6 @@ export const listingsRelations = relations(listings, ({ one }) => ({
 	}),
 }));
 
-export const insertListingSchema = createInsertSchema(listings);
-
 export const flags = sqliteTable('flags', {
 	flag_id: integer('flag_id').primaryKey(),
 	flag_text: text('flag_text').notNull(),
@@ -228,8 +216,6 @@ export const flags = sqliteTable('flags', {
 export const flagsRelations = relations(flags, ({ many }) => ({
 	courseFlags: many(course_flags),
 }));
-
-export const insertFlagSchema = createInsertSchema(flags);
 
 export const professors = sqliteTable('professors', {
 	professor_id: integer('professor_id').primaryKey(),
@@ -242,8 +228,6 @@ export const professors = sqliteTable('professors', {
 export const professorsRelations = relations(professors, ({ many }) => ({
 	courseProfessors: many(course_professors),
 }));
-
-export const insertProfessorSchema = createInsertSchema(professors);
 
 export const evaluation_statistics = sqliteTable('evaluation_statistics', {
 	course_id: integer('course_id')
@@ -263,8 +247,6 @@ export const evaluationStatisticsRelations = relations(evaluation_statistics, ({
 	course: one(courses),
 }));
 
-export const insertEvaluationStatisticsSchema = createInsertSchema(evaluation_statistics);
-
 export const evaluation_questions = sqliteTable('evaluation_questions', {
 	question_code: text('question_code').primaryKey(),
 	is_narrative: integer('is_narrative', { mode: 'boolean' }),
@@ -277,10 +259,6 @@ export const evaluation_questions_relations = relations(evaluation_questions, ({
 	evaluationNarratives: many(evaluation_narratives),
 	evaluationRatings: many(evaluation_ratings),
 }));
-
-export const insertEvaluationQuestionSchema = createInsertSchema(evaluation_questions, {
-	options: z.string().array(),
-});
 
 export const evaluation_narratives = sqliteTable('evaluation_narratives', {
 	id: integer('id').primaryKey(),
@@ -308,8 +286,6 @@ export const evaluationNarrativesRelations = relations(evaluation_narratives, ({
 	}),
 }));
 
-export const insertEvaluationNarrativeSchema = createInsertSchema(evaluation_narratives);
-
 export const evaluation_ratings = sqliteTable('evaluation_ratings', {
 	id: integer('id').primaryKey(),
 	course_id: integer('course_id')
@@ -331,10 +307,6 @@ export const evaluationRatingsRelations = relations(evaluation_ratings, ({ one }
 		references: [evaluation_questions.question_code],
 	}),
 }));
-
-export const insertEvaluationRatingSchema = createInsertSchema(evaluation_ratings, {
-	rating: z.number().array(),
-});
 
 export const course_professors = sqliteTable(
 	'course_professors',
@@ -363,8 +335,6 @@ export const courseProfessorsRelations = relations(course_professors, ({ one }) 
 	}),
 }));
 
-export const insertCourseProfessorSchema = createInsertSchema(course_professors);
-
 export const course_flags = sqliteTable(
 	'course_flags',
 	{
@@ -391,5 +361,3 @@ export const courseFlagsRelations = relations(course_flags, ({ one }) => ({
 		references: [flags.flag_id],
 	}),
 }));
-
-export const insertCourseFlagSchema = createInsertSchema(course_flags);
