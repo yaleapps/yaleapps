@@ -1,10 +1,11 @@
 ---
-import { Image } from 'astro:assets'
-import logoImage from './logo.jpg'
-import GithubLogo from '~icons/mdi/github'
 import { buttonVariants } from '@repo/ui/components/button'
 import '@repo/ui/globals.css'
+import { Image } from 'astro:assets'
+import GithubLogo from '~icons/mdi/github'
 import { SITE_CONFIG } from '../site.config'
+import logoImage from './logo.jpg'
+import ModeToggle from './ModeToggle.astro'
 
 interface Props {
 	title: string
@@ -50,6 +51,7 @@ const { title } = Astro.props
 					<a class={buttonVariants({ variant: 'ghost' })} href="/about">About</a>
 					<a class={buttonVariants({ variant: 'ghost' })} href="/about">Search</a>
 				</div>
+				<ModeToggle />
 			</div>
 		</header>
 		<main class="flex flex-1 justify-center p-4">
