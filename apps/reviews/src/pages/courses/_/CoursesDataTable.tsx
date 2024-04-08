@@ -1,4 +1,5 @@
 import type { Course } from '@repo/db/courses';
+import { Button } from '@repo/ui/components/button';
 import {
 	Table,
 	TableBody,
@@ -7,19 +8,73 @@ import {
 	TableHeader,
 	TableRow,
 } from '@repo/ui/components/table';
-import type { ColumnDef } from '@tanstack/react-table';
-import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import {
+	flexRender,
+	getCoreRowModel,
+	getSortedRowModel,
+	useReactTable,
+} from '@tanstack/react-table';
+import React from 'react';
 
-interface DataTableProps<TData, TValue> {
-	columns: ColumnDef<TData, TValue>[];
-	data: TData[];
-}
+export const columns: ColumnDef<Course>[] = [
+	{
+		accessorKey: 'title',
+		header: 'Title',
+	},
+	{
+		accessorKey: 'description',
+		header: 'Description',
+	},
+	{
+		accessorKey: 'credits',
+		header: 'Credits',
+	},
+	{
+		accessorKey: 'areas',
+		header: 'Areas',
+	},
+	{
+		accessorKey: 'average_rating',
+		// header: 'Average Rating',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Email
+					{/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+				</Button>
+			);
+		},
+	},
+	{
+		accessorKey: 'average_workload',
+		header: 'Average Workload',
+	},
+	{
+		accessorKey: 'last_enrollment',
+		header: 'Last Enrollment',
+	},
+	{
+		accessorKey: 'last_enrollment_season_code',
+		header: 'Last Enrollment Season Code',
+	},
+];
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ data }: { data: Course[] }) {
+	const [sorting, setSorting] = React.useState<SortingState>([]);
+
 	const table = useReactTable({
 		data,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
+		onSortingChange: setSorting,
+		getSortedRowModel: getSortedRowModel(),
+		state: {
+			sorting,
+		},
 	});
 
 	return (
