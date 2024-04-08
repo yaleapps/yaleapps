@@ -15,6 +15,7 @@
     "@astrojs/tailwind": "^5.1.0",
     "@repo/db": "workspace:*",
     "@repo/ui": "workspace:*",
+    "@tanstack/react-table": "^8.15.3",
     "astro": "^4.5.16",
     "clsx": "^2.1.0",
     "react": "^18.2.0",
