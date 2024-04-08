@@ -5,6 +5,7 @@ import { CoursesDataTable } from './_/CoursesDataTable'
 
 const allCourses = await db.query.courses.findMany({
 	limit: 10,
+	where: (courses, { eq }) => eq(courses.season_code, '202401'),
 	with: {
 		listings: true,
 	},
