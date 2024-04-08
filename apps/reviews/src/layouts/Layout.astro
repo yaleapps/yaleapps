@@ -8,17 +8,18 @@ import logoImage from './logo.jpg'
 import ModeToggle from './ModeToggle.astro'
 
 interface Props {
-	title: string
+	title?: string
+	description?: string
 }
 
-const { title } = Astro.props
+const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Astro.props
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="description" content="Astro description" />
+		<meta name="description" content={description} />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/jpg" href="/favicon.jpg" />
 		<meta name="generator" content={Astro.generator} />
