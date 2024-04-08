@@ -1,6 +1,6 @@
 ---
 import { Image } from 'astro:assets'
-import logoImage from './logo.jpeg'
+import logoImage from './logo.jpg'
 import GithubLogo from '~icons/mdi/github'
 import { buttonVariants } from '@repo/ui/components/button'
 import '@repo/ui/globals.css'
@@ -18,7 +18,7 @@ const { title } = Astro.props
 		<meta charset="UTF-8" />
 		<meta name="description" content="Astro description" />
 		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/jpg" href="/favicon.jpg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
@@ -27,7 +27,7 @@ const { title } = Astro.props
 			class="border-border/40 bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 border-b shadow-sm backdrop-blur"
 			style="view-transition-name: header"
 		>
-			<div class="container flex h-14 w-full max-w-screen-2xl items-center justify-between">
+			<div class="container flex h-14 w-full items-center justify-between">
 				<a class="flex items-center gap-2" href="/">
 					<Image
 						src={logoImage}
@@ -55,5 +55,5 @@ const { title } = Astro.props
 		<main class="flex flex-1 justify-center p-4">
 			<slot />
 		</main>
-	</>
+	</body>
 </html>
