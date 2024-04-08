@@ -12,13 +12,6 @@
 		"plugins": [
 			{
 				"name": "@0no-co/graphqlsp",
-				"schema": {
-					"url": "https://api.coursetable.com/ferry/v1/graphql",
-					"headers": {
-						"Accept": "application/graphql-response+json",
-						"Cookie": "YOUR_COOKIE_FROM_ENV_HERE"
-					}
-				},
 				"tadaOutputLocation": "./courses/graphql-env.d.ts"
 			}
 		]

@@ -1,5 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro'
+import { db, courses } from '@repo/db/courses'
+
+const allCourses = await db.select().from(courses).limit(10)
 ---
 
-<Layout title="Welcome to Astro." />
+<Layout title="Welcome to Astro.">
+	{JSON.stringify(allCourses)}
+</Layout>
