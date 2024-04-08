@@ -1,10 +1,10 @@
 ---
 import { courses, db } from '@repo/db/courses'
 import Layout from '../layouts/Layout.astro'
-import { DataTable } from './courses/_/CoursesDataTable'
+import { CoursesDataTable } from './courses/_/CoursesDataTable'
 const allCourses = await db.select().from(courses).limit(10)
 ---
 
 <Layout title="Welcome to Astro.">
-	<DataTable data={allCourses} client:load />
+	<CoursesDataTable data={allCourses} client:load />
 </Layout>

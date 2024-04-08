@@ -63,7 +63,7 @@ export const columns: ColumnDef<Course>[] = [
 	},
 ];
 
-export function DataTable<TData, TValue>({ data }: { data: Course[] }) {
+export function CoursesDataTable({ data }: { data: Course[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 
 	const table = useReactTable({
