@@ -36,15 +36,13 @@ export const columns: ColumnDef<Course>[] = [
 	},
 	{
 		accessorKey: 'average_rating',
-		// header: 'Average Rating',
 		header: ({ column }) => {
 			return (
 				<Button
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Email
-					{/* <ArrowUpDown className="ml-2 h-4 w-4" /> */}
+					Average Rating
 				</Button>
 			);
 		},
