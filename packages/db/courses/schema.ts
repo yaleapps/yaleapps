@@ -1,5 +1,6 @@
 import { relations, type InferSelectModel } from 'drizzle-orm';
 import {
+	AnySQLiteColumn,
 	index,
 	integer,
 	primaryKey,
@@ -104,15 +105,17 @@ export const courses = sqliteTable('courses', {
 	average_rating_same_professors_n: integer('average_rating_same_professors_n'),
 	average_workload_same_professors: real('average_workload_same_professors'),
 	average_workload_same_professors_n: integer('average_workload_same_professors_n'),
-	last_offered_course_id: integer('last_offered_course_id').references(() => courses.course_id),
+	last_offered_course_id: integer('last_offered_course_id').references(
+		(): AnySQLiteColumn => courses.course_id,
+	),
 	same_course_id: integer('same_course_id').notNull(),
 	same_course_and_profs_id: integer('same_course_and_profs_id').notNull(),
 	last_enrollment_course_id: integer('last_enrollment_course_id').references(
-		() => courses.course_id,
+		(): AnySQLiteColumn => courses.course_id,
 	),
 	last_enrollment: integer('last_enrollment'),
 	last_enrollment_season_code: text('last_enrollment_season_code').references(
-		() => seasons.season_code,
+		(): AnySQLiteColumn => seasons.season_code,
 	),
 	last_enrollment_same_professors: integer('last_enrollment_same_professors', { mode: 'boolean' }),
 	average_comment_neg: real('average_comment_neg'),
@@ -137,16 +140,14 @@ export const coursesRelations = relations(courses, ({ one, many }) => ({
 		references: [courses.course_id],
 	}),
 	lastOfferedCourses: many(courses),
-	// TODO: Verify does same_course_id actually reference courses.course_id? If so, uncomment this out
-	// sameCourse: one(courses, {
-	// 	fields: [courses.same_course_id],
-	// 	references: [courses.course_id],
-	// }),
-	// TODO: Verify does same_course_and_profs_id actually reference courses.course_id? If so, uncomment this out
-	// sameCourseAndProfs: one(courses, {
-	// 	fields: [courses.same_course_and_profs_id],
-	// 	references: [courses.course_id],
-	// }),
+	sameCourse: one(courses, {
+		fields: [courses.same_course_id],
+		references: [courses.course_id],
+	}),
+	sameCourseAndProfs: one(courses, {
+		fields: [courses.same_course_and_profs_id],
+		references: [courses.course_id],
+	}),
 	lastEnrollmentCourse: one(courses, {
 		fields: [courses.last_enrollment_course_id],
 		references: [courses.course_id],
