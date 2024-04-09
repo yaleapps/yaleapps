@@ -1,0 +1,90 @@
+---
+import { addedCommentSentimentColumnNames, db } from '@repo/db/courses'
+import { env } from '@repo/env'
+import { Client, cacheExchange, fetchExchange } from '@urql/core'
+import { graphql } from '../graphql'
+import Layout from '../layouts/Layout.astro'
+import { CoursesDataTable } from './_courses/CoursesDataTable'
+
+type Year = `${number}${number}${number}${number}`
+type Season = '01' | '02' | '03'
+type SeasonCode = `${Year}${Season}`
+type ColumnName = (typeof addedCommentSentimentColumnNames)[number]
+
+const client = new Client({
+	url: 'https://api.coursetable.com/ferry/v1/graphql',
+	exchanges: [cacheExchange, fetchExchange],
+	fetchOptions: () => ({
+		headers: { Cookie: env.COURSETABLE_COOKIE, 'Content-Type': 'application/json' },
+	}),
+})
+
+async function getAllSeasons() {
+	const { data, error } = await client.query(
+		graphql(`
+			query DistinctSeasons {
+				seasons {
+					season_code
+					term
+					year
+				}
+			}
+		`),
+		{},
+	)
+	if (!data) {
+		console.error('Error fetching season codes:', error)
+		return []
+	}
+	const seasons = data.seasons
+	return seasons
+}
+
+export async function getStaticPaths() {
+	const allSeasons = await getAllSeasons()
+	const allSeasonCodes = allSeasons.map((season) => season.season_code)
+	return Promise.all(
+		allSeasonCodes.map(async (seasonCode) => {
+			const allCourses = await db.query.courses.findMany({
+				where: (courses, { eq }) => eq(courses.season_code, seasonCode),
+				columns: {
+					title: true,
+					description: true,
+					areas: true,
+					skills: true,
+					season_code: true,
+					credits: true,
+					last_enrollment: true,
+					average_rating: true,
+					average_workload: true,
+					average_comment_compound: true,
+				},
+				with: {
+					listings: {
+						columns: {
+							subject: true,
+							section: true,
+						},
+					},
+				},
+				limit: 10,
+			})
+			return {
+				params: {
+					seasonCode,
+				},
+				props: {
+					allCourses,
+				},
+			}
+		}),
+	)
+}
+
+const { seasonCode } = Astro.params
+const { allCourses } = Astro.props
+---
+
+<Layout>
+	<CoursesDataTable courses={allCourses} client:load />
+</Layout>
