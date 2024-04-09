@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { Button } from '@repo/ui/components/button';
 import {
 	Form,
@@ -8,8 +7,8 @@ import {
 	FormItem,
 	FormLabel,
 	FormMessage,
-	zodResolver,
 	useForm,
+	zodResolver,
 } from '@repo/ui/components/form';
 import {
 	Select,
@@ -18,14 +17,21 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@repo/ui/components/select';
-import { toast } from '@repo/ui/components/use-toast';
+import { addedCommentSentimentColumnNames } from '@repo/db/courses';
+import { z } from 'zod';
 
 const FormSchema = z.object({
-	email: z
+	season: z
 		.string({
-			required_error: 'Please select an email to display.',
+			required_error: 'Please select a season.',
 		})
-		.email(),
+		.refine((value) => /^\d{6}$/.test(value)),
+	sortByColumn: z.enum(addedCommentSentimentColumnNames, {
+		required_error: 'Please select a column to sort by.',
+	}),
+	sortDirection: z.enum(['asc', 'desc'], {
+		required_error: 'Please select a sort direction.',
+	}),
 });
 
 export function SelectForm() {
