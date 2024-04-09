@@ -20,12 +20,19 @@ import {
 import { addedCommentSentimentColumnNames } from '@repo/db/courses';
 import { z } from 'zod';
 
+type Year = `${number}${number}${number}${number}`;
+type Season = '01' | '02' | '03';
+type SeasonCode = `${Year}${Season}`;
+
 const FormSchema = z.object({
 	season: z
 		.string({
 			required_error: 'Please select a season.',
 		})
-		.refine((value) => /^\d{6}$/.test(value)),
+		.refine((value): value is SeasonCode => {
+			const regex = /^\d{4}(01|02|03)$/;
+			return regex.test(value);
+		}),
 	sortByColumn: z.enum(addedCommentSentimentColumnNames, {
 		required_error: 'Please select a column to sort by.',
 	}),
