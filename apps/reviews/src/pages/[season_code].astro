@@ -1,8 +1,5 @@
 ---
 import { addedCommentSentimentColumnNames, db } from '@repo/db/courses'
-import { env } from '@repo/env'
-import { Client, cacheExchange, fetchExchange } from '@urql/core'
-import { graphql } from '../graphql'
 import Layout from '../layouts/Layout.astro'
 import { CoursesDataTable } from './_courses/CoursesDataTable'
 
@@ -11,42 +8,12 @@ type Season = '01' | '02' | '03'
 type SeasonCode = `${Year}${Season}`
 type ColumnName = (typeof addedCommentSentimentColumnNames)[number]
 
-const client = new Client({
-	url: 'https://api.coursetable.com/ferry/v1/graphql',
-	exchanges: [cacheExchange, fetchExchange],
-	fetchOptions: () => ({
-		headers: { Cookie: env.COURSETABLE_COOKIE, 'Content-Type': 'application/json' },
-	}),
-})
-
-async function getAllSeasons() {
-	const { data, error } = await client.query(
-		graphql(`
-			query DistinctSeasons {
-				seasons {
-					season_code
-					term
-					year
-				}
-			}
-		`),
-		{},
-	)
-	if (!data) {
-		console.error('Error fetching season codes:', error)
-		return []
-	}
-	const seasons = data.seasons
-	return seasons
-}
-
 export async function getStaticPaths() {
-	const allSeasons = await getAllSeasons()
-	const allSeasonCodes = allSeasons.map((season) => season.season_code)
+	const allSeasons = await db.query.seasons.findMany()
 	return Promise.all(
-		allSeasonCodes.map(async (seasonCode) => {
+		allSeasons.map(async ({ season_code, term, year }) => {
 			const allCourses = await db.query.courses.findMany({
-				where: (courses, { eq }) => eq(courses.season_code, seasonCode),
+				where: (courses, { eq }) => eq(courses.season_code, season_code),
 				columns: {
 					title: true,
 					description: true,
@@ -71,7 +38,9 @@ export async function getStaticPaths() {
 			})
 			return {
 				params: {
-					seasonCode,
+					season_code,
+					year,
+					term,
 				},
 				props: {
 					allCourses,
@@ -81,7 +50,7 @@ export async function getStaticPaths() {
 	)
 }
 
-const { seasonCode } = Astro.params
+const { season_code, year, term } = Astro.params
 const { allCourses } = Astro.props
 ---
 
