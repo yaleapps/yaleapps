@@ -1,4 +1,5 @@
 import type { Course } from '@repo/db/courses';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@repo/ui/components/button';
 import {
 	Table,
@@ -203,8 +204,31 @@ export function CoursesDataTable({ courses }: { courses: Course[] }) {
 		},
 	});
 
+	const { rows } = table.getRowModel();
+	const tableContainerRef = React.useRef<HTMLDivElement>(null);
+
+	const rowVirtualizer = useVirtualizer({
+		count: rows.length,
+		estimateSize: () => 33, //estimate row height for accurate scrollbar dragging
+		getScrollElement: () => tableContainerRef.current,
+		//measure dynamic row height, except in firefox because it measures table border height incorrectly
+		measureElement:
+			typeof window !== 'undefined' && navigator.userAgent.indexOf('Firefox') === -1
+				? (element) => element?.getBoundingClientRect().height
+				: undefined,
+		overscan: 5,
+	});
+
 	return (
-		<div className="rounded-md border">
+		<div
+			className="rounded-md border"
+			ref={tableContainerRef}
+			style={{
+				position: 'relative',
+				overflow: 'auto',
+				height: '800px',
+			}}
+		>
 			<Table>
 				<TableHeader>
 					{table.getHeaderGroups().map((headerGroup) => (
@@ -221,17 +245,30 @@ export function CoursesDataTable({ courses }: { courses: Course[] }) {
 						</TableRow>
 					))}
 				</TableHeader>
-				<TableBody>
-					{table.getRowModel().rows?.length ? (
-						table.getRowModel().rows.map((row) => (
-							<TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
-								{row.getVisibleCells().map((cell) => (
-									<TableCell key={cell.id}>
-										{flexRender(cell.column.columnDef.cell, cell.getContext())}
-									</TableCell>
-								))}
-							</TableRow>
-						))
+				<TableBody
+					className="relative overflow-auto"
+					style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+				>
+					{rowVirtualizer.getVirtualItems().length !== 0 ? (
+						rowVirtualizer.getVirtualItems().map((virtualRow) => {
+							const row = rows[virtualRow.index];
+							return (
+								<TableRow
+									key={row.id}
+									data-state={row.getIsSelected() && 'selected'}
+									data-index={virtualRow.index}
+									ref={(node) => rowVirtualizer.measureElement(node)}
+									className="absolute w-full"
+									style={{ transform: `translateY(${virtualRow.start}px)` }}
+								>
+									{row.getVisibleCells().map((cell) => (
+										<TableCell key={cell.id}>
+											{flexRender(cell.column.columnDef.cell, cell.getContext())}
+										</TableCell>
+									))}
+								</TableRow>
+							);
+						})
 					) : (
 						<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
