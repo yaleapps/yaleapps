@@ -61,6 +61,15 @@ function createColorScale({ value, min, max }: { value: number | ''; min: number
 	};
 }
 
+function ReusablePopover({ children }: { children: React.ReactNode }) {
+	return (
+		<Popover>
+			<PopoverTrigger className="no-scrollbar flex overflow-x-auto">{children}</PopoverTrigger>
+			<PopoverContent className="flex w-fit flex-col gap-2">{children}</PopoverContent>
+		</Popover>
+	);
+}
+
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		id: 'course_code',
@@ -78,25 +87,13 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		cell: ({ getValue, column: { getSize } }) => {
 			const courseCodes = getValue<string[]>();
 			return (
-				<Popover>
-					<PopoverTrigger
-						className="no-scrollbar flex overflow-x-auto"
-						style={{ maxWidth: getSize() }}
-					>
-						{courseCodes.map((courseCode) => (
-							<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-								{courseCode}
-							</Badge>
-						))}
-					</PopoverTrigger>
-					<PopoverContent className="flex w-fit flex-col gap-2">
-						{courseCodes.map((courseCode) => (
-							<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-								{courseCode}
-							</Badge>
-						))}
-					</PopoverContent>
-				</Popover>
+				<ReusablePopover>
+					{courseCodes.map((courseCode) => (
+						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
+							{courseCode}
+						</Badge>
+					))}
+				</ReusablePopover>
 			);
 		},
 	},
