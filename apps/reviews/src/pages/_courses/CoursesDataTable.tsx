@@ -141,7 +141,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Rating
+					Avg Rating
 				</Button>
 			);
 		},
@@ -155,7 +155,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Workload
+					Avg Workload
 				</Button>
 			);
 		},
@@ -169,7 +169,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Comment Positive
+					Avg Comment Positive
 				</Button>
 			);
 		},
@@ -183,7 +183,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Comment Neutral
+					Avg Comment Neutral
 				</Button>
 			);
 		},
@@ -197,7 +197,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Comment Negative
+					Avg Comment Negative
 				</Button>
 			);
 		},
@@ -211,7 +211,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Average Comment Compound
+					Avg Comment Compound
 				</Button>
 			);
 		},
