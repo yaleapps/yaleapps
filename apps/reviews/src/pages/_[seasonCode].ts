@@ -17,6 +17,7 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 	const allCourses = await db.query.courses.findMany({
 		where: (courses, { eq }) => eq(courses.season_code, seasonCode),
 		columns: {
+			course_id: true,
 			title: true,
 			description: true,
 			areas: true,
@@ -32,10 +33,9 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 		with: {
 			listings: {
 				columns: {
-					course_id: true,
+					course_code: true,
 					school: true,
 					subject: true,
-					season_code: true,
 					crn: true,
 				},
 			},
