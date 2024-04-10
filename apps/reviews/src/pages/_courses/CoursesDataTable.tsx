@@ -74,11 +74,11 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
-		cell: ({ getValue }) => {
+		cell: ({ getValue, column: { getSize } }) => {
 			return (
-				<div className="overflow-x-auto">
+				<div className="flex overflow-x-auto" style={{ maxWidth: getSize() }}>
 					{getValue<string[]>().map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1">
+						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
 							{courseCode}
 						</Badge>
 					))}
@@ -214,15 +214,14 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			const value = getValue<number | ''>();
 			const colorScale = createColorScale({ value, min: 0, max: 5 });
 			return (
-				<div
-					className="flex w-full items-center justify-center"
+				<Badge
 					style={{
 						backgroundColor: colorScale.backgroundColor,
 						color: colorScale.textColor,
 					}}
 				>
 					{value}
-				</div>
+				</Badge>
 			);
 		},
 	},
