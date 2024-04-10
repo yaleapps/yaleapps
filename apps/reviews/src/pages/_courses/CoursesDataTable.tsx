@@ -61,11 +61,25 @@ function createColorScale({ value, min, max }: { value: number | ''; min: number
 	};
 }
 
-function ReusablePopover({ children }: { children: React.ReactNode }) {
+/** Popover used to render cell content that may overflow (title, description, course codes, etc.).*/
+function TableCellPopover({
+	overflowStyle,
+	children,
+}: {
+	/** 'ellipses' to truncate text in preview with ellipses, 'scroll' to allow scrolling. Use 'ellipses' to render text in a single line, 'scroll' to badges or other elements that should be displayed in a row.*/
+	overflowStyle: 'ellipses' | 'scroll';
+	children: React.ReactNode;
+}) {
 	return (
 		<Popover>
-			<PopoverTrigger className="no-scrollbar flex overflow-x-auto">{children}</PopoverTrigger>
-			<PopoverContent className="flex w-fit flex-col gap-2">{children}</PopoverContent>
+			<PopoverTrigger
+				className={cn(
+					overflowStyle === 'scroll' ? 'no-scrollbar flex overflow-x-auto' : 'truncate',
+				)}
+			>
+				{children}
+			</PopoverTrigger>
+			<PopoverContent className="flex w-fit max-w-xl flex-col gap-2">{children}</PopoverContent>
 		</Popover>
 	);
 }
@@ -87,13 +101,13 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		cell: ({ getValue, column: { getSize } }) => {
 			const courseCodes = getValue<string[]>();
 			return (
-				<ReusablePopover>
+				<TableCellPopover overflowStyle="scroll">
 					{courseCodes.map((courseCode) => (
 						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
 							{courseCode}
 						</Badge>
 					))}
-				</ReusablePopover>
+				</TableCellPopover>
 			);
 		},
 	},
@@ -111,15 +125,19 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 		cell: ({ getValue, column: { getSize } }) => {
-			return (
-				<div
-					className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-					style={{ maxWidth: getSize() }}
-				>
-					{getValue<string>()}
-				</div>
-			);
+			const value = getValue<string>();
+			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
+		// cell: ({ getValue, column: { getSize } }) => {
+		// 	return (
+		// 		<div
+		// 			className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+		// 			style={{ maxWidth: getSize() }}
+		// 		>
+		// 			{getValue<string>()}
+		// 		</div>
+		// 	);
+		// },
 	},
 	{
 		id: 'description',
@@ -135,14 +153,8 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 		cell: ({ getValue, column: { getSize } }) => {
-			return (
-				<div
-					className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-					style={{ maxWidth: getSize() }}
-				>
-					{getValue<string>()}
-				</div>
-			);
+			const value = getValue<string>();
+			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
 	},
 	{
