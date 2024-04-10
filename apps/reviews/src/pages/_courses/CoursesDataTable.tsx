@@ -21,7 +21,7 @@ import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
 import { cn } from '@repo/ui/lib/utils';
 
-function createColorScale({ value, min, max }: { value: number | ''; min: number; max: number }) {
+function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
 	if (!value) {
 		return {
 			backgroundColor: 'inherit',
@@ -222,7 +222,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 	{
 		id: 'average_rating',
-		accessorFn: (row) => row.average_rating?.toFixed(2) ?? '',
+		accessorFn: (row) => row.average_rating?.toFixed(2) ?? null,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -234,8 +234,8 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 		cell: ({ getValue }) => {
-			const value = getValue<number | ''>();
-			const colorScale = createColorScale({ value, min: 0, max: 5 });
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 1, max: 5 });
 			return (
 				<Badge
 					style={{
@@ -261,6 +261,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 5, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
 	},
 	{
 		id: 'average_comment_pos',
@@ -273,6 +287,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				>
 					Avg Comment Positive
 				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 0, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
 			);
 		},
 	},
@@ -289,6 +317,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 0, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
 	},
 	{
 		id: 'average_comment_neg',
@@ -303,6 +345,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 1, max: 0 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
 	},
 	{
 		id: 'average_comment_compound',
@@ -315,6 +371,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				>
 					Avg Comment Compound
 				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			const colorScale = createColorScale({ value, min: 0, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
 			);
 		},
 	},
