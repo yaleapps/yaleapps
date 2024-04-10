@@ -235,6 +235,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 1, max: 5 });
 			return (
 				<Badge
@@ -263,6 +264,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 5, max: 1 });
 			return (
 				<Badge
@@ -291,6 +293,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 0, max: 1 });
 			return (
 				<Badge
@@ -319,6 +322,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 0, max: 1 });
 			return (
 				<Badge
@@ -347,6 +351,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 1, max: 0 });
 			return (
 				<Badge
@@ -375,6 +380,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
+			if (!value) return;
 			const colorScale = createColorScale({ value, min: 0, max: 1 });
 			return (
 				<Badge
