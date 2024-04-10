@@ -98,7 +98,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 	{
 		id: 'average_rating',
-		accessorFn: (row) => row.average_rating,
+		accessorFn: (row) => row.average_rating?.toFixed(2) ?? '',
 		header: ({ column }) => {
 			return (
 				<Button
@@ -112,7 +112,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 	{
 		id: 'average_workload',
-		accessorFn: (row) => row.average_workload,
+		accessorFn: (row) => row.average_workload?.toFixed(2) ?? '',
 		header: ({ column }) => {
 			return (
 				<Button
@@ -124,51 +124,51 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 	},
-	// {
-	// 	id: 'average_comment_pos',
-	// 	accessorFn: (row) => row.average_comment_pos,
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Average Comment Positive
-	// 			</Button>
-	// 		);
-	// 	},
-	// },
-	// {
-	// 	id: 'average_comment_neu',
-	// 	accessorFn: (row) => row.average_comment_neu,
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Average Comment Neutral
-	// 			</Button>
-	// 		);
-	// 	},
-	// },
-	// {
-	// 	id: 'average_comment_neg',
-	// 	accessorFn: (row) => row.average_comment_neg,
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Average Comment Negative
-	// 			</Button>
-	// 		);
-	// 	},
-	// },
+	{
+		id: 'average_comment_pos',
+		accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Positive
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neu',
+		accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Neutral
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neg',
+		accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Negative
+				</Button>
+			);
+		},
+	},
 	{
 		id: 'average_comment_compound',
-		accessorFn: (row) => row.average_comment_compound,
+		accessorFn: (row) => row.average_comment_compound?.toFixed(2) ?? '',
 		header: ({ column }) => {
 			return (
 				<Button
