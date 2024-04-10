@@ -108,25 +108,31 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 		cell: ({ getValue }) => {
+			function getBadgeColor(areaOrSkill: string) {
+				if (areaOrSkill === 'Hu') {
+					return 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
+				}
+				if (areaOrSkill === 'So') {
+					return 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
+				}
+				if (areaOrSkill === 'Sc') {
+					return 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
+				}
+				if (areaOrSkill === 'QR') {
+					return 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
+				}
+				if (areaOrSkill === 'WR') {
+					return 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
+				}
+				if (areaOrSkill.startsWith('L')) {
+					return 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
+				}
+				return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+			}
 			return (
 				<div className="overflow-x-auto">
 					{getValue<string[]>().map((areaOrSkill) => {
-						let badgeColor = '';
-						if (areaOrSkill === 'Hu') {
-							badgeColor = 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
-						} else if (areaOrSkill === 'So') {
-							badgeColor = 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
-						} else if (areaOrSkill === 'Sc') {
-							badgeColor = 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
-						} else if (areaOrSkill === 'QR') {
-							badgeColor = 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
-						} else if (areaOrSkill === 'WR') {
-							badgeColor = 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
-						} else if (areaOrSkill.startsWith('L')) {
-							badgeColor = 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
-						} else {
-							badgeColor = 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-						}
+						let badgeColor = getBadgeColor(areaOrSkill);
 						return (
 							<Badge key={areaOrSkill} variant="outline" className={cn('mr-1', badgeColor)}>
 								{areaOrSkill}
