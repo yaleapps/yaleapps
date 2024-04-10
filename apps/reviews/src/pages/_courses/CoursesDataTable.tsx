@@ -1,5 +1,3 @@
-import type { Course } from '@repo/db/courses';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@repo/ui/components/button';
 import {
 	Table,
@@ -16,9 +14,11 @@ import {
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
+import type { DisplayCourse } from '../_[seasonCode]';
 
-export const columns: ColumnDef<Course>[] = [
+export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		accessorKey: 'code',
 		header: ({ column }) => {
@@ -190,7 +190,7 @@ export const columns: ColumnDef<Course>[] = [
 	},
 ];
 
-export function CoursesDataTable({ courses }: { courses: Course[] }) {
+export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([]);
 
 	const table = useReactTable({

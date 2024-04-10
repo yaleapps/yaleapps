@@ -38,18 +38,30 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../../packages/env
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-table':
         specifier: ^8.15.3
         version: 8.15.3(react-dom@18.2.0)(react@18.2.0)
+      '@tanstack/react-virtual':
+        specifier: ^3.2.0
+        version: 3.2.0(react-dom@18.2.0)(react@18.2.0)
+      '@urql/core':
+        specifier: ^5.0.0
+        version: 5.0.0(graphql@16.8.1)
       astro:
         specifier: ^4.5.16
         version: 4.5.16(typescript@5.4.4)
       clsx:
         specifier: ^2.1.0
         version: 2.1.0
+      gql.tada:
+        specifier: ^1.4.3
+        version: 1.4.3(graphql@16.8.1)(typescript@5.4.4)
       react:
         specifier: ^18.2.0
         version: 18.2.0
@@ -60,6 +72,9 @@ importers:
         specifier: ^5.4.4
         version: 5.4.4
     devDependencies:
+      '@0no-co/graphqlsp':
+        specifier: ^1.8.0
+        version: 1.8.0(typescript@5.4.4)
       '@iconify/json':
         specifier: ^2.2.198
         version: 2.2.198
@@ -81,9 +96,9 @@ importers:
       '@libsql/client':
         specifier: ^0.6.0
         version: 0.6.0
-      '@t3-oss/env-core':
-        specifier: ^0.9.2
-        version: 0.9.2(typescript@5.4.4)(zod@3.22.4)
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../env
       '@urql/core':
         specifier: ^5.0.0
         version: 5.0.0(graphql@16.8.1)
@@ -99,9 +114,6 @@ importers:
       typescript:
         specifier: latest
         version: 5.4.4
-      zod:
-        specifier: ^3.22.4
-        version: 3.22.4
     devDependencies:
       '@0no-co/graphqlsp':
         specifier: ^1.8.0
@@ -109,6 +121,15 @@ importers:
       drizzle-kit:
         specifier: ^0.20.14
         version: 0.20.14
+
+  packages/env:
+    dependencies:
+      '@t3-oss/env-core':
+        specifier: ^0.9.2
+        version: 0.9.2(zod@3.22.4)
+      zod:
+        specifier: ^3.22.4
+        version: 3.22.4
 
   packages/ui:
     dependencies:
@@ -2905,7 +2926,7 @@ packages:
     resolution: {integrity: sha512-ClaUWpt8oTzjcF0MM1P81AeWyzc1sNSJlAjMG80CbwqbFqXSNz+NpQVUC0icobt3sZn43Sn27M4pHD/Jmp3zHw==}
     dev: false
 
-  /@t3-oss/env-core@0.9.2(typescript@5.4.4)(zod@3.22.4):
+  /@t3-oss/env-core@0.9.2(zod@3.22.4):
     resolution: {integrity: sha512-KgWXljUTHgO3o7GMZQPAD5+P+HqpauMNNHowlm7V2b9IeMitSUpNKwG6xQrup/xARWHTdxRVIl0mSI4wCevQhQ==}
     peerDependencies:
       typescript: '>=5.0.0'
@@ -2914,7 +2935,6 @@ packages:
       typescript:
         optional: true
     dependencies:
-      typescript: 5.4.4
       zod: 3.22.4
     dev: false
 
@@ -2930,9 +2950,24 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
     dev: false
 
+  /@tanstack/react-virtual@3.2.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-OEdMByf2hEfDa6XDbGlZN8qO6bTjlNKqjM3im9JG+u3mCL8jALy0T/67oDI001raUUPh1Bdmfn4ZvPOV5knpcg==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@tanstack/virtual-core': 3.2.0
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
+    dev: false
+
   /@tanstack/table-core@8.15.3:
     resolution: {integrity: sha512-wOgV0HfEvuMOv8RlqdR9MdNNqq0uyvQtP39QOvGlggHvIObOE4exS+D5LGO8LZ3LUXxId2IlUKcHDHaGujWhUg==}
     engines: {node: '>=12'}
+    dev: false
+
+  /@tanstack/virtual-core@3.2.0:
+    resolution: {integrity: sha512-P5XgYoAw/vfW65byBbJQCw+cagdXDT/qH6wmABiLt4v4YBT2q2vqCOhihe+D1Nt325F/S/0Tkv6C5z0Lv+VBQQ==}
     dev: false
 
   /@types/babel__core@7.20.5:
