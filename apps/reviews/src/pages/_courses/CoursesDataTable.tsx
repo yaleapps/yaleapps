@@ -79,7 +79,10 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			const courseCodes = getValue<string[]>();
 			return (
 				<Popover>
-					<PopoverTrigger className="flex overflow-x-hidden" style={{ maxWidth: getSize() }}>
+					<PopoverTrigger
+						className="no-scrollbar flex overflow-x-auto"
+						style={{ maxWidth: getSize() }}
+					>
 						{courseCodes.map((courseCode) => (
 							<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
 								{courseCode}
