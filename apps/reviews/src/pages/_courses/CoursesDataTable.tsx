@@ -20,19 +20,6 @@ import type { DisplayCourse } from '../_[seasonCode]';
 
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
-		accessorKey: 'code',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Code
-				</Button>
-			);
-		},
-	},
-	{
 		accessorKey: 'title',
 		header: ({ column }) => {
 			return (
@@ -46,40 +33,15 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 	},
 	{
-		accessorKey: 'professors',
+		id: 'subjects',
+		accessorFn: (row) => row.listings.map((listing) => listing.subject).join(', '),
 		header: ({ column }) => {
 			return (
 				<Button
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Professors
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'times_summary',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Meets
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'locations_summary',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Location
+					Subjects
 				</Button>
 			);
 		},
