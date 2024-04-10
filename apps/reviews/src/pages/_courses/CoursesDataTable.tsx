@@ -124,48 +124,48 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 	},
-	{
-		id: 'average_comment_pos',
-		accessorFn: (row) => row.average_comment_pos,
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Average Comment Positive
-				</Button>
-			);
-		},
-	},
-	{
-		id: 'average_comment_neu',
-		accessorFn: (row) => row.average_comment_neu,
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Average Comment Neutral
-				</Button>
-			);
-		},
-	},
-	{
-		id: 'average_comment_neg',
-		accessorFn: (row) => row.average_comment_neg,
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Average Comment Negative
-				</Button>
-			);
-		},
-	},
+	// {
+	// 	id: 'average_comment_pos',
+	// 	accessorFn: (row) => row.average_comment_pos,
+	// 	header: ({ column }) => {
+	// 		return (
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+	// 			>
+	// 				Average Comment Positive
+	// 			</Button>
+	// 		);
+	// 	},
+	// },
+	// {
+	// 	id: 'average_comment_neu',
+	// 	accessorFn: (row) => row.average_comment_neu,
+	// 	header: ({ column }) => {
+	// 		return (
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+	// 			>
+	// 				Average Comment Neutral
+	// 			</Button>
+	// 		);
+	// 	},
+	// },
+	// {
+	// 	id: 'average_comment_neg',
+	// 	accessorFn: (row) => row.average_comment_neg,
+	// 	header: ({ column }) => {
+	// 		return (
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+	// 			>
+	// 				Average Comment Negative
+	// 			</Button>
+	// 		);
+	// 	},
+	// },
 	{
 		id: 'average_comment_compound',
 		accessorFn: (row) => row.average_comment_compound,
@@ -183,7 +183,9 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 ];
 
 export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
-	const [sorting, setSorting] = React.useState<SortingState>([]);
+	const [sorting, setSorting] = React.useState<SortingState>([
+		{ id: 'average_comment_compound', desc: true },
+	]);
 
 	const table = useReactTable({
 		data: courses,
