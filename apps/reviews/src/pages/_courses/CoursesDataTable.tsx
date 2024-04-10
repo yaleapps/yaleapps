@@ -18,6 +18,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
+import { cn } from '@repo/ui/lib/utils';
 
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
@@ -109,11 +110,29 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		cell: ({ getValue }) => {
 			return (
 				<div className="overflow-x-auto">
-					{getValue<string[]>().map((areaOrSkill) => (
-						<Badge key={areaOrSkill} variant="outline" className="mr-1">
-							{areaOrSkill}
-						</Badge>
-					))}
+					{getValue<string[]>().map((areaOrSkill) => {
+						let badgeColor = '';
+						if (areaOrSkill === 'Hu') {
+							badgeColor = 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
+						} else if (areaOrSkill === 'So') {
+							badgeColor = 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
+						} else if (areaOrSkill === 'Sc') {
+							badgeColor = 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
+						} else if (areaOrSkill === 'QR') {
+							badgeColor = 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
+						} else if (areaOrSkill === 'WR') {
+							badgeColor = 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
+						} else if (areaOrSkill.startsWith('L')) {
+							badgeColor = 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
+						} else {
+							badgeColor = 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+						}
+						return (
+							<Badge key={areaOrSkill} variant="outline" className={cn('mr-1', badgeColor)}>
+								{areaOrSkill}
+							</Badge>
+						);
+					})}
 				</div>
 			);
 		},
