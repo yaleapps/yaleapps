@@ -7,6 +7,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@repo/ui/components/table';
+import { Badge } from '@repo/ui/components/badge';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
@@ -21,7 +22,7 @@ import type { DisplayCourse } from '../_[seasonCode]';
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		id: 'course_code',
-		accessorFn: (row) => row.listings.map((listing) => listing.course_code).join(' '),
+		accessorFn: (row) => row.listings.map((listing) => listing.course_code),
 		header: ({ column }) => {
 			return (
 				<Button
@@ -30,6 +31,17 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				>
 					Course Code
 				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			return (
+				<div className="overflow-x-auto">
+					{getValue<string[]>().map((courseCode) => (
+						<Badge key={courseCode} variant="outline" className="mr-1">
+							{courseCode}
+						</Badge>
+					))}
+				</div>
 			);
 		},
 	},
@@ -46,31 +58,44 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
+		cell: ({ getValue, column: { getSize } }) => {
+			return (
+				<div
+					className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+					style={{ maxWidth: getSize() }}
+				>
+					{getValue<string>()}
+				</div>
+			);
+		},
 	},
-	// {
-	// 	id: 'description',
-	// 	accessorFn: (row) => row.description,
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Description
-	// 			</Button>
-	// 		);
-	// 	},
-	// 	cell: ({ getValue }) => {
-	// 		return (
-	// 			<div className="max-w-xs overflow-hidden overflow-ellipsis whitespace-nowrap">
-	// 				{getValue()}
-	// 			</div>
-	// 		);
-	// 	},
-	// },
+	{
+		id: 'description',
+		accessorFn: (row) => row.description,
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Description
+				</Button>
+			);
+		},
+		cell: ({ getValue, column: { getSize } }) => {
+			return (
+				<div
+					className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+					style={{ maxWidth: getSize() }}
+				>
+					{getValue<string>()}
+				</div>
+			);
+		},
+	},
 	{
 		id: 'areas/skills',
-		accessorFn: (row) => `${row.areas?.join(' ')} ${row.skills?.join(' ')}`.trim(),
+		accessorFn: (row) => [...(row?.areas ?? []), ...(row?.skills ?? [])],
 		header: ({ column }) => {
 			return (
 				<Button
@@ -79,6 +104,17 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				>
 					Areas/Skills
 				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			return (
+				<div className="overflow-x-auto">
+					{getValue<string[]>().map((areaOrSkill) => (
+						<Badge key={areaOrSkill} variant="outline" className="mr-1">
+							{areaOrSkill}
+						</Badge>
+					))}
+				</div>
 			);
 		},
 	},
