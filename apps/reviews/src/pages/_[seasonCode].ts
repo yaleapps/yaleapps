@@ -21,18 +21,32 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 			description: true,
 			areas: true,
 			skills: true,
-			season_code: true,
-			credits: true,
 			last_enrollment: true,
 			average_rating: true,
 			average_workload: true,
+			average_comment_pos: true,
+			average_comment_neu: true,
+			average_comment_neg: true,
 			average_comment_compound: true,
 		},
 		with: {
 			listings: {
 				columns: {
+					course_id: true,
+					school: true,
 					subject: true,
-					section: true,
+					season_code: true,
+					crn: true,
+				},
+			},
+			courseProfessors: {
+				with: {
+					professor: {
+						columns: {
+							name: true,
+							average_rating: true,
+						},
+					},
 				},
 			},
 		},
