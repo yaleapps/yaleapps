@@ -20,6 +20,40 @@ import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
 import { cn } from '@repo/ui/lib/utils';
 
+function createColorScale(value: number, min: number, max: number) {
+	const valueDistanceToMin = value - min;
+	const totalRangeDistance = max - min;
+	const normalizedValueOutOf1 = valueDistanceToMin / totalRangeDistance;
+	const hueMinDegrees = 0;
+	const hueMaxDegrees = 120;
+	const hueBetweenMinMaxDegrees =
+		hueMinDegrees + normalizedValueOutOf1 * (hueMaxDegrees - hueMinDegrees);
+	const backgroundLightnessMin = 75;
+	const backgroundLightnessMax = 90;
+	const backgroundLightness =
+		backgroundLightnessMin +
+		normalizedValueOutOf1 * (backgroundLightnessMax - backgroundLightnessMin);
+
+	// Define the lightness range for the text color (25% to 40%)
+	const textLightnessMin = 25;
+	const textLightnessMax = 40;
+
+	// Calculate the text lightness based on the normalized value
+	const textLightness =
+		textLightnessMin + normalizedValueOutOf1 * (textLightnessMax - textLightnessMin);
+
+	// Generate the background color using the HSL color model
+	const backgroundColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${backgroundLightness}%)`;
+
+	// Generate the text color using the HSL color model
+	const textColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${textLightness}%)`;
+
+	return {
+		backgroundColor,
+		textColor,
+	};
+}
+
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		id: 'course_code',
@@ -168,6 +202,21 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				>
 					Avg Rating
 				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number>();
+			const colorScale = createColorScale(value, 0, 5);
+			return (
+				<div
+					className="flex w-full items-center justify-center"
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</div>
 			);
 		},
 	},
