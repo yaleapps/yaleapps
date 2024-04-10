@@ -20,7 +20,22 @@ import type { DisplayCourse } from '../_[seasonCode]';
 
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
-		accessorKey: 'title',
+		id: 'course_code',
+		accessorFn: (row) => row.listings.map((listing) => listing.course_code).join(' '),
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Course Code
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'title',
+		accessorFn: (row) => row.title,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -32,48 +47,44 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 	},
+	// {
+	// 	id: 'description',
+	// 	accessorFn: (row) => row.description,
+	// 	header: ({ column }) => {
+	// 		return (
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+	// 			>
+	// 				Description
+	// 			</Button>
+	// 		);
+	// 	},
+	// 	cell: ({ getValue }) => {
+	// 		return (
+	// 			<div className="max-w-xs overflow-hidden overflow-ellipsis whitespace-nowrap">
+	// 				{getValue()}
+	// 			</div>
+	// 		);
+	// 	},
+	// },
 	{
-		id: 'subjects',
-		accessorFn: (row) => row.listings.map((listing) => listing.subject).join(', '),
+		id: 'areas/skills',
+		accessorFn: (row) => `${row.areas?.join(' ')} ${row.skills?.join(' ')}`.trim(),
 		header: ({ column }) => {
 			return (
 				<Button
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Subjects
+					Areas/Skills
 				</Button>
 			);
 		},
 	},
 	{
-		accessorKey: 'description',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Description
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'credits',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Credits
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'last_enrollment',
+		id: 'last_enrollment',
+		accessorFn: (row) => row.last_enrollment,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -86,33 +97,8 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 	},
 	{
-		accessorKey: 'skills',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Skills
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'areas',
-		header: ({ column }) => {
-			return (
-				<Button
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Areas
-				</Button>
-			);
-		},
-	},
-	{
-		accessorKey: 'average_rating',
+		id: 'average_rating',
+		accessorFn: (row) => row.average_rating,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -125,7 +111,8 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 	},
 	{
-		accessorKey: 'average_workload',
+		id: 'average_workload',
+		accessorFn: (row) => row.average_workload,
 		header: ({ column }) => {
 			return (
 				<Button
@@ -138,7 +125,50 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 	},
 	{
-		accessorKey: 'average_comment_compound',
+		id: 'average_comment_pos',
+		accessorFn: (row) => row.average_comment_pos,
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Positive
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neu',
+		accessorFn: (row) => row.average_comment_neu,
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Neutral
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neg',
+		accessorFn: (row) => row.average_comment_neg,
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Average Comment Negative
+				</Button>
+			);
+		},
+	},
+	{
+		id: 'average_comment_compound',
+		accessorFn: (row) => row.average_comment_compound,
 		header: ({ column }) => {
 			return (
 				<Button
