@@ -8,6 +8,7 @@ import {
 	TableRow,
 } from '@repo/ui/components/table';
 import { Badge } from '@repo/ui/components/badge';
+import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/components/popover';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
@@ -75,14 +76,24 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 		cell: ({ getValue, column: { getSize } }) => {
+			const courseCodes = getValue<string[]>();
 			return (
-				<div className="flex overflow-x-auto" style={{ maxWidth: getSize() }}>
-					{getValue<string[]>().map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-							{courseCode}
-						</Badge>
-					))}
-				</div>
+				<Popover>
+					<PopoverTrigger className="flex overflow-x-hidden" style={{ maxWidth: getSize() }}>
+						{courseCodes.map((courseCode) => (
+							<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
+								{courseCode}
+							</Badge>
+						))}
+					</PopoverTrigger>
+					<PopoverContent className="flex w-fit flex-col gap-2">
+						{courseCodes.map((courseCode) => (
+							<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
+								{courseCode}
+							</Badge>
+						))}
+					</PopoverContent>
+				</Popover>
 			);
 		},
 	},
