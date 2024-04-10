@@ -221,13 +221,19 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 				height: '800px',
 			}}
 		>
-			<Table>
-				<TableHeader>
+			<Table className="grid">
+				<TableHeader className="sticky top-0 z-10 grid">
 					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow key={headerGroup.id}>
+						<TableRow key={headerGroup.id} className="flex w-full">
 							{headerGroup.headers.map((header) => {
 								return (
-									<TableHead key={header.id}>
+									<TableHead
+										key={header.id}
+										style={{
+											display: 'flex',
+											width: header.getSize(),
+										}}
+									>
 										{header.isPlaceholder
 											? null
 											: flexRender(header.column.columnDef.header, header.getContext())}
@@ -238,7 +244,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					))}
 				</TableHeader>
 				<TableBody
-					className="relative overflow-auto"
+					className="relative grid"
 					style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
 				>
 					{rowVirtualizer.getVirtualItems().length !== 0 ? (
@@ -250,11 +256,17 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 									data-state={row.getIsSelected() && 'selected'}
 									data-index={virtualRow.index}
 									ref={(node) => rowVirtualizer.measureElement(node)}
-									className="absolute w-full"
+									className="absolute flex w-full"
 									style={{ transform: `translateY(${virtualRow.start}px)` }}
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
+										<TableCell
+											key={cell.id}
+											style={{
+												display: 'flex',
+												width: cell.column.getSize(),
+											}}
+										>
 											{flexRender(cell.column.columnDef.cell, cell.getContext())}
 										</TableCell>
 									))}
