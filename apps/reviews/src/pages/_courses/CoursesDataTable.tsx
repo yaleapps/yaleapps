@@ -20,7 +20,7 @@ import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
 import { cn } from '@repo/ui/lib/utils';
 
-function createColorScale(value: number, min: number, max: number) {
+function createColorScale({ value, min, max }: { value: number; min: number; max: number; }) {
 	const valueDistanceToMin = value - min;
 	const totalRangeDistance = max - min;
 	const normalizedValueOutOf1 = valueDistanceToMin / totalRangeDistance;
@@ -206,7 +206,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<number>();
-			const colorScale = createColorScale(value, 0, 5);
+			const colorScale = createColorScale({ value, min: 0, max: 5 });
 			return (
 				<div
 					className="flex w-full items-center justify-center"
