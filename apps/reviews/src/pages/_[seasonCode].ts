@@ -50,7 +50,6 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 				},
 			},
 		},
-		limit: 10,
 	});
 	return allCourses;
 }
