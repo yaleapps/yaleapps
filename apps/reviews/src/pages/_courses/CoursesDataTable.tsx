@@ -79,7 +79,7 @@ function TableCellPopover({
 			>
 				{children}
 			</PopoverTrigger>
-			<PopoverContent className="flex w-fit max-w-xl flex-col gap-2">{children}</PopoverContent>
+			<PopoverContent className="flex w-fit max-w-md flex-col gap-2">{children}</PopoverContent>
 		</Popover>
 	);
 }
