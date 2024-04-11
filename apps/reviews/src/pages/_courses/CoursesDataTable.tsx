@@ -428,15 +428,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	});
 
 	return (
-		<div
-			className="rounded-md border"
-			ref={tableContainerRef}
-			style={{
-				position: 'relative',
-				overflow: 'auto',
-				height: '800px',
-			}}
-		>
+		<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
 			<Table className="grid">
 				<TableHeader className="sticky top-0 z-10 grid">
 					{table.getHeaderGroups().map((headerGroup) => (
