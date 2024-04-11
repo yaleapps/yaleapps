@@ -287,7 +287,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Avg Comment Positive
+					Avg Comment Pos
 				</Button>
 			);
 		},
@@ -316,7 +316,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Avg Comment Neutral
+					Avg Comment Neu
 				</Button>
 			);
 		},
@@ -345,7 +345,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Avg Comment Negative
+					Avg Comment Neg
 				</Button>
 			);
 		},
@@ -374,7 +374,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
-					Avg Comment Compound
+					Avg Comment Comp
 				</Button>
 			);
 		},
