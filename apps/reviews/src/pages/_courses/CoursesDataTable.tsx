@@ -493,7 +493,6 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						<SelectValue placeholder="Subject" />
 					</SelectTrigger>
 					<SelectContent>
-						{/* <SelectItem value="">All</SelectItem> */}
 						{uniqueSubjects.map((subject) => (
 							<SelectItem key={subject} value={subject}>
 								{subject}
