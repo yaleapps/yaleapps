@@ -516,7 +516,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						defaultValue=""
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Subject" />
+							<SelectValue placeholder="Filter by subject" />
 						</SelectTrigger>
 						<SelectContent>
 							{uniqueSubjects.map((subject) => (
@@ -558,7 +558,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						defaultValue=""
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Area/Skill" />
+							<SelectValue placeholder="Filter by area/skill" />
 						</SelectTrigger>
 						<SelectContent>
 							{uniqueSkillsAndAreas.map((item) => (
