@@ -509,30 +509,35 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	return (
 		<div className="flex h-full w-full flex-col gap-2">
 			<div className="flex gap-2">
-				<Select
-					value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
-					onValueChange={(value) => table.getColumn('subject')?.setFilterValue(value)}
-					defaultValue=""
-				>
-					<SelectTrigger>
-						<SelectValue placeholder="Subject" />
-					</SelectTrigger>
-					<SelectContent>
-						{uniqueSubjects.map((subject) => (
-							<SelectItem key={subject} value={subject}>
-								{subject}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => table.getColumn('subject')?.setFilterValue('')}
-				>
-					<Cross1Icon />
-				</Button>
+				<div className="relative flex-1">
+					<Select
+						value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
+						onValueChange={(value) => table.getColumn('subject')?.setFilterValue(value)}
+						defaultValue=""
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Subject" />
+						</SelectTrigger>
+						<SelectContent>
+							{uniqueSubjects.map((subject) => (
+								<SelectItem key={subject} value={subject}>
+									{subject}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="absolute right-1 top-1/2 -translate-y-1/2 transform"
+						onClick={() => table.getColumn('subject')?.setFilterValue('')}
+					>
+						<Cross1Icon />
+					</Button>
+				</div>
+
 				<Input
+					className="flex-1"
 					type="text"
 					placeholder="Search by title"
 					value={table.getColumn('title')?.getFilterValue() as string}
@@ -541,6 +546,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					}}
 				/>
 				<Input
+					className="flex-1"
 					type="text"
 					placeholder="Search by description"
 					value={table.getColumn('description')?.getFilterValue() as string}
@@ -548,28 +554,31 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						table.getColumn('description')?.setFilterValue(e.target.value);
 					}}
 				/>
-				<Select
-					onValueChange={(value) => table.getColumn('areas/skills')?.setFilterValue(value)}
-					defaultValue=""
-				>
-					<SelectTrigger>
-						<SelectValue placeholder="Area/Skill" />
-					</SelectTrigger>
-					<SelectContent>
-						{uniqueSkillsAndAreas.map((item) => (
-							<SelectItem key={item} value={item}>
-								{item}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Button
-					variant="ghost"
-					size="icon"
-					onClick={() => table.getColumn('areas/skills')?.setFilterValue('')}
-				>
-					<Cross1Icon />
-				</Button>
+				<div className="relative flex-1">
+					<Select
+						onValueChange={(value) => table.getColumn('areas/skills')?.setFilterValue(value)}
+						defaultValue=""
+					>
+						<SelectTrigger>
+							<SelectValue placeholder="Area/Skill" />
+						</SelectTrigger>
+						<SelectContent>
+							{uniqueSkillsAndAreas.map((item) => (
+								<SelectItem key={item} value={item}>
+									{item}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+					<Button
+						variant="ghost"
+						size="icon"
+						className="absolute right-1 top-1/2 -translate-y-1/2 transform"
+						onClick={() => table.getColumn('subject')?.setFilterValue('')}
+					>
+						<Cross1Icon />
+					</Button>
+				</div>
 			</div>
 			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
 				<Table className="grid">
