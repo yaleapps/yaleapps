@@ -18,10 +18,11 @@ import {
 	TableRow,
 } from '@repo/ui/components/table';
 import { cn } from '@repo/ui/lib/utils';
-import type { ColumnDef, SortingState } from '@tanstack/react-table';
+import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
 	getCoreRowModel,
+	getFilteredRowModel,
 	getSortedRowModel,
 	useReactTable,
 } from '@tanstack/react-table';
@@ -94,6 +95,34 @@ function TableCellPopover({
 
 export const columns: ColumnDef<DisplayCourse>[] = [
 	{
+		id: 'subject',
+		accessorFn: (row) => row.listings.map((listing) => listing.subject),
+		header: ({ column }) => {
+			return (
+				<Button
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Subject
+				</Button>
+			);
+		},
+		// TODO: getSize implement
+		cell: ({ getValue, column: { getSize } }) => {
+			const subjects = getValue<string[]>();
+			return (
+				<TableCellPopover overflowStyle="scroll">
+					{subjects.map((courseCode) => (
+						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
+							{courseCode}
+						</Badge>
+					))}
+				</TableCellPopover>
+			);
+		},
+		filterFn: 'arrIncludes',
+	},
+	{
 		id: 'course_code',
 		accessorFn: (row) => row.listings.map((listing) => listing.course_code),
 		header: ({ column }) => {
@@ -118,6 +147,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</TableCellPopover>
 			);
 		},
+		filterFn: 'arrIncludes',
 	},
 	{
 		id: 'title',
@@ -146,6 +176,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		// 		</div>
 		// 	);
 		// },
+		filterFn: 'includesString',
 	},
 	{
 		id: 'description',
@@ -164,6 +195,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			const value = getValue<string>();
 			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
+		filterFn: 'includesString',
 	},
 	{
 		id: 'areas/skills',
@@ -213,6 +245,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</div>
 			);
 		},
+		filterFn: 'arrIncludes',
 	},
 	{
 		id: 'last_enrollment',
@@ -404,42 +437,24 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 ];
 
-export function CoursesDataTable({ courses: initialCourses }: { courses: DisplayCourse[] }) {
+export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([
 		{ id: 'average_comment_compound', desc: true },
 	]);
-	const [courseCodeFilter, setCourseCodeFilter] = React.useState<string>('');
-	const [searchFilter, setSearchFilter] = React.useState<string>('');
-	const [areaFilter, setAreaFilter] = React.useState<string>('');
+	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
-	const filteredCourses = React.useMemo(() => {
-		return initialCourses.filter((course) => {
-			const matchesCourseCode =
-				courseCodeFilter === '' ||
-				course.listings.some((listing) => listing.course_code?.includes(courseCodeFilter));
-
-			const matchesSearchFilter =
-				searchFilter === '' ||
-				course.title?.toLowerCase().includes(searchFilter.toLowerCase()) ||
-				course.description?.toLowerCase().includes(searchFilter.toLowerCase());
-
-			const matchesAreaFilter =
-				areaFilter === '' ||
-				(course.areas ?? []).includes(areaFilter) ||
-				(course.skills ?? []).includes(areaFilter);
-
-			return matchesCourseCode && matchesSearchFilter && matchesAreaFilter;
-		});
-	}, [initialCourses, courseCodeFilter, searchFilter, areaFilter]);
 
 	const table = useReactTable({
-		data: filteredCourses,
+		data: courses,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		onSortingChange: setSorting,
 		getSortedRowModel: getSortedRowModel(),
+		onColumnFiltersChange: setColumnFilters,
+		getFilteredRowModel: getFilteredRowModel(),
 		state: {
 			sorting,
+			columnFilters,
 		},
 	});
 
@@ -461,9 +476,13 @@ export function CoursesDataTable({ courses: initialCourses }: { courses: Display
 	return (
 		<div>
 			<div className="mb-4 flex gap-4">
-				<Select onValueChange={(value) => setCourseCodeFilter(value)} defaultValue="">
+				<Select
+					value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
+					onValueChange={(value) => table.getColumn('subject')?.setFilterValue(value)}
+					defaultValue=""
+				>
 					<SelectTrigger>
-						<SelectValue placeholder="Course Code" />
+						<SelectValue placeholder="Subject" />
 					</SelectTrigger>
 					<SelectContent>
 						{/* <SelectItem value="">All</SelectItem> */}
@@ -473,11 +492,24 @@ export function CoursesDataTable({ courses: initialCourses }: { courses: Display
 				</Select>
 				<Input
 					type="text"
-					placeholder="Search by title or description"
-					value={searchFilter}
-					onChange={(e) => setSearchFilter(e.target.value)}
+					placeholder="Search by title"
+					value={table.getColumn('title')?.getFilterValue() as string}
+					onChange={(e) => {
+						table.getColumn('title')?.setFilterValue(e.target.value);
+					}}
 				/>
-				<Select onValueChange={(value) => setAreaFilter(value)} defaultValue="">
+				<Input
+					type="text"
+					placeholder="Search by description"
+					value={table.getColumn('description')?.getFilterValue() as string}
+					onChange={(e) => {
+						table.getColumn('description')?.setFilterValue(e.target.value);
+					}}
+				/>
+				<Select
+					onValueChange={(value) => table.getColumn('areas/skills')?.setFilterValue(value)}
+					defaultValue=""
+				>
 					<SelectTrigger>
 						<SelectValue placeholder="Area/Skill" />
 					</SelectTrigger>
