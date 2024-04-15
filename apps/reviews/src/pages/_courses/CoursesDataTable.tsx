@@ -51,8 +51,8 @@ function createColorScale({ value, min, max }: { value: number | null; min: numb
 		backgroundLightnessMin +
 		normalizedValueOutOf1 * (backgroundLightnessMax - backgroundLightnessMin);
 
-	// Define the lightness range for the text color (25% to 40%)
-	const textLightnessMin = 25;
+	// Define the lightness range for the text color (20% to 40%)
+	const textLightnessMin = 20;
 	const textLightnessMax = 40;
 
 	// Calculate the text lightness based on the normalized value
