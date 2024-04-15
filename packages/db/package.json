@@ -15,6 +15,7 @@
 		"drizzle-kit": "^0.20.14"
 	},
 	"exports": {
+		".": "./index.ts",
 		"./courses": "./courses/index.ts"
 	}
 }
