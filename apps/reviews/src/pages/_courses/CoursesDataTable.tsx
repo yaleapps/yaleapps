@@ -1,4 +1,14 @@
+import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
+import { Input } from '@repo/ui/components/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/popover';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@repo/ui/components/select';
 import {
 	Table,
 	TableBody,
@@ -7,8 +17,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@repo/ui/components/table';
-import { Badge } from '@repo/ui/components/badge';
-import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/components/popover';
+import { cn } from '@repo/ui/lib/utils';
 import type { ColumnDef, SortingState } from '@tanstack/react-table';
 import {
 	flexRender,
@@ -19,7 +28,6 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
-import { cn } from '@repo/ui/lib/utils';
 
 function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
 	if (!value) {
@@ -396,13 +404,36 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 ];
 
-export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
+export function CoursesDataTable({ courses: initialCourses }: { courses: DisplayCourse[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([
 		{ id: 'average_comment_compound', desc: true },
 	]);
+	const [courseCodeFilter, setCourseCodeFilter] = React.useState<string>('');
+	const [searchFilter, setSearchFilter] = React.useState<string>('');
+	const [areaFilter, setAreaFilter] = React.useState<string>('');
+
+	const filteredCourses = React.useMemo(() => {
+		return initialCourses.filter((course) => {
+			const matchesCourseCode =
+				courseCodeFilter === '' ||
+				course.listings.some((listing) => listing.course_code?.includes(courseCodeFilter));
+
+			const matchesSearchFilter =
+				searchFilter === '' ||
+				course.title?.toLowerCase().includes(searchFilter.toLowerCase()) ||
+				course.description?.toLowerCase().includes(searchFilter.toLowerCase());
+
+			const matchesAreaFilter =
+				areaFilter === '' ||
+				(course.areas ?? []).includes(areaFilter) ||
+				(course.skills ?? []).includes(areaFilter);
+
+			return matchesCourseCode && matchesSearchFilter && matchesAreaFilter;
+		});
+	}, [initialCourses, courseCodeFilter, searchFilter, areaFilter]);
 
 	const table = useReactTable({
-		data: courses,
+		data: filteredCourses,
 		columns,
 		getCoreRowModel: getCoreRowModel(),
 		onSortingChange: setSorting,
@@ -428,68 +459,99 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	});
 
 	return (
-		<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
-			<Table className="grid">
-				<TableHeader className="sticky top-0 z-10 grid">
-					{table.getHeaderGroups().map((headerGroup) => (
-						<TableRow key={headerGroup.id} className="flex w-full">
-							{headerGroup.headers.map((header) => {
-								return (
-									<TableHead
-										key={header.id}
-										style={{
-											display: 'flex',
-											width: header.getSize(),
-										}}
-									>
-										{header.isPlaceholder
-											? null
-											: flexRender(header.column.columnDef.header, header.getContext())}
-									</TableHead>
-								);
-							})}
-						</TableRow>
-					))}
-				</TableHeader>
-				<TableBody
-					className="relative grid"
-					style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
-				>
-					{rowVirtualizer.getVirtualItems().length !== 0 ? (
-						rowVirtualizer.getVirtualItems().map((virtualRow) => {
-							const row = rows[virtualRow.index];
-							return (
-								<TableRow
-									key={row.id}
-									data-state={row.getIsSelected() && 'selected'}
-									data-index={virtualRow.index}
-									ref={(node) => rowVirtualizer.measureElement(node)}
-									className="absolute flex w-full"
-									style={{ transform: `translateY(${virtualRow.start}px)` }}
-								>
-									{row.getVisibleCells().map((cell) => (
-										<TableCell
-											key={cell.id}
+		<div>
+			<div className="mb-4 flex gap-4">
+				<Select onValueChange={(value) => setCourseCodeFilter(value)} defaultValue="">
+					<SelectTrigger>
+						<SelectValue placeholder="Course Code" />
+					</SelectTrigger>
+					<SelectContent>
+						{/* <SelectItem value="">All</SelectItem> */}
+						<SelectItem value="YSDN">YSDN</SelectItem>
+						<SelectItem value="MATH">MATH</SelectItem>
+					</SelectContent>
+				</Select>
+				<Input
+					type="text"
+					placeholder="Search by title or description"
+					value={searchFilter}
+					onChange={(e) => setSearchFilter(e.target.value)}
+				/>
+				<Select onValueChange={(value) => setAreaFilter(value)} defaultValue="">
+					<SelectTrigger>
+						<SelectValue placeholder="Area/Skill" />
+					</SelectTrigger>
+					<SelectContent>
+						{/* <SelectItem value="">All</SelectItem> */}
+						<SelectItem value="Hu">Hu</SelectItem>
+						<SelectItem value="WR">WR</SelectItem>
+						<SelectItem value="QR">QR</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
+				<Table className="grid">
+					<TableHeader className="sticky top-0 z-10 grid">
+						{table.getHeaderGroups().map((headerGroup) => (
+							<TableRow key={headerGroup.id} className="flex w-full">
+								{headerGroup.headers.map((header) => {
+									return (
+										<TableHead
+											key={header.id}
 											style={{
 												display: 'flex',
-												width: cell.column.getSize(),
+												width: header.getSize(),
 											}}
 										>
-											{flexRender(cell.column.columnDef.cell, cell.getContext())}
-										</TableCell>
-									))}
-								</TableRow>
-							);
-						})
-					) : (
-						<TableRow>
-							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No results.
-							</TableCell>
-						</TableRow>
-					)}
-				</TableBody>
-			</Table>
+											{header.isPlaceholder
+												? null
+												: flexRender(header.column.columnDef.header, header.getContext())}
+										</TableHead>
+									);
+								})}
+							</TableRow>
+						))}
+					</TableHeader>
+					<TableBody
+						className="relative grid"
+						style={{ height: `${rowVirtualizer.getTotalSize()}px` }}
+					>
+						{rowVirtualizer.getVirtualItems().length !== 0 ? (
+							rowVirtualizer.getVirtualItems().map((virtualRow) => {
+								const row = rows[virtualRow.index];
+								return (
+									<TableRow
+										key={row.id}
+										data-state={row.getIsSelected() && 'selected'}
+										data-index={virtualRow.index}
+										ref={(node) => rowVirtualizer.measureElement(node)}
+										className="absolute flex w-full"
+										style={{ transform: `translateY(${virtualRow.start}px)` }}
+									>
+										{row.getVisibleCells().map((cell) => (
+											<TableCell
+												key={cell.id}
+												style={{
+													display: 'flex',
+													width: cell.column.getSize(),
+												}}
+											>
+												{flexRender(cell.column.columnDef.cell, cell.getContext())}
+											</TableCell>
+										))}
+									</TableRow>
+								);
+							})
+						) : (
+							<TableRow>
+								<TableCell colSpan={columns.length} className="h-24 text-center">
+									No results.
+								</TableCell>
+							</TableRow>
+						)}
+					</TableBody>
+				</Table>
+			</div>
 		</div>
 	);
 }
