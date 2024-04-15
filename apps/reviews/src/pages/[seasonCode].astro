@@ -5,7 +5,8 @@ import { getCoursesBySeason, seasonCodeSchema } from './_[seasonCode]';
 import { CoursesDataTable } from './_courses/CoursesDataTable';
 
 export async function getStaticPaths() {
-	const allSeasons = await db.query.seasons.findMany();
+	// const allSeasons = await db.query.seasons.findMany();
+	const allSeasons = [{ season_code: '202403', term: 'Spring', year: 2022 }];
 	return Promise.all(
 		allSeasons.map(async ({ season_code, term, year }) => {
 			const seasonCode = seasonCodeSchema.parse(season_code);
