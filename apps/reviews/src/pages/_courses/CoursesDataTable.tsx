@@ -482,8 +482,8 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	});
 
 	return (
-		<div>
-			<div className="mb-4 flex gap-4">
+		<div className="container max-w-7xl space-y-4">
+			<div className="flex gap-4">
 				<Select
 					value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
 					onValueChange={(value) => table.getColumn('subject')?.setFilterValue(value)}
