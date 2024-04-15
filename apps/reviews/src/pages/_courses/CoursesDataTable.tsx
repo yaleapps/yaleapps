@@ -526,14 +526,12 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 							))}
 						</SelectContent>
 					</Select>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="absolute right-1 top-1/2 -translate-y-1/2 transform"
+					<button
+						className="hover:bg-secondary/80 absolute right-8 top-1/2 -translate-y-1/2 transform"
 						onClick={() => table.getColumn('subject')?.setFilterValue('')}
 					>
-						<Cross1Icon />
-					</Button>
+						<Cross1Icon className="h-4 w-4 opacity-50" />
+					</button>
 				</div>
 
 				<Input
@@ -570,14 +568,12 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 							))}
 						</SelectContent>
 					</Select>
-					<Button
-						variant="ghost"
-						size="icon"
-						className="absolute right-1 top-1/2 -translate-y-1/2 transform"
+					<button
+						className="hover:bg-secondary/80 absolute right-8 top-1/2 -translate-y-1/2 transform"
 						onClick={() => table.getColumn('subject')?.setFilterValue('')}
 					>
-						<Cross1Icon />
-					</Button>
+						<Cross1Icon className="h-4 w-4 opacity-50" />
+					</button>
 				</div>
 			</div>
 			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
