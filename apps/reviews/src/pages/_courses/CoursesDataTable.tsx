@@ -1,3 +1,10 @@
+import {
+	DropdownMenu,
+	DropdownMenuCheckboxItem,
+	DropdownMenuContent,
+	DropdownMenuTrigger,
+} from '@repo/ui/components/dropdown-menu';
+
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
@@ -18,7 +25,12 @@ import {
 	TableRow,
 } from '@repo/ui/components/table';
 import { cn } from '@repo/ui/lib/utils';
-import type { ColumnDef, ColumnFiltersState, SortingState } from '@tanstack/react-table';
+import type {
+	ColumnDef,
+	ColumnFiltersState,
+	SortingState,
+	VisibilityState,
+} from '@tanstack/react-table';
 import {
 	flexRender,
 	getCoreRowModel,
@@ -108,7 +120,6 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				</Button>
 			);
 		},
-		// TODO: getSize implement
 		cell: ({ getValue, column: { getSize } }) => {
 			const subjects = getValue<string[]>();
 			return (
@@ -469,6 +480,10 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
+	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+		course_code: false,
+	});
+
 	const uniqueSubjects = Array.from(
 		new Set(courses.flatMap((course) => course.listings.map((listing) => listing.subject))),
 	).sort();
@@ -485,9 +500,11 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 		getSortedRowModel: getSortedRowModel(),
 		onColumnFiltersChange: setColumnFilters,
 		getFilteredRowModel: getFilteredRowModel(),
+		onColumnVisibilityChange: setColumnVisibility,
 		state: {
 			sorting,
 			columnFilters,
+			columnVisibility,
 		},
 	});
 
@@ -575,6 +592,30 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						<Cross1Icon className="h-4 w-4 opacity-50" />
 					</button>
 				</div>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button variant="outline" className="ml-auto">
+							Columns
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						{table
+							.getAllColumns()
+							.filter((column) => column.getCanHide())
+							.map((column) => {
+								return (
+									<DropdownMenuCheckboxItem
+										key={column.id}
+										className="capitalize"
+										checked={column.getIsVisible()}
+										onCheckedChange={(value) => column.toggleVisibility(!!value)}
+									>
+										{column.id}
+									</DropdownMenuCheckboxItem>
+								);
+							})}
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</div>
 			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
 				<Table className="grid">
