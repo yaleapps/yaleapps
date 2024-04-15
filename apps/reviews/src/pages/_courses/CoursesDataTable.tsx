@@ -29,6 +29,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
+import { Cross1Icon } from '@radix-ui/react-icons';
 
 function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
 	if (!value) {
@@ -500,6 +501,13 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						))}
 					</SelectContent>
 				</Select>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => table.getColumn('subject')?.setFilterValue('')}
+				>
+					<Cross1Icon />
+				</Button>
 				<Input
 					type="text"
 					placeholder="Search by title"
@@ -524,7 +532,6 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						<SelectValue placeholder="Area/Skill" />
 					</SelectTrigger>
 					<SelectContent>
-						{/* <SelectItem value="">All</SelectItem> */}
 						{uniqueSkillsAndAreas.map((item) => (
 							<SelectItem key={item} value={item}>
 								{item}
@@ -532,6 +539,13 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 						))}
 					</SelectContent>
 				</Select>
+				<Button
+					variant="ghost"
+					size="icon"
+					onClick={() => table.getColumn('areas/skills')?.setFilterValue('')}
+				>
+					<Cross1Icon />
+				</Button>
 			</div>
 			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
 				<Table className="grid">
