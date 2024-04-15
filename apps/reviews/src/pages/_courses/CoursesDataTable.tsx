@@ -29,7 +29,7 @@ import {
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
-import { Cross1Icon } from '@radix-ui/react-icons';
+import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 
 function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
 	if (!value) {
@@ -436,6 +436,31 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 	},
+	{
+		id: 'crn',
+		header: '',
+		accessorFn: (row) => ({
+			season_code: row.season_code,
+			crn: row.listings[0].crn,
+		}),
+		cell: ({ getValue }) => {
+			const { season_code, crn } = getValue<{
+				season_code: string;
+				crn: string;
+			}>();
+			return (
+				<Button variant="outline" className="flex gap-1" asChild>
+					<a
+						href={`https://coursetable.com/catalog?course-modal=${season_code}-${crn}`}
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						Open <OpenInNewWindowIcon />
+					</a>
+				</Button>
+			);
+		},
+	},
 ];
 
 export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
@@ -483,7 +508,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 
 	return (
 		<div className="container max-w-7xl space-y-4">
-			<div className="flex gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 				<Select
 					value={(table.getColumn('subject')?.getFilterValue() as string) ?? ''}
 					onValueChange={(value) => table.getColumn('subject')?.setFilterValue(value)}
