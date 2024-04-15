@@ -443,6 +443,13 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	]);
 	const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
 
+	const uniqueSubjects = Array.from(
+		new Set(courses.flatMap((course) => course.listings.map((listing) => listing.subject))),
+	).sort();
+
+	const uniqueSkillsAndAreas = Array.from(
+		new Set(courses.flatMap((course) => [...(course.skills ?? []), ...(course.areas ?? [])])),
+	).sort();
 
 	const table = useReactTable({
 		data: courses,
@@ -486,8 +493,11 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					</SelectTrigger>
 					<SelectContent>
 						{/* <SelectItem value="">All</SelectItem> */}
-						<SelectItem value="YSDN">YSDN</SelectItem>
-						<SelectItem value="MATH">MATH</SelectItem>
+						{uniqueSubjects.map((subject) => (
+							<SelectItem key={subject} value={subject}>
+								{subject}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 				<Input
@@ -515,9 +525,11 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					</SelectTrigger>
 					<SelectContent>
 						{/* <SelectItem value="">All</SelectItem> */}
-						<SelectItem value="Hu">Hu</SelectItem>
-						<SelectItem value="WR">WR</SelectItem>
-						<SelectItem value="QR">QR</SelectItem>
+						{uniqueSkillsAndAreas.map((item) => (
+							<SelectItem key={item} value={item}>
+								{item}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 			</div>
