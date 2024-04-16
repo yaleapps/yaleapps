@@ -7,6 +7,7 @@ import { cn } from '@repo/ui/lib/utils';
 import GithubIcon from '~icons/mdi/github';
 import Layout from '../layouts/Layout.astro';
 import { SITE_CONFIG } from '../site.config';
+import ModeToggle from '../layouts/ModeToggle.astro';
 
 async function getAllSeasonCodes() {
 	const queryResult = await db.selectDistinct({ season_code: courses.season_code }).from(courses);
@@ -23,15 +24,17 @@ const allSeasonCodes = await getAllSeasonCodes();
 		<PageHeaderHeading>List course by sentiment descending</PageHeaderHeading>
 		<PageActions>
 			<a href="/202403" class={cn(buttonVariants())}>Open Fall 2024</a>
-			<a
-				target="_blank"
-				rel="noreferrer"
-				href={SITE_CONFIG.githubUrl}
-				class={cn(buttonVariants({ variant: 'outline' }))}
-			>
-				<GithubIcon transition:name="github" class="mr-2 h-4 w-4" />
-				Open GitHub
-			</a>
+			<div class="flex gap-2" transition:name="icons">
+				<a
+					class={buttonVariants({ variant: 'ghost', size: 'icon' })}
+					href={SITE_CONFIG.githubUrl}
+					target="_blank"
+					rel="noreferrer"
+				>
+					<GithubIcon class="h-6 w-6" aria-hidden="true" />
+				</a>
+				<ModeToggle />
+			</div>
 		</PageActions>
 	</PageHeader>
 </Layout>
