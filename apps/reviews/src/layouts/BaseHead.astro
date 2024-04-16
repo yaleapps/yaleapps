@@ -12,17 +12,11 @@ interface Props {
 const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Astro.props;
 ---
 
-<!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="description" content={description} />
-		<meta name="viewport" content="width=device-width" />
-		<link rel="icon" type="image/jpg" href="/favicon.jpg" />
-		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
-		<ViewTransitions />
-		<PostHog />
-	</head>
-	<body><slot /></body>
-</html>
+<meta charset="UTF-8" />
+<meta name="description" content={description} />
+<meta name="viewport" content="width=device-width" />
+<link rel="icon" type="image/jpg" href="/favicon.jpg" />
+<meta name="generator" content={Astro.generator} />
+<title>{title}</title>
+<ViewTransitions />
+<PostHog />
