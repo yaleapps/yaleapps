@@ -191,6 +191,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		// 	);
 		// },
 		filterFn: 'includesString',
+		size: 200,
 	},
 	{
 		id: 'description',
@@ -210,6 +211,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
 		filterFn: 'includesString',
+		size: 500,
 	},
 	{
 		id: 'areas/skills',
@@ -246,16 +248,24 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				}
 				return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
 			}
+
+			const value = getValue<string[]>();
 			return (
 				<div className="overflow-x-auto">
-					{getValue<string[]>().map((areaOrSkill) => {
-						let badgeColor = getBadgeColor(areaOrSkill);
-						return (
-							<Badge key={areaOrSkill} variant="outline" className={cn('mr-1', badgeColor)}>
-								{areaOrSkill}
-							</Badge>
-						);
-					})}
+					<TableCellPopover overflowStyle="scroll">
+						{value.map((areaOrSkill) => {
+							let badgeColor = getBadgeColor(areaOrSkill);
+							return (
+								<Badge
+									key={areaOrSkill}
+									variant="outline"
+									className={cn('mr-1 whitespace-nowrap', badgeColor)}
+								>
+									{areaOrSkill}
+								</Badge>
+							);
+						})}
+					</TableCellPopover>
 				</div>
 			);
 		},
