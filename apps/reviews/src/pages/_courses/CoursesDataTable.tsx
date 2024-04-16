@@ -471,7 +471,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 	{
 		id: 'crn',
-		header: '',
+		header: 'Open in CourseTable',
 		accessorFn: (row) => ({
 			season_code: row.season_code,
 			crn: row.listings[0].crn,
