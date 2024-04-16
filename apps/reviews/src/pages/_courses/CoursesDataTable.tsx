@@ -568,7 +568,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	});
 
 	return (
-		<div className="flex h-full w-full flex-col gap-2">
+		<div className="flex h-full max-w-fit flex-col gap-2">
 			<div className="flex gap-2">
 				<div className="relative flex-1">
 					<Select
