@@ -4,7 +4,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from '@repo/ui/components/dropdown-menu';
-
 import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
@@ -42,6 +41,8 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
 import type { DisplayCourse } from '../_[seasonCode]';
 import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+
+const STARTING_TABLE_HEIGHT_PX = 1200;
 
 function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
 	if (!value) {
@@ -538,7 +539,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	const { rows } = table.getRowModel();
 	const tableContainerRef = React.useRef<HTMLDivElement>(null);
 
-	const [tableHeight, setTableHeight] = React.useState(800);
+	const [tableHeight, setTableHeight] = React.useState(STARTING_TABLE_HEIGHT_PX);
 
 	React.useEffect(() => {
 		const calculateTableHeight = () => {
