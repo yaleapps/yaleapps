@@ -3,7 +3,7 @@ import PostHog from '../components/posthog.astro';
 import { buttonVariants } from '@repo/ui/components/button';
 import '@repo/ui/globals.css';
 import { Image } from 'astro:assets';
-import GithubLogo from '~icons/mdi/github';
+import GithubIcon from '~icons/mdi/github';
 import { SITE_CONFIG } from '../site.config';
 import logoImage from './logo.jpg';
 import ModeToggle from './ModeToggle.astro';
@@ -49,7 +49,7 @@ const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Ast
 						target="_blank"
 						rel="noreferrer"
 					>
-						<GithubLogo class="h-6 w-6" aria-hidden="true" />
+						<GithubIcon class="h-6 w-6" aria-hidden="true" />
 					</a>
 					<ModeToggle />
 				</div>
