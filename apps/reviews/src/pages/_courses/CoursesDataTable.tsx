@@ -115,6 +115,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -142,6 +143,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -169,6 +171,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -199,6 +202,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -219,6 +223,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -275,6 +280,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -289,6 +295,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -318,6 +325,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -347,6 +355,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	// 	header: ({ column }) => {
 	// 		return (
 	// 			<Button
+	// 				className="-ml-2 px-2"
 	// 				variant="ghost"
 	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 	// 			>
@@ -376,6 +385,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	// 	header: ({ column }) => {
 	// 		return (
 	// 			<Button
+	// 				className="-ml-2 px-2"
 	// 				variant="ghost"
 	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 	// 			>
@@ -405,6 +415,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	// 	header: ({ column }) => {
 	// 		return (
 	// 			<Button
+	// 				className="-ml-2 px-2"
 	// 				variant="ghost"
 	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 	// 			>
@@ -434,6 +445,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 		header: ({ column }) => {
 			return (
 				<Button
+					className="-ml-2 px-2"
 					variant="ghost"
 					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
 				>
@@ -470,7 +482,7 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 				crn: string;
 			}>();
 			return (
-				<Button variant="outline" className="flex gap-1" asChild>
+				<Button variant="outline" className="-ml-2 flex gap-1 px-2" asChild>
 					<a
 						href={`https://coursetable.com/catalog?course-modal=${season_code}-${crn}`}
 						target="_blank"
