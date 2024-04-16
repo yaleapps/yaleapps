@@ -33,12 +33,12 @@ const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Ast
 				<a class="flex items-center gap-2" href="/">
 					<Image
 						src={logoImage}
-						alt="YaleApps Reviews Logo"
+						alt=`YaleApps ${SITE_CONFIG.subdomain} Logo`
 						height="32"
 						width="32"
 						class="rounded-lg"
 					/>
-					<span class="text-lg font-bold">yaleapps / reviews</span>
+					<span class="text-lg font-bold">yaleapps / {SITE_CONFIG.subdomain}</span>
 				</a>
 				<div class="flex gap-2">
 					<a
