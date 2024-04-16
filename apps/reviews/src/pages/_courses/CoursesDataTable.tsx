@@ -571,6 +571,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 				/>
 				<div className="relative flex-1">
 					<Select
+						value={(table.getColumn('areas/skills')?.getFilterValue() as string) ?? ''}
 						onValueChange={(value) => table.getColumn('areas/skills')?.setFilterValue(value)}
 						defaultValue=""
 					>
@@ -587,7 +588,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					</Select>
 					<button
 						className="hover:bg-secondary/80 absolute right-8 top-1/2 -translate-y-1/2 transform"
-						onClick={() => table.getColumn('subject')?.setFilterValue('')}
+						onClick={() => table.getColumn('areas/skills')?.setFilterValue('')}
 					>
 						<Cross1Icon className="h-4 w-4 opacity-50" />
 					</button>
