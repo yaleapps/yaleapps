@@ -1,7 +1,6 @@
 ---
 import { courses, db } from '@repo/db/courses'
 import { Spotlight } from '@repo/ui/components/spotlight'
-import { SelectForm } from './_index/Form.tsx'
 import Layout from '../layouts/Layout.astro'
 
 async function getAllSeasonCodes() {
@@ -19,7 +18,6 @@ console.log('🚀 ~ allSeasonCodes:', allSeasonCodes)
 		class="relative flex h-[40rem] w-full overflow-hidden rounded-md md:items-center md:justify-center"
 	>
 		<Spotlight className="-top-40 left-0 md:-top-20 md:left-60" fill="white" />
-		<SelectForm client:load />
 		<div class="relative z-10 mx-auto w-full max-w-7xl p-4 pt-20 md:pt-0">
 			<h1
 				class="bg-opacity-50 bg-gradient-to-b from-neutral-50 to-neutral-400 bg-clip-text text-center text-4xl font-bold text-transparent md:text-7xl"
