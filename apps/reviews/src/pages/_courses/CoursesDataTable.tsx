@@ -538,6 +538,22 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 	const { rows } = table.getRowModel();
 	const tableContainerRef = React.useRef<HTMLDivElement>(null);
 
+	const [tableHeight, setTableHeight] = React.useState(800);
+
+	React.useEffect(() => {
+		const calculateTableHeight = () => {
+			const availableHeight = window.innerHeight - tableContainerRef.current!.offsetTop - 20;
+			setTableHeight(availableHeight);
+		};
+
+		calculateTableHeight();
+		window.addEventListener('resize', calculateTableHeight);
+
+		return () => {
+			window.removeEventListener('resize', calculateTableHeight);
+		};
+	}, []);
+
 	const rowVirtualizer = useVirtualizer({
 		count: rows.length,
 		estimateSize: () => 36, //estimate row height for accurate scrollbar dragging
@@ -645,7 +661,13 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 					</DropdownMenuContent>
 				</DropdownMenu>
 			</div>
-			<div className="relative h-[1200px] overflow-auto rounded-md border" ref={tableContainerRef}>
+			<div
+				className="relative overflow-auto rounded-md border"
+				ref={tableContainerRef}
+				style={{
+					height: tableHeight,
+				}}
+			>
 				<Table className="grid">
 					<TableHeader className="sticky top-0 z-10 grid">
 						{table.getHeaderGroups().map((headerGroup) => (
