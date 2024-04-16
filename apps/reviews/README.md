@@ -30,9 +30,7 @@ The inspiration for this project stemmed from discovering that CourseTable's dat
 3. **GraphQL Integration**: By employing the CourseTable GraphQL API with a session cookie as an authentication method, I could perform queries to fetch data directly from CourseTable's database.
 4. **Database Seeding**: I initialized a local SQLite database managed by Drizzle, and then ran `seed.ts` to populate the database with course data from CourseTable using the GraphQL API.
 
-### Data Aggregation
-
-1. **SQL Insert with CTEs**: I crafted a comprehensive SQL query using Common Table Expressions (CTEs) to calculate the average sentiment values for each course, which can be found in `seed.ts`. These values, such as `average_comment_neg`, `average_comment_neu`, `average_comment_pos`, and `average_comment_compound`, were then inserted in the `courses` table.
+I crafted a comprehensive SQL query using Common Table Expressions (CTEs) to calculate the average sentiment values for each course, which can be found in `seed.ts`. These values, such as `average_comment_neg`, `average_comment_neu`, `average_comment_pos`, and `average_comment_compound`, were then inserted in the `courses` table.
 
 ```sql
 WITH unique_same_course_ids AS (
