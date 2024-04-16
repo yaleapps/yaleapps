@@ -504,6 +504,8 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 
 	const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
 		course_code: false,
+		average_rating: false,
+		average_workload: false,
 	});
 
 	const uniqueSubjects = Array.from(
