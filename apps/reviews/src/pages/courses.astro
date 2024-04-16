@@ -1,7 +1,7 @@
 ---
 import { db } from '@repo/db/courses'
-import Layout from '../../layouts/Layout.astro'
-import { CoursesDataTable } from './_/CoursesDataTable'
+import Layout from '../layouts/Layout.astro'
+import { CoursesDataTable } from './_courses/CoursesDataTable'
 
 const allCourses = await db.query.courses.findMany({
 	limit: 10,

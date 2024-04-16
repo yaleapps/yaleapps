@@ -1,18 +1,18 @@
 ---
-import { buttonVariants } from '@repo/ui/components/button'
-import '@repo/ui/globals.css'
-import { Image } from 'astro:assets'
-import GithubLogo from '~icons/mdi/github'
-import { SITE_CONFIG } from '../site.config'
-import logoImage from './logo.jpg'
-import ModeToggle from './ModeToggle.astro'
+import { buttonVariants } from '@repo/ui/components/button';
+import '@repo/ui/globals.css';
+import { Image } from 'astro:assets';
+import GithubLogo from '~icons/mdi/github';
+import { SITE_CONFIG } from '../site.config';
+import logoImage from './logo.jpg';
+import ModeToggle from './ModeToggle.astro';
 
 interface Props {
-	title?: string
-	description?: string
+	title?: string;
+	description?: string;
 }
 
-const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Astro.props
+const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Astro.props;
 ---
 
 <!doctype html>
@@ -49,10 +49,8 @@ const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Ast
 					>
 						<GithubLogo class="h-6 w-6" aria-hidden="true" />
 					</a>
-					<a class={buttonVariants({ variant: 'ghost' })} href="/about">About</a>
-					<a class={buttonVariants({ variant: 'ghost' })} href="/about">Search</a>
+					<ModeToggle />
 				</div>
-				<ModeToggle />
 			</div>
 		</header>
 		<main class="flex flex-1 justify-center p-4">

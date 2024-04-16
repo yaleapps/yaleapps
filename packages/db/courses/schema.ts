@@ -21,6 +21,20 @@ export const seasonsRelations = relations(seasons, ({ many }) => ({
 	listings: many(listings),
 }));
 
+export const addedCommentSentimentColumnNames = [
+	'average_comment_neg',
+	'average_comment_neu',
+	'average_comment_pos',
+	'average_comment_compound',
+] as const;
+
+export const addedCommentSentimentNColumnNames = [
+	'average_comment_neg_n',
+	'average_comment_neu_n',
+	'average_comment_pos_n',
+	'average_comment_compound_n',
+] as const;
+
 export const allCourseColumnNames = [
 	'course_id',
 	'season_code',
@@ -60,14 +74,8 @@ export const allCourseColumnNames = [
 	'last_enrollment',
 	'last_enrollment_season_code',
 	'last_enrollment_same_professors',
-	'average_comment_neg',
-	'average_comment_neg_n',
-	'average_comment_neu',
-	'average_comment_neu_n',
-	'average_comment_pos',
-	'average_comment_pos_n',
-	'average_comment_compound',
-	'average_comment_compound_n',
+	...addedCommentSentimentColumnNames,
+	...addedCommentSentimentNColumnNames,
 ] as const;
 
 export const courses = sqliteTable('courses', {

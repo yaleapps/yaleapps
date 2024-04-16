@@ -1,6 +1,6 @@
 import { Client, cacheExchange, fetchExchange } from '@urql/core';
 import { getTableName } from 'drizzle-orm';
-import { env } from '../../env';
+import { env } from '@repo/env';
 import { db } from '../db';
 import { graphql } from '../graphql';
 import {
