@@ -1,8 +1,8 @@
-import { Client, cacheExchange, fetchExchange } from '@urql/core';
-import { getTableName } from 'drizzle-orm';
 import { env } from '@repo/env';
-import { db } from '../db';
-import { graphql } from '../graphql';
+import { Client, cacheExchange, fetchExchange } from '@urql/core';
+import { getTableName, sql } from 'drizzle-orm';
+import { db } from './db';
+import { graphql } from './graphql';
 import {
 	course_flags,
 	course_professors,
@@ -15,7 +15,12 @@ import {
 	listings,
 	professors,
 	seasons,
-} from '../schema';
+} from './schema';
+
+(async function main() {
+	await syncCourseTableToSqlite();
+	await insertAveragesOfCommentSentimentsOfSameCourses();
+})()
 
 const client = new Client({
 	url: 'https://api.coursetable.com/ferry/v1/graphql',
@@ -215,7 +220,7 @@ const TABLES = [
 	},
 ] as const;
 
-export async function syncCourseTableToSqlite() {
+async function syncCourseTableToSqlite() {
 	for (const { query, table } of TABLES) {
 		const tableName = getTableName(table);
 		const totalRows = await getTableLength(table);
@@ -252,4 +257,122 @@ async function getTableLength(table: (typeof TABLES)[number]['table']): Promise<
 	}
 	// @ts-ignore
 	return data[tableNameAggregate].aggregate.count;
+}
+
+/**
+ * For each course, gets all the courses with matching same_course_id, then takes all the evaluations of all courses with the same_course_id, then take the average of the sentiments of the evaluations.
+ * The averages are saved in the columns average_comment_neg, average_comment_neu, average_comment_pos, average_comment_compound.
+ * The counts of the number of evaluations used to calculate the averages are saved in the columns average_comment_neg_n, average_comment_neu_n, average_comment_pos_n, average_comment_compound_n.
+ */
+async function insertAveragesOfCommentSentimentsOfSameCourses() {
+	try {
+		await db.run(sql`
+WITH unique_same_course_ids AS (
+	SELECT
+		DISTINCT same_course_id
+	FROM
+		${courses}
+),
+average_comments AS (
+	SELECT
+		${courses.same_course_id},
+		AVG(${evaluation_narratives.comment_neg}) AS average_comment_neg,
+		COUNT(${evaluation_narratives.comment_neg}) AS average_comment_neg_n,
+		AVG(${evaluation_narratives.comment_neu}) AS average_comment_neu,
+		COUNT(${evaluation_narratives.comment_neu}) AS average_comment_neu_n,
+		AVG(${evaluation_narratives.comment_pos}) AS average_comment_pos,
+		COUNT(${evaluation_narratives.comment_pos}) AS average_comment_pos_n,
+		AVG(${evaluation_narratives.comment_compound}) AS average_comment_compound,
+		COUNT(${evaluation_narratives.comment_compound}) AS average_comment_compound_n
+	FROM
+		${evaluation_narratives}
+		INNER JOIN ${courses} ON ${evaluation_narratives.course_id} = ${courses.course_id}
+	WHERE
+		${courses.same_course_id} IN (
+			SELECT
+				same_course_id
+			FROM
+				unique_same_course_ids
+		)
+	GROUP BY
+		${courses.same_course_id}
+)
+UPDATE
+	${courses}
+SET
+	average_comment_neg = (
+		SELECT
+			average_comment_neg
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_neg_n = (
+		SELECT
+			average_comment_neg_n
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_neu = (
+		SELECT
+			average_comment_neu
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_neu_n = (
+		SELECT
+			average_comment_neu_n
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_pos = (
+		SELECT
+			average_comment_pos
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_pos_n = (
+		SELECT
+			average_comment_pos_n
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_compound = (
+		SELECT
+			average_comment_compound
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	),
+	average_comment_compound_n = (
+		SELECT
+			average_comment_compound_n
+		FROM
+			average_comments
+		WHERE
+			average_comments.same_course_id = ${courses.same_course_id}
+	)
+WHERE
+	${courses.same_course_id} IN (
+		SELECT
+			same_course_id
+		FROM
+			unique_same_course_ids
+	);
+		`);
+	} catch (e) {
+		console.error(e);
+	}
 }
