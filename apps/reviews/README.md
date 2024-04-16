@@ -17,7 +17,7 @@ The inspiration for this project stemmed from discovering that CourseTable's dat
 - **Web Framework**: [Astro](https://astro.build/), used for building the static site, very easy server side data fetching, and its magical islands architecture.
 - **Components**: [React](https://react.dev/), which powers the dynamic components and interactions on the site, specifically the Table.
 - **UI**: [shadcn/ui](https://ui.shadcn.com/), which provides a clean and modern interface design, along with [Tailwind CSS](https://tailwindcss.com/).
-- **ORM for Database Management**: [Drizzle](https://github.com/drizzle-team/drizzle-orm), an ORM used to define the SQLite schema based on models derived from the CourseTable's `models.py`, which can be found [on their GitHub here](https://github.com/coursetable/ferry/blob/master/ferry/database/models.py). These queries are run in `seed.ts` to populate the local database.
+- **ORM for Database Management**: [Drizzle](https://github.com/drizzle-team/drizzle-orm), an ORM used to define the SQLite schema based on models derived from the CourseTable's `models.py`, which can be found [on their GitHub here](https://github.com/coursetable/ferry/blob/master/ferry/database/models.py). These queries are run in [`seed.ts`](https://github.com/yaleapps/yaleapps/blob/main/packages/db/courses/seed.ts) to populate the local database.
 - **Database**: [SQLite](https://orm.drizzle.team/docs/get-started-sqlite), hosting the local copy of the database for development and testing.
 - **Table Solution**: [TanStack Table](https://tanstack.com/table/v8), a headless utility that supports building highly interactive and efficient tables.
 - **Virtualized Rendering**: Utilizing [TanStack Virtual](https://tanstack.com/virtual/latest), the course data in the table is presented efficiently and doesn't render all at once, ensuring quick load times and smooth interactions, even with large datasets.
@@ -30,9 +30,9 @@ The inspiration for this project stemmed from discovering that CourseTable's dat
 1. **Schema Parsing**: Using an LLM to parse `models.py` from the CourseTable repository, I generated initial schema definitions. These were refined to create a custom schema appropriate for Drizzle.
 2. **Initialize Database with Extra Fields**: I created a local SQLite database using the schema definitions and added additional fields to store the sentiment metrics: `average_comment_neg`, `average_comment_neu`, `average_comment_pos`, and `average_comment_compound`.
 3. **GraphQL Integration**: By employing the CourseTable GraphQL API with a session cookie as an authentication method, I could perform queries to fetch data directly from CourseTable's database.
-4. **Database Seeding**: I initialized a local SQLite database managed by Drizzle, and then ran `seed.ts` to populate the database with course data from CourseTable using the GraphQL API.
+4. **Database Seeding**: I initialized a local SQLite database managed by Drizzle, and then ran [`seed.ts`](https://github.com/yaleapps/yaleapps/blob/main/packages/db/courses/seed.ts) to populate the database with course data from CourseTable using the GraphQL API.
 
-I crafted a comprehensive SQL query using Common Table Expressions (CTEs) to calculate the average sentiment values for each course, which can be found in `seed.ts`. These values, such as `average_comment_neg`, `average_comment_neu`, `average_comment_pos`, and `average_comment_compound`, were then inserted in the `courses` table.
+I crafted a comprehensive SQL query using Common Table Expressions (CTEs) to calculate the average sentiment values for each course, which can be found in [`seed.ts`](https://github.com/yaleapps/yaleapps/blob/main/packages/db/courses/seed.ts). These values, such as `average_comment_neg`, `average_comment_neu`, `average_comment_pos`, and `average_comment_compound`, were then inserted in the `courses` table.
 
 ```sql
 WITH unique_same_course_ids AS (
