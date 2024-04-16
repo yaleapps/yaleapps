@@ -96,7 +96,9 @@ function TableCellPopover({
 		<Popover>
 			<PopoverTrigger
 				className={cn(
-					overflowStyle === 'scroll' ? 'no-scrollbar flex overflow-x-auto' : 'truncate',
+					overflowStyle === 'scroll'
+						? 'no-scrollbar flex items-center overflow-x-auto'
+						: 'truncate',
 				)}
 			>
 				{children}
