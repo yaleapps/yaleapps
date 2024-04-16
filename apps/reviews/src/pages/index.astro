@@ -1,16 +1,11 @@
 ---
-import { Spotlight } from '@repo/ui/components/spotlight';
-import GithubIcon from '~icons/mdi/github';
 import { courses, db } from '@repo/db/courses';
-import {
-	PageHeader,
-	PageHeaderHeading,
-	PageHeaderDescription,
-	PageActions,
-} from '@repo/ui/components/page-header';
-import Layout from '../layouts/Layout.astro';
-import { cn } from '@repo/ui/lib/utils';
 import { buttonVariants } from '@repo/ui/components/button';
+import { PageActions, PageHeader, PageHeaderHeading } from '@repo/ui/components/page-header';
+import { Spotlight } from '@repo/ui/components/spotlight';
+import { cn } from '@repo/ui/lib/utils';
+import GithubIcon from '~icons/mdi/github';
+import Layout from '../layouts/Layout.astro';
 import { SITE_CONFIG } from '../site.config';
 
 async function getAllSeasonCodes() {
@@ -34,7 +29,7 @@ const allSeasonCodes = await getAllSeasonCodes();
 				href={SITE_CONFIG.githubUrl}
 				class={cn(buttonVariants({ variant: 'outline' }))}
 			>
-				<GithubIcon class="mr-2 h-4 w-4" />
+				<GithubIcon transition:name="github" class="mr-2 h-4 w-4" />
 				Open GitHub
 			</a>
 		</PageActions>
