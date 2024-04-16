@@ -14,13 +14,13 @@ The inspiration for this project stemmed from discovering that CourseTable's dat
 
 ## Technical Stack
 
-- **Web Framework**: Astro, used for building the static site, very easy server side data fetching, and its magical islands architecture.
-- **Components**: React, which powers the dynamic components and interactions on the site, specifically the Table.
-- **UI**: ShadCN, which provides a clean and modern interface design, along with Tailwind CSS.
-- **ORM for Database Management**: Drizzle, an ORM used to define the SQLite schema based on models derived from the CourseTable's `models.py`, which can be found [on their GitHub here](https://github.com/coursetable/ferry/blob/master/ferry/database/models.py). These queries are run in `seed.ts` to populate the local database.
-- **Database**: SQLite, hosting the local copy of the database for development and testing.
-- **Table Solution**: TanStack Table, a headless utility that supports building highly interactive and efficient tables.
-- **Virtualized Rendering**: Utilizing TanStack Virtualizer, the course data in the table is presented efficiently and doesn't render all at once, ensuring quick load times and smooth interactions, even with large datasets.
+- **Web Framework**: [Astro](https://astro.build/), used for building the static site, very easy server side data fetching, and its magical islands architecture.
+- **Components**: [React](https://react.dev/), which powers the dynamic components and interactions on the site, specifically the Table.
+- **UI**: [shadcn/ui](https://ui.shadcn.com/), which provides a clean and modern interface design, along with [Tailwind CSS](https://tailwindcss.com/).
+- **ORM for Database Management**: [Drizzle](https://github.com/drizzle-team/drizzle-orm), an ORM used to define the SQLite schema based on models derived from the CourseTable's `models.py`, which can be found [on their GitHub here](https://github.com/coursetable/ferry/blob/master/ferry/database/models.py). These queries are run in `seed.ts` to populate the local database.
+- **Database**: [SQLite](https://orm.drizzle.team/docs/get-started-sqlite), hosting the local copy of the database for development and testing.
+- **Table Solution**: [TanStack Table](https://tanstack.com/table/v8), a headless utility that supports building highly interactive and efficient tables.
+- **Virtualized Rendering**: Utilizing [TanStack Virtual](https://tanstack.com/virtual/latest), the course data in the table is presented efficiently and doesn't render all at once, ensuring quick load times and smooth interactions, even with large datasets.
 - **GraphQL Client**: [gql.tada](https://github.com/0no-co/gql.tada) for magical typesafe GraphQL queries, in combination with [urql](https://formidable.com/open-source/urql/) for fetching data by executing the GraphQL queries written with gql.tada.
 
 ## Development Process
