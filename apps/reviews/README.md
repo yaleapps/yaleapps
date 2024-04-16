@@ -1,6 +1,6 @@
 # Course Sentiments 🎓
 
-<img src="https://github.com/yaleapps/yaleapps/blob/main/apps/reviews/public/favicon.jpg?raw=true" width="100" height="100">
+<img src="https://github.com/yaleapps/yaleapps/blob/main/apps/reviews/public/favicon.jpg?raw=true" width="400" height="400">
 
 ## Introduction
 
