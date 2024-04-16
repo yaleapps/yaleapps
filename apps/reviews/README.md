@@ -1,5 +1,7 @@
 # Course Sentiments 🎓
 
+<img src="https://github.com/yaleapps/yaleapps/blob/main/apps/reviews/public/favicon.jpg?raw=true" width="100" height="100">
+
 ## Introduction
 
 Course Sentiments is a tool designed to expose the sentiment metrics of comments made on courses as cataloged by CourseTable. In summary, these are numbers that represent the overall sentiment of comments made on a course, positive or negative, on a scale of 0 to 1.
