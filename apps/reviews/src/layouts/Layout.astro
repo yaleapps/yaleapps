@@ -1,4 +1,5 @@
 ---
+import PostHog from '../components/posthog.astro';
 import { buttonVariants } from '@repo/ui/components/button';
 import '@repo/ui/globals.css';
 import { Image } from 'astro:assets';
@@ -24,6 +25,7 @@ const { title = SITE_CONFIG.title, description = SITE_CONFIG.description } = Ast
 		<link rel="icon" type="image/jpg" href="/favicon.jpg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
+		<PostHog />
 	</head>
 	<body>
 		<header
