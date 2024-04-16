@@ -26,9 +26,9 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 			last_enrollment: true,
 			average_rating: true,
 			average_workload: true,
-			// average_comment_pos: true,
-			// average_comment_neu: true,
-			// average_comment_neg: true,
+			average_comment_pos: true,
+			average_comment_neu: true,
+			average_comment_neg: true,
 			average_comment_compound: true,
 		},
 		with: {

@@ -349,96 +349,96 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 			);
 		},
 	},
-	// {
-	// 	id: 'average_comment_pos',
-	// 	accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				className="-ml-2 px-2"
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Avg Comment Pos
-	// 			</Button>
-	// 		);
-	// 	},
-	// 	cell: ({ getValue }) => {
-	// 		const value = getValue<number | null>();
-	// 		if (!value) return;
-	// 		const colorScale = createColorScale({ value, min: 0, max: 1 });
-	// 		return (
-	// 			<Badge
-	// 				style={{
-	// 					backgroundColor: colorScale.backgroundColor,
-	// 					color: colorScale.textColor,
-	// 				}}
-	// 			>
-	// 				{value}
-	// 			</Badge>
-	// 		);
-	// 	},
-	// },
-	// {
-	// 	id: 'average_comment_neu',
-	// 	accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				className="-ml-2 px-2"
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Avg Comment Neu
-	// 			</Button>
-	// 		);
-	// 	},
-	// 	cell: ({ getValue }) => {
-	// 		const value = getValue<number | null>();
-	// 		if (!value) return;
-	// 		const colorScale = createColorScale({ value, min: 0, max: 1 });
-	// 		return (
-	// 			<Badge
-	// 				style={{
-	// 					backgroundColor: colorScale.backgroundColor,
-	// 					color: colorScale.textColor,
-	// 				}}
-	// 			>
-	// 				{value}
-	// 			</Badge>
-	// 		);
-	// 	},
-	// },
-	// {
-	// 	id: 'average_comment_neg',
-	// 	accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
-	// 	header: ({ column }) => {
-	// 		return (
-	// 			<Button
-	// 				className="-ml-2 px-2"
-	// 				variant="ghost"
-	// 				onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-	// 			>
-	// 				Avg Comment Neg
-	// 			</Button>
-	// 		);
-	// 	},
-	// 	cell: ({ getValue }) => {
-	// 		const value = getValue<number | null>();
-	// 		if (!value) return;
-	// 		const colorScale = createColorScale({ value, min: 1, max: 0 });
-	// 		return (
-	// 			<Badge
-	// 				style={{
-	// 					backgroundColor: colorScale.backgroundColor,
-	// 					color: colorScale.textColor,
-	// 				}}
-	// 			>
-	// 				{value}
-	// 			</Badge>
-	// 		);
-	// 	},
-	// },
+	{
+		id: 'average_comment_pos',
+		accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					className="-ml-2 px-2"
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Avg Comment Pos
+				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			if (!value) return;
+			const colorScale = createColorScale({ value, min: 0, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neu',
+		accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					className="-ml-2 px-2"
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Avg Comment Neu
+				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			if (!value) return;
+			const colorScale = createColorScale({ value, min: 0, max: 1 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
+	},
+	{
+		id: 'average_comment_neg',
+		accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
+		header: ({ column }) => {
+			return (
+				<Button
+					className="-ml-2 px-2"
+					variant="ghost"
+					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+				>
+					Avg Comment Neg
+				</Button>
+			);
+		},
+		cell: ({ getValue }) => {
+			const value = getValue<number | null>();
+			if (!value) return;
+			const colorScale = createColorScale({ value, min: 1, max: 0 });
+			return (
+				<Badge
+					style={{
+						backgroundColor: colorScale.backgroundColor,
+						color: colorScale.textColor,
+					}}
+				>
+					{value}
+				</Badge>
+			);
+		},
+	},
 	{
 		id: 'average_comment_compound',
 		accessorFn: (row) => row.average_comment_compound?.toFixed(2) ?? '',
@@ -506,6 +506,9 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 		course_code: false,
 		average_rating: false,
 		average_workload: false,
+		average_comment_pos: false,
+		average_comment_neu: false,
+		average_comment_neg: false,
 	});
 
 	const uniqueSubjects = Array.from(
