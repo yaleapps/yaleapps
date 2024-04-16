@@ -251,22 +251,20 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 
 			const value = getValue<string[]>();
 			return (
-				<div className="overflow-x-auto">
-					<TableCellPopover overflowStyle="scroll">
-						{value.map((areaOrSkill) => {
-							let badgeColor = getBadgeColor(areaOrSkill);
-							return (
-								<Badge
-									key={areaOrSkill}
-									variant="outline"
-									className={cn('mr-1 whitespace-nowrap', badgeColor)}
-								>
-									{areaOrSkill}
-								</Badge>
-							);
-						})}
-					</TableCellPopover>
-				</div>
+				<TableCellPopover overflowStyle="scroll">
+					{value.map((areaOrSkill) => {
+						let badgeColor = getBadgeColor(areaOrSkill);
+						return (
+							<Badge
+								key={areaOrSkill}
+								variant="outline"
+								className={cn('mr-1 whitespace-nowrap', badgeColor)}
+							>
+								{areaOrSkill}
+							</Badge>
+						);
+					})}
+				</TableCellPopover>
 			);
 		},
 		filterFn: 'arrIncludes',
