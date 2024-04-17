@@ -1,13 +1,12 @@
+import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+import { Button } from '@repo/ui/components/button';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from '@repo/ui/components/dropdown-menu';
-import { Badge } from '@repo/ui/components/badge';
-import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/popover';
 import {
 	Select,
 	SelectContent,
@@ -23,7 +22,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@repo/ui/components/table';
-import { cn } from '@repo/ui/lib/utils';
 import type {
 	ColumnDef,
 	ColumnFiltersState,
@@ -39,181 +37,51 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import type { DisplayCourse } from '../_[seasonCode]';
-import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+import { RenderBadges, RenderText, RenderSortableColumnHeader } from '../_RenderCell';
+import { createColorScaleBadge } from '../_createColorScaleBadge';
+import type { FtsCourse } from './getCourses';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
 
-function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
-	if (!value) {
-		return {
-			backgroundColor: 'inherit',
-			textColor: 'inherit',
-		} as const;
-	}
-	const valueDistanceToMin = value - min;
-	const totalRangeDistance = max - min;
-	const normalizedValueOutOf1 = valueDistanceToMin / totalRangeDistance;
-	const hueMinDegrees = 0;
-	const hueMaxDegrees = 120;
-	const hueBetweenMinMaxDegrees =
-		hueMinDegrees + normalizedValueOutOf1 * (hueMaxDegrees - hueMinDegrees);
-	const backgroundLightnessMin = 75;
-	const backgroundLightnessMax = 90;
-	const backgroundLightness =
-		backgroundLightnessMin +
-		normalizedValueOutOf1 * (backgroundLightnessMax - backgroundLightnessMin);
-
-	// Define the lightness range for the text color (20% to 40%)
-	const textLightnessMin = 20;
-	const textLightnessMax = 40;
-
-	// Calculate the text lightness based on the normalized value
-	const textLightness =
-		textLightnessMin + normalizedValueOutOf1 * (textLightnessMax - textLightnessMin);
-
-	// Generate the background color using the HSL color model
-	const backgroundColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${backgroundLightness}%)`;
-
-	// Generate the text color using the HSL color model
-	const textColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${textLightness}%)`;
-
-	return {
-		backgroundColor,
-		textColor,
-	};
-}
-
-/** Popover used to render cell content that may overflow (title, description, course codes, etc.).*/
-function TableCellPopover({
-	overflowStyle,
-	children,
-}: {
-	/** 'ellipses' to truncate text in preview with ellipses, 'scroll' to allow scrolling. Use 'ellipses' to render text in a single line, 'scroll' to badges or other elements that should be displayed in a row.*/
-	overflowStyle: 'ellipses' | 'scroll';
-	children: React.ReactNode;
-}) {
-	return (
-		<Popover>
-			<PopoverTrigger
-				className={cn(
-					overflowStyle === 'scroll'
-						? 'no-scrollbar flex items-center overflow-x-auto'
-						: 'truncate',
-				)}
-			>
-				{children}
-			</PopoverTrigger>
-			<PopoverContent className="flex w-fit max-w-md flex-col gap-2">{children}</PopoverContent>
-		</Popover>
-	);
-}
-
-export const columns: ColumnDef<DisplayCourse>[] = [
+const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Subject
-				</Button>
-			);
-		},
-		cell: ({ getValue, column: { getSize } }) => {
+		header: RenderSortableColumnHeader,
+		cell: ({ getValue }) => {
 			const subjects = getValue<string[]>();
-			return (
-				<TableCellPopover overflowStyle="scroll">
-					{subjects.map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-							{courseCode}
-						</Badge>
-					))}
-				</TableCellPopover>
-			);
+			return <RenderBadges items={subjects} />;
 		},
 		filterFn: 'arrIncludes',
 	},
 	{
 		id: 'course_code',
 		accessorFn: (row) => row.listings.map((listing) => listing.course_code),
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Course Code
-				</Button>
-			);
-		},
-		cell: ({ getValue, column: { getSize } }) => {
+		header: RenderSortableColumnHeader,
+		cell: ({ getValue }) => {
 			const courseCodes = getValue<string[]>();
-			return (
-				<TableCellPopover overflowStyle="scroll">
-					{courseCodes.map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-							{courseCode}
-						</Badge>
-					))}
-				</TableCellPopover>
-			);
+			return <RenderBadges items={courseCodes} />;
 		},
 		filterFn: 'arrIncludes',
 	},
 	{
 		id: 'title',
 		accessorFn: (row) => row.title,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Title
-				</Button>
-			);
-		},
-		cell: ({ getValue, column: { getSize } }) => {
+		header: RenderSortableColumnHeader,
+		cell: ({ getValue }) => {
 			const value = getValue<string>();
-			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
+			return <RenderText>{value}</RenderText>;
 		},
-		// cell: ({ getValue, column: { getSize } }) => {
-		// 	return (
-		// 		<div
-		// 			className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-		// 			style={{ maxWidth: getSize() }}
-		// 		>
-		// 			{getValue<string>()}
-		// 		</div>
-		// 	);
-		// },
 		filterFn: 'includesString',
 		size: 200,
 	},
 	{
 		id: 'description',
 		accessorFn: (row) => row.description,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Description
-				</Button>
-			);
-		},
-		cell: ({ getValue, column: { getSize } }) => {
+		header: RenderSortableColumnHeader,
+		cell: ({ getValue }) => {
 			const value = getValue<string>();
-			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
+			return <RenderText>{value}</RenderText>;
 		},
 		filterFn: 'includesString',
 		size: 500,
@@ -221,56 +89,34 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		id: 'areas/skills',
 		accessorFn: (row) => [...(row?.areas ?? []), ...(row?.skills ?? [])],
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Areas/Skills
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
-			function getBadgeColor(areaOrSkill: string) {
-				if (areaOrSkill === 'Hu') {
-					return 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'So') {
-					return 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'Sc') {
-					return 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'QR') {
-					return 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'WR') {
-					return 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
-				}
-				if (areaOrSkill.startsWith('L')) {
-					return 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
-				}
-				return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-			}
-
 			const value = getValue<string[]>();
 			return (
-				<TableCellPopover overflowStyle="scroll">
-					{value.map((areaOrSkill) => {
-						let badgeColor = getBadgeColor(areaOrSkill);
-						return (
-							<Badge
-								key={areaOrSkill}
-								variant="outline"
-								className={cn('mr-1 whitespace-nowrap', badgeColor)}
-							>
-								{areaOrSkill}
-							</Badge>
-						);
-					})}
-				</TableCellPopover>
+				<RenderBadges
+					items={value}
+					getBadgeColor={(areaOrSkill) => {
+						if (areaOrSkill === 'Hu') {
+							return 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'So') {
+							return 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'Sc') {
+							return 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'QR') {
+							return 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'WR') {
+							return 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
+						}
+						if (areaOrSkill.startsWith('L')) {
+							return 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
+						}
+						return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+					}}
+				/>
 			);
 		},
 		filterFn: 'arrIncludes',
@@ -278,196 +124,66 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	{
 		id: 'last_enrollment',
 		accessorFn: (row) => row.last_enrollment,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Last Enrollment
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 	},
 	{
 		id: 'average_rating',
 		accessorFn: (row) => row.average_rating?.toFixed(2) ?? null,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Rating
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 1, max: 5 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 1, max: 5 });
 		},
 	},
 	{
 		id: 'average_workload',
 		accessorFn: (row) => row.average_workload?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Workload
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 5, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 5, max: 1 });
 		},
 	},
 	{
 		id: 'average_comment_pos',
 		accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Pos
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
 		id: 'average_comment_neu',
 		accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Neu
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
 		id: 'average_comment_neg',
 		accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Neg
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 1, max: 0 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 1, max: 0 });
 		},
 	},
 	{
 		id: 'average_comment_compound',
 		accessorFn: (row) => row.average_comment_compound?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Comp
-				</Button>
-			);
-		},
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
@@ -497,7 +213,13 @@ export const columns: ColumnDef<DisplayCourse>[] = [
 	},
 ];
 
-export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
+export function FtsCoursesDataTable({
+	courses,
+	keyword,
+}: {
+	courses: FtsCourse[];
+	keyword: string;
+}) {
 	const [sorting, setSorting] = React.useState<SortingState>([
 		{ id: 'average_comment_compound', desc: true },
 	]);
@@ -655,7 +377,7 @@ export function CoursesDataTable({ courses }: { courses: DisplayCourse[] }) {
 										checked={column.getIsVisible()}
 										onCheckedChange={(value) => column.toggleVisibility(!!value)}
 									>
-										{column.id}
+										{column.id.replaceAll('_', ' ')}
 									</DropdownMenuCheckboxItem>
 								);
 							})}

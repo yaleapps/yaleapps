@@ -1,7 +1,8 @@
 ---
-import Layout from '../layouts/NavLayout.astro';
-import { getCoursesBySeason, seasonCodeSchema } from './_[seasonCode]';
-import { CoursesDataTable } from './_courses/CoursesDataTable';
+import Layout from '@/layouts/NavLayout.astro';
+import { getSentimentCoursesBySeason } from './_sentiment/getCourses';
+import { seasonCodeSchema } from './_types';
+import { CoursesDataTable } from './_sentiment/DataTable';
 
 export async function getStaticPaths() {
 	// const allSeasons = await db.query.seasons.findMany();
@@ -9,7 +10,7 @@ export async function getStaticPaths() {
 	return Promise.all(
 		allSeasons.map(async ({ season_code, term, year }) => {
 			const seasonCode = seasonCodeSchema.parse(season_code);
-			const allCourses = await getCoursesBySeason(seasonCode);
+			const allCourses = await getSentimentCoursesBySeason(seasonCode);
 			return {
 				params: { seasonCode },
 				props: { allCourses, year, term },
