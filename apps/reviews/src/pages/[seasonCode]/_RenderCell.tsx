@@ -5,7 +5,7 @@ import { cn } from '@repo/ui/lib/utils';
 import type { Column } from '@tanstack/react-table';
 import React from 'react';
 
-export function SortableColumnHeader<TData>({ column }: { column: Column<TData> }) {
+export function RenderSortableColumnHeader<TData>({ column }: { column: Column<TData> }) {
 	return (
 		<Button
 			className="-ml-2 px-2 capitalize"

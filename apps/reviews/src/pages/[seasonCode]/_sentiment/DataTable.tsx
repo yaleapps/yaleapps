@@ -37,7 +37,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { RenderBadges, RenderText, SortableColumnHeader } from '../_RenderCell';
+import { RenderBadges, RenderText, RenderSortableColumnHeader } from '../_RenderCell';
 import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { SentimentCourse } from './getCourses';
 
@@ -47,7 +47,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const subjects = getValue<string[]>();
 			return <RenderBadges items={subjects} />;
@@ -57,7 +57,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'course_code',
 		accessorFn: (row) => row.listings.map((listing) => listing.course_code),
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const courseCodes = getValue<string[]>();
 			return <RenderBadges items={courseCodes} />;
@@ -67,7 +67,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'title',
 		accessorFn: (row) => row.title,
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <RenderText>{value}</RenderText>;
@@ -78,7 +78,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'description',
 		accessorFn: (row) => row.description,
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <RenderText>{value}</RenderText>;
@@ -89,7 +89,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'areas/skills',
 		accessorFn: (row) => [...(row?.areas ?? []), ...(row?.skills ?? [])],
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string[]>();
 			return (
@@ -124,12 +124,12 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'last_enrollment',
 		accessorFn: (row) => row.last_enrollment,
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 	},
 	{
 		id: 'average_rating',
 		accessorFn: (row) => row.average_rating?.toFixed(2) ?? null,
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -139,7 +139,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'average_workload',
 		accessorFn: (row) => row.average_workload?.toFixed(2) ?? '',
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -149,7 +149,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'average_comment_pos',
 		accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -159,7 +159,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'average_comment_neu',
 		accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -169,7 +169,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'average_comment_neg',
 		accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -179,7 +179,7 @@ const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'average_comment_compound',
 		accessorFn: (row) => row.average_comment_compound?.toFixed(2) ?? '',
-		header: SortableColumnHeader,
+		header: RenderSortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
