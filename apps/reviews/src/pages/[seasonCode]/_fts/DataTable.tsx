@@ -15,6 +15,14 @@ import {
 	SelectValue,
 } from '@repo/ui/components/select';
 import {
+	Sheet,
+	SheetContent,
+	SheetDescription,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from '@repo/ui/components/sheet';
+import {
 	Table,
 	TableBody,
 	TableCell,
@@ -37,7 +45,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { RenderBadges, RenderText, RenderSortableColumnHeader } from '../_RenderCell';
+import { RenderBadges, RenderSortableColumnHeader, RenderText } from '../_RenderCell';
 import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { FtsCourse } from './getCourses';
 
@@ -208,6 +216,38 @@ const columns: ColumnDef<FtsCourse>[] = [
 						Open <OpenInNewWindowIcon />
 					</a>
 				</Button>
+			);
+		},
+	},
+	{
+		id: 'number_matching_reviews',
+		accessorFn: (row) => row.evaluationNarratives.length,
+		header: 'Number of matching reviews',
+		cell: ({ getValue }) => {
+			const value = getValue<number>();
+			return value;
+		},
+	},
+	{
+		id: 'matching_reviews',
+		accessorFn: (row) => row.evaluationNarratives.map((narrative) => narrative.comment),
+		header: 'Matching Reviews',
+		cell: ({ getValue }) => {
+			const value = getValue<string[]>();
+			return (
+				<Sheet>
+					<SheetTrigger>Open</SheetTrigger>
+					<SheetContent>
+						<SheetHeader>
+							<SheetTitle>Matching Reviews ({value.length})</SheetTitle>
+							<SheetDescription>
+								{value.map((comment, index) => (
+									<div key={index}>{comment}</div>
+								))}
+							</SheetDescription>
+						</SheetHeader>
+					</SheetContent>
+				</Sheet>
 			);
 		},
 	},
