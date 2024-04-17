@@ -213,7 +213,13 @@ const columns: ColumnDef<FtsCourse>[] = [
 	},
 ];
 
-export function FtsCoursesDataTable({ courses }: { courses: FtsCourse[] }) {
+export function FtsCoursesDataTable({
+	courses,
+	keyword,
+}: {
+	courses: FtsCourse[];
+	keyword: string;
+}) {
 	const [sorting, setSorting] = React.useState<SortingState>([
 		{ id: 'average_comment_compound', desc: true },
 	]);

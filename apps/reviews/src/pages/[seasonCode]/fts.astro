@@ -14,5 +14,5 @@ const allCourses = await getFtsCourses({ seasonCode, keyword });
 ---
 
 <Layout>
-	<FtsCoursesDataTable courses={allCourses} client:load />
+	<FtsCoursesDataTable courses={allCourses} keyword={keyword} client:load />
 </Layout>
