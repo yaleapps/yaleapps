@@ -44,7 +44,7 @@ import type { SentimentCourse } from './getCourses';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
 
-export const columns: ColumnDef<SentimentCourse>[] = [
+const columns: ColumnDef<SentimentCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),

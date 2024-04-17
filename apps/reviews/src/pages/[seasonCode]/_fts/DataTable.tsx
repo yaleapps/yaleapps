@@ -43,7 +43,7 @@ import type { FtsCourse } from './getCourses';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
 
-export const columns: ColumnDef<FtsCourse>[] = [
+const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),
