@@ -4,7 +4,6 @@ import { z } from 'zod';
 type Year = `${number}${number}${number}${number}`;
 type Season = '01' | '02' | '03';
 type SeasonCode = `${Year}${Season}`;
-export type DisplayCourse = Awaited<ReturnType<typeof getCoursesBySeason>>[number];
 
 export const seasonCodeSchema = z
 	.string({ required_error: 'Please select a season.' })
@@ -55,3 +54,5 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 	});
 	return allCourses;
 }
+
+export type DisplayCourse = Awaited<ReturnType<typeof getCoursesBySeason>>[number];
