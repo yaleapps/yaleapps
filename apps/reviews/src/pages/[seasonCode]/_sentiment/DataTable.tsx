@@ -26,7 +26,7 @@ import type {
 	ColumnDef,
 	ColumnFiltersState,
 	SortingState,
-	VisibilityState
+	VisibilityState,
 } from '@tanstack/react-table';
 import {
 	flexRender,
@@ -371,7 +371,7 @@ export function CoursesDataTable({ courses }: { courses: SentimentCourse[] }) {
 										checked={column.getIsVisible()}
 										onCheckedChange={(value) => column.toggleVisibility(!!value)}
 									>
-										{column.id}
+										{column.id.replaceAll('_', ' ')}
 									</DropdownMenuCheckboxItem>
 								);
 							})}

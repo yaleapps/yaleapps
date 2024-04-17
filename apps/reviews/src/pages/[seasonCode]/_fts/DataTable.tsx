@@ -371,7 +371,7 @@ export function FtsCoursesDataTable({ courses }: { courses: FtsCourse[] }) {
 										checked={column.getIsVisible()}
 										onCheckedChange={(value) => column.toggleVisibility(!!value)}
 									>
-										{column.id}
+										{column.id.replaceAll('_', ' ')}
 									</DropdownMenuCheckboxItem>
 								);
 							})}
