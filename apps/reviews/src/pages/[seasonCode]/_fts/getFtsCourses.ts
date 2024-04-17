@@ -12,7 +12,7 @@ export const seasonCodeSchema = z
 		return regex.test(value);
 	});
 
-export async function getCoursesWithEvalsBySeasonAndKeyword({
+export async function getFtsCourses({
 	seasonCode,
 	keyword,
 }: {
@@ -72,6 +72,4 @@ export async function getCoursesWithEvalsBySeasonAndKeyword({
 	return allCourses;
 }
 
-export type DisplayCourse = Awaited<
-	ReturnType<typeof getCoursesWithEvalsBySeasonAndKeyword>
->[number];
+export type FtsCourse = Awaited<ReturnType<typeof getFtsCourses>>[number];

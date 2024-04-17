@@ -1,28 +1,18 @@
 ---
 import Layout from '@/layouts/NavLayout.astro';
-import { getSentimentCoursesBySeason } from './_sentiment/getSentimentCourses';
+import { getFtsCourses } from './_fts/getFtsCourses';
 import { seasonCodeSchema } from './_types';
-import { CoursesDataTable } from './_sentiment/SentimentCoursesDataTable';
+import { FtsCoursesDataTable } from './_fts/FtsCoursesDataTable';
 
-export async function getStaticPaths() {
-	// const allSeasons = await db.query.seasons.findMany();
-	const allSeasons = [{ season_code: '202403', term: 'Spring', year: 2022 }];
-	return Promise.all(
-		allSeasons.map(async ({ season_code, term, year }) => {
-			const seasonCode = seasonCodeSchema.parse(season_code);
-			const allCourses = await getSentimentCoursesBySeason(seasonCode);
-			return {
-				params: { seasonCode },
-				props: { allCourses, year, term },
-			};
-		}),
-	);
-}
+export const prerender = false;
 
-// const { seasonCode, year, term } = Astro.params;
-const { allCourses } = Astro.props;
+const seasonCode = seasonCodeSchema.parse(Astro.params.seasonCode);
+
+const keyword = Astro.url.searchParams.get('keyword') ?? '';
+
+const allCourses = await getFtsCourses({ seasonCode, keyword });
 ---
 
 <Layout>
-	<CoursesDataTable courses={allCourses} client:load />
+	<FtsCoursesDataTable courses={allCourses} client:load />
 </Layout>
