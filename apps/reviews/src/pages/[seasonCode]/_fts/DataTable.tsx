@@ -1,5 +1,4 @@
 import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
-import { Badge } from '@repo/ui/components/badge';
 import { Button } from '@repo/ui/components/button';
 import {
 	DropdownMenu,
@@ -23,7 +22,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@repo/ui/components/table';
-import { cn } from '@repo/ui/lib/utils';
 import type {
 	ColumnDef,
 	ColumnFiltersState,
@@ -39,7 +37,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { TableCellPopover } from '../_TableCellPopover';
+import { RenderBadges, RenderText } from '../_RenderCell';
 import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { FtsCourse } from './getCourses';
 
@@ -62,15 +60,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const subjects = getValue<string[]>();
-			return (
-				<TableCellPopover overflowStyle="scroll">
-					{subjects.map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-							{courseCode}
-						</Badge>
-					))}
-				</TableCellPopover>
-			);
+			return <RenderBadges items={subjects} />;
 		},
 		filterFn: 'arrIncludes',
 	},
@@ -90,15 +80,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const courseCodes = getValue<string[]>();
-			return (
-				<TableCellPopover overflowStyle="scroll">
-					{courseCodes.map((courseCode) => (
-						<Badge key={courseCode} variant="outline" className="mr-1 whitespace-nowrap">
-							{courseCode}
-						</Badge>
-					))}
-				</TableCellPopover>
-			);
+			return <RenderBadges items={courseCodes} />;
 		},
 		filterFn: 'arrIncludes',
 	},
@@ -118,7 +100,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
-			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
+			return <RenderText>{value}</RenderText>;
 		},
 		filterFn: 'includesString',
 		size: 200,
@@ -139,7 +121,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		},
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
-			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
+			return <RenderText>{value}</RenderText>;
 		},
 		filterFn: 'includesString',
 		size: 500,
@@ -159,44 +141,32 @@ export const columns: ColumnDef<FtsCourse>[] = [
 			);
 		},
 		cell: ({ getValue }) => {
-			function getBadgeColor(areaOrSkill: string) {
-				if (areaOrSkill === 'Hu') {
-					return 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'So') {
-					return 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'Sc') {
-					return 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'QR') {
-					return 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
-				}
-				if (areaOrSkill === 'WR') {
-					return 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
-				}
-				if (areaOrSkill.startsWith('L')) {
-					return 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
-				}
-				return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-			}
-
 			const value = getValue<string[]>();
 			return (
-				<TableCellPopover overflowStyle="scroll">
-					{value.map((areaOrSkill) => {
-						let badgeColor = getBadgeColor(areaOrSkill);
-						return (
-							<Badge
-								key={areaOrSkill}
-								variant="outline"
-								className={cn('mr-1 whitespace-nowrap', badgeColor)}
-							>
-								{areaOrSkill}
-							</Badge>
-						);
-					})}
-				</TableCellPopover>
+				<RenderBadges
+					items={value}
+					getBadgeColor={(areaOrSkill) => {
+						if (areaOrSkill === 'Hu') {
+							return 'bg-purple-100 text-purple-700 dark:bg-purple-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'So') {
+							return 'bg-blue-100 text-blue-700 dark:bg-blue-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'Sc') {
+							return 'bg-green-100 text-green-700 dark:bg-green-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'QR') {
+							return 'bg-red-100 text-red-700 dark:bg-red-300 dark:text-purple-900';
+						}
+						if (areaOrSkill === 'WR') {
+							return 'bg-orange-100 text-orange-700 dark:bg-orange-300 dark:text-purple-900';
+						}
+						if (areaOrSkill.startsWith('L')) {
+							return 'bg-gray-100 text-gray-700 dark:bg-gray-300 dark:text-purple-900';
+						}
+						return 'bg-gray-200 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+					}}
+				/>
 			);
 		},
 		filterFn: 'arrIncludes',
