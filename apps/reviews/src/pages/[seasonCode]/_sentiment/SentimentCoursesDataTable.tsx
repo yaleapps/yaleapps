@@ -39,7 +39,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import type { SentimentCourse } from './_sentiment/getSentimentCourses';
+import type { SentimentCourse } from './getSentimentCourses';
 import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
