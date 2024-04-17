@@ -1,5 +1,5 @@
 import { db } from '@repo/db/courses';
-import type { SeasonCode } from './_types';
+import type { SeasonCode } from '../_types';
 
 export async function getSentimentCoursesBySeason(seasonCode: SeasonCode) {
 	const allCourses = await db.query.courses.findMany({

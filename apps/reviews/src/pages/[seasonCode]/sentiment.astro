@@ -1,6 +1,6 @@
 ---
 import Layout from '@/layouts/NavLayout.astro';
-import { getSentimentCoursesBySeason } from './_sentiment';
+import { getSentimentCoursesBySeason } from './_sentiment/getSentimentCourses';
 import { seasonCodeSchema } from './_types';
 import { CoursesDataTable } from './_CoursesDataTable';
 
@@ -26,4 +26,4 @@ const { allCourses } = Astro.props;
 <Layout>
 	<CoursesDataTable courses={allCourses} client:load />
 </Layout>
-./sentiment ./_sentiment ./_types
+./sentiment ./_sentiment ./_types ./_sentiment/getSentimentCourses
