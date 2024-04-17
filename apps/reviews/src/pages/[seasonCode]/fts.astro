@@ -1,6 +1,7 @@
 ---
 import Layout from '@/layouts/NavLayout.astro';
-import { getSentimentCoursesBySeason, seasonCodeSchema } from './_sentiment';
+import { getSentimentCoursesBySeason } from './_sentiment';
+import { seasonCodeSchema } from './_types';
 import { CoursesDataTable } from './_CoursesDataTable';
 
 export async function getStaticPaths() {
@@ -25,4 +26,4 @@ const { allCourses } = Astro.props;
 <Layout>
 	<CoursesDataTable courses={allCourses} client:load />
 </Layout>
-./sentiment ./_sentiment
+./sentiment ./_sentiment ./_types
