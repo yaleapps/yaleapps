@@ -1,11 +1,12 @@
+import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
+import { Badge } from '@repo/ui/components/badge';
+import { Button } from '@repo/ui/components/button';
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from '@repo/ui/components/dropdown-menu';
-import { Badge } from '@repo/ui/components/badge';
-import { Button } from '@repo/ui/components/button';
 import { Input } from '@repo/ui/components/input';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/popover';
 import {
@@ -39,50 +40,10 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
+import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { FtsCourse } from './getCourses';
-import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
-
-function createColorScale({ value, min, max }: { value: number | null; min: number; max: number }) {
-	if (!value) {
-		return {
-			backgroundColor: 'inherit',
-			textColor: 'inherit',
-		} as const;
-	}
-	const valueDistanceToMin = value - min;
-	const totalRangeDistance = max - min;
-	const normalizedValueOutOf1 = valueDistanceToMin / totalRangeDistance;
-	const hueMinDegrees = 0;
-	const hueMaxDegrees = 120;
-	const hueBetweenMinMaxDegrees =
-		hueMinDegrees + normalizedValueOutOf1 * (hueMaxDegrees - hueMinDegrees);
-	const backgroundLightnessMin = 75;
-	const backgroundLightnessMax = 90;
-	const backgroundLightness =
-		backgroundLightnessMin +
-		normalizedValueOutOf1 * (backgroundLightnessMax - backgroundLightnessMin);
-
-	// Define the lightness range for the text color (20% to 40%)
-	const textLightnessMin = 20;
-	const textLightnessMax = 40;
-
-	// Calculate the text lightness based on the normalized value
-	const textLightness =
-		textLightnessMin + normalizedValueOutOf1 * (textLightnessMax - textLightnessMin);
-
-	// Generate the background color using the HSL color model
-	const backgroundColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${backgroundLightness}%)`;
-
-	// Generate the text color using the HSL color model
-	const textColor = `hsl(${hueBetweenMinMaxDegrees}, 100%, ${textLightness}%)`;
-
-	return {
-		backgroundColor,
-		textColor,
-	};
-}
 
 /** Popover used to render cell content that may overflow (title, description, course codes, etc.).*/
 function TableCellPopover({
@@ -307,17 +268,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 1, max: 5 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 1, max: 5 });
 		},
 	},
 	{
@@ -337,17 +288,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 5, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 5, max: 1 });
 		},
 	},
 	{
@@ -367,17 +308,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
@@ -397,17 +328,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
@@ -427,17 +348,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 1, max: 0 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 1, max: 0 });
 		},
 	},
 	{
@@ -457,17 +368,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
-			const colorScale = createColorScale({ value, min: 0, max: 1 });
-			return (
-				<Badge
-					style={{
-						backgroundColor: colorScale.backgroundColor,
-						color: colorScale.textColor,
-					}}
-				>
-					{value}
-				</Badge>
-			);
+			return createColorScaleBadge({ value, min: 0, max: 1 });
 		},
 	},
 	{
