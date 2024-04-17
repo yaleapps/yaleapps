@@ -39,7 +39,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import type { SentimentCourse } from './getSentimentCourses';
+import type { FtsCourse } from './getCourses';
 import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
@@ -109,7 +109,7 @@ function TableCellPopover({
 	);
 }
 
-export const columns: ColumnDef<SentimentCourse>[] = [
+export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),
@@ -497,7 +497,7 @@ export const columns: ColumnDef<SentimentCourse>[] = [
 	},
 ];
 
-export function CoursesDataTable({ courses }: { courses: SentimentCourse[] }) {
+export function FtsCoursesDataTable({ courses }: { courses: FtsCourse[] }) {
 	const [sorting, setSorting] = React.useState<SortingState>([
 		{ id: 'average_comment_compound', desc: true },
 	]);

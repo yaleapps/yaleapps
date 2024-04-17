@@ -1,8 +1,8 @@
 ---
 import Layout from '@/layouts/NavLayout.astro';
-import { getSentimentCoursesBySeason } from './_sentiment/getSentimentCourses';
+import { getSentimentCoursesBySeason } from './_sentiment/getCourses';
 import { seasonCodeSchema } from './_types';
-import { CoursesDataTable } from './_sentiment/SentimentCoursesDataTable';
+import { CoursesDataTable } from './_sentiment/DataTable';
 
 export async function getStaticPaths() {
 	// const allSeasons = await db.query.seasons.findMany();
@@ -26,3 +26,4 @@ const { allCourses } = Astro.props;
 <Layout>
 	<CoursesDataTable courses={allCourses} client:load />
 </Layout>
+./_sentiment/getCourses
