@@ -4,9 +4,6 @@ import { z } from 'zod';
 type Year = `${number}${number}${number}${number}`;
 type Season = '01' | '02' | '03';
 type SeasonCode = `${Year}${Season}`;
-export type DisplayCourse = Awaited<
-	ReturnType<typeof getCoursesWithEvalsBySeasonAndKeyword>
->[number];
 
 export const seasonCodeSchema = z
 	.string({ required_error: 'Please select a season.' })
@@ -15,13 +12,7 @@ export const seasonCodeSchema = z
 		return regex.test(value);
 	});
 
-export async function getCoursesWithEvalsBySeasonAndKeyword({
-	seasonCode,
-	keyword,
-}: {
-	seasonCode: SeasonCode;
-	keyword: string;
-}) {
+export async function getSentimentCoursesBySeason(seasonCode: SeasonCode) {
 	const allCourses = await db.query.courses.findMany({
 		where: (courses, { eq }) => eq(courses.season_code, seasonCode),
 		columns: {
@@ -48,15 +39,6 @@ export async function getCoursesWithEvalsBySeasonAndKeyword({
 					crn: true,
 				},
 			},
-			evaluationNarratives: {
-				columns: {
-					comment: true,
-					comment_pos: true,
-					comment_neu: true,
-					comment_neg: true,
-					comment_compound: true,
-				},
-			},
 			courseProfessors: {
 				with: {
 					professor: {
@@ -72,3 +54,5 @@ export async function getCoursesWithEvalsBySeasonAndKeyword({
 	});
 	return allCourses;
 }
+
+export type DisplayCourse = Awaited<ReturnType<typeof getSentimentCoursesBySeason>>[number];

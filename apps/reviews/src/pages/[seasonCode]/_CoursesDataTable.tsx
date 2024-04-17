@@ -39,7 +39,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import type { DisplayCourse } from '../_[seasonCode]';
+import type { DisplayCourse } from './_sentiment';
 import { Cross1Icon, OpenInNewWindowIcon } from '@radix-ui/react-icons';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;

@@ -1,4 +1,4 @@
-import { db } from '@repo/db/courses';
+import { db, evaluation_narratives } from '@repo/db/courses';
 import { z } from 'zod';
 
 type Year = `${number}${number}${number}${number}`;
@@ -12,7 +12,13 @@ export const seasonCodeSchema = z
 		return regex.test(value);
 	});
 
-export async function getCoursesBySeason(seasonCode: SeasonCode) {
+export async function getCoursesWithEvalsBySeasonAndKeyword({
+	seasonCode,
+	keyword,
+}: {
+	seasonCode: SeasonCode;
+	keyword: string;
+}) {
 	const allCourses = await db.query.courses.findMany({
 		where: (courses, { eq }) => eq(courses.season_code, seasonCode),
 		columns: {
@@ -39,6 +45,17 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 					crn: true,
 				},
 			},
+			evaluationNarratives: {
+				columns: {
+					comment: true,
+					comment_pos: true,
+					comment_neu: true,
+					comment_neg: true,
+					comment_compound: true,
+				},
+				where: (evaluationNarratives, { like }) =>
+					like(evaluationNarratives.comment, `%${keyword}%`),
+			},
 			courseProfessors: {
 				with: {
 					professor: {
@@ -55,4 +72,6 @@ export async function getCoursesBySeason(seasonCode: SeasonCode) {
 	return allCourses;
 }
 
-export type DisplayCourse = Awaited<ReturnType<typeof getCoursesBySeason>>[number];
+export type DisplayCourse = Awaited<
+	ReturnType<typeof getCoursesWithEvalsBySeasonAndKeyword>
+>[number];
