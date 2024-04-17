@@ -37,7 +37,7 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { RenderBadges, RenderText } from '../_RenderCell';
+import { RenderBadges, RenderText, SortableColumnHeader } from '../_RenderCell';
 import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { FtsCourse } from './getCourses';
 
@@ -47,17 +47,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'subject',
 		accessorFn: (row) => row.listings.map((listing) => listing.subject),
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Subject
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const subjects = getValue<string[]>();
 			return <RenderBadges items={subjects} />;
@@ -67,17 +57,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'course_code',
 		accessorFn: (row) => row.listings.map((listing) => listing.course_code),
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Course Code
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const courseCodes = getValue<string[]>();
 			return <RenderBadges items={courseCodes} />;
@@ -87,17 +67,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'title',
 		accessorFn: (row) => row.title,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Title
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <RenderText>{value}</RenderText>;
@@ -108,17 +78,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'description',
 		accessorFn: (row) => row.description,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Description
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <RenderText>{value}</RenderText>;
@@ -129,17 +89,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'areas/skills',
 		accessorFn: (row) => [...(row?.areas ?? []), ...(row?.skills ?? [])],
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Areas/Skills
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<string[]>();
 			return (
@@ -174,32 +124,12 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'last_enrollment',
 		accessorFn: (row) => row.last_enrollment,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Last Enrollment
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 	},
 	{
 		id: 'average_rating',
 		accessorFn: (row) => row.average_rating?.toFixed(2) ?? null,
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Rating
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -209,17 +139,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'average_workload',
 		accessorFn: (row) => row.average_workload?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Workload
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -229,17 +149,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'average_comment_pos',
 		accessorFn: (row) => row.average_comment_pos?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Pos
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -249,17 +159,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'average_comment_neu',
 		accessorFn: (row) => row.average_comment_neu?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Neu
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -269,17 +169,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'average_comment_neg',
 		accessorFn: (row) => row.average_comment_neg?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Neg
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;
@@ -289,17 +179,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 	{
 		id: 'average_comment_compound',
 		accessorFn: (row) => row.average_comment_compound?.toFixed(2) ?? '',
-		header: ({ column }) => {
-			return (
-				<Button
-					className="-ml-2 px-2"
-					variant="ghost"
-					onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-				>
-					Avg Comment Comp
-				</Button>
-			);
-		},
+		header: SortableColumnHeader,
 		cell: ({ getValue }) => {
 			const value = getValue<number | null>();
 			if (!value) return;

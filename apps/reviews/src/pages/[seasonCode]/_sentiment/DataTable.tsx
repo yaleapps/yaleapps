@@ -38,23 +38,11 @@ import {
 } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import React from 'react';
-import { RenderBadges, RenderText } from '../_RenderCell';
+import { RenderBadges, RenderText, SortableColumnHeader } from '../_RenderCell';
 import { createColorScaleBadge } from '../_createColorScaleBadge';
 import type { SentimentCourse } from './getCourses';
 
 const STARTING_TABLE_HEIGHT_PX = 1200;
-
-function SortableColumnHeader<TData>({ column }: { column: Column<TData> }) {
-	return (
-		<Button
-			className="-ml-2 px-2"
-			variant="ghost"
-			onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-		>
-			Subject
-		</Button>
-	);
-}
 
 export const columns: ColumnDef<SentimentCourse>[] = [
 	{

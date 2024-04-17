@@ -1,6 +1,24 @@
 import { Badge } from '@repo/ui/components/badge';
+import { Button } from '@repo/ui/components/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/popover';
 import { cn } from '@repo/ui/lib/utils';
+import type {
+	Column
+} from '@tanstack/react-table';
+import React from 'react';
+
+export function SortableColumnHeader<TData>({ column }: { column: Column<TData> }) {
+	return (
+		<Button
+			className="-ml-2 px-2"
+			variant="ghost"
+			onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+		>
+			Subject
+		</Button>
+	);
+}
+
 
 export function RenderText({ children }: { children: React.ReactNode }) {
 	return (
