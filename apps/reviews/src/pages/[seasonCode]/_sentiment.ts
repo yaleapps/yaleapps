@@ -55,4 +55,4 @@ export async function getSentimentCoursesBySeason(seasonCode: SeasonCode) {
 	return allCourses;
 }
 
-export type DisplayCourse = Awaited<ReturnType<typeof getSentimentCoursesBySeason>>[number];
+export type SentimentCourse = Awaited<ReturnType<typeof getSentimentCoursesBySeason>>[number];
