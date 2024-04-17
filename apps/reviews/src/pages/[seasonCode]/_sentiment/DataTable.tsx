@@ -26,8 +26,7 @@ import type {
 	ColumnDef,
 	ColumnFiltersState,
 	SortingState,
-	VisibilityState,
-	Column,
+	VisibilityState
 } from '@tanstack/react-table';
 import {
 	flexRender,
