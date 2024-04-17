@@ -113,7 +113,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 				</Button>
 			);
 		},
-		cell: ({ getValue, column: { getSize } }) => {
+		cell: ({ getValue }) => {
 			const courseCodes = getValue<string[]>();
 			return (
 				<TableCellPopover overflowStyle="scroll">
@@ -141,20 +141,10 @@ export const columns: ColumnDef<FtsCourse>[] = [
 				</Button>
 			);
 		},
-		cell: ({ getValue, column: { getSize } }) => {
+		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
-		// cell: ({ getValue, column: { getSize } }) => {
-		// 	return (
-		// 		<div
-		// 			className="overflow-hidden overflow-ellipsis whitespace-nowrap"
-		// 			style={{ maxWidth: getSize() }}
-		// 		>
-		// 			{getValue<string>()}
-		// 		</div>
-		// 	);
-		// },
 		filterFn: 'includesString',
 		size: 200,
 	},
@@ -172,7 +162,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 				</Button>
 			);
 		},
-		cell: ({ getValue, column: { getSize } }) => {
+		cell: ({ getValue }) => {
 			const value = getValue<string>();
 			return <TableCellPopover overflowStyle="ellipses">{value}</TableCellPopover>;
 		},
