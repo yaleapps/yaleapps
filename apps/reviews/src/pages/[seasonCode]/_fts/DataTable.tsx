@@ -60,7 +60,7 @@ export const columns: ColumnDef<FtsCourse>[] = [
 				</Button>
 			);
 		},
-		cell: ({ getValue, column: { getSize } }) => {
+		cell: ({ getValue }) => {
 			const subjects = getValue<string[]>();
 			return (
 				<TableCellPopover overflowStyle="scroll">
