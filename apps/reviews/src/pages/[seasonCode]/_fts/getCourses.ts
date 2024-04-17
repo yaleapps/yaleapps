@@ -1,16 +1,5 @@
-import { db, evaluation_narratives } from '@repo/db/courses';
-import { z } from 'zod';
-
-type Year = `${number}${number}${number}${number}`;
-type Season = '01' | '02' | '03';
-type SeasonCode = `${Year}${Season}`;
-
-export const seasonCodeSchema = z
-	.string({ required_error: 'Please select a season.' })
-	.refine((value): value is SeasonCode => {
-		const regex = /^\d{4}(01|02|03)$/;
-		return regex.test(value);
-	});
+import { db } from '@repo/db/courses';
+import type { SeasonCode } from '../_types';
 
 export async function getFtsCourses({
 	seasonCode,
