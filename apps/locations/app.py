@@ -112,8 +112,6 @@ if st.button("Submit"):
         st.error("Please correct the invalid fields")
     elif personal_email == university_email:
         st.error("Personal email and university email should not be the same")
-    elif not is_valid_name(name):
-        st.error("Name must be in the format 'First, Last'")
     else:
         # Data storage options (example with Streamlit's session state)
         if "responses" not in st.session_state:
