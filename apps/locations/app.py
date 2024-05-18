@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import re
+import phonenumbers
+from validate_email import validate_email
 
 
 # Load cities from 'worldcities.csv' CSV file, downloaded from https://simplemaps.com/data/world-cities
@@ -35,23 +37,27 @@ def load_cities():
 
 # Input validation functions
 def is_valid_email(email):
-    regex = r"^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
-    return re.match(regex, email) is not None
+    return validate_email(email, verify=True)
 
 
 def is_valid_phone(phone):
-    regex = r"^\+?1?\d{9,15}$"
-    return re.match(regex, phone) is not None
+    try:
+        phone_obj = phonenumbers.parse(phone, None)
+        return phonenumbers.is_valid_number(phone_obj)
+    except phonenumbers.phonenumberutil.NumberParseException:
+        return False
 
 
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
-# Input fields
-name = st.text_input("Name")
-personal_email = st.text_input("Personal Email")
-university_email = st.text_input("University Email")
-phone_number = st.text_input("Phone Number")
+# Input fields with placeholder texts
+name = st.text_input("Name", placeholder="First, Last")
+personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
+university_email = st.text_input(
+    "University Email", placeholder="example@university.edu"
+)
+phone_number = st.text_input("Phone Number", placeholder="+1234567890")
 
 # Validate inputs
 if personal_email and not is_valid_email(personal_email):
@@ -60,6 +66,8 @@ if university_email and not is_valid_email(university_email):
     st.error("Invalid university email format")
 if phone_number and not is_valid_phone(phone_number):
     st.error("Invalid phone number format")
+if personal_email and university_email and personal_email == university_email:
+    st.error("Personal email and university email should not be the same")
 
 # Load cities and create a city dropdown
 cities = load_cities()
@@ -75,6 +83,8 @@ if st.button("Submit"):
         or not is_valid_phone(phone_number)
     ):
         st.error("Please correct the invalid fields")
+    elif personal_email == university_email:
+        st.error("Personal email and university email should not be the same")
     else:
         # Data storage options (example with Streamlit's session state)
         if "responses" not in st.session_state:
