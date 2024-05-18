@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from validate_email import validate_email
+import gspread
+from google.oauth2.service_account import Credentials
 
 
 # Load cities from 'worldcities.csv' CSV file
@@ -53,6 +55,16 @@ def is_valid_university_email(email):
     return is_valid_personal_email(email) and email.endswith(".edu")
 
 
+# Google Sheets connection
+def connect_to_gsheets(sheet_name):
+    credentials = Credentials.from_service_account_file(
+        "path/to/your/service_account.json"
+    )
+    client = gspread.authorize(credentials)
+    sheet = client.open(sheet_name).sheet1
+    return sheet
+
+
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
@@ -92,18 +104,11 @@ if st.button("Submit"):
     elif personal_email == university_email:
         st.error("Personal email and university email should not be the same")
     else:
-        # Data storage options (example with Streamlit's session state)
-        if "responses" not in st.session_state:
-            st.session_state["responses"] = []
-        st.session_state["responses"].append(
-            {
-                "name": name,
-                "personal_email": personal_email,
-                "university_email": university_email,
-                "phone_number": phone_number,
-                "city": selected_city,
-            }
-        )
+        # Append to Google Sheet
+        sheet = connect_to_gsheets("Your Google Sheet Name")
+        row = [name, personal_email, university_email, phone_number, selected_city]
+        sheet.append_row(row)
+
         st.success("Response submitted successfully!")
 
 # Display responses (for demonstration purposes)
