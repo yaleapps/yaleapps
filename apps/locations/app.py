@@ -64,15 +64,15 @@ st.title("Post-Graduation Location Survey")
 # Input fields with placeholder texts
 name = st.text_input("Name", placeholder="First, Last")
 
-personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
-if personal_email and not is_valid_email(personal_email):
-    st.error("Invalid personal email format")
-
 university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
 )
 if university_email and not is_valid_email(university_email):
     st.error("Invalid university email format")
+
+personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
+if personal_email and not is_valid_email(personal_email):
+    st.error("Invalid personal email format")
 
 if personal_email and university_email and personal_email == university_email:
     st.error("Personal email and university email should not be the same")
