@@ -1,18 +1,11 @@
 import streamlit as st
 import re
 import requests
+import pycountry
 
 # Constants
 MAJOR_CITIES_API_URL = "https://api.teleport.org/api/urban_areas/"
 POPULATION_THRESHOLD = 500000  # Example threshold for population
-
-# Function to fetch common cities from a hardcoded list
-def get_common_cities():
-    return [
-        "New York, NY", "Los Angeles, CA", "Chicago, IL", "Houston, TX",
-        "Phoenix, AZ", "Philadelphia, PA", "San Antonio, TX", "San Diego, CA",
-        "Dallas, TX", "San Jose, CA"
-    ]
 
 # Function to fetch major cities from an API
 def fetch_major_cities(threshold):
@@ -22,10 +15,13 @@ def fetch_major_cities(threshold):
     for city in cities:
         city_name = city["name"]
         city_url = city["href"]
-        city_info = requests.get(city_url).json()
-        population = city_info["population"]
-        if population >= threshold:
-            city_names.append(city_name)
+        city_info = requests.get(city_url + "details/").json()
+        for category in city_info["categories"]:
+            if category["id"] == "population":
+                population = category["data"][0]["float_value"]
+                if population and population >= threshold:
+                    city_names.append(city_name)
+                break
     return city_names
 
 # Input validation functions
@@ -54,17 +50,18 @@ if university_email and not is_valid_email(university_email):
 if phone_number and not is_valid_phone(phone_number):
     st.error("Invalid phone number format")
 
-# Select method for listing cities
-city_list_method = st.radio("Choose how to list cities:", ('Common Cities', 'Major Cities (API)'))
+# Country selection
+countries = [country.name for country in pycountry.countries]
+selected_country = st.selectbox("Select your country:", countries)
 
-# City selection based on chosen method
-if city_list_method == 'Common Cities':
-    cities = get_common_cities()
-else:
-    threshold = st.number_input("Set population threshold for major cities:", value=POPULATION_THRESHOLD)
+# Fetch major cities based on population threshold
+threshold = st.number_input("Set population threshold for major cities:", value=POPULATION_THRESHOLD)
+if st.button("Fetch Cities"):
     cities = fetch_major_cities(threshold)
-
-selected_city = st.selectbox("Where will you be after graduation?", cities)
+    if cities:
+        selected_city = st.selectbox("Where will you be after graduation?", cities)
+    else:
+        st.warning("No cities found with the specified population threshold.")
 
 # Submit button
 if st.button("Submit"):
@@ -81,6 +78,7 @@ if st.button("Submit"):
             "personal_email": personal_email,
             "university_email": university_email,
             "phone_number": phone_number,
+            "country": selected_country,
             "city": selected_city
         })
         st.success("Response submitted successfully!")
@@ -90,4 +88,3 @@ if 'responses' in st.session_state:
     st.write("Submitted Responses:")
     for response in st.session_state['responses']:
         st.write(response)
-
