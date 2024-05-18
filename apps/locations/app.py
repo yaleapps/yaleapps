@@ -21,6 +21,7 @@ def load_cities():
         "Houston, Texas, United States",
         "Atlanta, Georgia, United States",
         "Miami, Florida, United States",
+        "Philadelphia, Pennsylvania, United States",
     ]
 
     # Read the CSV file
