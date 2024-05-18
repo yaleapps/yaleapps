@@ -5,7 +5,7 @@ import phonenumbers
 from validate_email import validate_email
 
 
-# Load cities from 'worldcities.csv' CSV file, downloaded from https://simplemaps.com/data/world-cities
+# Load cities from 'worldcities.csv' CSV file
 def load_cities():
     PRIORITY_CITIES = [
         "New York, New York, United States",
@@ -47,8 +47,12 @@ def load_cities():
 
 
 # Input validation functions
-def is_valid_email(email):
+def is_valid_personal_email(email):
     return validate_email(email, verify=True)
+
+
+def is_valid_university_email(email):
+    return is_valid_personal_email(email) and email.endswith(".edu")
 
 
 def is_valid_phone(phone):
@@ -59,26 +63,40 @@ def is_valid_phone(phone):
         return False
 
 
+def is_valid_name(name):
+    return bool(re.match(r"^[A-Za-z]+, [A-Za-z]+$", name))
+
+
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
-# Input fields with placeholder texts
+# Input fields with placeholder texts and descriptions
 name = st.text_input("Name", placeholder="First, Last")
+if name and not is_valid_name(name):
+    st.error("Name must be in the format 'First, Last'")
 
 university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
 )
-if university_email and not is_valid_email(university_email):
+if university_email and not is_valid_university_email(university_email):
     st.error("Invalid university email format. Please use a valid .edu email")
 
-personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
-if personal_email and not is_valid_email(personal_email):
+personal_email = st.text_input(
+    "Personal Email",
+    placeholder="example@domain.com",
+    help="This email will be used to keep in touch after graduation.",
+)
+if personal_email and not is_valid_personal_email(personal_email):
     st.error("Invalid personal email format. Please use a valid email")
 
 if personal_email and university_email and personal_email == university_email:
     st.error("Personal email and university email should not be the same")
 
-phone_number = st.text_input("Phone Number", placeholder="+1234567890")
+phone_number = st.text_input(
+    "Phone Number",
+    placeholder="+1234567890",
+    help="This phone number will be used to keep in touch after graduation.",
+)
 if phone_number and not is_valid_phone(phone_number):
     st.error("Invalid phone number format")
 
@@ -91,13 +109,15 @@ if st.button("Submit"):
     if not name or not personal_email or not university_email or not phone_number:
         st.error("Please fill in all the fields")
     elif (
-        not is_valid_email(personal_email)
-        or not is_valid_email(university_email)
+        not is_valid_personal_email(personal_email)
+        or not is_valid_university_email(university_email)
         or not is_valid_phone(phone_number)
     ):
         st.error("Please correct the invalid fields")
     elif personal_email == university_email:
         st.error("Personal email and university email should not be the same")
+    elif not is_valid_name(name):
+        st.error("Name must be in the format 'First, Last'")
     else:
         # Data storage options (example with Streamlit's session state)
         if "responses" not in st.session_state:
