@@ -4,19 +4,24 @@ import re
 
 # Load cities from 'worldcities.csv' CSV file, downloaded from https://simplemaps.com/data/world-cities
 def load_cities():
-    PRIORITY_CITIES = ["New York", "New Haven", "Los Angeles"]
+    PRIORITY_CITIES = ["New York, New York, United States", "New Haven, Connecticut, United States", "Los Angeles, California, United States"]
     
     # Read the CSV file
     cities_df = pd.read_csv('worldcities.csv')
-    
-    # Create a priority column
-    cities_df['priority'] = cities_df['city'].isin(PRIORITY_CITIES)
-    
-    # Sort by priority first (descending) and then by population (descending)
-    sorted_cities_df = cities_df.sort_values(by=['priority', 'population'], ascending=[False, False])
-    
     # Format city names in the desired format
-    sorted_cities = sorted_cities_df.apply(lambda row: f"{row['city']}, {row['admin_name']}, {row['country']}", axis=1).tolist()
+    cities_df['formatted_city'] = cities_df.apply(lambda row: f"{row['city']}, {row['admin_name']}, {row['country']}", axis=1)
+    
+    # Extract the priority cities DataFrame
+    priority_df = cities_df[cities_df['formatted_city'].isin(PRIORITY_CITIES)]
+    
+    # Extract the other cities DataFrame and sort by population
+    other_cities_df = cities_df[~cities_df['formatted_city'].isin(PRIORITY_CITIES)].sort_values(by='population', ascending=False)
+    
+    # Concatenate the priority cities with the other cities
+    sorted_cities_df = pd.concat([priority_df, other_cities_df])
+    
+    # Extract the sorted city names into a list
+    sorted_cities = sorted_cities_df['formatted_city'].tolist()
     
     return sorted_cities
 
