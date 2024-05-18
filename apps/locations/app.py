@@ -1,7 +1,5 @@
 import streamlit as st
 import pandas as pd
-import re
-import phonenumbers
 from validate_email import validate_email
 
 
@@ -55,21 +53,11 @@ def is_valid_university_email(email):
     return is_valid_personal_email(email) and email.endswith(".edu")
 
 
-def is_valid_phone(phone):
-    try:
-        phone_obj = phonenumbers.parse(phone, None)
-        return phonenumbers.is_valid_number(phone_obj)
-    except phonenumbers.phonenumberutil.NumberParseException:
-        return False
-
-
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
 # Input fields with placeholder texts and descriptions
 name = st.text_input("Name", placeholder="First Last")
-if name:
-    st.error("Please enter your name")
 
 university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
@@ -78,9 +66,8 @@ if university_email and not is_valid_university_email(university_email):
     st.error("Invalid university email format. Please use a valid .edu email")
 
 personal_email = st.text_input(
-    "Personal Email",
+    "Personal Email (This email will be used to keep in touch after graduation)",
     placeholder="example@domain.com",
-    help="This email will be used to keep in touch after graduation.",
 )
 if personal_email and not is_valid_personal_email(personal_email):
     st.error("Invalid personal email format. Please use a valid email")
@@ -88,13 +75,7 @@ if personal_email and not is_valid_personal_email(personal_email):
 if personal_email and university_email and personal_email == university_email:
     st.error("Personal email and university email should not be the same")
 
-phone_number = st.text_input(
-    "Phone Number",
-    placeholder="+1234567890",
-    help="This phone number will be used to keep in touch after graduation.",
-)
-if phone_number and not is_valid_phone(phone_number):
-    st.error("Invalid phone number format")
+phone_number = st.text_input("Phone Number", placeholder="+1234567890")
 
 # Load cities and create a city dropdown
 cities = load_cities()
@@ -104,10 +85,8 @@ selected_city = st.selectbox("Where will you be after graduation?", cities)
 if st.button("Submit"):
     if not name or not personal_email or not university_email or not phone_number:
         st.error("Please fill in all the fields")
-    elif (
-        not is_valid_personal_email(personal_email)
-        or not is_valid_university_email(university_email)
-        or not is_valid_phone(phone_number)
+    elif not is_valid_personal_email(personal_email) or not is_valid_university_email(
+        university_email
     ):
         st.error("Please correct the invalid fields")
     elif personal_email == university_email:
