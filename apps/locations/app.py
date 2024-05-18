@@ -15,15 +15,10 @@ def load_cities():
     # Sort by priority first (descending) and then by population (descending)
     sorted_cities_df = cities_df.sort_values(by=['priority', 'population'], ascending=[False, False])
     
-    # Extract the city names into a list
-    sorted_cities = sorted_cities_df['city'].tolist()
+    # Format city names in the desired format
+    sorted_cities = sorted_cities_df.apply(lambda row: f"{row['city']}, {row['admin_name']}, {row['country']}", axis=1).tolist()
     
     return sorted_cities
-
-# Input validation functions
-def is_valid_email(email):
-    regex = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-    return re.match(regex, email) is not None
 
 def is_valid_phone(phone):
     regex = r'^\+?1?\d{9,15}$'
