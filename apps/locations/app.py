@@ -5,7 +5,11 @@ import re
 # Load cities from 'worldcities.csv' CSV file, downloaded from https://simplemaps.com/data/world-cities
 def load_cities():
     cities_df = pd.read_csv('worldcities.csv')
-    return cities_df['city'].tolist()
+    PRIORITY_CITIES = ["New York", "New Haven", "Los Angeles"]
+    priority_df = cities_df[cities_df['city'].isin(PRIORITY_CITIES)]
+    other_cities_df = cities_df[~cities_df['city'].isin(PRIORITY_CITIES)].sort_values(by='population', ascending=False)
+    sorted_cities = pd.concat([priority_df, other_cities_df])
+    return sorted_cities['city'].tolist()
 
 # Input validation functions
 def is_valid_email(email):
