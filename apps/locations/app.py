@@ -10,7 +10,17 @@ def load_cities():
     PRIORITY_CITIES = [
         "New York, New York, United States",
         "New Haven, Connecticut, United States",
+        "Boston, Massachusetts, United States",
+        "Washington, District of Columbia, United States",
+        "San Francisco, California, United States",
         "Los Angeles, California, United States",
+        "Chicago, Illinois, United States",
+        "Seattle, Washington, United States",
+        "London, England, United Kingdom",
+        "Austin, Texas, United States",
+        "Houston, Texas, United States",
+        "Atlanta, Georgia, United States",
+        "Miami, Florida, United States",
     ]
 
     # Read the CSV file
