@@ -68,11 +68,11 @@ university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
 )
 if university_email and not is_valid_email(university_email):
-    st.error("Invalid university email format")
+    st.error("Invalid university email format. Please use a valid .edu email")
 
 personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
 if personal_email and not is_valid_email(personal_email):
-    st.error("Invalid personal email format")
+    st.error("Invalid personal email format. Please use a valid email")
 
 if personal_email and university_email and personal_email == university_email:
     st.error("Personal email and university email should not be the same")
