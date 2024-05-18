@@ -63,17 +63,13 @@ def is_valid_phone(phone):
         return False
 
 
-def is_valid_name(name):
-    return bool(re.match(r"^[A-Za-z]+, [A-Za-z]+$", name))
-
-
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
 # Input fields with placeholder texts and descriptions
-name = st.text_input("Name", placeholder="First, Last")
-if name and not is_valid_name(name):
-    st.error("Name must be in the format 'First, Last'")
+name = st.text_input("Name", placeholder="First Last")
+if name:
+    st.error("Please enter your name")
 
 university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
