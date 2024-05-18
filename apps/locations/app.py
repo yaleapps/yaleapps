@@ -53,21 +53,23 @@ st.title("Post-Graduation Location Survey")
 
 # Input fields with placeholder texts
 name = st.text_input("Name", placeholder="First, Last")
+
 personal_email = st.text_input("Personal Email", placeholder="example@domain.com")
+if personal_email and not is_valid_email(personal_email):
+    st.error("Invalid personal email format")
+
 university_email = st.text_input(
     "University Email", placeholder="example@university.edu"
 )
-phone_number = st.text_input("Phone Number", placeholder="+1234567890")
-
-# Validate inputs
-if personal_email and not is_valid_email(personal_email):
-    st.error("Invalid personal email format")
 if university_email and not is_valid_email(university_email):
     st.error("Invalid university email format")
-if phone_number and not is_valid_phone(phone_number):
-    st.error("Invalid phone number format")
+
 if personal_email and university_email and personal_email == university_email:
     st.error("Personal email and university email should not be the same")
+
+phone_number = st.text_input("Phone Number", placeholder="+1234567890")
+if phone_number and not is_valid_phone(phone_number):
+    st.error("Invalid phone number format")
 
 # Load cities and create a city dropdown
 cities = load_cities()
