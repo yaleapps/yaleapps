@@ -89,7 +89,7 @@ with st.form("post_grad_form"):
             )
             client = gspread.authorize(creds)
             sh = client.open("Yalies by Cities 2024").worksheet("Locations")
-            row = [name, personal_email, netid, phone_number, selected_city]
+            row = [name, netid, personal_email, phone_number, selected_city]
             sh.append_row(row)
 
             st.success("Response submitted successfully!")
