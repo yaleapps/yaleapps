@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 from validate_email import validate_email
 from streamlit_gsheets import GSheetsConnection
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 
 
 # Load cities from 'worldcities.csv' CSV file
@@ -82,11 +84,17 @@ with st.form("post_grad_form"):
             st.error("Personal email and university email should not be the same")
         else:
             # Append to Google Sheet
-            conn = st.connection("gsheets", type=GSheetsConnection)
-            sheet = conn.get_worksheet(0)  # Accessing the first sheet
-
+            scope = [
+                "https://spreadsheets.google.com/feeds",
+                "https://www.googleapis.com/auth/drive",
+            ]
+            creds = ServiceAccountCredentials.from_json_keyfile_name(
+                "yaleapps-569c08f4a07a.json", scope
+            )
+            client = gspread.authorize(creds)
+            sh = client.open("Yalies by Cities 2024").worksheet("Locations")
             row = [name, personal_email, university_email, phone_number, selected_city]
-            sheet.append_row(row)
+            sh.append_row(row)
 
             st.success("Response submitted successfully!")
 
