@@ -46,13 +46,8 @@ def load_cities():
     return sorted_cities
 
 
-# Input validation functions
-def is_valid_personal_email(email):
-    return validate_email(email, verify=True)
-
-
 def is_valid_university_email(email):
-    return is_valid_personal_email(email) and email.endswith(".edu")
+    return validate_email(email) and email.endswith(".edu")
 
 
 # Google Sheets connection
@@ -90,9 +85,9 @@ with st.form("post_grad_form"):
     if submitted:
         if not name or not personal_email or not university_email or not phone_number:
             st.error("Please fill in all the fields")
-        elif not is_valid_personal_email(
-            personal_email
-        ) or not is_valid_university_email(university_email):
+        elif not validate_email(personal_email) or not is_valid_university_email(
+            university_email
+        ):
             st.error("Please correct the invalid fields")
         elif personal_email == university_email:
             st.error("Personal email and university email should not be the same")
