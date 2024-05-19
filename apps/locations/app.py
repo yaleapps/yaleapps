@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 import pandas as pd
 from validate_email import validate_email
@@ -47,8 +48,9 @@ def load_cities():
     return sorted_cities
 
 
-def is_valid_university_email(email):
-    return validate_email(email) and email.endswith(".edu")
+def is_valid_netid(netid):
+    netid_regex = r"^[a-zA-Z-]{2,3}\d+$"
+    return re.match(netid_regex, netid):
 
 
 # Streamlit application
@@ -60,9 +62,7 @@ cities = load_cities()
 # Create a form
 with st.form("post_grad_form"):
     name = st.text_input("Name", placeholder="First Last")
-    university_email = st.text_input(
-        "University Email", placeholder="example@university.edu"
-    )
+    netid = st.text_input("NetID", placeholder="NetID")
     personal_email = st.text_input(
         "Personal Email (This email will be used to keep in touch after graduation)",
         placeholder="example@domain.com",
@@ -74,14 +74,10 @@ with st.form("post_grad_form"):
     submitted = st.form_submit_button("Submit")
 
     if submitted:
-        if not name or not personal_email or not university_email or not phone_number:
+        if not name or not personal_email or not netid or not phone_number:
             st.error("Please fill in all the fields")
-        elif not validate_email(personal_email) or not is_valid_university_email(
-            university_email
-        ):
+        elif not validate_email(personal_email) or not is_valid_netid(netid):
             st.error("Please correct the invalid fields")
-        elif personal_email == university_email:
-            st.error("Personal email and university email should not be the same")
         else:
             # Append to Google Sheet
             scope = [
@@ -93,7 +89,7 @@ with st.form("post_grad_form"):
             )
             client = gspread.authorize(creds)
             sh = client.open("Yalies by Cities 2024").worksheet("Locations")
-            row = [name, personal_email, university_email, phone_number, selected_city]
+            row = [name, personal_email, netid, phone_number, selected_city]
             sh.append_row(row)
 
             st.success("Response submitted successfully!")
