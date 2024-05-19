@@ -68,7 +68,11 @@ with st.form("post_grad_form"):
         placeholder="example@domain.com",
     )
     phone_number = st.text_input("Phone Number", placeholder="+1234567890")
-    selected_city = st.selectbox("Where will you be after graduation?", cities)
+    selected_cities = st.multiselect(
+        "Which cities will you be after graduation?",
+        placeholder="In the next 5 years, I'll be in...",
+        options=cities,
+    )
 
     # Checkbox for visibility
     visibility = st.checkbox(
@@ -81,7 +85,13 @@ with st.form("post_grad_form"):
     submitted = st.form_submit_button("Submit")
 
     if submitted:
-        if not name or not personal_email or not netid or not phone_number:
+        if (
+            not name
+            or not personal_email
+            or not netid
+            or not phone_number
+            or not selected_cities
+        ):
             st.error("Please fill in all the fields")
         elif not validate_email(personal_email) or not is_valid_netid(netid):
             st.error("Please correct the invalid fields")
@@ -101,7 +111,7 @@ with st.form("post_grad_form"):
                 netid,
                 personal_email,
                 phone_number,
-                selected_city,
+                selected_cities,
                 visibility,
             ]
             sh.append_row(row)
