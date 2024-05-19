@@ -50,7 +50,7 @@ def load_cities():
 
 def is_valid_netid(netid):
     netid_regex = r"^[a-zA-Z-]{2,3}\d+$"
-    return re.match(netid_regex, netid):
+    return re.match(netid_regex, netid)
 
 
 # Streamlit application
@@ -69,6 +69,13 @@ with st.form("post_grad_form"):
     )
     phone_number = st.text_input("Phone Number", placeholder="+1234567890")
     selected_city = st.selectbox("Where will you be after graduation?", cities)
+
+    # Checkbox for visibility
+    visibility = st.checkbox(
+        "Include me in the Google Sheet!",
+        value=True,
+        help="If unchecked, your information will only be shared with people in your city and will not be included in the Google Sheet by others.",
+    )
 
     # Every form must have a submit button.
     submitted = st.form_submit_button("Submit")
@@ -89,7 +96,14 @@ with st.form("post_grad_form"):
             )
             client = gspread.authorize(creds)
             sh = client.open("Yalies by Cities 2024").worksheet("Locations")
-            row = [name, netid, personal_email, phone_number, selected_city]
+            row = [
+                name,
+                netid,
+                personal_email,
+                phone_number,
+                selected_city,
+                visibility,
+            ]
             sh.append_row(row)
 
             st.success("Response submitted successfully!")
