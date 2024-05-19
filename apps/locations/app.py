@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 from validate_email import validate_email
-import gspread
-from google.oauth2.service_account import Credentials
+from streamlit_gsheets import GSheetsConnection
 
 
 # Load cities from 'worldcities.csv' CSV file
@@ -50,16 +49,6 @@ def is_valid_university_email(email):
     return validate_email(email) and email.endswith(".edu")
 
 
-# Google Sheets connection
-def connect_to_gsheets(sheet_name):
-    credentials = Credentials.from_service_account_file(
-        "path/to/your/service_account.json"
-    )
-    client = gspread.authorize(credentials)
-    sheet = client.open(sheet_name).sheet1
-    return sheet
-
-
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
@@ -93,7 +82,9 @@ with st.form("post_grad_form"):
             st.error("Personal email and university email should not be the same")
         else:
             # Append to Google Sheet
-            sheet = connect_to_gsheets("Your Google Sheet Name")
+            conn = st.connection("gsheets", type=GSheetsConnection)
+            sheet = conn.get_worksheet(0)  # Accessing the first sheet
+
             row = [name, personal_email, university_email, phone_number, selected_city]
             sheet.append_row(row)
 
