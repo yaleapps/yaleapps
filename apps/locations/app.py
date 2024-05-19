@@ -68,48 +68,41 @@ def connect_to_gsheets(sheet_name):
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
-# Input fields with placeholder texts and descriptions
-name = st.text_input("Name", placeholder="First Last")
-
-university_email = st.text_input(
-    "University Email", placeholder="example@university.edu"
-)
-if university_email and not is_valid_university_email(university_email):
-    st.error("Invalid university email format. Please use a valid .edu email")
-
-personal_email = st.text_input(
-    "Personal Email (This email will be used to keep in touch after graduation)",
-    placeholder="example@domain.com",
-)
-if personal_email and not is_valid_personal_email(personal_email):
-    st.error("Invalid personal email format. Please use a valid email")
-
-if personal_email and university_email and personal_email == university_email:
-    st.error("Personal email and university email should not be the same")
-
-phone_number = st.text_input("Phone Number", placeholder="+1234567890")
-
 # Load cities and create a city dropdown
 cities = load_cities()
-selected_city = st.selectbox("Where will you be after graduation?", cities)
 
-# Submit button
-if st.button("Submit"):
-    if not name or not personal_email or not university_email or not phone_number:
-        st.error("Please fill in all the fields")
-    elif not is_valid_personal_email(personal_email) or not is_valid_university_email(
-        university_email
-    ):
-        st.error("Please correct the invalid fields")
-    elif personal_email == university_email:
-        st.error("Personal email and university email should not be the same")
-    else:
-        # Append to Google Sheet
-        sheet = connect_to_gsheets("Your Google Sheet Name")
-        row = [name, personal_email, university_email, phone_number, selected_city]
-        sheet.append_row(row)
+# Create a form
+with st.form("post_grad_form"):
+    name = st.text_input("Name", placeholder="First Last")
+    university_email = st.text_input(
+        "University Email", placeholder="example@university.edu"
+    )
+    personal_email = st.text_input(
+        "Personal Email (This email will be used to keep in touch after graduation)",
+        placeholder="example@domain.com",
+    )
+    phone_number = st.text_input("Phone Number", placeholder="+1234567890")
+    selected_city = st.selectbox("Where will you be after graduation?", cities)
 
-        st.success("Response submitted successfully!")
+    # Every form must have a submit button.
+    submitted = st.form_submit_button("Submit")
+
+    if submitted:
+        if not name or not personal_email or not university_email or not phone_number:
+            st.error("Please fill in all the fields")
+        elif not is_valid_personal_email(
+            personal_email
+        ) or not is_valid_university_email(university_email):
+            st.error("Please correct the invalid fields")
+        elif personal_email == university_email:
+            st.error("Personal email and university email should not be the same")
+        else:
+            # Append to Google Sheet
+            sheet = connect_to_gsheets("Your Google Sheet Name")
+            row = [name, personal_email, university_email, phone_number, selected_city]
+            sheet.append_row(row)
+
+            st.success("Response submitted successfully!")
 
 # Display responses (for demonstration purposes)
 if "responses" in st.session_state:
