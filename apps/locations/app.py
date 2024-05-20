@@ -77,8 +77,8 @@ with st.form("post_grad_form"):
     )
 
     selected_future_cities = st.multiselect(
-        "Which cities will you be in the next 5 years?",
-        placeholder="In the next 5 years, I'll be in...",
+        "Which cities will you most likely be living in the next 5 years?",
+        placeholder="In the next 5 years, I'll most likely be living in...",
         options=cities,
     )
 
