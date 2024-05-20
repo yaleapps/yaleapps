@@ -56,6 +56,11 @@ def is_valid_netid(netid):
 # Streamlit application
 st.title("Post-Graduation Location Survey")
 
+# Explanation at the top
+st.markdown(
+    "Hey there, Class of 2024! 🎓 Please provide your name, contact information, and where you'll be after graduation. Your participation is completely optional but greatly appreciated."
+)
+
 # Load cities and create a city dropdown
 cities = load_cities()
 
