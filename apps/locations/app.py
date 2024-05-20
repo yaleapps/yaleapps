@@ -2,7 +2,6 @@ import re
 import streamlit as st
 import pandas as pd
 from validate_email import validate_email
-from streamlit_gsheets import GSheetsConnection
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
