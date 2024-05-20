@@ -43,11 +43,10 @@ with st.form("post_grad_form"):
     )
     phone_number = st.text_input("Phone Number", placeholder="+1234567890")
 
-    selected_first_city = st.selectbox(
+    selected_first_city = st.multiselect(
         "Which city will you be in right after graduation?",
         placeholder="Right after graduation, I'll be in...",
         options=cities,
-        index=None,
     )
 
     selected_future_cities = st.multiselect(
