@@ -117,7 +117,7 @@ with st.form("post_grad_form"):
                 netid,
                 personal_email,
                 phone_number,
-                selected_first_city,
+                "\n".join(selected_first_city),
                 "\n".join(selected_future_cities),
                 visibility,
             ]
