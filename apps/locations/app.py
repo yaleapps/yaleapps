@@ -127,9 +127,4 @@ with st.form("post_grad_form"):
             sh.append_row(row)
 
             st.success("Response submitted successfully!")
-
-# Display responses (for demonstration purposes)
-if "responses" in st.session_state:
-    st.write("Submitted Responses:")
-    for response in st.session_state["responses"]:
-        st.write(response)
+            st.stop()
