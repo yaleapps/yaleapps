@@ -68,8 +68,15 @@ with st.form("post_grad_form"):
         placeholder="example@gmail.com",
     )
     phone_number = st.text_input("Phone Number", placeholder="+1234567890")
-    selected_cities = st.multiselect(
-        "Which cities will you be after graduation?",
+
+    selected_first_city = st.selectbox(
+        "Which city will you be in right after graduation?",
+        placeholder="Right after graduation, I'll be in...",
+        options=cities,
+    )
+
+    selected_future_cities = st.multiselect(
+        "Which cities will you be in the next 5 years?",
         placeholder="In the next 5 years, I'll be in...",
         options=cities,
     )
@@ -90,7 +97,8 @@ with st.form("post_grad_form"):
             or not personal_email
             or not netid
             or not phone_number
-            or not selected_cities
+            or not selected_first_city
+            or not selected_future_cities
         ):
             st.error("Please fill in all the fields")
         elif not validate_email(personal_email) or not is_valid_netid(netid):
@@ -111,7 +119,8 @@ with st.form("post_grad_form"):
                 netid,
                 personal_email,
                 phone_number,
-                "\n".join(selected_cities),
+                selected_first_city,
+                "\n".join(selected_future_cities),
                 visibility,
             ]
             sh.append_row(row)
