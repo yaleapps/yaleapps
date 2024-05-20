@@ -6,9 +6,11 @@ from validate_email import validate_email
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
+MIN_POPULATION = 15_000
+
 
 # Load cities from github repository
-def load_cities():
+def load_all_cities():
     url = "https://raw.githubusercontent.com/yaleapps/yaleapps/main/apps/locations/assets/sorted_cities.json"
     response = requests.get(url)
     if response.status_code == 200:
@@ -31,7 +33,9 @@ st.markdown(
 )
 
 # Load cities and create a city dropdown
-cities = load_cities()
+all_cities = load_all_cities()
+# Show only the top n cities
+cities = all_cities[:MIN_POPULATION]
 
 # Create a form
 with st.form("post_grad_form"):
