@@ -137,7 +137,9 @@ with st.form("post_grad_form"):
                 scope,
             )
             client = gspread.authorize(creds)
-            sh = client.open("Yalies by Cities 2024").worksheet("Locations")
+            sh = client.open_by_key(
+                key=st.secrets["spreadsheet"]["spreadsheet_id"]
+            ).worksheet("Locations")
             row = [
                 name,
                 netid,
