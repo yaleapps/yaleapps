@@ -62,7 +62,7 @@ cities = load_cities()
 # Create a form
 with st.form("post_grad_form"):
     name = st.text_input("Name", placeholder="First Last")
-    netid = st.text_input("NetID", placeholder="abc12")
+    netid = st.text_input("NetID", placeholder="abc12").lower()
     personal_email = st.text_input(
         "Personal Email (This email will be used to keep in touch after graduation)",
         placeholder="example@gmail.com",
