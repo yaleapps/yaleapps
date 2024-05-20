@@ -72,8 +72,8 @@ with st.form("post_grad_form"):
     selected_first_city = st.selectbox(
         "Which city will you be in right after graduation?",
         placeholder="Right after graduation, I'll be in...",
-        index=None,
         options=cities,
+        index=None,
     )
 
     selected_future_cities = st.multiselect(
