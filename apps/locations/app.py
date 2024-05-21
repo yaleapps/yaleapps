@@ -1,6 +1,8 @@
+import streamlit as st
+
+st.set_page_config(layout="wide")
 import requests
 import re
-import streamlit as st
 import pandas as pd
 from validate_email import validate_email
 import gspread
