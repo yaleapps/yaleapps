@@ -1,11 +1,11 @@
 import streamlit as st
+from helpers.google_sheet_helper import init_google_worksheet
 
 st.set_page_config(layout="wide")
 import requests
 import re
 import pandas as pd
 from validate_email import validate_email
-import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 MIN_POPULATION = 15_000
@@ -84,36 +84,7 @@ with st.form("post_grad_form"):
         elif not validate_email(personal_email) or not is_valid_netid(netid):
             st.error("Please correct the invalid fields")
         else:
-            # Append to Google Sheet
-            scope = [
-                "https://spreadsheets.google.com/feeds",
-                "https://www.googleapis.com/auth/drive",
-            ]
-            creds = ServiceAccountCredentials.from_json_keyfile_dict(
-                {
-                    "type": "service_account",
-                    "project_id": st.secrets["gcp_service_account"]["project_id"],
-                    "private_key_id": st.secrets["gcp_service_account"][
-                        "private_key_id"
-                    ],
-                    "private_key": st.secrets["gcp_service_account"]["private_key"],
-                    "client_email": st.secrets["gcp_service_account"]["client_email"],
-                    "client_id": st.secrets["gcp_service_account"]["client_id"],
-                    "auth_uri": st.secrets["gcp_service_account"]["auth_uri"],
-                    "token_uri": st.secrets["gcp_service_account"]["token_uri"],
-                    "auth_provider_x509_cert_url": st.secrets["gcp_service_account"][
-                        "auth_provider_x509_cert_url"
-                    ],
-                    "client_x509_cert_url": st.secrets["gcp_service_account"][
-                        "client_x509_cert_url"
-                    ],
-                },
-                scope,
-            )
-            client = gspread.authorize(creds)
-            sh = client.open_by_key(
-                key=st.secrets["spreadsheet"]["spreadsheet_id"]
-            ).worksheet("Locations")
+            sh = init_google_worksheet(sheet_name="Locations")
             row = [
                 name,
                 netid,
