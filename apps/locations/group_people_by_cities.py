@@ -13,19 +13,15 @@ df = pd.DataFrame(data)
 st.text("Original DataFrame:")
 st.write(df)
 
-
-
 # Split cities by new lines and gather unique cities
 first_city_series = df["First City"].str.split("\n").explode()
 future_city_series = df["Future Cities"].str.split("\n").explode()
 
-# Combine both series and get unique cities
-all_cities = pd.concat([first_city_series, future_city_series]).unique()
+# Create dictionaries to store people under each city for First City and Future Cities separately
+city_people_one_year = {city: [] for city in first_city_series.unique()}
+city_people_five_years = {city: [] for city in future_city_series.unique()}
 
-# Create a dictionary to store people under each city
-city_people = {city: [] for city in all_cities}
-
-# Fill the dictionary with names for each city
+# Fill the dictionaries with names for each city
 for _, row in df.iterrows():
     # Get names of people
     name = row["Name"]
@@ -34,20 +30,31 @@ for _, row in df.iterrows():
     first_cities = row["First City"].split("\n")
     future_cities = row["Future Cities"].split("\n")
 
-    # Append names to respective city lists
+    # Append names to respective city lists in one year dictionary
     for city in first_cities:
-        city_people[city].append(name)
+        city_people_one_year[city].append(name)
 
+    # Append names to respective city lists in five years dictionary
     for city in future_cities:
-        city_people[city].append(name)
+        city_people_five_years[city].append(name)
 
-# Convert the dictionary to a DataFrame
-result_df = pd.DataFrame(
+# Convert the dictionaries to DataFrames
+result_df_one_year = pd.DataFrame(
     {
-        "City": list(city_people.keys()),
-        "People": ["\n".join(people) for people in city_people.values()],
+        "City": list(city_people_one_year.keys()),
+        "People": ["\n".join(people) for people in city_people_one_year.values()],
     }
 )
 
-st.text("Aggregated City People Data:")
-result_df
+result_df_five_years = pd.DataFrame(
+    {
+        "City": list(city_people_five_years.keys()),
+        "People": ["\n".join(people) for people in city_people_five_years.values()],
+    }
+)
+
+st.text("People in each city right after graduation:")
+st.write(result_df_one_year)
+
+st.text("People in each city in the next 5 years:")
+st.write(result_df_five_years)
