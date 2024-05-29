@@ -14,6 +14,7 @@ st.text("Original DataFrame:")
 st.write(df)
 
 
+
 # Split cities by new lines and gather unique cities
 first_city_series = df["First City"].str.split("\n").explode()
 future_city_series = df["Future Cities"].str.split("\n").explode()
