@@ -3,6 +3,15 @@ import pandas as pd
 import streamlit as st
 from oauth2client.service_account import ServiceAccountCredentials
 from helpers.google_sheet_helper import init_google_worksheet
+from dataclasses import dataclass
+
+@dataclass
+class Person:
+    Name: str
+    NetID: str
+    Personal_Email: str
+    Phone_Number: str
+    Visibility: str
 
 # Open the Google Sheet by key and get the data from the first sheet
 sh = init_google_worksheet(sheet_name="Locations")
@@ -25,13 +34,13 @@ city_people_five_years = {city: [] for city in future_city_series.unique()}
 # Fill the dictionaries with names for each city
 for _, response in df.iterrows():
     # Get names of people
-    person = {
-        "Name": response["Name"],
-        "NetID": response["NetID"],
-        "Personal Email": response["Personal Email"],
-        "Phone Number": response["Phone Number"],
-        "Visibility": response["Visibility"],
-    }
+    person = Person(
+        Name=response["Name"],
+        NetID=response["NetID"],
+        Personal_Email=response["Personal Email"],
+        Phone_Number=response["Phone Number"],
+        Visibility=response["Visibility"],
+    )
 
     # For each postgrad city listed in the response, add the person to the list for that respective city
     response_first_cities: List[str] = response["First City"].split("\n")
