@@ -1,3 +1,4 @@
+from typing import List
 import pandas as pd
 import streamlit as st
 from oauth2client.service_account import ServiceAccountCredentials
@@ -33,34 +34,77 @@ for _, response in df.iterrows():
     }
 
     # Split the cities for the current response
-    first_cities = response["First City"].split("\n")
-    future_cities = response["Future Cities"].split("\n")
+    response_first_cities: List[str] = response["First City"].split("\n")
+    response_future_cities: List[str] = response["Future Cities"].split("\n")
 
     # Append names to respective city lists in one year dictionary
-    for city in first_cities:
+    for city in response_first_cities:
         city_people_one_year[city].append(person)
 
     # Append names to respective city lists in five years dictionary
-    for city in future_cities:
+    for city in response_future_cities:
         city_people_five_years[city].append(person)
 
-# Convert the dictionaries to DataFrames
-result_df_one_year = pd.DataFrame(
-    {
-        "City": list(city_people_one_year.keys()),
-        "People": ["\n".join(people) for people in city_people_one_year.values()],
-    }
-)
+all_first_cities = list(city_people_one_year.keys())
+all_future_cities = list(city_people_five_years.keys())
 
-result_df_five_years = pd.DataFrame(
-    {
-        "City": list(city_people_five_years.keys()),
-        "People": ["\n".join(people) for people in city_people_five_years.values()],
-    }
-)
+# Create a form
+with st.form("find_people_by_city_right_after_graduation"):
+    selected_first_cities: List[str] = st.multiselect(
+        "Find people by city (right after graduation)",
+        placeholder="Find people in...",
+        options=all_first_cities,
+    )
+
+    # Every form must have a submit button.
+    submitted = st.form_submit_button("Submit")
+
+    if submitted:
+        if not selected_first_cities:
+            st.error("Please select a city")
+        else:
+            for city in selected_first_cities:
+                st.write("People in", city)
+                for person in city_people_one_year[city]:
+                    st.write(person)
+
+
+with st.form("find_people_by_city_in_five_years"):
+    selected_future_cities: List[str] = st.multiselect(
+        "Find people by city (next 5 years)",
+        placeholder="Find people who, in the next 5 years, will most likely be living in...",
+        options=all_future_cities,
+    )
+
+    # Every form must have a submit button.
+    submitted = st.form_submit_button("Submit")
+
+    if submitted:
+        if not selected_future_cities:
+            st.error("Please select a city")
+        else:
+            for city in selected_future_cities:
+                st.write("People in", city)
+                for person in city_people_five_years[city]:
+                    st.write(person)
+
+# # Convert the dictionaries to DataFrames
+# result_df_one_year = pd.DataFrame(
+#     {
+#         "City": list(city_people_one_year.keys()),
+#         "People": ["\n".join(people) for people in city_people_one_year.values()],
+#     }
+# )
+
+# result_df_five_years = pd.DataFrame(
+#     {
+#         "City": list(city_people_five_years.keys()),
+#         "People": ["\n".join(people) for people in city_people_five_years.values()],
+#     }
+# )
 
 st.text("People in each city right after graduation:")
-st.write(result_df_one_year)
+# st.write(result_df_one_year)
 
 st.text("People in each city in the next 5 years:")
-st.write(result_df_five_years)
+# st.write(result_df_five_years)
