@@ -33,15 +33,13 @@ for _, response in df.iterrows():
         "Visibility": response["Visibility"],
     }
 
-    # Split the cities for the current response
+    # For each postgrad city listed in the response, add the person to the list for that respective city
     response_first_cities: List[str] = response["First City"].split("\n")
-    response_future_cities: List[str] = response["Future Cities"].split("\n")
-
-    # Append names to respective city lists in one year dictionary
     for city in response_first_cities:
         city_people_one_year[city].append(person)
 
-    # Append names to respective city lists in five years dictionary
+    # For each 5 year city listed in the response, add the person to the list for that respective city
+    response_future_cities: List[str] = response["Future Cities"].split("\n")
     for city in response_future_cities:
         city_people_five_years[city].append(person)
 
