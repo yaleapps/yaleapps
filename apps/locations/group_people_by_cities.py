@@ -65,8 +65,11 @@ with st.form("find_people_by_city_right_after_graduation"):
         else:
             for city in selected_first_cities:
                 st.write("People in", city)
+                people_in_city = city_people_one_year[city]
+                tab1, tab2 = st.tabs(["Table View", "List View"])
+                tab1.table(pd.DataFrame(people_in_city))
                 for person in city_people_one_year[city]:
-                    st.write(person)
+                    tab2.write(person)
 
 
 with st.form("find_people_by_city_in_five_years"):
@@ -85,26 +88,8 @@ with st.form("find_people_by_city_in_five_years"):
         else:
             for city in selected_future_cities:
                 st.write("People in", city)
+                people_in_city = city_people_five_years[city]
+                tab1, tab2 = st.tabs(["Table View", "List View"])
+                tab1.table(pd.DataFrame(people_in_city))
                 for person in city_people_five_years[city]:
-                    st.write(person)
-
-# # Convert the dictionaries to DataFrames
-# result_df_one_year = pd.DataFrame(
-#     {
-#         "City": list(city_people_one_year.keys()),
-#         "People": ["\n".join(people) for people in city_people_one_year.values()],
-#     }
-# )
-
-# result_df_five_years = pd.DataFrame(
-#     {
-#         "City": list(city_people_five_years.keys()),
-#         "People": ["\n".join(people) for people in city_people_five_years.values()],
-#     }
-# )
-
-st.text("People in each city right after graduation:")
-# st.write(result_df_one_year)
-
-st.text("People in each city in the next 5 years:")
-# st.write(result_df_five_years)
+                    tab2.write(person)
