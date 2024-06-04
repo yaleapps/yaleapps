@@ -22,21 +22,27 @@ city_people_one_year = {city: [] for city in first_city_series.unique()}
 city_people_five_years = {city: [] for city in future_city_series.unique()}
 
 # Fill the dictionaries with names for each city
-for _, row in df.iterrows():
+for _, response in df.iterrows():
     # Get names of people
-    name = row["Name"]
+    person = {
+        "Name": response["Name"],
+        "NetID": response["NetID"],
+        "Personal Email": response["Personal Email"],
+        "Phone Number": response["Phone Number"],
+        "Visibility": response["Visibility"],
+    }
 
-    # Split the cities for the current row
-    first_cities = row["First City"].split("\n")
-    future_cities = row["Future Cities"].split("\n")
+    # Split the cities for the current response
+    first_cities = response["First City"].split("\n")
+    future_cities = response["Future Cities"].split("\n")
 
     # Append names to respective city lists in one year dictionary
     for city in first_cities:
-        city_people_one_year[city].append(name)
+        city_people_one_year[city].append(person)
 
     # Append names to respective city lists in five years dictionary
     for city in future_cities:
-        city_people_five_years[city].append(name)
+        city_people_five_years[city].append(person)
 
 # Convert the dictionaries to DataFrames
 result_df_one_year = pd.DataFrame(
