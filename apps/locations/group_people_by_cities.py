@@ -5,6 +5,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from helpers.google_sheet_helper import init_google_worksheet
 from dataclasses import dataclass
 
+
 @dataclass
 class Person:
     Name: str
@@ -12,6 +13,7 @@ class Person:
     Personal_Email: str
     Phone_Number: str
     Visibility: str
+
 
 # Open the Google Sheet by key and get the data from the first sheet
 sh = init_google_worksheet(sheet_name="Locations")
@@ -28,8 +30,12 @@ first_city_series = df["First City"].str.split("\n").explode()
 future_city_series = df["Future Cities"].str.split("\n").explode()
 
 # Create dictionaries to store people under each city for First City and Future Cities separately
-city_people_one_year = {city: [] for city in first_city_series.unique()}
-city_people_five_years = {city: [] for city in future_city_series.unique()}
+city_people_one_year: dict[str, list[Person]] = {
+    city: [] for city in first_city_series.unique()
+}
+city_people_five_years: dict[str, list[Person]] = {
+    city: [] for city in future_city_series.unique()
+}
 
 # Fill the dictionaries with names for each city
 for _, response in df.iterrows():
