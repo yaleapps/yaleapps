@@ -4,7 +4,6 @@ from helpers.google_sheet_helper import init_google_worksheet
 st.set_page_config(layout="wide")
 import requests
 import re
-import pandas as pd
 from validate_email import validate_email
 from oauth2client.service_account import ServiceAccountCredentials
 
