@@ -48,8 +48,8 @@ class Response(BaseModel):
         return str(value)
 
     @validator("Visibility", pre=True)
-    def coerce_visibility(cls, value: Union[str, int]) -> bool:
-        return bool(value)
+    def coerce_visibility(cls, value: str) -> bool:
+        return value == "TRUE"
 
 
 def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
