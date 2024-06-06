@@ -5,6 +5,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from helpers.google_sheet_helper import init_google_worksheet
 from pydantic import BaseModel, Field, ValidationError, validator
 
+st.set_page_config(layout="wide")
+
 
 @dataclass
 class Person:
@@ -41,6 +43,9 @@ class Response(BaseModel):
 
 # Open the Google Sheet by key and get the data from the first sheet
 sh = init_google_worksheet(sheet_name="Locations")
+if sh is None:
+    st.error("Failed to initialize Google Worksheet")
+    st.stop()
 data = sh.get_all_records()
 
 
