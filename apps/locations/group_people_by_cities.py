@@ -20,7 +20,7 @@ class Response(BaseModel):
     NetID: str
     Personal_Email: str = Field(..., alias="Personal Email")
     Phone_Number: str = Field(..., alias="Phone Number")
-    Visibility: str
+    Visibility: bool
     First_City: List[str] = Field(..., alias="First City")
     Future_Cities: List[str] = Field(..., alias="Future Cities")
 
@@ -33,6 +33,10 @@ class Response(BaseModel):
     @validator("Phone_Number", pre=True)
     def coerce_phone_number(cls, value: Union[str, int]) -> str:
         return str(value)
+
+    @validator("Visibility", pre=True)
+    def coerce_visibility(cls, value: Union[str, int]) -> bool:
+        return bool(value)
 
 
 # Open the Google Sheet by key and get the data from the first sheet
