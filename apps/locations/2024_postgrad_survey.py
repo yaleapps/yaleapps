@@ -1,11 +1,11 @@
 import streamlit as st
 from helpers.google_sheet_helper import init_google_worksheet
-
-st.set_page_config(layout="wide")
 import requests
 import re
 from validate_email import validate_email
 from oauth2client.service_account import ServiceAccountCredentials
+
+st.set_page_config(layout="wide")
 
 MIN_POPULATION = 15_000
 
