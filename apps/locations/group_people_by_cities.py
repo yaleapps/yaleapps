@@ -95,47 +95,56 @@ for response in responses:
     for city in response.Future_Cities:
         city_people_five_years[city].append(person)
 
-# Create a form
-with st.form("find_people_by_city_right_after_graduation"):
-    selected_first_cities: List[str] = st.multiselect(
+# Create tabs for each form
+tab1, tab2 = st.tabs(
+    [
         "Find people by city (right after graduation)",
-        placeholder="Find people in...",
-        options=unique_first_cities,
-    )
-
-    # Every form must have a submit button.
-    submitted = st.form_submit_button("Submit")
-
-    if submitted:
-        if not selected_first_cities:
-            st.error("Please select a city")
-        else:
-            for city in selected_first_cities:
-                st.write("People in", city)
-                people_in_city = city_people_one_year[city]
-                tab1, tab2 = st.tabs(["Table View", "List View"])
-                tab1.table([asdict(person) for person in people_in_city])
-                for person in people_in_city:
-                    tab2.write(person)
-
-with st.form("find_people_by_city_in_five_years"):
-    selected_future_cities: List[str] = st.multiselect(
         "Find people by city (next 5 years)",
-        placeholder="Find people who, in the next 5 years, will most likely be living in...",
-        options=unique_future_cities,
-    )
+    ]
+)
 
-    # Every form must have a submit button.
-    submitted = st.form_submit_button("Submit")
+with tab1:
+    with st.form("find_people_by_city_right_after_graduation"):
+        selected_first_cities: List[str] = st.multiselect(
+            "Find people by city (right after graduation)",
+            placeholder="Find people in...",
+            options=unique_first_cities,
+        )
 
-    if submitted:
-        if not selected_future_cities:
-            st.error("Please select a city")
-        else:
-            for city in selected_future_cities:
-                st.write("People in", city)
-                people_in_city = city_people_five_years[city]
-                tab1, tab2 = st.tabs(["Table View", "List View"])
-                tab1.table([asdict(person) for person in people_in_city])
-                for person in people_in_city:
-                    tab2.write(person)
+        # Every form must have a submit button.
+        submitted = st.form_submit_button("Submit")
+
+        if submitted:
+            if not selected_first_cities:
+                st.error("Please select a city")
+            else:
+                for city in selected_first_cities:
+                    st.write("People in", city)
+                    people_in_city = city_people_one_year[city]
+                    tab1_view, tab2_view = st.tabs(["Table View", "List View"])
+                    tab1_view.table([asdict(person) for person in people_in_city])
+                    for person in people_in_city:
+                        tab2_view.write(person)
+
+with tab2:
+    with st.form("find_people_by_city_in_five_years"):
+        selected_future_cities: List[str] = st.multiselect(
+            "Find people by city (next 5 years)",
+            placeholder="Find people who, in the next 5 years, will most likely be living in...",
+            options=unique_future_cities,
+        )
+
+        # Every form must have a submit button.
+        submitted = st.form_submit_button("Submit")
+
+        if submitted:
+            if not selected_future_cities:
+                st.error("Please select a city")
+            else:
+                for city in selected_future_cities:
+                    st.write("People in", city)
+                    people_in_city = city_people_five_years[city]
+                    tab1_view, tab2_view = st.tabs(["Table View", "List View"])
+                    tab1_view.table([asdict(person) for person in people_in_city])
+                    for person in people_in_city:
+                        tab2_view.write(person)
