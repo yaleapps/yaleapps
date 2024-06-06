@@ -3,7 +3,6 @@ from typing import Any, Dict, List, Union
 import streamlit as st
 from oauth2client.service_account import ServiceAccountCredentials
 from helpers.google_sheet_helper import init_google_worksheet
-from pydantic import BaseModel, Field, ValidationError, validator
 
 st.set_page_config(layout="wide")
 
@@ -17,54 +16,13 @@ class Person:
     Visibility: bool
 
 
-class Response(BaseModel):
-    Name: str
-    NetID: str
-    Personal_Email: str = Field(..., alias="Personal Email")
-    Phone_Number: str = Field(..., alias="Phone Number")
-    Visibility: bool
-    First_City: List[str] = Field(..., alias="First City")
-    Future_Cities: List[str] = Field(..., alias="Future Cities")
-
-    @validator("First_City", "Future_Cities", pre=True)
-    def split_cities(cls, value):
-        if isinstance(value, str):
-            return value.split("\n")
-        return value
-
-    @validator("Phone_Number", pre=True)
-    def coerce_phone_number(cls, value: Union[str, int]) -> str:
-        return str(value)
-
-    @validator("Visibility", pre=True)
-    def coerce_visibility(cls, value: Union[str, int]) -> bool:
-        return bool(value)
-
-
 # Open the Google Sheet by key and get the data from the first sheet
 sh = init_google_worksheet(sheet_name="Locations")
 if sh is None:
     st.error("Failed to initialize Google Worksheet")
     st.stop()
-data = sh.get_all_records()
+responses = sh.get_all_records()
 
-
-def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
-    if isinstance(record, dict):
-        try:
-            return Response(**record)
-        except ValidationError as e:
-            st.error(f"Validation error for record {record}: {e}")
-            return None
-    else:
-        st.error(f"Record is not a dictionary: {record}")
-        return None
-
-
-# Convert the data to a list of ResponseModel instances using list comprehension
-responses = [
-    response for record in data if (response := validate_record(record)) is not None
-]
 
 st.text("Original Data:")
 st.table([response.model_dump() for response in responses])

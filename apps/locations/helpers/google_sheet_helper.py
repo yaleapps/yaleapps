@@ -1,7 +1,8 @@
+from typing import Any, Dict, List, Union
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
-from pydantic import BaseModel, ValidationError, HttpUrl
+from pydantic import BaseModel, Field, ValidationError, HttpUrl, validator
 
 
 # Define Pydantic models for validation
@@ -27,7 +28,54 @@ class Secrets(BaseModel):
     spreadsheet: SpreadsheetConfig
 
 
-def init_google_worksheet(sheet_name: str) -> gspread.Worksheet | None:
+class Response(BaseModel):
+    Name: str
+    NetID: str
+    Personal_Email: str = Field(..., alias="Personal Email")
+    Phone_Number: str = Field(..., alias="Phone Number")
+    Visibility: bool
+    First_City: List[str] = Field(..., alias="First City")
+    Future_Cities: List[str] = Field(..., alias="Future Cities")
+
+    @validator("First_City", "Future_Cities", pre=True)
+    def split_cities(cls, value):
+        if isinstance(value, str):
+            return value.split("\n")
+        return value
+
+    @validator("Phone_Number", pre=True)
+    def coerce_phone_number(cls, value: Union[str, int]) -> str:
+        return str(value)
+
+    @validator("Visibility", pre=True)
+    def coerce_visibility(cls, value: Union[str, int]) -> bool:
+        return bool(value)
+
+
+def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
+    if isinstance(record, dict):
+        try:
+            return Response(**record)
+        except ValidationError as e:
+            st.error(f"Validation error for record {record}: {e}")
+            return None
+    else:
+        st.error(f"Record is not a dictionary: {record}")
+        return None
+
+
+class CustomWorksheet(gspread.Worksheet):
+    def get_all_records(self, *args, **kwargs) -> List[Response]:
+        records = super().get_all_records(*args, **kwargs)
+        responses = [
+            response
+            for record in records
+            if (response := validate_record(record)) is not None
+        ]
+        return responses
+
+
+def init_google_worksheet(sheet_name: str) -> CustomWorksheet | None:
     # Load and validate secrets
     try:
         secrets = Secrets(**st.secrets)
@@ -66,4 +114,5 @@ def init_google_worksheet(sheet_name: str) -> gspread.Worksheet | None:
     sheet = client.open_by_key(key=secrets.spreadsheet.spreadsheet_id).worksheet(
         sheet_name
     )
-    return sheet
+    custom_sheet = CustomWorksheet(sheet.spreadsheet, sheet._properties)
+    return custom_sheet
