@@ -12,7 +12,7 @@ class Person:
     NetID: str
     Personal_Email: str
     Phone_Number: str
-    Visibility: str
+    Visibility: bool
 
 
 class Response(BaseModel):
