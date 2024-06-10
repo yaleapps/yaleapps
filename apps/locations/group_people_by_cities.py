@@ -24,8 +24,8 @@ if sh is None:
 responses = sh.get_all_records()
 
 
-st.text("Original Data:")
-st.table([response.model_dump() for response in responses])
+# st.text("Original Data:")
+# st.table([response.model_dump() for response in responses])
 
 # Split cities by new lines and gather unique cities
 first_city_list = [city for response in responses for city in response.First_City]
