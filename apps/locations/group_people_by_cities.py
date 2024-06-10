@@ -85,7 +85,13 @@ with tab1:
                     st.write("People in", city)
                     people_in_city = city_people_one_year[city]
                     tab1_view, tab2_view = st.tabs(["Table View", "List View"])
-                    tab1_view.table([asdict(person) for person in people_in_city])
+                    tab1_view.table(
+                        [
+                            asdict(person)
+                            for person in people_in_city
+                            if person.Visibility
+                        ]
+                    )
                     for person in people_in_city:
                         tab2_view.write(person)
 
@@ -108,6 +114,12 @@ with tab2:
                     st.write("People in", city)
                     people_in_city = city_people_five_years[city]
                     tab1_view, tab2_view = st.tabs(["Table View", "List View"])
-                    tab1_view.table([asdict(person) for person in people_in_city])
+                    tab1_view.table(
+                        [
+                            asdict(person)
+                            for person in people_in_city
+                            if person.Visibility
+                        ]
+                    )
                     for person in people_in_city:
                         tab2_view.write(person)
