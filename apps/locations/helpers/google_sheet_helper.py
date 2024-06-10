@@ -64,7 +64,7 @@ def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
         return None
 
 
-class CustomWorksheet(gspread.Worksheet):
+class ResponsesWorksheet(gspread.Worksheet):
     def get_all_records(self, *args, **kwargs) -> List[Response]:
         records = super().get_all_records(*args, **kwargs)
         responses = [
@@ -75,7 +75,7 @@ class CustomWorksheet(gspread.Worksheet):
         return responses
 
 
-def init_google_worksheet(sheet_name: str) -> CustomWorksheet | None:
+def init_google_worksheet(sheet_name: str) -> ResponsesWorksheet | None:
     # Load and validate secrets
     try:
         secrets = Secrets(**st.secrets)
@@ -114,5 +114,5 @@ def init_google_worksheet(sheet_name: str) -> CustomWorksheet | None:
     sheet = client.open_by_key(key=secrets.spreadsheet.spreadsheet_id).worksheet(
         sheet_name
     )
-    custom_sheet = CustomWorksheet(sheet.spreadsheet, sheet._properties)
+    custom_sheet = ResponsesWorksheet(sheet.spreadsheet, sheet._properties)
     return custom_sheet
