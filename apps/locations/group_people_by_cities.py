@@ -1,8 +1,7 @@
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Union
 import streamlit as st
-from oauth2client.service_account import ServiceAccountCredentials
-from helpers.google_sheet_helper import init_google_worksheet
+from helpers.google_sheet_helper import GoogleSheetManager
 
 st.set_page_config(layout="wide")
 
@@ -17,11 +16,11 @@ class Person:
 
 
 # Open the Google Sheet by key and get the data from the first sheet
-sh = init_google_worksheet(sheet_name="Locations")
-if sh is None:
+manager = GoogleSheetManager(sheet_name="Locations")
+if manager.sheet is None:
     st.error("Failed to initialize Google Worksheet")
     st.stop()
-responses = sh.get_all_records()
+responses = manager.get_all_records()
 
 
 # st.text("Original Data:")
