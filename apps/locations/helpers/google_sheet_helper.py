@@ -64,17 +64,16 @@ def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
         return None
 
 
+class GoogleSheetManagerError(Exception):
+    pass
+
+
 class GoogleSheetManager:
     def __init__(self, sheet_name: str):
-        self.sheet_name = sheet_name
-        self.sheet = self._init_google_worksheet()
-
-    def _init_google_worksheet(self) -> Union[gspread.Worksheet, None]:
         try:
             secrets = Secrets(**st.secrets)
         except ValidationError as e:
-            st.error(f"Secrets validation error: {e}")
-            return None
+            raise GoogleSheetManagerError(f"Secrets validation error: {e}")
 
         scope = [
             "https://spreadsheets.google.com/feeds",
@@ -82,7 +81,6 @@ class GoogleSheetManager:
         ]
 
         gcp_service_account = secrets.gcp_service_account
-
         creds = ServiceAccountCredentials.from_json_keyfile_dict(
             {
                 "type": gcp_service_account.type,
@@ -99,28 +97,22 @@ class GoogleSheetManager:
             scope,
         )
 
-        client = gspread.authorize(creds)
-
         try:
+            client = gspread.authorize(creds)
             sheet = client.open_by_key(secrets.spreadsheet.spreadsheet_id).worksheet(
-                self.sheet_name
+                sheet_name
             )
-            return sheet
+            self.sheet = sheet
         except gspread.exceptions.GSpreadException as e:
-            st.error(f"Error accessing the Google Sheet: {e}")
-            return None
+            raise GoogleSheetManagerError(f"Error accessing the Google Sheet: {e}")
 
     def get_all_records(self) -> List[Response]:
-        if self.sheet:
-            records = self.sheet.get_all_records()
-            return [
-                response
-                for record in records
-                if (response := validate_record(record)) is not None
-            ]
-        else:
-            st.error("Sheet not initialized.")
-            return []
+        records = self.sheet.get_all_records()
+        return [
+            response
+            for record in records
+            if (response := validate_record(record)) is not None
+        ]
 
     def get_row_by_net_id(self, net_id: str) -> Union[Response, None]:
         records = self.get_all_records()
