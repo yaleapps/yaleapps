@@ -1,7 +1,7 @@
 from dataclasses import dataclass, asdict
 from typing import Any, Dict, List, Union
 import streamlit as st
-from helpers.google_sheet_helper import GoogleSheetManager
+from helpers.google_sheet_helper import GoogleSheetManager, GoogleSheetManagerError
 
 st.set_page_config(layout="wide")
 
@@ -15,11 +15,12 @@ class Person:
     Visibility: bool
 
 
-# Open the Google Sheet by key and get the data from the first sheet
-manager = GoogleSheetManager(sheet_name="Locations")
-if manager.sheet is None:
-    st.error("Failed to initialize Google Worksheet")
+try:
+    manager = GoogleSheetManager(sheet_name="Locations")
+except GoogleSheetManagerError as e:
+    st.error(e)
     st.stop()
+
 responses = manager.get_all_records()
 
 
