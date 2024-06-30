@@ -1,10 +1,11 @@
 import pandas as pd
 import streamlit as st
 from oauth2client.service_account import ServiceAccountCredentials
-from helpers.google_sheet_helper import init_google_worksheet
+from helpers.google_sheet_helper import GoogleSheetManager
+
 
 # Open the Google Sheet by key and get the data from the first sheet
-sh = init_google_worksheet(sheet_name="Locations")
+sh = GoogleSheetManager(sheet_name="Locations")
 data = sh.get_all_records()
 
 # Convert the data to a pandas DataFrame
