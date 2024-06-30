@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Union
+from typing import Dict, List
 import streamlit as st
 from helpers.google_sheet_helper import GoogleSheetManager, GoogleSheetManagerError
 
