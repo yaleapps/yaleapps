@@ -35,6 +35,9 @@ st.markdown(
 
 # Load cities and create a city dropdown
 all_cities = load_all_cities()
+if not all_cities:
+    st.error("Failed to load cities. Please try again later.")
+    st.stop()
 # Show only the top n cities
 cities = all_cities[:MIN_POPULATION]
 
