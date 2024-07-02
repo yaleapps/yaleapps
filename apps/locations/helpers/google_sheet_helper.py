@@ -29,13 +29,13 @@ class Secrets(BaseModel):
 
 
 class Response(BaseModel):
-    Name: str
-    NetID: str
-    Personal_Email: str = Field(..., alias="Personal Email")
-    Phone_Number: str = Field(..., alias="Phone Number")
-    Visibility: bool
-    First_City: List[str] = Field(..., alias="First City")
-    Future_Cities: List[str] = Field(..., alias="Future Cities")
+    name: str
+    net_id: str
+    personal_email: str
+    phone_number: str
+    visibility: bool
+    selected_first_cities: List[str]
+    selected_future_cities: List[str]
 
     @validator("First_City", "Future_Cities", pre=True)
     def split_cities(cls, value):
