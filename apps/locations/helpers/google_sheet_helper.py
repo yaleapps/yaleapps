@@ -1,8 +1,9 @@
+import re
 from typing import Any, Dict, List, Union
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
-from pydantic import BaseModel, Field, ValidationError, HttpUrl, validator
+from pydantic import BaseModel, EmailStr, ValidationError, HttpUrl, validator
 
 
 # Define Pydantic models for validation
@@ -31,25 +32,33 @@ class Secrets(BaseModel):
 class Response(BaseModel):
     name: str
     net_id: str
-    personal_email: str
+    personal_email: EmailStr
     phone_number: str
     visibility: bool
     selected_first_cities: List[str]
     selected_future_cities: List[str]
 
-    @validator("First_City", "Future_Cities", pre=True)
+    @validator("selected_first_cities", "selected_future_cities", pre=True)
     def split_cities(cls, value):
         if isinstance(value, str):
             return value.split("\n")
         return value
 
-    @validator("Phone_Number", pre=True)
+    @validator("phone_number", pre=True)
     def coerce_phone_number(cls, value: Union[str, int]) -> str:
         return str(value)
 
-    @validator("Visibility", pre=True)
+    @validator("visibility", pre=True)
     def coerce_visibility(cls, value: str) -> bool:
-        return value == "TRUE"
+        return value.lower() == "true"
+
+    @validator("net_id")
+    def validate_net_id(cls, value):
+        netid_regex = r"^[a-zA-Z-]{2,3}\d+$"
+        is_valid_net_id = re.match(netid_regex, value)
+        if not is_valid_net_id:
+            raise ValueError("Invalid net ID format")
+        return value
 
 
 def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
@@ -114,10 +123,24 @@ class GoogleSheetManager:
             if (response := validate_record(record)) is not None
         ]
 
+    def append_response(self, response: Response) -> bool:
+        row = [
+            response.name,
+            response.net_id,
+            response.personal_email,
+            response.phone_number,
+            "\n".join(response.selected_first_cities),
+            "\n".join(response.selected_future_cities),
+            response.visibility,
+        ]
+
+        self.sheet.append_row(row)
+        return True
+
     def get_row_by_net_id(self, net_id: str) -> Union[Response, None]:
         records = self.get_all_records()
         for record in records:
-            if record.NetID == net_id:
+            if record.net_id == net_id:
                 return record
         return None
 
