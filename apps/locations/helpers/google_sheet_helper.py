@@ -49,8 +49,8 @@ class Response(BaseModel):
         return str(value)
 
     @validator("visibility", pre=True)
-    def coerce_visibility(cls, value: str) -> bool:
-        return value.lower() == "true"
+    def coerce_visibility(cls, value: Union[str, bool]) -> bool:
+        return value if isinstance(value, bool) else value.lower() == "true"
 
     @validator("net_id")
     def validate_net_id(cls, value):
