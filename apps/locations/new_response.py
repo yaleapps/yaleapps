@@ -77,5 +77,15 @@ with st.form("post_grad_form"):
             sh.append_response(form_data)
             st.success("Response submitted successfully!")
             st.stop()
-        except:
-            st.error("Please fill in all and correct invalid fields")
+        except ValueError as e:
+            error_messages = []
+            for error in e.errors():
+                field = error["loc"][0]
+                message = error["msg"]
+                error_messages.append(f"{field}: {message}")
+
+            error_string = "\n".join(error_messages)
+            st.error(f"Please correct the following errors:\n\n{error_string}")
+        except Exception as e:
+            st.error("An error occurred while submitting the form. Please try again.")
+            st.exception(e)  # This will log the full exception traceback
