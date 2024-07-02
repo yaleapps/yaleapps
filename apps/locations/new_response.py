@@ -84,7 +84,7 @@ with st.form("post_grad_form"):
                 message = error["msg"]
                 error_messages.append(f"{field}: {message}")
 
-            error_string = "\n".join(error_messages)
+            error_string = "\n\n".join(error_messages)
             st.error(f"Please correct the following errors:\n\n{error_string}")
         except Exception as e:
             st.error("An error occurred while submitting the form. Please try again.")
