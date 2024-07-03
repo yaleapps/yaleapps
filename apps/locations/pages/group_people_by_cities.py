@@ -46,16 +46,56 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
         st.error("Failed to load cities. Please try again later.")
         st.stop()
 
+    max_count = max(cities_counter.values())
+
     for city, count in cities_counter.items():
         coords = cities_formatted_to_lat_lng.get(city)
         if not coords:
             continue
         lat, lng = coords.lat, coords.lng
         if coords:
-            folium.Marker(
+            size = 5 + (count / max_count) * 20  # Scale size between 5 and 25
+            folium.CircleMarker(
                 location=[lat, lng],
+                radius=size,
                 tooltip=f"{city} ({count})",
+                fill=True,
+                fillColor="#00356B",
+                color="#00356B",
+                fillOpacity=0.7,
+                onclick=f"submitForm('{city}')",
             ).add_to(m)
+
+    # Add JavaScript function to handle click events
+    m.get_root().add_child(
+        folium.Element(
+            """
+    <script>
+    function submitForm(city) {
+        // Find the form and update the select field
+        var form = document.querySelector('form');
+        var select = form.querySelector('select');
+        
+        // Clear existing selections
+        for (var i = 0; i < select.options.length; i++) {
+            select.options[i].selected = false;
+        }
+        
+        // Select the clicked city
+        for (var i = 0; i < select.options.length; i++) {
+            if (select.options[i].text.startsWith(city)) {
+                select.options[i].selected = true;
+                break;
+            }
+        }
+        
+        // Submit the form
+        form.querySelector('button[type="submit"]').click();
+    }
+    </script>
+    """
+        )
+    )
 
     return m
 
