@@ -15,25 +15,18 @@ Pages:
 """
 )
 
-col1, col2, col3, col4 = st.columns(4)
 
+if st.button("New Response"):
+    st.switch_page("pages/new_response.py")
 
-with col1:
-    if st.button("New Response"):
-        st.switch_page("pages/new_response.py")
+if st.button("Edit Response"):
+    st.switch_page("pages/edit_response.py")
 
-with col2:
-    if st.button("Edit Response"):
-        st.switch_page("pages/edit_response.py")
+if st.button("Group People by Cities"):
+    st.switch_page("pages/group_people_by_cities.py")
 
-with col3:
-    if st.button("Group People by Cities"):
-        st.switch_page("pages/group_people_by_cities.py")
-
-
-with col4:
-    if st.button("View Map"):
-        st.switch_page("pages/view_map.py")
+if st.button("View Map"):
+    st.switch_page("pages/view_map.py")
 
 
 st.markdown(
