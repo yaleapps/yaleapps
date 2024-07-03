@@ -190,22 +190,35 @@ class GoogleSheetManager:
             None,
         )
 
-    # def update_response(self, email: str, phone_number: str, updated_data: Response) -> bool:
-    #     records = self.get_all_records()
-    #     matching_record = next((record for record in records
-    #                             if record.personal_email == email
-    #                             and record.phone_number == phone_number), None)
-
-    #     if not matching_record:
-    #         st.error(f"No record found with email {email} and phone number {phone_number}")
-    #         return False
-
-    #     # Find the row index of the matching record
-    #     row_index = next(i for i, record in enumerate(records, start=2)
-    #                     if record.personal_email == email
-    #                     and record.phone_number == phone_number)
-
-    #     print(row_index)
+    def update_response(
+        self, email: str, phone_number: str, updated_data: Response
+    ) -> bool:
+        records = self.get_all_records()
+        for idx, record in enumerate(records, start=1):
+            if record.personal_email == email and record.phone_number == phone_number:
+                updated_row = [
+                    updated_data.name,
+                    updated_data.net_id,
+                    updated_data.personal_email,
+                    updated_data.phone_number,
+                    "\n".join(updated_data.selected_first_cities),
+                    "\n".join(updated_data.selected_future_cities),
+                    updated_data.visibility,
+                ]
+                try:
+                    row_number = idx + 1
+                    column_range_start, column_range_end = "A", chr(
+                        65 + len(updated_row) - 1
+                    )
+                    self.sheet.update(
+                        f"{column_range_start}{row_number}:{column_range_end}{row_number}",
+                        [updated_row],
+                    )
+                    return True
+                except gspread.exceptions.GSpreadException as e:
+                    print(f"Error updating the Google Sheet: {e}")
+                    return False
+        return False
 
     # # Prepare the updated row
     # updated_row = [
