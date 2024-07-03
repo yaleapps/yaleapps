@@ -100,10 +100,6 @@ def main_content(_: Response):
         reverse=True,
     )
 
-    # Extract just the city names, maintaining the sorted order
-    unique_first_cities = [city for city, _ in sorted_first_cities]
-    unique_future_cities = [city for city, _ in sorted_future_cities]
-
     # Create dictionaries to store people under each city for First City and Future Cities separately
     city_people_one_year: Dict[str, List[DisplayPersonInDataTable]] = {
         city: [] for city, _ in sorted_first_cities
