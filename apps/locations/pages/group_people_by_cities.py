@@ -25,7 +25,7 @@ if not cities_formatted_to_lat_lng:
 
 
 @dataclass
-class Person:
+class DisplayPersonInDataTable:
     name: str
     net_id: str
     personal_email: str
@@ -115,16 +115,16 @@ def main_content(_: Response):
     unique_future_cities = [city for city, _ in sorted_future_cities]
 
     # Create dictionaries to store people under each city for First City and Future Cities separately
-    city_people_one_year: Dict[str, List[Person]] = {
+    city_people_one_year: Dict[str, List[DisplayPersonInDataTable]] = {
         city: [] for city, _ in sorted_first_cities
     }
-    city_people_five_years: Dict[str, List[Person]] = {
+    city_people_five_years: Dict[str, List[DisplayPersonInDataTable]] = {
         city: [] for city, _ in sorted_future_cities
     }
 
     # Fill the dictionaries with names for each city
     for response in responses:
-        person = Person(
+        person = DisplayPersonInDataTable(
             name=response.name,
             net_id=response.net_id,
             personal_email=response.personal_email,
