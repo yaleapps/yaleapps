@@ -54,8 +54,7 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
         if coords:
             folium.Marker(
                 location=[lat, lng],
-                popup=f"<b>{city}</b><br>People: {count}",
-                tooltip=city,
+                tooltip=f"{city} ({count})",
             ).add_to(m)
 
     return m
