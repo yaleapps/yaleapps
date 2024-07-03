@@ -42,7 +42,7 @@ No spaces or other characters are allowed.
 
 
 def login_form(manager: GoogleSheetManager):
-    st.title("Login")
+    st.title("Login with Email and Phone to Continue")
     with st.form("login_form"):
         personal_email = st.text_input(
             "Personal Email (The email you used to fill out your response)",
