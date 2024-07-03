@@ -30,15 +30,15 @@ def show_main_content():
     # st.table([response.model_dump() for response in responses])
 
     # Split cities by new lines and gather unique cities
-    first_city_list = [
+    first_cities = [
         city for response in responses for city in response.selected_first_cities
     ]
-    future_city_list = [
+    future_cities = [
         city for response in responses for city in response.selected_future_cities
     ]
 
-    unique_first_cities = list(set(first_city_list))
-    unique_future_cities = list(set(future_city_list))
+    unique_first_cities = list(set(first_cities))
+    unique_future_cities = list(set(future_cities))
 
     # Create dictionaries to store people under each city for First City and Future Cities separately
     city_people_one_year: Dict[str, List[Person]] = {
