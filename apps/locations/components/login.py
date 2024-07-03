@@ -3,7 +3,7 @@ import streamlit as st
 from pydantic import BaseModel, EmailStr, ValidationError, validator
 import re
 from helpers.st_print_validation_error import st_print_validation_error
-from helpers.google_sheet_helper import GoogleSheetManager, Response
+from helpers.google_sheet_manager import GoogleSheetManager, Response
 
 
 class LoginCredentials(BaseModel):
@@ -42,7 +42,7 @@ No spaces or other characters are allowed.
 
 
 def login_form(manager: GoogleSheetManager):
-    st.title("Login")
+    st.title("Login with Email and Phone to Continue")
     with st.form("login_form"):
         personal_email = st.text_input(
             "Personal Email (The email you used to fill out your response)",

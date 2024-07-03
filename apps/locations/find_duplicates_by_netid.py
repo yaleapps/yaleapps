@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 from oauth2client.service_account import ServiceAccountCredentials
-from helpers.google_sheet_helper import GoogleSheetManager
+from helpers.google_sheet_manager import GoogleSheetManager
 
 
 # Open the Google Sheet by key and get the data from the first sheet
