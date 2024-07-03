@@ -26,7 +26,9 @@ def sort_cities_df(cities_df: pd.DataFrame) -> pd.DataFrame:
     cities_df = cities_df.sort_values(
         by=["is_priority", "population"], ascending=[False, False]
     )
+    # Drop the recently created is_priority column
     cities_df = cities_df.drop(columns=["is_priority"])
+
     return cities_df
 
 
