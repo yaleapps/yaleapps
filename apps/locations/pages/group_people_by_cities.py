@@ -2,12 +2,12 @@ import pandas as pd
 import streamlit as st
 from streamlit_folium import folium_static
 import folium
-import geocoder
-from typing import Dict, Tuple, List
+from typing import Dict, Optional, Tuple, List
 from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
 from typing import Counter, Dict, List
 import streamlit as st
+from assets.cities_loader import CitiesLoader
 from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import (
     GoogleSheetManager,
@@ -16,6 +16,12 @@ from helpers.google_sheet_helper import (
 )
 
 st.set_page_config(layout="wide")
+
+
+cities_formatted_to_lat_lng = CitiesLoader().load_cities_formatted_to_lat_lng()
+if not cities_formatted_to_lat_lng:
+    st.error("Failed to load cities. Please try again later.")
+    st.stop()
 
 
 @dataclass
@@ -34,23 +40,22 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
-def get_city_coordinates(city: str) -> Tuple[float, float]:
-    # load df from '../assets/sorted_cities_df.pkl
-    cities_df = pd.read_pickle("./sorted_cities_df.pkl")
-    # Find the row where "city_formatted" column == city
-    row = cities_df[cities_df["city_formatted"] == city]
-    # then get "lat" and "lng" columns for that row
-    return row["lat"].values[0], row["lng"].values[0]
-
-
 def create_map(cities_counter: Dict[str, int]) -> folium.Map:
     m = folium.Map(location=[0, 0], zoom_start=2)
+    if not cities_formatted_to_lat_lng:
+        st.error("Failed to load cities. Please try again later.")
+        st.stop()
 
     for city, count in cities_counter.items():
-        coords = get_city_coordinates(city)
+        coords = cities_formatted_to_lat_lng.get(city)
+        if not coords:
+            continue
+        lat, lng = coords.lat, coords.lng
         if coords:
             folium.Marker(
-                location=coords, popup=f"<b>{city}</b><br>People: {count}", tooltip=city
+                location=[lat, lng],
+                popup=f"<b>{city}</b><br>People: {count}",
+                tooltip=city,
             ).add_to(m)
 
     # Add JavaScript to handle click events
