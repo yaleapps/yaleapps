@@ -1,6 +1,7 @@
 from pydantic import ValidationError
 import streamlit as st
 from assets.cities_loader import CitiesLoader
+from helpers.st_print_validation_error import st_print_validation_error
 from helpers.google_sheet_helper import GoogleSheetManager, Response
 
 st.set_page_config(layout="wide")
@@ -67,14 +68,8 @@ with st.form("post_grad_form"):
             st.success("Response submitted successfully!")
             st.stop()
         except ValidationError as e:
-            error_messages = []
-            for error in e.errors():
-                field = error["loc"][0]
-                message = error["msg"]
-                error_messages.append(f"{field}: {message}")
+            st_print_validation_error(e)
 
-            error_string = "\n\n".join(error_messages)
-            st.error(f"Please correct the following errors:\n\n{error_string}")
         except Exception as e:
             st.error("An error occurred while submitting the form. Please try again.")
             st.exception(e)  # This will log the full exception traceback

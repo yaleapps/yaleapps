@@ -4,6 +4,7 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
 from pydantic import BaseModel, EmailStr, ValidationError, HttpUrl, validator
+from helpers.st_print_validation_error import st_print_validation_error
 
 
 # Define Pydantic models for validation
@@ -96,7 +97,7 @@ def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
         try:
             return Response(**record)
         except ValidationError as e:
-            st.error(f"Validation error for record {record}: {e}")
+            st_print_validation_error(e)
             return None
     else:
         st.error(f"Record is not a dictionary: {record}")
@@ -112,7 +113,8 @@ class GoogleSheetManager:
         try:
             secrets = Secrets(**st.secrets)
         except ValidationError as e:
-            raise GoogleSheetManagerError(f"Secrets validation error: {e}")
+            st_print_validation_error(e)
+            return None
 
         scope = [
             "https://spreadsheets.google.com/feeds",
