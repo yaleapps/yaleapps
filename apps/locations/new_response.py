@@ -17,12 +17,12 @@ st.markdown(
 )
 
 # Load cities and create a city dropdown
-all_cities = CitiesLoader().load_all_cities()
-if not all_cities:
+cities_formatted_list = CitiesLoader().load_cities_formatted_list()
+if not cities_formatted_list:
     st.error("Failed to load cities. Please try again later.")
     st.stop()
 # Show only the top n cities
-cities = all_cities[:MIN_POPULATION]
+cities = cities_formatted_list[:MIN_POPULATION]
 
 # Create a form
 with st.form("post_grad_form"):
