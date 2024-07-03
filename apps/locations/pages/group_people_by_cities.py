@@ -16,12 +16,6 @@ from helpers.google_sheet_helper import (
 st.set_page_config(layout="wide")
 
 
-cities_formatted_to_lat_lng = CitiesLoader().load_cities_formatted_to_lat_lng()
-if not cities_formatted_to_lat_lng:
-    st.error("Failed to load cities. Please try again later.")
-    st.stop()
-
-
 @dataclass
 class DisplayPersonInDataTable:
     name: str
@@ -41,7 +35,9 @@ except GoogleSheetManagerError as e:
 def main_content(_: Response):
     st.title("View People by City 🌎")
 
-    st.markdown("Select one or more cities from the dropdown menu, then click 'Submit' to see the list of people in the selected cities.")
+    st.markdown(
+        "Select one or more cities from the dropdown menu, then click 'Submit' to see the list of people in the selected cities."
+    )
 
     responses = locations_sheet.get_all_records()
 
