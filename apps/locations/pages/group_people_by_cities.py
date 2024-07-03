@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
 from typing import Counter, Dict, List
 import streamlit as st
-from assets.cities_loader import CitiesLoader
+from helpers.cities_loader import CitiesLoader
 from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import (
     GoogleSheetManager,

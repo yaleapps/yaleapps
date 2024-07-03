@@ -2,7 +2,7 @@ from typing import Callable
 from pydantic import ValidationError
 import streamlit as st
 from components.login import wrap_with_login_form
-from assets.cities_loader import CitiesLoader
+from helpers.cities_loader import CitiesLoader
 from helpers.st_print_validation_error import st_print_validation_error
 from helpers.google_sheet_helper import GoogleSheetManager, Response
 

@@ -6,7 +6,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Counter, Dict, List
 import streamlit as st
-from assets.cities_loader import CitiesLoader, CityCoordinates
+from helpers.cities_loader import CitiesLoader, CityCoordinates
 from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import (
     GoogleSheetManager,
