@@ -58,31 +58,6 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
                 tooltip=city,
             ).add_to(m)
 
-    # Add JavaScript to handle click events
-    m.add_child(folium.LatLngPopup())
-    m.add_child(folium.ClickForMarker(popup="Selected Location"))
-
-    # Add custom JavaScript to update Streamlit on marker click
-    m.get_root().html.add_child(
-        folium.Element(
-            """
-    <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        setTimeout(function() {
-            var markers = document.querySelectorAll('.leaflet-marker-icon');
-            markers.forEach(function(marker) {
-                marker.addEventListener('click', function() {
-                    var city = this.title;
-                    window.parent.postMessage({type: 'city_selected', city: city}, '*');
-                });
-            });
-        }, 1000);  // Wait for markers to be added
-    });
-    </script>
-    """
-        )
-    )
-
     return m
 
 
