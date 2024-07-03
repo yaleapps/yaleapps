@@ -39,12 +39,15 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
-st.title("Summary Map🌎")
+st.title("View Map (Bonus)🌎")
 st.markdown("The size of each circle represents the number of people in that city.")
 st.markdown(
     "**This form is only for viewing a summary and not the list of people.** "
     'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
 )
+
+if st.button('Go to "Group People by Cities" page'):
+    st.switch_page("pages/group_people_by_cities.py")
 
 
 def create_map(cities_counter: Dict[str, int]) -> folium.Map:
