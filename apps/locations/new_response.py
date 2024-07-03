@@ -1,23 +1,11 @@
 from pydantic import ValidationError
 import streamlit as st
+from apps.locations.assets.cities_loader import CitiesLoader
 from helpers.google_sheet_helper import GoogleSheetManager, Response
-import requests
-from oauth2client.service_account import ServiceAccountCredentials
 
 st.set_page_config(layout="wide")
 
 MIN_POPULATION = 15_000
-
-
-# Load cities from github repository
-def load_all_cities():
-    url = "https://raw.githubusercontent.com/yaleapps/yaleapps/main/apps/locations/assets/sorted_cities.json"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Failed to retrieve data: {response.status_code}")
-
 
 # Streamlit application
 st.title("Post-Graduation Location Survey")
@@ -28,7 +16,7 @@ st.markdown(
 )
 
 # Load cities and create a city dropdown
-all_cities = load_all_cities()
+all_cities = CitiesLoader().load_all_cities()
 if not all_cities:
     st.error("Failed to load cities. Please try again later.")
     st.stop()
