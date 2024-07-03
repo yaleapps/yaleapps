@@ -1,8 +1,9 @@
 import streamlit as st
 from streamlit_folium import folium_static
-from typing import Dict, Optional, Tuple, List
-from collections import Counter, defaultdict
-from dataclasses import dataclass, asdict
+import folium
+from typing import Dict, List
+from collections import Counter
+from dataclasses import dataclass
 from typing import Counter, Dict, List
 import streamlit as st
 from assets.cities_loader import CitiesLoader
@@ -38,11 +39,46 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
+st.title("View Map (Bonus)🌎")
+st.markdown("The size of each circle represents the number of people in that city.")
+st.markdown(
+    "**This form is only for viewing a summary and not the list of people.** "
+    'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
+)
+
+if st.button('Go to "group people by cities" page'):
+    st.switch_page("pages/group_people_by_cities.py")
+
+
+def create_map(cities_counter: Dict[str, int]) -> folium.Map:
+    m = folium.Map(location=[0, 0], zoom_start=2)
+    if not cities_formatted_to_lat_lng:
+        st.error("Failed to load cities. Please try again later.")
+        st.stop()
+
+    max_count = max(cities_counter.values())
+
+    for city, count in cities_counter.items():
+        coords = cities_formatted_to_lat_lng.get(city)
+        if not coords:
+            continue
+        lat, lng = coords.lat, coords.lng
+        if coords:
+            size = 3 + (count / max_count) * 8  # Scale size between 5 and 25
+            folium.CircleMarker(
+                location=[lat, lng],
+                radius=size,
+                tooltip=f"{city} ({count})",
+                fill=True,
+                fillColor="#00356B",
+                color="#00356B",
+                fillOpacity=0.7,
+            ).add_to(m)
+
+    return m
+
+
 def main_content(_: Response):
-    st.title("View People by City 🌎")
-
-    st.markdown("Select one or more cities from the dropdown menu, then click 'Submit' to see the list of people in the selected cities.")
-
     responses = locations_sheet.get_all_records()
 
     # Count occurrences of each city
@@ -103,62 +139,12 @@ def main_content(_: Response):
     )
 
     with tab1:
-        with st.form("find_people_by_city_right_after_graduation"):
-            selected_first_cities: List[str] = st.multiselect(
-                "Find people by city (right after graduation)",
-                placeholder="Find people in...",
-                options=unique_first_cities,
-                format_func=lambda x: f"{x} ({first_cities_counter[x]})",
-            )
-
-            submitted = st.form_submit_button("Submit")
-
-            if submitted:
-                if not selected_first_cities:
-                    st.error("Please select a city")
-                else:
-                    for city in selected_first_cities:
-                        st.write("People in", city)
-                        people_in_city = city_people_one_year[city]
-                        tab1_view, tab2_view = st.tabs(["Table View", "List View"])
-                        tab1_view.table(
-                            [
-                                asdict(person)
-                                for person in people_in_city
-                                if person.visibility
-                            ]
-                        )
-                        for person in people_in_city:
-                            tab2_view.write(person)
+        m = create_map(first_cities_counter)
+        folium_static(m)
 
     with tab2:
-        with st.form("find_people_by_city_in_five_years"):
-            selected_future_cities: List[str] = st.multiselect(
-                "Find people by city (next 5 years)",
-                placeholder="Find people who, in the next 5 years, will most likely be living in...",
-                options=unique_future_cities,
-                format_func=lambda x: f"{x} ({future_cities_counter[x]})",
-            )
-
-            submitted = st.form_submit_button("Submit")
-
-            if submitted:
-                if not selected_future_cities:
-                    st.error("Please select a city")
-                else:
-                    for city in selected_future_cities:
-                        st.write("People in", city)
-                        people_in_city = city_people_five_years[city]
-                        tab1_view, tab2_view = st.tabs(["Table View", "List View"])
-                        tab1_view.table(
-                            [
-                                asdict(person)
-                                for person in people_in_city
-                                if person.visibility
-                            ]
-                        )
-                        for person in people_in_city:
-                            tab2_view.write(person)
+        m = create_map(future_cities_counter)
+        folium_static(m)
 
 
 if __name__ == "__main__":
