@@ -63,39 +63,7 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
                 fillColor="#00356B",
                 color="#00356B",
                 fillOpacity=0.7,
-                onclick=f"submitForm('{city}')",
             ).add_to(m)
-
-    # Add JavaScript function to handle click events
-    m.get_root().add_child(
-        folium.Element(
-            """
-    <script>
-    function submitForm(city) {
-        // Find the form and update the select field
-        var form = document.querySelector('form');
-        var select = form.querySelector('select');
-        
-        // Clear existing selections
-        for (var i = 0; i < select.options.length; i++) {
-            select.options[i].selected = false;
-        }
-        
-        // Select the clicked city
-        for (var i = 0; i < select.options.length; i++) {
-            if (select.options[i].text.startsWith(city)) {
-                select.options[i].selected = true;
-                break;
-            }
-        }
-        
-        // Submit the form
-        form.querySelector('button[type="submit"]').click();
-    }
-    </script>
-    """
-        )
-    )
 
     return m
 
