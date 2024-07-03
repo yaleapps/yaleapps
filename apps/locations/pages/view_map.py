@@ -39,14 +39,12 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
-st.markdown("### How to use this map:")
-st.markdown("1. Explore the map to see where people are located.")
-st.markdown("2. The size of each circle represents the number of people in that city.")
+st.title("Summary Map🌎")
+st.markdown("The size of each circle represents the number of people in that city.")
 st.markdown(
-    "3. To view detailed information, select one or more cities from the dropdown menu above."
+    "**This form is only for viewing a summary and not the list of people.** "
+    'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
 )
-st.markdown("4. Click 'Submit' to see the list of people in the selected cities.")
-st.markdown("---")
 
 
 def create_map(cities_counter: Dict[str, int]) -> folium.Map:
