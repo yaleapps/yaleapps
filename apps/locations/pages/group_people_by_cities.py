@@ -39,6 +39,10 @@ except GoogleSheetManagerError as e:
 
 
 def main_content(_: Response):
+    st.title("View People by City 🌎")
+
+    st.markdown("Select one or more cities from the dropdown menu, then click 'Submit' to see the list of people in the selected cities.")
+
     responses = locations_sheet.get_all_records()
 
     # Count occurrences of each city
