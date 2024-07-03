@@ -1,6 +1,6 @@
 from pydantic import ValidationError
 import streamlit as st
-from apps.locations.assets.cities_loader import CitiesLoader
+from assets.cities_loader import CitiesLoader
 from helpers.google_sheet_helper import GoogleSheetManager, Response
 
 st.set_page_config(layout="wide")
