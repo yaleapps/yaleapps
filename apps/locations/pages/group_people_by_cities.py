@@ -17,7 +17,7 @@ class Person:
 
 
 try:
-    manager = GoogleSheetManager(sheet_name="Locations")
+    locations_sheet = GoogleSheetManager(sheet_name="Locations")
 except GoogleSheetManagerError as e:
     st.error(e)
     st.stop()
@@ -25,7 +25,7 @@ except GoogleSheetManagerError as e:
 
 # Function to display the main content
 def main_content():
-    responses = manager.get_all_records()
+    responses = locations_sheet.get_all_records()
 
     # st.text("Original Data:")
     # st.table([response.model_dump() for response in responses])
@@ -131,4 +131,4 @@ def main_content():
 
 
 if __name__ == "__main__":
-    wrap_with_login_form(main_content, manager)
+    wrap_with_login_form(main_content, locations_sheet)

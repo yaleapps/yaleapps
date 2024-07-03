@@ -63,8 +63,8 @@ with st.form("post_grad_form"):
                 selected_future_cities=selected_future_cities,
                 visibility=visibility,
             )
-            sh = GoogleSheetManager(sheet_name="Locations")
-            sh.append_response(form_data)
+            locations_sheet = GoogleSheetManager(sheet_name="Locations")
+            locations_sheet.append_response(form_data)
             st.success("Response submitted successfully!")
             st.stop()
         except ValidationError as e:
