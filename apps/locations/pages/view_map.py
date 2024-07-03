@@ -46,7 +46,7 @@ st.markdown(
     'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
 )
 
-if st.button('Go to "Group People by Cities" page'):
+if st.button('Go to "group people by cities" page'):
     st.switch_page("pages/group_people_by_cities.py")
 
 
