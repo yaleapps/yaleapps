@@ -5,8 +5,8 @@ from helpers.google_sheet_helper import GoogleSheetManager
 
 
 # Open the Google Sheet by key and get the data from the first sheet
-sh = GoogleSheetManager(sheet_name="Locations")
-data = sh.get_all_records()
+locations_sheet = GoogleSheetManager(sheet_name="Locations")
+data = locations_sheet.get_all_records()
 
 # Convert the data to a pandas DataFrame
 df = pd.DataFrame(data)

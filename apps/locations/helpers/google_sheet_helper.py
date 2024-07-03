@@ -1,8 +1,10 @@
-from typing import Any, Dict, List, Union
+import re
+from typing import Any, Dict, List, Optional, Union
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
-from pydantic import BaseModel, Field, ValidationError, HttpUrl, validator
+from pydantic import BaseModel, EmailStr, ValidationError, HttpUrl, validator
+from helpers.st_print_validation_error import st_print_validation_error
 
 
 # Define Pydantic models for validation
@@ -29,27 +31,65 @@ class Secrets(BaseModel):
 
 
 class Response(BaseModel):
-    Name: str
-    NetID: str
-    Personal_Email: str = Field(..., alias="Personal Email")
-    Phone_Number: str = Field(..., alias="Phone Number")
-    Visibility: bool
-    First_City: List[str] = Field(..., alias="First City")
-    Future_Cities: List[str] = Field(..., alias="Future Cities")
+    name: str
+    net_id: str
+    personal_email: EmailStr
+    phone_number: str
+    visibility: bool
+    selected_first_cities: List[str]
+    selected_future_cities: List[str]
 
-    @validator("First_City", "Future_Cities", pre=True)
+    @validator("selected_first_cities", "selected_future_cities", pre=True)
     def split_cities(cls, value):
         if isinstance(value, str):
             return value.split("\n")
         return value
 
-    @validator("Phone_Number", pre=True)
+    @validator("phone_number")
+    def validate_phone_number(cls, value):
+        # Ensure the string contains only numbers or a plus (+) symbol, with no spaces or other characters
+        if not re.match(r"^\+?\d+$", value):
+            raise ValueError(
+                "Invalid phone number format."
+                "**US Numbers**: Enter exactly 10 digits (e.g., 1234567890).",
+                "**International Numbers**: Start with a plus (+) followed by the country code and the rest of your number (e.g., +441234567890).",
+                "No spaces or other characters are allowed.",
+            )
+
+        digits = re.sub(r"\D", "", value)
+        if len(digits) == 10:
+            # It's a US number
+            return digits
+        elif len(digits) > 10:
+            if digits.startswith("1") and len(digits) == 11:
+                # It's a US number with an extra leading '1'
+                return digits[-10:]
+            else:
+                # It's an international number
+                return "+" + digits
+        else:
+            raise ValueError(
+                "Invalid phone number format."
+                "**US Numbers**: Enter exactly 10 digits (e.g., 1234567890).",
+                "**International Numbers**: Start with a plus (+) followed by the country code and the rest of your number (e.g., +441234567890).",
+                "No spaces or other characters are allowed.",
+            )
+
+    @validator("phone_number", pre=True)
     def coerce_phone_number(cls, value: Union[str, int]) -> str:
         return str(value)
 
-    @validator("Visibility", pre=True)
-    def coerce_visibility(cls, value: str) -> bool:
-        return value == "TRUE"
+    @validator("visibility", pre=True)
+    def coerce_visibility(cls, value: Union[str, bool]) -> bool:
+        return value if isinstance(value, bool) else value.lower() == "true"
+
+    @validator("net_id")
+    def validate_net_id(cls, value):
+        netid_regex = r"^[a-zA-Z-]{2,3}\d+$"
+        is_valid_net_id = re.match(netid_regex, value)
+        if not is_valid_net_id:
+            raise ValueError("Invalid net ID format")
+        return value
 
 
 def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
@@ -73,7 +113,8 @@ class GoogleSheetManager:
         try:
             secrets = Secrets(**st.secrets)
         except ValidationError as e:
-            raise GoogleSheetManagerError(f"Secrets validation error: {e}")
+            st_print_validation_error(e)
+            return None
 
         scope = [
             "https://spreadsheets.google.com/feeds",
@@ -114,19 +155,67 @@ class GoogleSheetManager:
             if (response := validate_record(record)) is not None
         ]
 
-    def get_row_by_net_id(self, net_id: str) -> Union[Response, None]:
+    def append_response(self, response: Response) -> bool:
+        row = [
+            response.name,
+            response.net_id,
+            response.personal_email,
+            response.phone_number,
+            "\n".join(response.selected_first_cities),
+            "\n".join(response.selected_future_cities),
+            response.visibility,
+        ]
+
+        self.sheet.append_row(row)
+        return True
+
+    def get_row_by_net_id(self, net_id: str) -> Optional[Response]:
         records = self.get_all_records()
         for record in records:
-            if record.NetID == net_id:
+            if record.net_id == net_id:
                 return record
         return None
 
-    def update_row_with_net_id(
-        self, net_id: str, updated_record: Dict[str, Any]
+    def get_response_by_email_and_phone(
+        self, email: str, phone_number: str
+    ) -> Optional[Response]:
+        records = self.get_all_records()
+        return next(
+            (
+                record
+                for record in records
+                if record.personal_email == email
+                and record.phone_number == phone_number
+            ),
+            None,
+        )
+
+    def update_response(
+        self, email: str, phone_number: str, updated_data: Response
     ) -> bool:
-        row = self.get_row_by_net_id(net_id)
-        if row is None:
-            return False
-        for key, value in updated_record.items():
-            setattr(row, key, value)
-        return True
+        records = self.get_all_records()
+        for idx, record in enumerate(records, start=1):
+            if record.personal_email == email and record.phone_number == phone_number:
+                updated_row = [
+                    updated_data.name,
+                    updated_data.net_id,
+                    updated_data.personal_email,
+                    updated_data.phone_number,
+                    "\n".join(updated_data.selected_first_cities),
+                    "\n".join(updated_data.selected_future_cities),
+                    updated_data.visibility,
+                ]
+                try:
+                    row_number = idx + 1
+                    column_range_start, column_range_end = "A", chr(
+                        ord("A") + len(updated_row) - 1
+                    )
+                    self.sheet.update(
+                        f"{column_range_start}{row_number}:{column_range_end}{row_number}",
+                        [updated_row],
+                    )
+                    return True
+                except gspread.exceptions.GSpreadException as e:
+                    print(f"Error updating the Google Sheet: {e}")
+                    return False
+        return False
