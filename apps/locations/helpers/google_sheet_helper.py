@@ -219,22 +219,3 @@ class GoogleSheetManager:
                     print(f"Error updating the Google Sheet: {e}")
                     return False
         return False
-
-    # # Prepare the updated row
-    # updated_row = [
-    #     updated_record.name,
-    #     updated_record.net_id,
-    #     updated_record.personal_email,
-    #     updated_record.phone_number,
-    #     "\n".join(updated_record.selected_first_cities),
-    #     "\n".join(updated_record.selected_future_cities),
-    #     updated_record.visibility,
-    # ]
-
-    # Update the row in the Google Sheet
-    # try:
-    #     self.sheet.update(f'A{row_index}:G{row_index}', [updated_row])
-    #     return True
-    # except gspread.exceptions.GSpreadException as e:
-    #     st.error(f"Error updating the Google Sheet: {e}")
-    #     return False
