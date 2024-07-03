@@ -54,7 +54,7 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
             continue
         lat, lng = coords.lat, coords.lng
         if coords:
-            size = 5 + (count / max_count) * 20  # Scale size between 5 and 25
+            size = 3 + (count / max_count) * 8  # Scale size between 5 and 25
             folium.CircleMarker(
                 location=[lat, lng],
                 radius=size,
