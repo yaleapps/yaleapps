@@ -93,6 +93,7 @@ def main_content(_: Response):
                 "Find people by city (right after graduation)",
                 placeholder="Find people in...",
                 options=unique_first_cities,
+                format_func=lambda x: f"{x} ({first_cities_counter[x]})",
             )
 
             submitted = st.form_submit_button("Submit")
@@ -121,6 +122,7 @@ def main_content(_: Response):
                 "Find people by city (next 5 years)",
                 placeholder="Find people who, in the next 5 years, will most likely be living in...",
                 options=unique_future_cities,
+                format_func=lambda x: f"{x} ({future_cities_counter[x]})",
             )
 
             submitted = st.form_submit_button("Submit")
