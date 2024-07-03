@@ -6,7 +6,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Counter, Dict, List
 import streamlit as st
-from assets.cities_loader import CitiesLoader
+from assets.cities_loader import CitiesLoader, CityCoordinates
 from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import (
     GoogleSheetManager,
@@ -15,12 +15,6 @@ from helpers.google_sheet_helper import (
 )
 
 st.set_page_config(layout="wide")
-
-
-cities_formatted_to_lat_lng = CitiesLoader().load_cities_formatted_to_lat_lng()
-if not cities_formatted_to_lat_lng:
-    st.error("Failed to load cities. Please try again later.")
-    st.stop()
 
 
 @dataclass
@@ -39,22 +33,11 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
-st.title("View Map (Bonus)🌎")
-st.markdown("The size of each circle represents the number of people in that city.")
-st.markdown(
-    "**This form is only for viewing a summary and not the list of people.** "
-    'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
-)
-
-if st.button('Go to "group people by cities" page'):
-    st.switch_page("pages/group_people_by_cities.py")
-
-
-def create_map(cities_counter: Dict[str, int]) -> folium.Map:
+def create_map(
+    cities_counter: Dict[str, int],
+    cities_formatted_to_lat_lng: Dict[str, CityCoordinates],
+) -> folium.Map:
     m = folium.Map(location=[0, 0], zoom_start=2)
-    if not cities_formatted_to_lat_lng:
-        st.error("Failed to load cities. Please try again later.")
-        st.stop()
 
     max_count = max(cities_counter.values())
 
@@ -79,6 +62,21 @@ def create_map(cities_counter: Dict[str, int]) -> folium.Map:
 
 
 def main_content(_: Response):
+    cities_formatted_to_lat_lng = CitiesLoader().load_cities_formatted_to_lat_lng()
+    if not cities_formatted_to_lat_lng:
+        st.error("Failed to load cities. Please try again later.")
+        st.stop()
+
+    st.title("View Map (Bonus)🌎")
+    st.markdown("The size of each circle represents the number of people in that city.")
+    st.markdown(
+        "**This form is only for viewing a summary and not the list of people.** "
+        'To see the list of people in a city, please go to the "group people by cities" page and click "Submit".'
+    )
+
+    if st.button('Go to "group people by cities" page'):
+        st.switch_page("pages/group_people_by_cities.py")
+
     responses = locations_sheet.get_all_records()
 
     # Count occurrences of each city
@@ -139,11 +137,17 @@ def main_content(_: Response):
     )
 
     with tab1:
-        m = create_map(first_cities_counter)
+        m = create_map(
+            first_cities_counter,
+            cities_formatted_to_lat_lng=cities_formatted_to_lat_lng,
+        )
         folium_static(m)
 
     with tab2:
-        m = create_map(future_cities_counter)
+        m = create_map(
+            future_cities_counter,
+            cities_formatted_to_lat_lng=cities_formatted_to_lat_lng,
+        )
         folium_static(m)
 
 
