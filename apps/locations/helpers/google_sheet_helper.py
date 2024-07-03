@@ -49,9 +49,10 @@ class Response(BaseModel):
         # Ensure the string contains only numbers or a plus (+) symbol, with no spaces or other characters
         if not re.match(r"^\+?\d+$", value):
             raise ValueError(
-                "Invalid phone number format. Phone numbers should only contain digits and an optional leading plus (+) symbol. "
-                "No spaces or other characters are allowed. US numbers should be exactly 10 digits (e.g., 1234567890). "
-                "International numbers should start with a plus (+) followed by the country code and number (e.g., +441234567890)."
+                "Invalid phone number format."
+                "**US Numbers**: Enter exactly 10 digits (e.g., 1234567890).",
+                "**International Numbers**: Start with a plus (+) followed by the country code and the rest of your number (e.g., +441234567890).",
+                "No spaces or other characters are allowed.",
             )
 
         digits = re.sub(r"\D", "", value)
@@ -67,9 +68,10 @@ class Response(BaseModel):
                 return "+" + digits
         else:
             raise ValueError(
-                "Invalid phone number format. US numbers should be exactly 10 digits (e.g., 1234567890). "
-                "International numbers should start with a plus (+) followed by the country code and number "
-                "(e.g., +441234567890). No spaces or other characters."
+                "Invalid phone number format."
+                "**US Numbers**: Enter exactly 10 digits (e.g., 1234567890).",
+                "**International Numbers**: Start with a plus (+) followed by the country code and the rest of your number (e.g., +441234567890).",
+                "No spaces or other characters are allowed.",
             )
 
     @validator("phone_number", pre=True)
@@ -172,12 +174,45 @@ class GoogleSheetManager:
                 return record
         return None
 
-    def update_row_with_net_id(
-        self, net_id: str, updated_record: Dict[str, Any]
-    ) -> bool:
-        row = self.get_row_by_net_id(net_id)
-        if row is None:
-            return False
-        for key, value in updated_record.items():
-            setattr(row, key, value)
-        return True
+    def is_email_phone_number_in_responses(self, email: str, phone_number: str) -> bool:
+        records = self.get_all_records()
+        return any(
+            record.personal_email == email and record.phone_number == phone_number
+            for record in records
+        )
+
+    # def update_response(self, email: str, phone_number: str, updated_data: Response) -> bool:
+    #     records = self.get_all_records()
+    #     matching_record = next((record for record in records
+    #                             if record.personal_email == email
+    #                             and record.phone_number == phone_number), None)
+
+    #     if not matching_record:
+    #         st.error(f"No record found with email {email} and phone number {phone_number}")
+    #         return False
+
+    #     # Find the row index of the matching record
+    #     row_index = next(i for i, record in enumerate(records, start=2)
+    #                     if record.personal_email == email
+    #                     and record.phone_number == phone_number)
+
+    #     print(row_index)
+
+    # # Prepare the updated row
+    # updated_row = [
+    #     updated_record.name,
+    #     updated_record.net_id,
+    #     updated_record.personal_email,
+    #     updated_record.phone_number,
+    #     "\n".join(updated_record.selected_first_cities),
+    #     "\n".join(updated_record.selected_future_cities),
+    #     updated_record.visibility,
+    # ]
+
+    # Update the row in the Google Sheet
+    # try:
+    #     self.sheet.update(f'A{row_index}:G{row_index}', [updated_row])
+    #     return True
+    # except gspread.exceptions.GSpreadException as e:
+    #     st.error(f"Error updating the Google Sheet: {e}")
+    #     return False
