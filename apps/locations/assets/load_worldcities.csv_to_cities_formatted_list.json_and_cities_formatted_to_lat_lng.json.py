@@ -6,18 +6,6 @@ from pydantic import BaseModel
 worldcities_csv_path = "worldcities.csv"
 
 
-class CityCoordinates(BaseModel):
-    lat: float
-    lng: float
-
-
-class CityData(BaseModel):
-    city_data: Dict[str, CityCoordinates]
-
-    class Config:
-        coerce_numbers_to_str = True
-
-
 def sort_cities_df(cities_df: pd.DataFrame) -> pd.DataFrame:
     PRIORITY_CITIES = [
         "New York, New York, United States",
