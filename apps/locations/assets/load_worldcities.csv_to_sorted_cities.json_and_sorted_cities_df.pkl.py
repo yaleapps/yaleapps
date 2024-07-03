@@ -1,3 +1,4 @@
+from typing import Dict
 import pandas as pd
 import json
 from pydantic import BaseModel
@@ -5,15 +6,13 @@ from pydantic import BaseModel
 worldcities_csv_path = "worldcities.csv"
 
 
-class CityData(BaseModel):
-    id: int
-    city: str
-    admin_name: str
-    country: str
-    population: float
+class CityCoordinates(BaseModel):
     lat: float
     lng: float
-    city_formatted: str
+
+
+class CityData(BaseModel):
+    city_data: Dict[str, CityCoordinates]
 
     class Config:
         coerce_numbers_to_str = True
@@ -56,9 +55,17 @@ unsorted_cities_df = pd.read_csv(
 
 sorted_cities_df = sort_cities_df(unsorted_cities_df)
 
-# Save the sorted cities df into a pickle file
-sorted_cities_df.to_pickle("sorted_cities_df.pkl")
+# Save the sorted cities list into a JSON file (array of city_formatted strings)
+city_formatted_list = sorted_cities_df["city_formatted"].tolist()
+with open("cities_formatted_list.json", "w") as f:
+    json.dump(city_formatted_list, f, indent=4)
 
-# Save the sorted cities list into a JSON file
-with open("sorted_cities.json", "w") as f:
-    json.dump(sorted_cities_df["city_formatted"].tolist(), f, indent=4)
+# Create the JSON object for city coordinates
+city_data = {
+    row["city_formatted"]: {"lat": row["lat"], "lng": row["lng"]}
+    for _, row in sorted_cities_df.iterrows()
+}
+
+# Save the JSON object to a file (dictionary of city_formatted to lat and lng)
+with open("cities_formatted_to_lat_lng.json", "w") as f:
+    json.dump(city_data, f, indent=4)
