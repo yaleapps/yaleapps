@@ -97,7 +97,7 @@ def validate_record(record: Dict[str, Any]) -> Union[Response, None]:
         try:
             return Response(**record)
         except ValidationError as e:
-            st_print_validation_error(e)
+            st.error(f"Validation error for record {record}: {e}")
             return None
     else:
         st.error(f"Record is not a dictionary: {record}")
