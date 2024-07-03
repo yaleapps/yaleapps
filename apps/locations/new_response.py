@@ -31,7 +31,11 @@ with st.form("post_grad_form"):
         "Personal Email (This email will be used to keep in touch after graduation)",
         placeholder="example@gmail.com",
     )
-    phone_number = st.text_input("Phone Number", placeholder="+1234567890")
+    phone_number = st.text_input(
+        "Phone Number",
+        placeholder="1234567890 if US, +441234567890 if international, no spaces or other characters...",
+        help="**Phone Number Format Instructions:**\n\n- **US Numbers**: Enter exactly 10 digits (e.g., 1234567890).\n- **International Numbers**: Start with a plus (+) followed by the country code and the rest of your number (e.g., +441234567890).\n\n**No spaces or other characters.**",
+    )
     selected_first_cities = st.multiselect(
         "Which city will you be in right after graduation?",
         placeholder="Right after graduation, I'll be in...",
