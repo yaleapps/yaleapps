@@ -208,7 +208,7 @@ class GoogleSheetManager:
                 try:
                     row_number = idx + 1
                     column_range_start, column_range_end = "A", chr(
-                        65 + len(updated_row) - 1
+                        ord("A") + len(updated_row) - 1
                     )
                     self.sheet.update(
                         f"{column_range_start}{row_number}:{column_range_end}{row_number}",
