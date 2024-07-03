@@ -3,7 +3,7 @@ import streamlit as st
 from pydantic import BaseModel, EmailStr, ValidationError, validator
 import re
 from helpers.st_print_validation_error import st_print_validation_error
-from helpers.google_sheet_helper import GoogleSheetManager, Response
+from helpers.google_sheet_manager import GoogleSheetManager, Response
 
 
 class LoginCredentials(BaseModel):

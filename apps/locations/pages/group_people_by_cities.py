@@ -7,7 +7,7 @@ from typing import Counter, Dict, List
 import streamlit as st
 from helpers.cities_loader import CitiesLoader
 from components.login import wrap_with_login_form
-from helpers.google_sheet_helper import (
+from helpers.google_sheet_manager import (
     GoogleSheetManager,
     GoogleSheetManagerError,
     Response,
