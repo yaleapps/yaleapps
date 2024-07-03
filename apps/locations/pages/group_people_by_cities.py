@@ -1,6 +1,7 @@
 from dataclasses import dataclass, asdict
 from typing import Dict, List
 import streamlit as st
+from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import GoogleSheetManager, GoogleSheetManagerError
 
 st.set_page_config(layout="wide")
@@ -129,31 +130,5 @@ def show_main_content():
                             tab2_view.write(person)
 
 
-def login_form():
-    st.title("Login")
-    with st.form("login_form"):
-        email = st.text_input("Email")
-        phone_number = st.text_input("Phone Number")
-        submitted = st.form_submit_button("Login")
-
-        if submitted:
-            if manager.is_email_phone_number_in_responses(email, phone_number):
-                st.session_state.authenticated = True
-                st.rerun()
-            else:
-                st.error("Invalid email or phone number. Please try again.")
-
-
-# Main app logic
-def main():
-    if "authenticated" not in st.session_state:
-        st.session_state.authenticated = False
-
-    if not st.session_state.authenticated:
-        login_form()
-    else:
-        show_main_content()
-
-
 if __name__ == "__main__":
-    main()
+    wrap_with_login_form(show_main_content, manager)
