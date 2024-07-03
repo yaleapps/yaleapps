@@ -24,7 +24,7 @@ except GoogleSheetManagerError as e:
 
 
 # Function to display the main content
-def show_main_content():
+def main_content():
     responses = manager.get_all_records()
 
     # st.text("Original Data:")
@@ -131,4 +131,4 @@ def show_main_content():
 
 
 if __name__ == "__main__":
-    wrap_with_login_form(show_main_content, manager)
+    wrap_with_login_form(main_content, manager)
