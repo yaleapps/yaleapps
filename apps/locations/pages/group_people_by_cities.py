@@ -8,11 +8,11 @@ st.set_page_config(layout="wide")
 
 @dataclass
 class Person:
-    Name: str
-    NetID: str
-    Personal_Email: str
-    Phone_Number: str
-    Visibility: bool
+    name: str
+    net_id: str
+    personal_email: str
+    phone_number: str
+    visibility: bool
 
 
 try:
@@ -28,8 +28,12 @@ responses = manager.get_all_records()
 # st.table([response.model_dump() for response in responses])
 
 # Split cities by new lines and gather unique cities
-first_city_list = [city for response in responses for city in response.First_City]
-future_city_list = [city for response in responses for city in response.Future_Cities]
+first_city_list = [
+    city for response in responses for city in response.selected_first_cities
+]
+future_city_list = [
+    city for response in responses for city in response.selected_future_cities
+]
 
 unique_first_cities = list(set(first_city_list))
 unique_future_cities = list(set(future_city_list))
@@ -45,17 +49,17 @@ city_people_five_years: Dict[str, List[Person]] = {
 # Fill the dictionaries with names for each city
 for response in responses:
     person = Person(
-        Name=response.Name,
-        NetID=response.NetID,
-        Personal_Email=response.Personal_Email,
-        Phone_Number=response.Phone_Number,
-        Visibility=response.Visibility,
+        name=response.name,
+        net_id=response.net_id,
+        personal_email=response.personal_email,
+        phone_number=response.phone_number,
+        visibility=response.visibility,
     )
 
-    for city in response.First_City:
+    for city in response.selected_first_cities:
         city_people_one_year[city].append(person)
 
-    for city in response.Future_Cities:
+    for city in response.selected_future_cities:
         city_people_five_years[city].append(person)
 
 # Create tabs for each form
@@ -89,7 +93,7 @@ with tab1:
                         [
                             asdict(person)
                             for person in people_in_city
-                            if person.Visibility
+                            if person.visibility
                         ]
                     )
                     for person in people_in_city:
@@ -118,7 +122,7 @@ with tab2:
                         [
                             asdict(person)
                             for person in people_in_city
-                            if person.Visibility
+                            if person.visibility
                         ]
                     )
                     for person in people_in_city:
