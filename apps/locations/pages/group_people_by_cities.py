@@ -1,5 +1,5 @@
 from dataclasses import dataclass, asdict
-from typing import Dict, List
+from typing import Counter, Dict, List
 import streamlit as st
 from components.login import wrap_with_login_form
 from helpers.google_sheet_helper import (
@@ -27,30 +27,40 @@ except GoogleSheetManagerError as e:
     st.stop()
 
 
-# Function to display the main content
 def main_content(_: Response):
     responses = locations_sheet.get_all_records()
 
-    # st.text("Original Data:")
-    # st.table([response.model_dump() for response in responses])
+    # Count occurrences of each city
+    first_cities_counter: Counter[str] = Counter()
+    future_cities_counter: Counter[str] = Counter()
 
-    # Split cities by new lines and gather unique cities
-    first_cities = [
-        city for response in responses for city in response.selected_first_cities
-    ]
-    future_cities = [
-        city for response in responses for city in response.selected_future_cities
-    ]
+    # Feed in all the responses's selected cities arrays to the counters
+    for response in responses:
+        first_cities_counter.update(response.selected_first_cities)
+        future_cities_counter.update(response.selected_future_cities)
 
-    unique_first_cities = list(set(first_cities))
-    unique_future_cities = list(set(future_cities))
+    # Sort cities by count in descending order
+    sorted_first_cities = sorted(
+        first_cities_counter.items(),
+        key=lambda city_and_count: city_and_count[1],
+        reverse=True,
+    )
+    sorted_future_cities = sorted(
+        future_cities_counter.items(),
+        key=lambda city_and_count: city_and_count[1],
+        reverse=True,
+    )
+
+    # Extract just the city names, maintaining the sorted order
+    unique_first_cities = [city for city, _ in sorted_first_cities]
+    unique_future_cities = [city for city, _ in sorted_future_cities]
 
     # Create dictionaries to store people under each city for First City and Future Cities separately
     city_people_one_year: Dict[str, List[Person]] = {
-        city: [] for city in unique_first_cities
+        city: [] for city, _ in sorted_first_cities
     }
     city_people_five_years: Dict[str, List[Person]] = {
-        city: [] for city in unique_future_cities
+        city: [] for city, _ in sorted_future_cities
     }
 
     # Fill the dictionaries with names for each city
@@ -83,6 +93,7 @@ def main_content(_: Response):
                 "Find people by city (right after graduation)",
                 placeholder="Find people in...",
                 options=unique_first_cities,
+                format_func=lambda x: f"{x} ({first_cities_counter[x]})",
             )
 
             submitted = st.form_submit_button("Submit")
@@ -111,6 +122,7 @@ def main_content(_: Response):
                 "Find people by city (next 5 years)",
                 placeholder="Find people who, in the next 5 years, will most likely be living in...",
                 options=unique_future_cities,
+                format_func=lambda x: f"{x} ({future_cities_counter[x]})",
             )
 
             submitted = st.form_submit_button("Submit")
