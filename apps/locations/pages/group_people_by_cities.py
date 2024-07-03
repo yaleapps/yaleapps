@@ -1,7 +1,5 @@
-import pandas as pd
 import streamlit as st
 from streamlit_folium import folium_static
-import folium
 from typing import Dict, Optional, Tuple, List
 from collections import Counter, defaultdict
 from dataclasses import dataclass, asdict
@@ -38,34 +36,6 @@ try:
 except GoogleSheetManagerError as e:
     st.error(e)
     st.stop()
-
-
-def create_map(cities_counter: Dict[str, int]) -> folium.Map:
-    m = folium.Map(location=[0, 0], zoom_start=2)
-    if not cities_formatted_to_lat_lng:
-        st.error("Failed to load cities. Please try again later.")
-        st.stop()
-
-    max_count = max(cities_counter.values())
-
-    for city, count in cities_counter.items():
-        coords = cities_formatted_to_lat_lng.get(city)
-        if not coords:
-            continue
-        lat, lng = coords.lat, coords.lng
-        if coords:
-            size = 3 + (count / max_count) * 8  # Scale size between 5 and 25
-            folium.CircleMarker(
-                location=[lat, lng],
-                radius=size,
-                tooltip=f"{city} ({count})",
-                fill=True,
-                fillColor="#00356B",
-                color="#00356B",
-                fillOpacity=0.7,
-            ).add_to(m)
-
-    return m
 
 
 def main_content(_: Response):
@@ -137,9 +107,6 @@ def main_content(_: Response):
                 format_func=lambda x: f"{x} ({first_cities_counter[x]})",
             )
 
-            m = create_map(first_cities_counter)
-            folium_static(m)
-
             submitted = st.form_submit_button("Submit")
 
             if submitted:
@@ -168,9 +135,6 @@ def main_content(_: Response):
                 options=unique_future_cities,
                 format_func=lambda x: f"{x} ({future_cities_counter[x]})",
             )
-
-            m = create_map(future_cities_counter)
-            folium_static(m)
 
             submitted = st.form_submit_button("Submit")
 
