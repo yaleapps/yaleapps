@@ -1,5 +1,22 @@
 import pandas as pd
 import json
+from pydantic import BaseModel
+
+worldcities_csv_path = "worldcities.csv"
+
+
+class CityData(BaseModel):
+    id: int
+    city: str
+    admin_name: str
+    country: str
+    population: float
+    lat: float
+    lng: float
+    city_formatted: str
+
+    class Config:
+        coerce_numbers_to_str = True
 
 
 def sort_cities_df(cities_df: pd.DataFrame) -> pd.DataFrame:
@@ -32,41 +49,16 @@ def sort_cities_df(cities_df: pd.DataFrame) -> pd.DataFrame:
     return cities_df
 
 
-def pick_selected_columns(cities_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    id                  int64
-    admin_name         object
-    capital            object
-    city               object
-    city_ascii         object
-    city_formatted     object
-    country            object
-    iso2               object
-    iso3               object
-    lat               float64
-    lng               float64
-    population        float64
-    """
-    selected_columns = [
-        "id",
-        "city",
-        "admin_name",
-        "country",
-        "population",
-        "lat",
-        "lng",
-        "city_formatted",
-    ]
-    return cities_df[selected_columns]
+unsorted_cities_df = pd.read_csv(
+    worldcities_csv_path,
+    usecols=["id", "city", "admin_name", "country", "population", "lat", "lng"],
+)
 
-
-unsorted_cities_df = pd.read_csv("worldcities.csv")
-sorted_cities_df = pick_selected_columns(sort_cities_df(unsorted_cities_df))
+sorted_cities_df = sort_cities_df(unsorted_cities_df)
 
 # Save the sorted cities df into a pickle file
 sorted_cities_df.to_pickle("sorted_cities_df.pkl")
 
 # Save the sorted cities list into a JSON file
 with open("sorted_cities.json", "w") as f:
-    cities_formatted_list = sorted_cities_df["city_formatted"].tolist()
-    json.dump(cities_formatted_list, f, indent=4)
+    json.dump(sorted_cities_df["city_formatted"].tolist(), f, indent=4)
