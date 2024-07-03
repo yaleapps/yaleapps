@@ -1,3 +1,4 @@
+from pydantic import ValidationError
 import streamlit as st
 from helpers.google_sheet_helper import GoogleSheetManager, Response
 import requests
@@ -77,7 +78,7 @@ with st.form("post_grad_form"):
             sh.append_response(form_data)
             st.success("Response submitted successfully!")
             st.stop()
-        except ValueError as e:
+        except ValidationError as e:
             error_messages = []
             for error in e.errors():
                 field = error["loc"][0]
