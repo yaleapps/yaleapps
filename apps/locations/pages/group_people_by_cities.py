@@ -129,24 +129,28 @@ def show_main_content():
                             tab2_view.write(person)
 
 
+def login_form():
+    st.title("Login")
+    with st.form("login_form"):
+        email = st.text_input("Email")
+        phone_number = st.text_input("Phone Number")
+        submitted = st.form_submit_button("Login")
+
+        if submitted:
+            if manager.is_email_phone_number_in_responses(email, phone_number):
+                st.session_state.authenticated = True
+                st.rerun()
+            else:
+                st.error("Invalid email or phone number. Please try again.")
+
+
 # Main app logic
 def main():
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
     if not st.session_state.authenticated:
-        st.title("Login")
-        with st.form("login_form"):
-            email = st.text_input("Email")
-            phone_number = st.text_input("Phone Number")
-            submitted = st.form_submit_button("Login")
-
-            if submitted:
-                if manager.is_email_phone_number_in_responses(email, phone_number):
-                    st.session_state.authenticated = True
-                    st.rerun()
-                else:
-                    st.error("Invalid email or phone number. Please try again.")
+        login_form()
     else:
         show_main_content()
 
