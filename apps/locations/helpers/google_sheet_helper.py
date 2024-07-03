@@ -44,6 +44,34 @@ class Response(BaseModel):
             return value.split("\n")
         return value
 
+    @validator("phone_number")
+    def validate_phone_number(cls, value):
+        # Ensure the string contains only numbers or a plus (+) symbol, with no spaces or other characters
+        if not re.match(r"^\+?\d+$", value):
+            raise ValueError(
+                "Invalid phone number format. Phone numbers should only contain digits and an optional leading plus (+) symbol. "
+                "No spaces or other characters are allowed. US numbers should be exactly 10 digits (e.g., 1234567890). "
+                "International numbers should start with a plus (+) followed by the country code and number (e.g., +441234567890)."
+            )
+
+        digits = re.sub(r"\D", "", value)
+        if len(digits) == 10:
+            # It's a US number
+            return digits
+        elif len(digits) > 10:
+            if digits.startswith("1") and len(digits) == 11:
+                # It's a US number with an extra leading '1'
+                return digits[-10:]
+            else:
+                # It's an international number
+                return "+" + digits
+        else:
+            raise ValueError(
+                "Invalid phone number format. US numbers should be exactly 10 digits (e.g., 1234567890). "
+                "International numbers should start with a plus (+) followed by the country code and number "
+                "(e.g., +441234567890). No spaces or other characters."
+            )
+
     @validator("phone_number", pre=True)
     def coerce_phone_number(cls, value: Union[str, int]) -> str:
         return str(value)
