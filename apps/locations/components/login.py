@@ -66,7 +66,9 @@ def login_form(manager: GoogleSheetManager):
                     st.session_state.authenticated = True
                     st.rerun()
                 else:
-                    st.error("Invalid email or phone number. Please try again.")
+                    st.error(
+                        "Email and phone number do not match any responses. Please try again."
+                    )
             except ValidationError as e:
                 st_print_validation_error(e)
 
