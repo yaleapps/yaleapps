@@ -1,5 +1,5 @@
 import re
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Union
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import streamlit as st
@@ -169,18 +169,25 @@ class GoogleSheetManager:
         self.sheet.append_row(row)
         return True
 
-    def get_row_by_net_id(self, net_id: str) -> Union[Response, None]:
+    def get_row_by_net_id(self, net_id: str) -> Optional[Response]:
         records = self.get_all_records()
         for record in records:
             if record.net_id == net_id:
                 return record
         return None
 
-    def is_email_phone_number_in_responses(self, email: str, phone_number: str) -> bool:
+    def get_response_by_email_and_phone(
+        self, email: str, phone_number: str
+    ) -> Optional[Response]:
         records = self.get_all_records()
-        return any(
-            record.personal_email == email and record.phone_number == phone_number
-            for record in records
+        return next(
+            (
+                record
+                for record in records
+                if record.personal_email == email
+                and record.phone_number == phone_number
+            ),
+            None,
         )
 
     # def update_response(self, email: str, phone_number: str, updated_data: Response) -> bool:

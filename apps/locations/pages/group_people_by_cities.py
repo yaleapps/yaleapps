@@ -2,7 +2,11 @@ from dataclasses import dataclass, asdict
 from typing import Dict, List
 import streamlit as st
 from components.login import wrap_with_login_form
-from helpers.google_sheet_helper import GoogleSheetManager, GoogleSheetManagerError
+from helpers.google_sheet_helper import (
+    GoogleSheetManager,
+    GoogleSheetManagerError,
+    Response,
+)
 
 st.set_page_config(layout="wide")
 
@@ -24,7 +28,7 @@ except GoogleSheetManagerError as e:
 
 
 # Function to display the main content
-def main_content():
+def main_content(_: Response):
     responses = locations_sheet.get_all_records()
 
     # st.text("Original Data:")

@@ -3,7 +3,7 @@ import streamlit as st
 from pydantic import BaseModel, EmailStr, ValidationError, validator
 import re
 from helpers.st_print_validation_error import st_print_validation_error
-from helpers.google_sheet_helper import GoogleSheetManager
+from helpers.google_sheet_helper import GoogleSheetManager, Response
 
 
 class LoginCredentials(BaseModel):
@@ -60,10 +60,12 @@ def login_form(manager: GoogleSheetManager):
                 credentials = LoginCredentials(
                     personal_email=personal_email, phone_number=phone_number
                 )
-                if manager.is_email_phone_number_in_responses(
+                user_response = manager.get_response_by_email_and_phone(
                     credentials.personal_email, credentials.phone_number
-                ):
+                )
+                if user_response:
                     st.session_state.authenticated = True
+                    st.session_state.user_response = user_response
                     st.rerun()
                 else:
                     st.error(
@@ -73,11 +75,13 @@ def login_form(manager: GoogleSheetManager):
                 st_print_validation_error(e)
 
 
-def wrap_with_login_form(main_content: Callable[[], None], manager: GoogleSheetManager):
+def wrap_with_login_form(
+    main_content: Callable[[Response], None], manager: GoogleSheetManager
+):
     if "authenticated" not in st.session_state:
         st.session_state.authenticated = False
 
-    if not st.session_state.authenticated:
+    if not st.session_state.authenticated or not st.session_state.user_response:
         login_form(manager)
     else:
-        main_content()
+        main_content(st.session_state.user_response)
