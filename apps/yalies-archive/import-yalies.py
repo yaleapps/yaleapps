@@ -23,5 +23,19 @@ while True:
 print(f"Total records fetched: {len(all_yalies)}")
 
 yalies_df = pd.DataFrame([yalie.raw for yalie in all_yalies])
-yalies_df.to_csv("yalies.csv", index=False)
-yalies_df.to_pickle("yalies.pkl")
+
+# Export to all formats
+yalies_df.to_csv("2023-2024_yalies.csv", index=False, encoding="utf-8")
+yalies_df.to_pickle("2023-2024_yalies.pkl", protocol=4)
+yalies_df.to_excel(
+    "2023-2024_yalies.xlsx",
+    index=False,
+    sheet_name="2023-2024_yalies",
+    engine="openpyxl",
+)
+yalies_df.to_json(
+    "2023-2024_yalies.json", orient="records", date_format="iso", indent=4
+)
+yalies_df.to_sql(
+    "2023-2024_yalies", "sqlite:///yalies.db", index=False, if_exists="replace"
+)
