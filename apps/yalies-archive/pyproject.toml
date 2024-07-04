@@ -8,6 +8,11 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.12"
 yalies = "^1.2.0"
+python-dotenv = "^1.0.1"
+pandas = "^2.2.2"
+openpyxl = "^3.1.5"
+sqlalchemy = "^2.0.31"
+datetime = "^5.5"
 
 
 [build-system]
