@@ -184,7 +184,7 @@ class GoogleSheetManager:
             (
                 record
                 for record in records
-                if record.personal_email == email
+                if record.personal_email.lower() == email.lower()
                 and record.phone_number == phone_number
             ),
             None,
