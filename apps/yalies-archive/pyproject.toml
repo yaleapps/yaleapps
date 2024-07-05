@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "yalies-archive"
+version = "0.1.0"
+description = "An archive of the Yalies API, snapshotted every year."
+authors = ["Braden Wong <13159333+braden-w@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+yalies = "^1.2.0"
+python-dotenv = "^1.0.1"
+pandas = "^2.2.2"
+openpyxl = "^3.1.5"
+sqlalchemy = "^2.0.31"
+datetime = "^5.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
