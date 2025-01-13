@@ -23,7 +23,7 @@ async function getNextEvent(calendarId: string) {
 			orderBy: "startTime",
 		});
 
-		return response.data.items?.[0] || null;
+		return response.data.items?.[0] ?? null;
 	} catch (error) {
 		console.error("Error fetching next event:", error);
 		return null;
