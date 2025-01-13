@@ -84,8 +84,74 @@ const commands = {
 	},
 };
 
-app.get("/gh/managers", (c) => {
-	return c.text("Hello Hono!");
+interface GroupMeWebhook {
+	text: string;
+	sender_type: string;
+	name?: string;
+	group_id: string;
+}
+
+interface GroupMeBotMessage {
+	bot_id: string;
+	text: string;
+}
+
+async function sendGroupMeMessage(text: string) {
+	const botId = process.env.GROUPME_BOT_ID;
+	if (!botId) {
+		console.error("GroupMe Bot ID not configured");
+		return;
+	}
+
+	try {
+		await fetch("https://api.groupme.com/v3/bots/post", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify({
+				bot_id: botId,
+				text,
+			} satisfies GroupMeBotMessage),
+		});
+	} catch (error) {
+		console.error("Error sending GroupMe message:", error);
+	}
+}
+
+app.post("/gh/managers", async (c) => {
+	try {
+		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
+
+		const isMessageFromBot = sender_type === "bot";
+		if (isMessageFromBot) return c.body(null, 200);
+
+		const isEmptyMessage = !input.trim();
+		if (isEmptyMessage) return c.body(null, 200);
+
+		// Get the calendar ID from environment variable
+		const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
+		if (!calendarId) {
+			console.error("Calendar ID not configured");
+			return c.body(null, 200);
+		}
+
+		// Check if the message matches any command
+		for (const [command, handler] of Object.entries(commands)) {
+			if (input.toLowerCase().startsWith(command)) {
+				const response = await handler(calendarId);
+				// Send the response back to the GroupMe chat
+				await sendGroupMeMessage(response);
+				return c.body(null, 200);
+			}
+		}
+
+		// No command matched
+		return c.body(null, 200);
+	} catch (error) {
+		console.error("Error processing GroupMe webhook:", error);
+		return c.body(null, 200);
+	}
 });
 
 export default app;
