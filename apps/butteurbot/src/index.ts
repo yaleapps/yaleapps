@@ -38,14 +38,7 @@ async function updateEventStatus(
 	try {
 		const event = await calendar.events.get({ calendarId, eventId });
 
-		if (!event.data) {
-			throw new Error("Event not found");
-		}
-
-		const updatedEvent = {
-			...event.data,
-			status,
-		};
+		const updatedEvent = { ...event.data, status };
 
 		await calendar.events.update({
 			calendarId,
@@ -63,13 +56,11 @@ async function updateEventStatus(
 const commands = {
 	"!open": async (calendarId: string) => {
 		const nextEvent = await getNextEvent(calendarId);
-		if (!nextEvent) {
-			return "No upcoming events found";
-		}
+		if (!nextEvent?.id) return "No upcoming events found";
 
 		const success = await updateEventStatus(
 			calendarId,
-			nextEvent.id!,
+			nextEvent.id,
 			"confirmed",
 		);
 		if (success) {
@@ -79,13 +70,11 @@ const commands = {
 	},
 	"!closed": async (calendarId: string) => {
 		const nextEvent = await getNextEvent(calendarId);
-		if (!nextEvent) {
-			return "No upcoming events found";
-		}
+		if (!nextEvent?.id) return "No upcoming events found";
 
 		const success = await updateEventStatus(
 			calendarId,
-			nextEvent.id!,
+			nextEvent.id,
 			"cancelled",
 		);
 		if (success) {
