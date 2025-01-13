@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "butteurbot",
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify"
