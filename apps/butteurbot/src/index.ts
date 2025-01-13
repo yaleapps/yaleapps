@@ -1,13 +1,13 @@
-import { Hono } from 'hono';
-import { google } from 'googleapis';
+import { Hono } from "hono";
+import { google } from "googleapis";
 
 const auth = new google.auth.JWT({
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
 	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-	scopes: ['https://www.googleapis.com/auth/calendar'],
+	scopes: ["https://www.googleapis.com/auth/calendar"],
 });
 
-const calendar = google.calendar({ version: 'v3', auth });
+const calendar = google.calendar({ version: "v3", auth });
 
 const app = new Hono();
 
@@ -20,12 +20,12 @@ async function getNextEvent(calendarId: string) {
 			timeMin: now.toISOString(),
 			maxResults: 1,
 			singleEvents: true,
-			orderBy: 'startTime',
+			orderBy: "startTime",
 		});
 
 		return response.data.items?.[0] || null;
 	} catch (error) {
-		console.error('Error fetching next event:', error);
+		console.error("Error fetching next event:", error);
 		return null;
 	}
 }
@@ -33,13 +33,13 @@ async function getNextEvent(calendarId: string) {
 async function updateEventStatus(
 	calendarId: string,
 	eventId: string,
-	status: 'confirmed' | 'cancelled',
+	status: "confirmed" | "cancelled",
 ) {
 	try {
 		const event = await calendar.events.get({ calendarId, eventId });
 
 		if (!event.data) {
-			throw new Error('Event not found');
+			throw new Error("Event not found");
 		}
 
 		const updatedEvent = {
@@ -55,40 +55,48 @@ async function updateEventStatus(
 
 		return true;
 	} catch (error) {
-		console.error('Error updating event status:', error);
+		console.error("Error updating event status:", error);
 		return false;
 	}
 }
 
 const commands = {
-	'!open': async (calendarId: string) => {
+	"!open": async (calendarId: string) => {
 		const nextEvent = await getNextEvent(calendarId);
 		if (!nextEvent) {
-			return 'No upcoming events found';
+			return "No upcoming events found";
 		}
 
-		const success = await updateEventStatus(calendarId, nextEvent.id!, 'confirmed');
+		const success = await updateEventStatus(
+			calendarId,
+			nextEvent.id!,
+			"confirmed",
+		);
 		if (success) {
 			return `Updated event "${nextEvent.summary}" status to confirmed`;
 		}
-		return 'Failed to update event status';
+		return "Failed to update event status";
 	},
-	'!closed': async (calendarId: string) => {
+	"!closed": async (calendarId: string) => {
 		const nextEvent = await getNextEvent(calendarId);
 		if (!nextEvent) {
-			return 'No upcoming events found';
+			return "No upcoming events found";
 		}
 
-		const success = await updateEventStatus(calendarId, nextEvent.id!, 'cancelled');
+		const success = await updateEventStatus(
+			calendarId,
+			nextEvent.id!,
+			"cancelled",
+		);
 		if (success) {
 			return `Updated event "${nextEvent.summary}" status to cancelled`;
 		}
-		return 'Failed to update event status';
+		return "Failed to update event status";
 	},
 };
 
-app.get('/gh/managers', (c) => {
-	return c.text('Hello Hono!');
+app.get("/gh/managers", (c) => {
+	return c.text("Hello Hono!");
 });
 
 export default app;
