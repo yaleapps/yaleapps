@@ -5,6 +5,7 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
+    "googleapis": "^144.0.0",
     "hono": "^4.6.16"
   },
   "devDependencies": {
