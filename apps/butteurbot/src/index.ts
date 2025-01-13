@@ -30,7 +30,7 @@ async function getNextEvent(calendarId: string) {
   }
 }
 
-async function updateEventDescription(calendarId: string, eventId: string, description: string) {
+async function updateEventStatus(calendarId: string, eventId: string, status: 'confirmed' | 'cancelled') {
   try {
     const event = await calendar.events.get({
       calendarId,
@@ -43,7 +43,7 @@ async function updateEventDescription(calendarId: string, eventId: string, descr
 
     const updatedEvent = {
       ...event.data,
-      description,
+      status,
     };
 
     await calendar.events.update({
@@ -54,7 +54,7 @@ async function updateEventDescription(calendarId: string, eventId: string, descr
 
     return true;
   } catch (error) {
-    console.error('Error updating event description:', error);
+    console.error('Error updating event status:', error);
     return false;
   }
 }
@@ -66,9 +66,9 @@ const commands = {
       return 'No upcoming events found';
     }
 
-    const success = await updateEventDescription(calendarId, nextEvent.id!, 'OPEN');
+    const success = await updateEventStatus(calendarId, nextEvent.id!, 'confirmed');
     if (success) {
-      return `Updated event "${nextEvent.summary}" status to OPEN`;
+      return `Updated event "${nextEvent.summary}" status to confirmed`;
     }
     return 'Failed to update event status';
   },
@@ -78,9 +78,9 @@ const commands = {
       return 'No upcoming events found';
     }
 
-    const success = await updateEventDescription(calendarId, nextEvent.id!, 'CLOSED');
+    const success = await updateEventStatus(calendarId, nextEvent.id!, 'cancelled');
     if (success) {
-      return `Updated event "${nextEvent.summary}" status to CLOSED`;
+      return `Updated event "${nextEvent.summary}" status to cancelled`;
     }
     return 'Failed to update event status';
   },
