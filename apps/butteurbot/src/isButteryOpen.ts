@@ -1,14 +1,17 @@
-import { google } from "googleapis";
+import type { ServiceAccountCredentials } from "./types";
+import { GoogleAuth } from "./auth";
+import { GoogleCalendar } from "./calendar";
 
-const auth = new google.auth.JWT({
-	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
-	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+const credentials: ServiceAccountCredentials = {
+	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
+	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "",
 	scopes: ["https://www.googleapis.com/auth/calendar"],
-});
+};
 
-const calendar = google.calendar({ version: "v3", auth });
+const auth = new GoogleAuth(credentials);
+const calendar = new GoogleCalendar(auth);
 
-async function isButteryOpen(
+export async function isButteryOpen(
 	calendarId: string,
 	timeToCheck: Date,
 ): Promise<boolean> {
@@ -19,21 +22,22 @@ async function isButteryOpen(
 		timeMin.setHours(timeMin.getHours() - 24);
 		timeMax.setHours(timeMax.getHours() + 24);
 
-		const response = await calendar.events.list({
-			calendarId,
+		const response = await calendar.listEvents(calendarId, {
 			timeMin: timeMin.toISOString(),
 			timeMax: timeMax.toISOString(),
 			singleEvents: true,
 			orderBy: "startTime",
 		});
+
 		console.log("Checking for events between:", {
 			timeMin: timeMin.toISOString(),
 			timeMax: timeMax.toISOString(),
 			targetTime: timeToCheck.toISOString(),
 		});
+
 		console.log(
 			"Found events:",
-			response.data.items?.map((event) => ({
+			response.items?.map((event) => ({
 				start: event.start?.dateTime,
 				end: event.end?.dateTime,
 				summary: event.summary,
@@ -42,7 +46,7 @@ async function isButteryOpen(
 
 		// Check if any events overlap with our target time
 		return (
-			response.data.items?.some((event) => {
+			response.items?.some((event) => {
 				if (!event.start?.dateTime || !event.end?.dateTime) {
 					console.warn("Unexpected event format:", event);
 					return false;
@@ -67,8 +71,12 @@ async function isButteryOpen(
 	}
 }
 
-isButteryOpen(process.env.GRACE_HOPPER_CALENDAR_ID, new Date()).then(
-	(result) => {
-		console.log(result);
-	},
-);
+const calendarId = process.env.GRACE_HOPPER_CALENDAR_ID;
+if (!calendarId) {
+	console.error("Calendar ID not configured");
+	process.exit(1);
+}
+
+isButteryOpen(calendarId, new Date()).then((result) => {
+	console.log(result);
+});
