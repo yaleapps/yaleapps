@@ -24,28 +24,27 @@ export async function isButteryOpen({
 	timeToCheck: Date;
 }): Promise<boolean> {
 	try {
-		// Create a time window to search for events
 		const HOURS_TO_SEARCH = 24;
-		const searchWindowStart = new Date(timeToCheck);
-		const searchWindowEnd = new Date(timeToCheck);
+		const msInHour = 60 * 60 * 1000;
 
-		// Set search window to ±24 hours from the target time
-		// This helps us find events that might span multiple days
-		searchWindowStart.setHours(searchWindowStart.getHours() - HOURS_TO_SEARCH);
-		searchWindowEnd.setHours(searchWindowEnd.getHours() + HOURS_TO_SEARCH);
+		// Create a time window as a single object with start/end times
+		const searchWindow = {
+			start: new Date(timeToCheck.getTime() - HOURS_TO_SEARCH * msInHour),
+			end: new Date(timeToCheck.getTime() + HOURS_TO_SEARCH * msInHour),
+		};
 
 		// Fetch all events within our search window
 		const response = await calendar.listEvents(calendarId, {
-			timeMin: searchWindowStart.toISOString(),
-			timeMax: searchWindowEnd.toISOString(),
+			timeMin: searchWindow.start.toISOString(),
+			timeMax: searchWindow.end.toISOString(),
 			singleEvents: true,
 			orderBy: "startTime",
 		});
 
 		// Log the search parameters for debugging
 		console.log("Searching for Buttery events in time window:", {
-			windowStart: searchWindowStart.toISOString(),
-			windowEnd: searchWindowEnd.toISOString(),
+			windowStart: searchWindow.start.toISOString(),
+			windowEnd: searchWindow.end.toISOString(),
 			targetTime: timeToCheck.toISOString(),
 		});
 
