@@ -2,6 +2,7 @@ import type { ServiceAccountCredentials } from "./types";
 import { GoogleAuth } from "./auth";
 import { GoogleCalendar } from "./calendar";
 
+// Google Calendar API credentials for authentication
 const credentials: ServiceAccountCredentials = {
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
 	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "",
@@ -11,32 +12,46 @@ const credentials: ServiceAccountCredentials = {
 const auth = new GoogleAuth(credentials);
 const calendar = new GoogleCalendar(auth);
 
+/**
+ * Checks if the Buttery is open at a specific time by looking for calendar events
+ * that overlap with the given time.
+ */
 export async function isButteryOpen({
 	calendarId,
 	timeToCheck,
-}: { calendarId: string; timeToCheck: Date }): Promise<boolean> {
+}: {
+	calendarId: string;
+	timeToCheck: Date;
+}): Promise<boolean> {
 	try {
-		const timeMin = new Date(timeToCheck);
-		const timeMax = new Date(timeToCheck);
-		// Look for events ±24 hours from our target time
-		timeMin.setHours(timeMin.getHours() - 24);
-		timeMax.setHours(timeMax.getHours() + 24);
+		// Create a time window to search for events
+		const HOURS_TO_SEARCH = 24;
+		const searchWindowStart = new Date(timeToCheck);
+		const searchWindowEnd = new Date(timeToCheck);
 
+		// Set search window to ±24 hours from the target time
+		// This helps us find events that might span multiple days
+		searchWindowStart.setHours(searchWindowStart.getHours() - HOURS_TO_SEARCH);
+		searchWindowEnd.setHours(searchWindowEnd.getHours() + HOURS_TO_SEARCH);
+
+		// Fetch all events within our search window
 		const response = await calendar.listEvents(calendarId, {
-			timeMin: timeMin.toISOString(),
-			timeMax: timeMax.toISOString(),
+			timeMin: searchWindowStart.toISOString(),
+			timeMax: searchWindowEnd.toISOString(),
 			singleEvents: true,
 			orderBy: "startTime",
 		});
 
-		console.log("Checking for events between:", {
-			timeMin: timeMin.toISOString(),
-			timeMax: timeMax.toISOString(),
+		// Log the search parameters for debugging
+		console.log("Searching for Buttery events in time window:", {
+			windowStart: searchWindowStart.toISOString(),
+			windowEnd: searchWindowEnd.toISOString(),
 			targetTime: timeToCheck.toISOString(),
 		});
 
+		// Log all found events for debugging
 		console.log(
-			"Found events:",
+			"Found Buttery events:",
 			response.items?.map((event) => ({
 				start: event.start?.dateTime,
 				end: event.end?.dateTime,
@@ -44,39 +59,49 @@ export async function isButteryOpen({
 			})),
 		);
 
-		// Check if any events overlap with our target time
-		return (
-			response.items?.some((event) => {
-				if (!event.start?.dateTime || !event.end?.dateTime) {
-					console.warn("Unexpected event format:", event);
-					return false;
-				}
-				const eventStart = new Date(event.start.dateTime);
-				const eventEnd = new Date(event.end.dateTime);
-				const isOverlapping =
-					timeToCheck >= eventStart && timeToCheck <= eventEnd;
-				if (isOverlapping) {
-					console.log("Found overlapping event:", {
-						start: event.start.dateTime,
-						end: event.end.dateTime,
-						summary: event.summary,
-					});
-				}
-				return isOverlapping;
-			}) ?? false
-		);
+		// Check if the target time falls within any of the found events
+		const isOpenAtTime = response.items?.some((event) => {
+			// Skip events with invalid date formats
+			if (!event.start?.dateTime || !event.end?.dateTime) {
+				console.warn("Found event with invalid date format:", event);
+				return false;
+			}
+
+			const eventStart = new Date(event.start.dateTime);
+			const eventEnd = new Date(event.end.dateTime);
+
+			// Check if the target time falls between the event's start and end times
+			const isButteryCoveredByEvent =
+				timeToCheck >= eventStart && timeToCheck <= eventEnd;
+
+			if (isButteryCoveredByEvent) {
+				console.log("Found matching Buttery hours:", {
+					start: event.start.dateTime,
+					end: event.end.dateTime,
+					summary: event.summary,
+				});
+			}
+
+			return isButteryCoveredByEvent;
+		});
+
+		return isOpenAtTime ?? false;
 	} catch (error) {
-		console.error("Error checking time within events:", error);
+		console.error("Failed to check Buttery hours:", error);
 		return false;
 	}
 }
 
+// Validate required environment variables
 const calendarId = process.env.GRACE_HOPPER_CALENDAR_ID;
 if (!calendarId) {
-	console.error("Calendar ID not configured");
+	console.error(
+		"Grace Hopper Calendar ID not configured in environment variables",
+	);
 	process.exit(1);
 }
 
-isButteryOpen({ calendarId, timeToCheck: new Date() }).then((result) => {
-	console.log(result);
+// Example usage: Check if the Buttery is currently open
+isButteryOpen({ calendarId, timeToCheck: new Date() }).then((isOpen) => {
+	console.log(`The Buttery is currently ${isOpen ? "open" : "closed"}`);
 });
