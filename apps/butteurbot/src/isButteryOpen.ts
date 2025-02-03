@@ -11,10 +11,10 @@ const credentials: ServiceAccountCredentials = {
 const auth = new GoogleAuth(credentials);
 const calendar = new GoogleCalendar(auth);
 
-export async function isButteryOpen(
-	calendarId: string,
-	timeToCheck: Date,
-): Promise<boolean> {
+export async function isButteryOpen({
+	calendarId,
+	timeToCheck,
+}: { calendarId: string; timeToCheck: Date }): Promise<boolean> {
 	try {
 		const timeMin = new Date(timeToCheck);
 		const timeMax = new Date(timeToCheck);
@@ -77,6 +77,6 @@ if (!calendarId) {
 	process.exit(1);
 }
 
-isButteryOpen(calendarId, new Date()).then((result) => {
+isButteryOpen({ calendarId, timeToCheck: new Date() }).then((result) => {
 	console.log(result);
 });
