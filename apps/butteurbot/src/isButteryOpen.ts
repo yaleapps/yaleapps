@@ -60,7 +60,6 @@ export async function isButteryOpen({
 
 		// Check if the target time falls within any of the found events
 		const isOpenAtTime = response.items?.some((event) => {
-			// Skip events with invalid date formats
 			if (!event.start?.dateTime || !event.end?.dateTime) {
 				console.warn("Found event with invalid date format:", event);
 				return false;
@@ -69,7 +68,6 @@ export async function isButteryOpen({
 			const eventStart = new Date(event.start.dateTime);
 			const eventEnd = new Date(event.end.dateTime);
 
-			// Check if the target time falls between the event's start and end times
 			const isButteryCoveredByEvent =
 				timeToCheck >= eventStart && timeToCheck <= eventEnd;
 
