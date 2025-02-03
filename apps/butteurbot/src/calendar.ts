@@ -1,4 +1,4 @@
-import type { CalendarEvent, CalendarEventList } from "./types";
+import type { calendar_v3 } from "@googleapis/calendar";
 import type { GoogleAuth } from "./auth";
 
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
@@ -33,7 +33,7 @@ export class GoogleCalendar {
 			orderBy?: "startTime" | "updated";
 			singleEvents?: boolean;
 		} = {},
-	): Promise<CalendarEventList> {
+	): Promise<calendar_v3.Schema$Events> {
 		const searchParams = new URLSearchParams();
 		for (const [key, value] of Object.entries(params)) {
 			if (value !== undefined) {
@@ -49,10 +49,13 @@ export class GoogleCalendar {
 			throw new Error(`Failed to list events: ${response.statusText}`);
 		}
 
-		return response.json<CalendarEventList>();
+		return response.json<calendar_v3.Schema$Events>();
 	}
 
-	async getEvent(calendarId: string, eventId: string): Promise<CalendarEvent> {
+	async getEvent(
+		calendarId: string,
+		eventId: string,
+	): Promise<calendar_v3.Schema$Event> {
 		const response = await this.fetchWithAuth(
 			`/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
 				eventId,
@@ -63,14 +66,14 @@ export class GoogleCalendar {
 			throw new Error(`Failed to get event: ${response.statusText}`);
 		}
 
-		return response.json<CalendarEvent>();
+		return response.json<calendar_v3.Schema$Event>();
 	}
 
 	async updateEvent(
 		calendarId: string,
 		eventId: string,
-		event: Partial<CalendarEvent>,
-	): Promise<CalendarEvent> {
+		event: Partial<calendar_v3.Schema$Event>,
+	): Promise<calendar_v3.Schema$Event> {
 		const response = await this.fetchWithAuth(
 			`/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
 				eventId,
@@ -88,6 +91,6 @@ export class GoogleCalendar {
 			throw new Error(`Failed to update event: ${response.statusText}`);
 		}
 
-		return response.json<CalendarEvent>();
+		return response.json<calendar_v3.Schema$Event>();
 	}
 }

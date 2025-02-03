@@ -1,12 +1,31 @@
-import type { JWTHeader, JWTPayload, ServiceAccountCredentials } from "./types";
+import type { calendar_v3 } from "@googleapis/calendar";
 
 const GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
 const GOOGLE_AUTH_SCOPE = "https://www.googleapis.com/auth/calendar";
 const TOKEN_LIFETIME_SECONDS = 3600;
 
+interface ServiceAccountCredentials {
+	email: string;
+	key: string;
+	scopes: string[];
+}
+
+interface JWTHeader {
+	alg: "RS256";
+	typ: "JWT";
+}
+
+interface JWTPayload {
+	iss: string;
+	scope: string;
+	aud: string;
+	exp: number;
+	iat: number;
+}
+
 export class GoogleAuth {
 	private credentials: ServiceAccountCredentials;
-	private cachedToken = null;
+	private cachedToken: string | null = null;
 	private tokenExpiry = 0;
 
 	constructor(credentials: ServiceAccountCredentials) {

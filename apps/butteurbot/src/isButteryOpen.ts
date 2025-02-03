@@ -1,6 +1,11 @@
-import type { ServiceAccountCredentials } from "./types";
 import { GoogleAuth } from "./auth";
 import { GoogleCalendar } from "./calendar";
+
+interface ServiceAccountCredentials {
+	email: string;
+	key: string;
+	scopes: string[];
+}
 
 // Google Calendar API credentials for authentication
 const credentials: ServiceAccountCredentials = {
