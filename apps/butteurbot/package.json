@@ -1,15 +1,15 @@
 {
-  "name": "butteurbot",
-  "scripts": {
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy --minify"
-  },
-  "dependencies": {
-    "googleapis": "^144.0.0",
-    "hono": "^4.6.16"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250109.0",
-    "wrangler": "^3.101.0"
-  }
+	"name": "butteurbot",
+	"scripts": {
+		"dev": "wrangler dev",
+		"deploy": "wrangler deploy --minify"
+	},
+	"dependencies": {
+		"googleapis": "^144.0.0",
+		"hono": "^4.6.16"
+	},
+	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20250109.0",
+		"wrangler": "^3.101.0"
+	}
 }
