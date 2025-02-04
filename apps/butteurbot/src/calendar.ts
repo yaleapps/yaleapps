@@ -4,10 +4,10 @@ import type GoogleAuth from "cloudflare-workers-and-google-oauth";
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
 
 export function createGoogleCalendar(auth: GoogleAuth) {
-	async function fetchWithAuth(
-		endpoint: string,
-		options: RequestInit = {},
-	): Promise<Response> {
+	const fetchWithAuth = async ({
+		endpoint,
+		options = {},
+	}: { endpoint: string; options?: RequestInit }): Promise<Response> => {
 		const token = await auth.getGoogleAuthToken();
 		if (!token) throw new Error("Failed to get Google auth token");
 		const headers = new Headers(options.headers);
@@ -17,7 +17,7 @@ export function createGoogleCalendar(auth: GoogleAuth) {
 			...options,
 			headers,
 		});
-	}
+	};
 
 	return {
 		async listEvents(
@@ -37,9 +37,9 @@ export function createGoogleCalendar(auth: GoogleAuth) {
 				}
 			}
 
-			const response = await fetchWithAuth(
-				`/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
-			);
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to list events: ${response.statusText}`);
@@ -52,11 +52,11 @@ export function createGoogleCalendar(auth: GoogleAuth) {
 			calendarId: string,
 			eventId: string,
 		): Promise<calendar_v3.Schema$Event> {
-			const response = await fetchWithAuth(
-				`/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
 					eventId,
 				)}`,
-			);
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to get event: ${response.statusText}`);
@@ -70,18 +70,18 @@ export function createGoogleCalendar(auth: GoogleAuth) {
 			eventId: string,
 			event: Partial<calendar_v3.Schema$Event>,
 		): Promise<calendar_v3.Schema$Event> {
-			const response = await fetchWithAuth(
-				`/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
 					eventId,
 				)}`,
-				{
+				options: {
 					method: "PATCH",
 					headers: {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify(event),
 				},
-			);
+			});
 
 			if (!response.ok) {
 				throw new Error(`Failed to update event: ${response.statusText}`);
