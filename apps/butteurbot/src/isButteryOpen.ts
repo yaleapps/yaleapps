@@ -22,18 +22,18 @@ export async function isButteryOpen({
 			timeToCheck.getTime() + HOURS_TO_SEARCH * msInHour,
 		);
 
-		const eventsInTimeWindow = await googleCalendar.listEvents(calendarId, {
-			timeMin: timeWindowStart.toISOString(),
-			timeMax: timeWindowEnd.toISOString(),
-			singleEvents: true,
-			orderBy: "startTime",
-		});
-
 		// Log the search parameters for debugging
 		console.log("Searching for Buttery events in time window:", {
 			windowStart: timeWindowStart.toISOString(),
 			windowEnd: timeWindowEnd.toISOString(),
 			targetTime: timeToCheck.toISOString(),
+		});
+
+		const eventsInTimeWindow = await googleCalendar.listEvents(calendarId, {
+			timeMin: timeWindowStart.toISOString(),
+			timeMax: timeWindowEnd.toISOString(),
+			singleEvents: true,
+			orderBy: "startTime",
 		});
 
 		// Log all found events for debugging
