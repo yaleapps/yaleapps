@@ -1,5 +1,5 @@
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
-import { GoogleCalendar } from "./calendar";
+import { createGoogleCalendar } from "./calendar";
 
 // Google Calendar API credentials for authentication
 
@@ -24,7 +24,7 @@ const auth = new GoogleAuth(
 	},
 	credentials.scopes,
 );
-const calendar = new GoogleCalendar(auth);
+const calendar = createGoogleCalendar(auth);
 
 /**
  * Checks if the Buttery is open at a specific time by looking for calendar events
