@@ -1,12 +1,12 @@
 import type { calendar_v3 } from "@googleapis/calendar";
-import type { GoogleAuth } from "./auth";
+import type { GoogleAuthWrapper } from "./auth";
 
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
 
 export class GoogleCalendar {
-	private auth: GoogleAuth;
+	private auth: GoogleAuthWrapper;
 
-	constructor(auth: GoogleAuth) {
+	constructor(auth: GoogleAuthWrapper) {
 		this.auth = auth;
 	}
 

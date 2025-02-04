@@ -1,4 +1,4 @@
-import { GoogleAuth } from "./auth";
+import { GoogleAuthWrapper } from "./auth";
 import { GoogleCalendar } from "./calendar";
 
 interface ServiceAccountCredentials {
@@ -14,7 +14,7 @@ const credentials: ServiceAccountCredentials = {
 	scopes: ["https://www.googleapis.com/auth/calendar"],
 };
 
-const auth = new GoogleAuth(credentials);
+const auth = new GoogleAuthWrapper(credentials);
 const calendar = new GoogleCalendar(auth);
 
 /**
