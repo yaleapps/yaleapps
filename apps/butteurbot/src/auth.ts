@@ -1,16 +1,14 @@
 import type { GoogleKey } from "cloudflare-workers-and-google-oauth";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
 
-export interface ServiceAccountCredentials {
-	email: string;
-	key: string;
-	scopes: string[];
-}
-
 export class GoogleAuthWrapper {
 	private auth: GoogleAuth;
 
-	constructor(credentials: ServiceAccountCredentials) {
+	constructor(credentials: {
+		email: string;
+		key: string;
+		scopes: string[];
+	}) {
 		const googleKey: GoogleKey = {
 			type: "service_account",
 			project_id: "butteurbot",

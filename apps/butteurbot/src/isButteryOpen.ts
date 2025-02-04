@@ -1,20 +1,12 @@
 import { GoogleAuthWrapper } from "./auth";
 import { GoogleCalendar } from "./calendar";
 
-interface ServiceAccountCredentials {
-	email: string;
-	key: string;
-	scopes: string[];
-}
-
 // Google Calendar API credentials for authentication
-const credentials: ServiceAccountCredentials = {
+const auth = new GoogleAuthWrapper({
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
 	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "",
 	scopes: ["https://www.googleapis.com/auth/calendar"],
-};
-
-const auth = new GoogleAuthWrapper(credentials);
+});
 const calendar = new GoogleCalendar(auth);
 
 /**
