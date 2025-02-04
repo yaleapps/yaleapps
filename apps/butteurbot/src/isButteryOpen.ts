@@ -15,31 +15,31 @@ export async function isButteryOpen({
 		const HOURS_TO_SEARCH = 24;
 		const msInHour = 60 * 60 * 1000;
 
-		// Create a time window as a single object with start/end times
-		const searchWindow = {
-			start: new Date(timeToCheck.getTime() - HOURS_TO_SEARCH * msInHour),
-			end: new Date(timeToCheck.getTime() + HOURS_TO_SEARCH * msInHour),
-		};
+		const timeWindowStart = new Date(
+			timeToCheck.getTime() - HOURS_TO_SEARCH * msInHour,
+		);
+		const timeWindowEnd = new Date(
+			timeToCheck.getTime() + HOURS_TO_SEARCH * msInHour,
+		);
 
-		// Fetch all events within our search window
-		const response = await googleCalendar.listEvents(calendarId, {
-			timeMin: searchWindow.start.toISOString(),
-			timeMax: searchWindow.end.toISOString(),
+		const eventsInTimeWindow = await googleCalendar.listEvents(calendarId, {
+			timeMin: timeWindowStart.toISOString(),
+			timeMax: timeWindowEnd.toISOString(),
 			singleEvents: true,
 			orderBy: "startTime",
 		});
 
 		// Log the search parameters for debugging
 		console.log("Searching for Buttery events in time window:", {
-			windowStart: searchWindow.start.toISOString(),
-			windowEnd: searchWindow.end.toISOString(),
+			windowStart: timeWindowStart.toISOString(),
+			windowEnd: timeWindowEnd.toISOString(),
 			targetTime: timeToCheck.toISOString(),
 		});
 
 		// Log all found events for debugging
 		console.log(
 			"Found Buttery events:",
-			response.items?.map((event) => ({
+			eventsInTimeWindow.items?.map((event) => ({
 				start: event.start?.dateTime,
 				end: event.end?.dateTime,
 				summary: event.summary,
@@ -47,7 +47,7 @@ export async function isButteryOpen({
 		);
 
 		// Check if the target time falls within any of the found events
-		const isOpenAtTime = response.items?.some((event) => {
+		const isOpenAtTime = eventsInTimeWindow.items?.some((event) => {
 			if (!event.start?.dateTime || !event.end?.dateTime) {
 				console.warn("Found event with invalid date format:", event);
 				return false;
