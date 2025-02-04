@@ -27,12 +27,12 @@ export class GoogleCalendar {
 	async listEvents(
 		calendarId: string,
 		params: {
-			timeMin?: string;
-			timeMax?: string;
+			timeMin: string;
+			timeMax: string;
 			maxResults?: number;
-			orderBy?: "startTime" | "updated";
-			singleEvents?: boolean;
-		} = {},
+			orderBy: "startTime" | "updated";
+			singleEvents: boolean;
+		},
 	): Promise<calendar_v3.Schema$Events> {
 		const searchParams = new URLSearchParams();
 		for (const [key, value] of Object.entries(params)) {
