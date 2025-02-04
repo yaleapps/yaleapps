@@ -1,12 +1,29 @@
-import { GoogleAuthWrapper } from "./auth";
+import GoogleAuth from "cloudflare-workers-and-google-oauth";
 import { GoogleCalendar } from "./calendar";
 
 // Google Calendar API credentials for authentication
-const auth = new GoogleAuthWrapper({
+
+const credentials = {
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
 	key: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY ?? "",
 	scopes: ["https://www.googleapis.com/auth/calendar"],
-});
+};
+
+const auth = new GoogleAuth(
+	{
+		type: "service_account",
+		project_id: "butteurbot",
+		private_key_id: "",
+		client_id: "",
+		client_email: credentials.email,
+		private_key: credentials.key,
+		token_uri: "https://oauth2.googleapis.com/token",
+		auth_uri: "https://accounts.google.com/o/oauth2/auth",
+		auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+		client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(credentials.email)}`,
+	},
+	credentials.scopes,
+);
 const calendar = new GoogleCalendar(auth);
 
 /**

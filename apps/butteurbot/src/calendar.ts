@@ -1,12 +1,12 @@
 import type { calendar_v3 } from "@googleapis/calendar";
-import type { GoogleAuthWrapper } from "./auth";
+import type GoogleAuth from "cloudflare-workers-and-google-oauth";
 
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
 
 export class GoogleCalendar {
-	private auth: GoogleAuthWrapper;
+	private auth: GoogleAuth;
 
-	constructor(auth: GoogleAuthWrapper) {
+	constructor(auth: GoogleAuth) {
 		this.auth = auth;
 	}
 
@@ -14,7 +14,8 @@ export class GoogleCalendar {
 		endpoint: string,
 		options: RequestInit = {},
 	): Promise<Response> {
-		const token = await this.auth.getAccessToken();
+		const token = await this.auth.getGoogleAuthToken();
+		if (!token) throw new Error("Failed to get Google auth token");
 		const headers = new Headers(options.headers);
 		headers.set("Authorization", `Bearer ${token}`);
 
