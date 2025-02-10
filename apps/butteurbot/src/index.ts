@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { google } from "googleapis";
 import type { GroupMeBotMessage, GroupMeWebhook } from "./types/groupme";
+import { isButteryOpen } from "./isButteryOpen";
 
 const auth = new google.auth.JWT({
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -13,19 +14,18 @@ const calendar = google.calendar({ version: "v3", auth });
 const app = new Hono();
 
 app.get("scheduled", async (c) => {
+	const currentEasternHour = getCurrentEasternHour();
+	const is4pm = currentEasternHour === 16;
+	const is10pm = currentEasternHour === 22;
+
+	if (is4pm) {
+		await requestConfirmationFromManagers();
+	} else if (is10pm) {
+		await sendStatusToStudents();
+	}
+
+	return c.text("Scheduled task completed successfully");
 	try {
-		const currentEasternHour = getCurrentEasternHour();
-
-		const is4pm = currentEasternHour === 16;
-		const is10pm = currentEasternHour === 22;
-
-		if (is4pm) {
-			await sendNoteOfRequestConfirmationToManagers();
-		} else if (is10pm) {
-			await sendButteryStatusToStudents();
-		}
-
-		return c.text("Scheduled task completed successfully");
 	} catch (error) {
 		console.error("Error in scheduled task:", error);
 		return c.text("Failed to complete scheduled task", 500);
@@ -45,32 +45,24 @@ function getCurrentEasternHour(): number {
 	);
 }
 
-async function sendNoteOfRequestConfirmationToManagers() {
+async function requestConfirmationFromManagers() {
 	// TODO: Implement the logic for sending confirmation requests to managers
 	await sendGroupMeMessage(
 		"Managers: Please confirm if the Buttery will be open tonight. Use !open or !closed to update the status.",
 	);
 }
 
-async function sendButteryStatusToStudents() {
-	// TODO: Implement the logic for sending status updates to students
-	const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
-	if (!calendarId) {
-		console.error("Calendar ID not configured");
-		return;
-	}
-
-	const nextEvent = await getNextEvent(calendarId);
-	if (!nextEvent) {
-		await sendGroupMeMessage("No Buttery events found for tonight.");
-		return;
-	}
-
-	const isOpen = nextEvent.status === "confirmed";
+/**
+ * Sends the status of the Buttery to the students in the Hopper-wide GroupMe chat
+ */
+async function sendStatusToStudents() {
+	const isOpen = await isButteryOpen({
+		calendarId: process.env.BUTTEURBOT_CALENDAR_ID,
+		timeToCheck: new Date(),
+	});
 	const message = isOpen
-		? `The Buttery is OPEN tonight! ${nextEvent.summary}`
+		? "The Buttery is OPEN tonight!"
 		: "The Buttery is CLOSED tonight.";
-
 	await sendGroupMeMessage(message);
 }
 
