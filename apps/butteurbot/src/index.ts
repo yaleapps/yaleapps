@@ -154,4 +154,53 @@ app.post("/gh/managers", async (c) => {
 	}
 });
 
+app.post("/gh/listen", async (c) => {
+	try {
+		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
+
+		const shouldIgnoreMessage = sender_type === "bot" || !input.trim();
+		if (shouldIgnoreMessage) return c.body(null, 200);
+
+		const messageText = input.trim().toLowerCase();
+
+		const containsOpen = messageText.includes("open");
+		const containsClose = messageText.includes("close");
+
+		if (containsOpen) {
+			await markAsOpen(messageText);
+		} else if (containsClose) {
+			await markAsClosed(messageText);
+		}
+
+		return c.body(null, 200);
+	} catch (error) {
+		console.error("Error processing GroupMe webhook:", error);
+		return c.body(null, 200);
+	}
+});
+
+async function markAsOpen(message: string) {
+	try {
+		// TODO: Implement the logic for marking as open
+		await sendGroupMeMessage(`Marking as open based on message: "${message}"`);
+		return true;
+	} catch (error) {
+		console.error("Error marking as open:", error);
+		return false;
+	}
+}
+
+async function markAsClosed(message: string) {
+	try {
+		// TODO: Implement the logic for marking as closed
+		await sendGroupMeMessage(
+			`Marking as closed based on message: "${message}"`,
+		);
+		return true;
+	} catch (error) {
+		console.error("Error marking as closed:", error);
+		return false;
+	}
+}
+
 export default app;
