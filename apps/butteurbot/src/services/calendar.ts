@@ -24,97 +24,91 @@ const auth = new GoogleAuth(
 	credentials.scopes,
 );
 
-export const googleCalendar = createGoogleCalendar(auth);
-
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
 
-function createGoogleCalendar(auth: GoogleAuth) {
-	const fetchWithAuth = async ({
-		endpoint,
-		options = {},
-	}: { endpoint: string; options?: RequestInit }): Promise<Response> => {
-		const token = await auth.getGoogleAuthToken();
-		if (!token) throw new Error("Failed to get Google auth token");
-		const headers = new Headers(options.headers);
-		headers.set("Authorization", `Bearer ${token}`);
+const fetchWithAuth = async ({
+	endpoint,
+	options = {},
+}: { endpoint: string; options?: RequestInit }): Promise<Response> => {
+	const token = await auth.getGoogleAuthToken();
+	if (!token) throw new Error("Failed to get Google auth token");
+	const headers = new Headers(options.headers);
+	headers.set("Authorization", `Bearer ${token}`);
 
-		return fetch(`${CALENDAR_API_BASE}${endpoint}`, {
-			...options,
-			headers,
-		});
-	};
+	return fetch(`${CALENDAR_API_BASE}${endpoint}`, {
+		...options,
+		headers,
+	});
+};
 
-	return {
-		async listEvents(
-			calendarId: string,
-			params: {
-				timeMin: string;
-				timeMax: string;
-				maxResults?: number;
-				orderBy: "startTime" | "updated";
-				singleEvents: boolean;
+export async function listEvents(
+	calendarId: string,
+	params: {
+		timeMin: string;
+		timeMax: string;
+		maxResults?: number;
+		orderBy: "startTime" | "updated";
+		singleEvents: boolean;
+	},
+): Promise<calendar_v3.Schema$Events> {
+	const searchParams = new URLSearchParams();
+	for (const [key, value] of Object.entries(params)) {
+		if (value !== undefined) {
+			searchParams.set(key, value.toString());
+		}
+	}
+
+	const response = await fetchWithAuth({
+		endpoint: `/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to list events: ${response.statusText}`);
+	}
+
+	return response.json<calendar_v3.Schema$Events>();
+}
+
+export async function getEvent(
+	calendarId: string,
+	eventId: string,
+): Promise<calendar_v3.Schema$Event> {
+	const response = await fetchWithAuth({
+		endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+			eventId,
+		)}`,
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to get event: ${response.statusText}`);
+	}
+
+	return response.json<calendar_v3.Schema$Event>();
+}
+
+export async function updateEvent(
+	calendarId: string,
+	eventId: string,
+	event: Partial<calendar_v3.Schema$Event>,
+): Promise<calendar_v3.Schema$Event> {
+	const response = await fetchWithAuth({
+		endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+			eventId,
+		)}`,
+		options: {
+			method: "PATCH",
+			headers: {
+				"Content-Type": "application/json",
 			},
-		): Promise<calendar_v3.Schema$Events> {
-			const searchParams = new URLSearchParams();
-			for (const [key, value] of Object.entries(params)) {
-				if (value !== undefined) {
-					searchParams.set(key, value.toString());
-				}
-			}
-
-			const response = await fetchWithAuth({
-				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to list events: ${response.statusText}`);
-			}
-
-			return response.json<calendar_v3.Schema$Events>();
+			body: JSON.stringify(event),
 		},
+	});
 
-		async getEvent(
-			calendarId: string,
-			eventId: string,
-		): Promise<calendar_v3.Schema$Event> {
-			const response = await fetchWithAuth({
-				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-					eventId,
-				)}`,
-			});
+	if (!response.ok) {
+		throw new Error(`Failed to update event: ${response.statusText}`);
+	}
 
-			if (!response.ok) {
-				throw new Error(`Failed to get event: ${response.statusText}`);
-			}
-
-			return response.json<calendar_v3.Schema$Event>();
-		},
-
-		async updateEvent(
-			calendarId: string,
-			eventId: string,
-			event: Partial<calendar_v3.Schema$Event>,
-		): Promise<calendar_v3.Schema$Event> {
-			const response = await fetchWithAuth({
-				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-					eventId,
-				)}`,
-				options: {
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(event),
-				},
-			});
-
-			if (!response.ok) {
-				throw new Error(`Failed to update event: ${response.statusText}`);
-			}
-
-			return response.json<calendar_v3.Schema$Event>();
-		},
-	};
+	return response.json<calendar_v3.Schema$Event>();
 }
 
 export async function getNextEvent(calendarId: string) {

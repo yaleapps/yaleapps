@@ -1,4 +1,4 @@
-import { googleCalendar } from "./services/calendar";
+import * as googleCalendar from "./services/calendar";
 
 /**
  * Checks if the Buttery is open at a specific time by looking for calendar events
