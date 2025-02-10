@@ -29,6 +29,8 @@ compatibility_date = "2025-01-13"
 
 [triggers]
 crons = [
-  "0 20 * * *",  # 4:00 PM EST (20:00 UTC)
-  "0 2 * * *"    # 10:00 PM EST (02:00 UTC next day)
+  "0 20 * * *",  # 4:00 PM EDT (20:00 UTC)
+  "0 21 * * *",  # 4:00 PM EST (21:00 UTC)
+  "0 2 * * *",   # 10:00 PM EDT (02:00 UTC next day)
+  "0 3 * * *"    # 10:00 PM EST (03:00 UTC next day)
 ]
