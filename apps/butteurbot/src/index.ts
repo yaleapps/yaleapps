@@ -11,6 +11,68 @@ const calendar = google.calendar({ version: "v3", auth });
 
 const app = new Hono();
 
+app.get("scheduled", async (c) => {
+	try {
+		const currentEasternHour = getCurrentEasternHour();
+
+		const is4pm = currentEasternHour === 16;
+		const is10pm = currentEasternHour === 22;
+
+		if (is4pm) {
+			await sendNoteOfRequestConfirmationToManagers();
+		} else if (is10pm) {
+			await sendButteryStatusToStudents();
+		}
+
+		return c.text("Scheduled task completed successfully");
+	} catch (error) {
+		console.error("Error in scheduled task:", error);
+		return c.text("Failed to complete scheduled task", 500);
+	}
+});
+
+/**
+ * Get the current hour in Eastern Time (automatically handles EDT/EST)
+ */
+function getCurrentEasternHour(): number {
+	return Number.parseInt(
+		new Intl.DateTimeFormat("en-US", {
+			timeZone: "America/New_York",
+			hour: "numeric",
+			hour12: false,
+		}).format(new Date()),
+	);
+}
+
+async function sendNoteOfRequestConfirmationToManagers() {
+	// TODO: Implement the logic for sending confirmation requests to managers
+	await sendGroupMeMessage(
+		"Managers: Please confirm if the Buttery will be open tonight. Use !open or !closed to update the status.",
+	);
+}
+
+async function sendButteryStatusToStudents() {
+	// TODO: Implement the logic for sending status updates to students
+	const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
+	if (!calendarId) {
+		console.error("Calendar ID not configured");
+		return;
+	}
+
+	const nextEvent = await getNextEvent(calendarId);
+	if (!nextEvent) {
+		await sendGroupMeMessage("No Buttery events found for tonight.");
+		return;
+	}
+
+	const isOpen = nextEvent.status === "confirmed";
+	const message = isOpen
+		? `The Buttery is OPEN tonight! ${nextEvent.summary}`
+		: "The Buttery is CLOSED tonight.";
+
+	await sendGroupMeMessage(message);
+}
+
 async function getNextEvent(calendarId: string) {
 	const now = new Date();
 
@@ -154,7 +216,8 @@ app.post("/gh/managers", async (c) => {
 	}
 });
 
-app.post("/gh/listen", async (c) => {
+// Listen for messages from managers that hint at the Buttery being open or closed for the day. If so, ask them to confirm
+app.post("/gh/managers/listen", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
 
