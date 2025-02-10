@@ -26,3 +26,9 @@ compatibility_date = "2025-01-13"
 # [observability]
 # enabled = true
 # head_sampling_rate = 1
+
+[triggers]
+crons = [
+  "0 20 * * *",  # 4:00 PM EST (20:00 UTC)
+  "0 2 * * *"    # 10:00 PM EST (02:00 UTC next day)
+]
