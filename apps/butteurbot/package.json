@@ -5,6 +5,7 @@
 		"deploy": "wrangler deploy --minify"
 	},
 	"dependencies": {
+		"arktype": "^2.0.4",
 		"cloudflare-workers-and-google-oauth": "^2.0.0",
 		"googleapis": "^144.0.0",
 		"hono": "^4.6.16"

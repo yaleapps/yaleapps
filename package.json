@@ -1,19 +1,19 @@
 {
-  "name": "yaleapps",
-  "private": true,
-  "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "format": "biome format --write .",
-    "lint": "biome lint --write --unsafe .",
-    "format-and-lint": "biome check --write --unsafe ."
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "turbo": "latest"
-  },
-  "packageManager": "pnpm@8.9.0",
-  "engines": {
-    "node": ">=18"
-  }
+	"name": "yaleapps",
+	"private": true,
+	"scripts": {
+		"build": "turbo build",
+		"dev": "turbo dev",
+		"format": "biome format --write .",
+		"lint": "biome lint --write --unsafe .",
+		"format-and-lint": "biome check --write --unsafe ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"turbo": "latest"
+	},
+	"packageManager": "pnpm@8.9.0",
+	"engines": {
+		"node": ">=18"
+	}
 }
