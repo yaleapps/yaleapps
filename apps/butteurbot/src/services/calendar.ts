@@ -1,5 +1,6 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
+import { calendar } from "../config/google";
 
 const credentials = {
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
@@ -114,4 +115,45 @@ function createGoogleCalendar(auth: GoogleAuth) {
 			return response.json<calendar_v3.Schema$Event>();
 		},
 	};
+}
+
+export async function getNextEvent(calendarId: string) {
+	const now = new Date();
+
+	try {
+		const response = await calendar.events.list({
+			calendarId,
+			timeMin: now.toISOString(),
+			maxResults: 1,
+			singleEvents: true,
+			orderBy: "startTime",
+		});
+
+		return response.data.items?.[0] ?? null;
+	} catch (error) {
+		console.error("Error fetching next event:", error);
+		return null;
+	}
+}
+
+export async function updateEventStatus(
+	calendarId: string,
+	eventId: string,
+	status: "confirmed" | "cancelled",
+) {
+	try {
+		const event = await calendar.events.get({ calendarId, eventId });
+		const updatedEvent = { ...event.data, status };
+
+		await calendar.events.update({
+			calendarId,
+			eventId,
+			requestBody: updatedEvent,
+		});
+
+		return true;
+	} catch (error) {
+		console.error("Error updating event status:", error);
+		return false;
+	}
 }

@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { google } from "googleapis";
 import type { GroupMeBotMessage, GroupMeWebhook } from "./types/groupme";
 import { isButteryOpen } from "./isButteryOpen";
+import { scheduledRoutes } from "./routes/scheduled";
+import { managersRoutes } from "./routes/managers";
 
 const auth = new google.auth.JWT({
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -13,52 +15,8 @@ const calendar = google.calendar({ version: "v3", auth });
 
 const app = new Hono();
 
-app.get("scheduled", async (c) => {
-	const currentEasternHour = getCurrentEasternHour();
-	const is4pm = currentEasternHour === 16;
-	const is10pm = currentEasternHour === 22;
-
-	if (is4pm) {
-		await requestConfirmationFromManagers();
-	} else if (is10pm) {
-		await sendStatusToStudents();
-	}
-
-	return c.text("Scheduled task completed successfully");
-});
-
-/**
- * Get the current hour in Eastern Time (automatically handles EDT/EST)
- */
-function getCurrentEasternHour(): number {
-	return Number.parseInt(
-		new Intl.DateTimeFormat("en-US", {
-			timeZone: "America/New_York",
-			hour: "numeric",
-			hour12: false,
-		}).format(new Date()),
-	);
-}
-
-async function requestConfirmationFromManagers() {
-	await sendGroupMeMessage(
-		"Managers: Please confirm if the Buttery will be open tonight. Use !open or !closed to update the status.",
-	);
-}
-
-/**
- * Sends the status of the Buttery to the students in the Hopper-wide GroupMe chat
- */
-async function sendStatusToStudents() {
-	const isOpen = await isButteryOpen({
-		calendarId: process.env.BUTTEURBOT_CALENDAR_ID,
-		timeToCheck: new Date(),
-	});
-	const message = isOpen
-		? "The Buttery is OPEN tonight!"
-		: "The Buttery is CLOSED tonight.";
-	await sendGroupMeMessage(message);
-}
+app.route("/scheduled", scheduledRoutes);
+app.route("/gh/managers", managersRoutes);
 
 async function getNextEvent(calendarId: string) {
 	const now = new Date();
@@ -155,41 +113,6 @@ async function sendGroupMeMessage(text: string) {
 		console.error("Error sending GroupMe message:", error);
 	}
 }
-
-app.post("/gh/managers", async (c) => {
-	try {
-		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
-
-		const isMessageFromBot = sender_type === "bot";
-		if (isMessageFromBot) return c.body(null, 200);
-
-		const isEmptyMessage = !input.trim();
-		if (isEmptyMessage) return c.body(null, 200);
-
-		// Get the calendar ID from environment variable
-		const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
-		if (!calendarId) {
-			console.error("Calendar ID not configured");
-			return c.body(null, 200);
-		}
-
-		// Check if the message matches any command
-		for (const [command, handler] of Object.entries(commands)) {
-			if (input.toLowerCase().startsWith(command)) {
-				const response = await handler(calendarId);
-				// Send the response back to the GroupMe chat
-				await sendGroupMeMessage(response);
-				return c.body(null, 200);
-			}
-		}
-
-		// No command matched
-		return c.body(null, 200);
-	} catch (error) {
-		console.error("Error processing GroupMe webhook:", error);
-		return c.body(null, 200);
-	}
-});
 
 // Listen for messages from managers that hint at the Buttery being open or closed for the day. If so, ask them to confirm
 app.post("/gh/managers/listen", async (c) => {
