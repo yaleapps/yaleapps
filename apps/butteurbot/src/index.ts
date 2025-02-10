@@ -25,11 +25,6 @@ app.get("scheduled", async (c) => {
 	}
 
 	return c.text("Scheduled task completed successfully");
-	try {
-	} catch (error) {
-		console.error("Error in scheduled task:", error);
-		return c.text("Failed to complete scheduled task", 500);
-	}
 });
 
 /**
@@ -46,7 +41,6 @@ function getCurrentEasternHour(): number {
 }
 
 async function requestConfirmationFromManagers() {
-	// TODO: Implement the logic for sending confirmation requests to managers
 	await sendGroupMeMessage(
 		"Managers: Please confirm if the Buttery will be open tonight. Use !open or !closed to update the status.",
 	);
