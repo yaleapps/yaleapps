@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { google } from "googleapis";
+import type { GroupMeBotMessage, GroupMeWebhook } from "./types/groupme";
 
 const auth = new google.auth.JWT({
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
@@ -145,18 +146,6 @@ const commands = {
 		return "Failed to update event status";
 	},
 };
-
-interface GroupMeWebhook {
-	text: string;
-	sender_type: string;
-	name?: string;
-	group_id: string;
-}
-
-interface GroupMeBotMessage {
-	bot_id: string;
-	text: string;
-}
 
 async function sendGroupMeMessage(text: string) {
 	const botId = process.env.GROUPME_BOT_ID;
