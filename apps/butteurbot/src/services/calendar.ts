@@ -26,10 +26,10 @@ const auth = new GoogleAuth(
 
 const CALENDAR_API_BASE = "https://www.googleapis.com/calendar/v3";
 
-const fetchWithAuth = async ({
+async function fetchWithAuth({
 	endpoint,
 	options = {},
-}: { endpoint: string; options?: RequestInit }): Promise<Response> => {
+}: { endpoint: string; options?: RequestInit }): Promise<Response> {
 	const token = await auth.getGoogleAuthToken();
 	if (!token) throw new Error("Failed to get Google auth token");
 	const headers = new Headers(options.headers);
@@ -39,7 +39,7 @@ const fetchWithAuth = async ({
 		...options,
 		headers,
 	});
-};
+}
 
 export async function listEvents(
 	calendarId: string,
