@@ -1,5 +1,4 @@
 import { Hono } from "hono";
-import { sendGroupMeMessage } from "../services/groupme";
 import type { GroupMeWebhook } from "../types/groupme";
 import type { GoogleCalendar } from "../services/calendar";
 import type { Bindings } from "..";
@@ -38,6 +37,7 @@ const createCommands = (googleCalendar: GoogleCalendar) => ({
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/", async (c) => {
+	const butteurBot = c.get("butteurBot");
 	const googleCalendar = c.get("calendar");
 	const commands = createCommands(googleCalendar);
 	try {
@@ -53,7 +53,7 @@ app.post("/", async (c) => {
 		for (const [command, handler] of Object.entries(commands)) {
 			if (input.toLowerCase().startsWith(command)) {
 				const response = await handler(c.env.GRACE_HOPPER_CALENDAR_ID);
-				await sendGroupMeMessage(response);
+				await butteurBot.sendGroupMeMessage(response);
 				return c.body(null, 200);
 			}
 		}
@@ -68,6 +68,31 @@ app.post("/", async (c) => {
 app.post("/listen", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
+		const butteurBot = c.get("butteurBot");
+
+		const markAsOpen = async (message: string) => {
+			try {
+				await butteurBot.sendGroupMeMessage(
+					`Marking as open based on message: "${message}"`,
+				);
+				return true;
+			} catch (error) {
+				console.error("Error marking as open:", error);
+				return false;
+			}
+		};
+
+		const markAsClosed = async (message: string) => {
+			try {
+				await butteurBot.sendGroupMeMessage(
+					`Marking as closed based on message: "${message}"`,
+				);
+				return true;
+			} catch (error) {
+				console.error("Error marking as closed:", error);
+				return false;
+			}
+		};
 
 		const shouldIgnoreMessage = sender_type === "bot" || !input.trim();
 		if (shouldIgnoreMessage) return c.body(null, 200);
@@ -89,29 +114,5 @@ app.post("/listen", async (c) => {
 		return c.body(null, 200);
 	}
 });
-
-async function markAsOpen(message: string) {
-	try {
-		// TODO: Implement the logic for marking as open
-		await sendGroupMeMessage(`Marking as open based on message: "${message}"`);
-		return true;
-	} catch (error) {
-		console.error("Error marking as open:", error);
-		return false;
-	}
-}
-
-async function markAsClosed(message: string) {
-	try {
-		// TODO: Implement the logic for marking as closed
-		await sendGroupMeMessage(
-			`Marking as closed based on message: "${message}"`,
-		);
-		return true;
-	} catch (error) {
-		console.error("Error marking as closed:", error);
-		return false;
-	}
-}
 
 export default app;

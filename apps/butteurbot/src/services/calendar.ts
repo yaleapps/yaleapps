@@ -2,12 +2,6 @@ import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
 import { createMiddleware } from "hono/factory";
 
-declare module "hono" {
-	interface ContextVariableMap {
-		calendar: ReturnType<typeof createGoogleCalendar>;
-	}
-}
-
 export const googleCalendar = createMiddleware(async (c, next) => {
 	c.set(
 		"calendar",

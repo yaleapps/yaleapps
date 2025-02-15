@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import type { Bindings } from "..";
 import { isButteryOpen } from "../isButteryOpen";
-import { sendGroupMeMessage } from "../services/groupme";
 import { getCurrentEasternHour } from "../utils/time";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -16,8 +15,9 @@ const app = new Hono<{ Bindings: Bindings }>();
  */
 app.get("/", async (c) => {
 	const googleCalendar = c.get("calendar");
+	const butteurBot = c.get("butteurBot");
 	const requestManagerConfirmation = async () => {
-		await sendGroupMeMessage(
+		await butteurBot.sendGroupMeMessage(
 			"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
 		);
 	};
@@ -30,7 +30,7 @@ app.get("/", async (c) => {
 		const message = isOpen
 			? "The Buttery is OPEN tonight!"
 			: "The Buttery is CLOSED tonight.";
-		await sendGroupMeMessage(message);
+		console.log("🚀 ~ sendStatusToStudents ~ message:", message);
 	};
 
 	const currentEasternHour = getCurrentEasternHour();
