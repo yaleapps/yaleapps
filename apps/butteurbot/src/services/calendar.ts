@@ -43,13 +43,7 @@ async function fetchWithAuth({
 
 export async function listEvents(
 	calendarId: string,
-	params: {
-		timeMin: string;
-		timeMax: string;
-		maxResults?: number;
-		orderBy: "startTime" | "updated";
-		singleEvents: boolean;
-	},
+	params: Omit<calendar_v3.Params$Resource$Events$List, "calendarId">,
 ): Promise<calendar_v3.Schema$Events> {
 	const searchParams = new URLSearchParams();
 	for (const [key, value] of Object.entries(params)) {
@@ -111,19 +105,20 @@ export async function updateEvent(
 	return response.json<calendar_v3.Schema$Event>();
 }
 
-export async function getNextEvent(calendarId: string) {
-	const now = new Date();
-
+export async function getNextEvent(
+	calendarId: string,
+): Promise<calendar_v3.Schema$Event | null> {
 	try {
-		const response = await calendar.events.list({
-			calendarId,
+		const now = new Date();
+
+		const events = await listEvents(calendarId, {
 			timeMin: now.toISOString(),
 			maxResults: 1,
 			singleEvents: true,
 			orderBy: "startTime",
 		});
 
-		return response.data.items?.[0] ?? null;
+		return events.items?.[0] ?? null;
 	} catch (error) {
 		console.error("Error fetching next event:", error);
 		return null;
@@ -134,18 +129,14 @@ export async function updateEventStatus(
 	calendarId: string,
 	eventId: string,
 	status: "confirmed" | "cancelled",
-) {
+): Promise<boolean> {
 	try {
-		const event = await calendar.events.get({ calendarId, eventId });
-		const updatedEvent = { ...event.data, status };
-
-		await calendar.events.update({
-			calendarId,
-			eventId,
-			requestBody: updatedEvent,
-		});
-
-		return true;
+		const event = await getEvent(calendarId, eventId);
+		const updatedEvent = await updateEvent(calendarId, eventId, {
+			...event,
+			status,
+		} satisfies calendar_v3.Schema$Event);
+		return !!updatedEvent;
 	} catch (error) {
 		console.error("Error updating event status:", error);
 		return false;
