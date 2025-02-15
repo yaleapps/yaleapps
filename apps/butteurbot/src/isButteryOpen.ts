@@ -1,7 +1,7 @@
 import type { GoogleCalendar } from "./services/calendar";
 
-const MS_IN_HOUR = 60 * 60 * 1000;
-const WINDOW_WIDTH_IN_HOURS = 4;
+const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
+const SEARCH_WINDOW_HOURS = 4;
 
 /**
  * Checks if the Buttery is open at a specific time by looking for calendar events
@@ -11,30 +11,30 @@ export async function isButteryOpen(
 	googleCalendar: GoogleCalendar,
 	{
 		calendarId,
-		timeToCheck,
+		targetTime,
 	}: {
 		calendarId: string;
-		timeToCheck: Date;
+		targetTime: Date;
 	},
 ): Promise<boolean> {
 	try {
-		const timeWindowStart = new Date(
-			timeToCheck.getTime() - WINDOW_WIDTH_IN_HOURS * MS_IN_HOUR,
+		const searchWindowStart = new Date(
+			targetTime.getTime() - SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
 		);
-		const timeWindowEnd = new Date(
-			timeToCheck.getTime() + WINDOW_WIDTH_IN_HOURS * MS_IN_HOUR,
+		const searchWindowEnd = new Date(
+			targetTime.getTime() + SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
 		);
 
 		// Log the search parameters for debugging
 		console.log("Searching for Buttery events in time window:", {
-			windowStart: timeWindowStart.toISOString(),
-			windowEnd: timeWindowEnd.toISOString(),
-			targetTime: timeToCheck.toISOString(),
+			searchWindowStart: searchWindowStart.toISOString(),
+			searchWindowEnd: searchWindowEnd.toISOString(),
+			targetTime: targetTime.toISOString(),
 		});
 
-		const eventsInTimeWindow = await googleCalendar.listEvents(calendarId, {
-			timeMin: timeWindowStart.toISOString(),
-			timeMax: timeWindowEnd.toISOString(),
+		const eventsInSearchWindow = await googleCalendar.listEvents(calendarId, {
+			timeMin: searchWindowStart.toISOString(),
+			timeMax: searchWindowEnd.toISOString(),
 			singleEvents: true,
 			orderBy: "startTime",
 		});
@@ -42,7 +42,7 @@ export async function isButteryOpen(
 		// Log all found events for debugging
 		console.log(
 			"Found Buttery events:",
-			eventsInTimeWindow.items?.map((event) => ({
+			eventsInSearchWindow.items?.map((event) => ({
 				start: event.start?.dateTime,
 				end: event.end?.dateTime,
 				summary: event.summary,
@@ -50,32 +50,34 @@ export async function isButteryOpen(
 		);
 
 		// Check if the target time falls within any of the found events
-		const isOpenAtTime = eventsInTimeWindow.items?.some((event) => {
-			if (!event.start?.dateTime || !event.end?.dateTime) {
-				console.warn("Found event with invalid date format:", event);
-				return false;
-			}
+		const isTargetTimeWithinEvent = eventsInSearchWindow.items?.some(
+			(event) => {
+				if (!event.start?.dateTime || !event.end?.dateTime) {
+					console.warn("Found event with invalid date format:", event);
+					return false;
+				}
 
-			const eventStart = new Date(event.start.dateTime);
-			const eventEnd = new Date(event.end.dateTime);
+				const eventStartTime = new Date(event.start.dateTime);
+				const eventEndTime = new Date(event.end.dateTime);
 
-			const isButteryCoveredByEvent =
-				timeToCheck >= eventStart && timeToCheck <= eventEnd;
+				const isWithinEvent =
+					targetTime >= eventStartTime && targetTime <= eventEndTime;
 
-			if (isButteryCoveredByEvent) {
-				console.log("Found matching Buttery hours:", {
-					start: event.start.dateTime,
-					end: event.end.dateTime,
-					summary: event.summary,
-				});
-			}
+				if (isWithinEvent) {
+					console.log("Matching Buttery event found:", {
+						start: event.start.dateTime,
+						end: event.end.dateTime,
+						summary: event.summary,
+					});
+				}
 
-			return isButteryCoveredByEvent;
-		});
+				return isWithinEvent;
+			},
+		);
 
-		return isOpenAtTime ?? false;
+		return isTargetTimeWithinEvent ?? false;
 	} catch (error) {
-		console.error("Failed to check Buttery hours:", error);
+		console.error("Error checking Buttery hours:", error);
 		return false;
 	}
 }

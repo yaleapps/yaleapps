@@ -25,12 +25,13 @@ app.get("/", async (c) => {
 	const sendStatusToStudents = async () => {
 		const isOpen = await isButteryOpen(googleCalendar, {
 			calendarId: c.env.GRACE_HOPPER_CALENDAR_ID,
-			timeToCheck: new Date(),
+			targetTime: new Date(),
 		});
 		const message = isOpen
 			? "The Buttery is OPEN tonight!"
 			: "The Buttery is CLOSED tonight.";
 		console.log("🚀 ~ sendStatusToStudents ~ message:", message);
+		// await butteurBot.sendGroupMeMessage(message);
 	};
 
 	const currentEasternHour = getCurrentEasternHour();
