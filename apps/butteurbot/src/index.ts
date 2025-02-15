@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { google } from "googleapis";
 import type { GroupMeBotMessage, GroupMeWebhook } from "./types/groupme";
 import { isButteryOpen } from "./isButteryOpen";
-import { scheduledRoutes } from "./routes/scheduled";
+import { scheduledRoute } from "./routes/scheduled";
 import { managersRoutes } from "./routes/managers";
 
 const auth = new google.auth.JWT({
@@ -15,7 +15,7 @@ const calendar = google.calendar({ version: "v3", auth });
 
 const app = new Hono();
 
-app.route("/scheduled", scheduledRoutes);
+app.route("/scheduled", scheduledRoute);
 app.route("/gh/managers", managersRoutes);
 
 async function getNextEvent(calendarId: string) {
