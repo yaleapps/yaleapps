@@ -2,6 +2,10 @@ name = "butteurbot"
 main = "src/index.ts"
 compatibility_date = "2025-01-13"
 
+routes = [
+	{pattern = "butteurbot.yaleapps.com", custom_domain = true},
+]
+
 # compatibility_flags = [ "nodejs_compat" ]
 
 # [vars]
