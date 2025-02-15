@@ -23,7 +23,7 @@ app.use(googleCalendar);
 app.use(butteurBot);
 
 app.route("/scheduled", scheduled);
-app.route("/gh/managers", managers);
+app.route("/webhooks/gh/managers", managers);
 
 // Listen for messages from managers that hint at the Buttery being open or closed for the day. If so, ask them to confirm
 // app.post("/gh/managers/listen", async (c) => {
