@@ -52,7 +52,7 @@ app.post("/", async (c) => {
 		// Check if the message matches any command
 		for (const [command, handler] of Object.entries(commands)) {
 			if (input.toLowerCase().startsWith(command)) {
-				const response = await handler(c.env.GRACE_HOPPER_CALENDAR_ID);
+				const response = await handler(c.env.CALENDAR_ID_GH);
 				await butteurBot.sendGroupMeMessage(response);
 				return c.body(null, 200);
 			}

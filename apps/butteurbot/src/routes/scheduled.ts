@@ -24,7 +24,7 @@ app.get("/", async (c) => {
 
 	const sendStatusToStudents = async () => {
 		const isOpen = await isButteryOpen(googleCalendar, {
-			calendarId: c.env.GRACE_HOPPER_CALENDAR_ID,
+			calendarId: c.env.CALENDAR_ID_GH,
 			targetTime: new Date(),
 		});
 		const message = isOpen
