@@ -19,6 +19,8 @@ export const googleCalendar = createMiddleware(async (c, next) => {
 	await next();
 });
 
+export type GoogleCalendar = ReturnType<typeof createGoogleCalendar>;
+
 function createGoogleCalendar({
 	clientEmail,
 	privateKey,

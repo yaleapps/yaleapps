@@ -1,15 +1,15 @@
 import { Hono } from "hono";
-import { getNextEvent, updateEventStatus } from "../services/calendar";
 import { sendGroupMeMessage } from "../services/groupme";
 import type { GroupMeWebhook } from "../types/groupme";
-import { Bindings } from "..";
+import type { GoogleCalendar } from "../services/calendar";
+import type { Bindings } from "..";
 
-const commands = {
+const createCommands = (googleCalendar: GoogleCalendar) => ({
 	"!open": async (calendarId: string) => {
-		const nextEvent = await getNextEvent(calendarId);
+		const nextEvent = await googleCalendar.getNextEvent(calendarId);
 		if (!nextEvent?.id) return "No upcoming events found";
 
-		const success = await updateEventStatus(
+		const success = await googleCalendar.updateEventStatus(
 			calendarId,
 			nextEvent.id,
 			"confirmed",
@@ -20,10 +20,10 @@ const commands = {
 		return "Failed to update event status";
 	},
 	"!closed": async (calendarId: string) => {
-		const nextEvent = await getNextEvent(calendarId);
+		const nextEvent = await googleCalendar.getNextEvent(calendarId);
 		if (!nextEvent?.id) return "No upcoming events found";
 
-		const success = await updateEventStatus(
+		const success = await googleCalendar.updateEventStatus(
 			calendarId,
 			nextEvent.id,
 			"cancelled",
@@ -33,11 +33,13 @@ const commands = {
 		}
 		return "Failed to update event status";
 	},
-};
+});
 
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/", async (c) => {
+	const googleCalendar = c.get("calendar");
+	const commands = createCommands(googleCalendar);
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
 
@@ -63,7 +65,7 @@ app.post("/", async (c) => {
 	}
 });
 
-managersRoutes.post("/listen", async (c) => {
+app.post("/listen", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
 

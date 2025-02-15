@@ -15,6 +15,7 @@ const app = new Hono<{ Bindings: Bindings }>();
  * - At 10:00 PM: Checks calendar and sends the final status to all students
  */
 app.get("/", async (c) => {
+	const googleCalendar = c.get("calendar");
 	const requestManagerConfirmation = async () => {
 		await sendGroupMeMessage(
 			"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
@@ -22,7 +23,7 @@ app.get("/", async (c) => {
 	};
 
 	const sendStatusToStudents = async () => {
-		const isOpen = await isButteryOpen({
+		const isOpen = await isButteryOpen(googleCalendar, {
 			calendarId: c.env.GRACE_HOPPER_CALENDAR_ID,
 			timeToCheck: new Date(),
 		});
