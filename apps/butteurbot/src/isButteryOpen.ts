@@ -79,17 +79,3 @@ export async function isButteryOpen(
 		return false;
 	}
 }
-
-// Validate required environment variables
-const calendarId = process.env.GRACE_HOPPER_CALENDAR_ID;
-if (!calendarId) {
-	console.error(
-		"Grace Hopper Calendar ID not configured in environment variables",
-	);
-	process.exit(1);
-}
-
-// Example usage: Check if the Buttery is currently open
-isButteryOpen({ calendarId, timeToCheck: new Date() }).then((isOpen) => {
-	console.log(`The Buttery is currently ${isOpen ? "open" : "closed"}`);
-});
