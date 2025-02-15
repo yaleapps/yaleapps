@@ -34,9 +34,9 @@ const commands = {
 	},
 };
 
-export const managersRoutes = new Hono();
+const app = new Hono();
 
-managersRoutes.post("/", async (c) => {
+app.post("/", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
 
@@ -116,3 +116,5 @@ async function markAsClosed(message: string) {
 		return false;
 	}
 }
+
+export default app;

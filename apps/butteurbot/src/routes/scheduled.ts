@@ -1,7 +1,10 @@
 import { Hono } from "hono";
+import type { Bindings } from "..";
 import { isButteryOpen } from "../isButteryOpen";
 import { sendGroupMeMessage } from "../services/groupme";
 import { getCurrentEasternHour } from "../utils/time";
+
+const app = new Hono<{ Bindings: Bindings }>();
 
 /**
  * Scheduled route handler that manages automated Buttery status checks and notifications.
@@ -11,7 +14,24 @@ import { getCurrentEasternHour } from "../utils/time";
  * - At 4:00 PM: Sends a message to managers requesting confirmation of Buttery status
  * - At 10:00 PM: Checks calendar and sends the final status to all students
  */
-export const scheduledRoute = new Hono().get("/", async (c) => {
+app.get("/", async (c) => {
+	const requestManagerConfirmation = async () => {
+		await sendGroupMeMessage(
+			"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
+		);
+	};
+
+	const sendStatusToStudents = async () => {
+		const isOpen = await isButteryOpen({
+			calendarId: c.env.GRACE_HOPPER_CALENDAR_ID,
+			timeToCheck: new Date(),
+		});
+		const message = isOpen
+			? "The Buttery is OPEN tonight!"
+			: "The Buttery is CLOSED tonight.";
+		await sendGroupMeMessage(message);
+	};
+
 	const currentEasternHour = getCurrentEasternHour();
 	const is4pm = currentEasternHour === 16;
 	const is10pm = currentEasternHour === 22;
@@ -25,26 +45,4 @@ export const scheduledRoute = new Hono().get("/", async (c) => {
 	return c.text("Scheduled task completed successfully");
 });
 
-async function requestManagerConfirmation() {
-	await sendGroupMeMessage(
-		"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
-	);
-}
-
-async function sendStatusToStudents() {
-	const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
-	if (!calendarId) {
-		console.error("Calendar ID not configured");
-		return;
-	}
-
-	const isOpen = await isButteryOpen({
-		calendarId,
-		timeToCheck: new Date(),
-	});
-
-	const message = isOpen
-		? "The Buttery is OPEN tonight!"
-		: "The Buttery is CLOSED tonight.";
-	await sendGroupMeMessage(message);
-}
+export default app;
