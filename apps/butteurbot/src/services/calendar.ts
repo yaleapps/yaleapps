@@ -1,6 +1,5 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
-import { calendar } from "../config/google";
 
 const credentials = {
 	email: process.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL ?? "",
