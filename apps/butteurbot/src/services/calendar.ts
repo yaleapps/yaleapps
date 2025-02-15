@@ -119,47 +119,43 @@ function createGoogleCalendar({
 		return response.json<calendar_v3.Schema$Event>();
 	}
 
-	async function getNextEvent(
-		calendarId: string,
-	): Promise<calendar_v3.Schema$Event | null> {
-		try {
-			const now = new Date();
-
-			const events = await listEvents(calendarId, {
-				timeMin: now.toISOString(),
-				maxResults: 1,
-				singleEvents: true,
-				orderBy: "startTime",
-			});
-
-			return events.items?.[0] ?? null;
-		} catch (error) {
-			console.error("Error fetching next event:", error);
-			return null;
-		}
-	}
-
-	async function updateEventStatus(
-		calendarId: string,
-		eventId: string,
-		status: "confirmed" | "cancelled",
-	): Promise<boolean> {
-		try {
-			const event = await getEvent(calendarId, eventId);
-			const updatedEvent = await updateEvent(calendarId, eventId, {
-				...event,
-				status,
-			} satisfies calendar_v3.Schema$Event);
-			return !!updatedEvent;
-		} catch (error) {
-			console.error("Error updating event status:", error);
-			return false;
-		}
-	}
-
 	return {
 		listEvents,
-		getNextEvent,
-		updateEventStatus,
+		getNextEvent: async (
+			calendarId: string,
+		): Promise<calendar_v3.Schema$Event | null> => {
+			try {
+				const now = new Date();
+
+				const events = await listEvents(calendarId, {
+					timeMin: now.toISOString(),
+					maxResults: 1,
+					singleEvents: true,
+					orderBy: "startTime",
+				});
+
+				return events.items?.[0] ?? null;
+			} catch (error) {
+				console.error("Error fetching next event:", error);
+				return null;
+			}
+		},
+		updateEventStatus: async (
+			calendarId: string,
+			eventId: string,
+			status: "confirmed" | "cancelled",
+		): Promise<boolean> => {
+			try {
+				const event = await getEvent(calendarId, eventId);
+				const updatedEvent = await updateEvent(calendarId, eventId, {
+					...event,
+					status,
+				} satisfies calendar_v3.Schema$Event);
+				return !!updatedEvent;
+			} catch (error) {
+				console.error("Error updating event status:", error);
+				return false;
+			}
+		},
 	};
 }
