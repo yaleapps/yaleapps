@@ -1,5 +1,7 @@
 import type { GoogleCalendar } from "./services/calendar";
 
+const MS_IN_HOUR = 60 * 60 * 1000;
+
 /**
  * Checks if the Buttery is open at a specific time by looking for calendar events
  * that overlap with the given time.
@@ -16,13 +18,12 @@ export async function isButteryOpen(
 ): Promise<boolean> {
 	try {
 		const HOURS_TO_SEARCH = 24;
-		const msInHour = 60 * 60 * 1000;
 
 		const timeWindowStart = new Date(
-			timeToCheck.getTime() - HOURS_TO_SEARCH * msInHour,
+			timeToCheck.getTime() - HOURS_TO_SEARCH * MS_IN_HOUR,
 		);
 		const timeWindowEnd = new Date(
-			timeToCheck.getTime() + HOURS_TO_SEARCH * msInHour,
+			timeToCheck.getTime() + HOURS_TO_SEARCH * MS_IN_HOUR,
 		);
 
 		// Log the search parameters for debugging
