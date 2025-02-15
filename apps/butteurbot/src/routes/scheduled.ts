@@ -7,7 +7,7 @@ const app = new Hono<{ Bindings: Bindings }>();
 
 /**
  * Scheduled route handler that manages automated Buttery status checks and notifications.
- * This route is triggered by Cloudflare Workers cron triggers defined in {@link ../wrangler.toml}
+ * This route is triggered by Cloudflare Workers cron triggers defined in [wrangler.toml](../../wrangler.toml)
  *
  * The route performs different actions based on the current Eastern time:
  * - At 4:00 PM: Sends a message to managers requesting confirmation of Buttery status
