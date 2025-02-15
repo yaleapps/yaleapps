@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import managers from "./routes/managers";
 import scheduled from "./routes/scheduled";
+import { googleCalendar } from "./services/calendar";
 
 export type Bindings = {
 	GRACE_HOPPER_CALENDAR_ID: string;
@@ -9,6 +10,8 @@ export type Bindings = {
 };
 
 export const app = new Hono<{ Bindings: Bindings }>();
+
+app.use(googleCalendar);
 
 app.route("/scheduled", scheduled);
 app.route("/gh/managers", managers);
