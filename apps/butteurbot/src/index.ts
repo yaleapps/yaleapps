@@ -6,8 +6,8 @@ import { butteurBot, type GroupMeBot } from "./services/groupme";
 
 export type Bindings = {
 	GRACE_HOPPER_CALENDAR_ID: string;
-	BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
-	BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: string;
+	GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
+	GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: string;
 };
 
 declare module "hono" {

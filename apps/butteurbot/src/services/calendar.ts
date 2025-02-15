@@ -1,17 +1,20 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
 import { createMiddleware } from "hono/factory";
+import type { Bindings } from "..";
 
-export const googleCalendar = createMiddleware(async (c, next) => {
-	c.set(
-		"calendar",
-		createGoogleCalendar({
-			clientEmail: c.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_EMAIL,
-			privateKey: c.env.BUTTEURBOT_GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-		}),
-	);
-	await next();
-});
+export const googleCalendar = createMiddleware<{ Bindings: Bindings }>(
+	async (c, next) => {
+		c.set(
+			"calendar",
+			createGoogleCalendar({
+				clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+				privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+			}),
+		);
+		await next();
+	},
+);
 
 export type GoogleCalendar = ReturnType<typeof createGoogleCalendar>;
 
