@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { getNextEvent, updateEventStatus } from "../services/calendar";
 import { sendGroupMeMessage } from "../services/groupme";
 import type { GroupMeWebhook } from "../types/groupme";
+import { Bindings } from "..";
 
 const commands = {
 	"!open": async (calendarId: string) => {
@@ -34,7 +35,7 @@ const commands = {
 	},
 };
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Bindings }>();
 
 app.post("/", async (c) => {
 	try {
@@ -46,16 +47,10 @@ app.post("/", async (c) => {
 		const isEmptyMessage = !input.trim();
 		if (isEmptyMessage) return c.body(null, 200);
 
-		const calendarId = process.env.BUTTEURBOT_CALENDAR_ID;
-		if (!calendarId) {
-			console.error("Calendar ID not configured");
-			return c.body(null, 200);
-		}
-
 		// Check if the message matches any command
 		for (const [command, handler] of Object.entries(commands)) {
 			if (input.toLowerCase().startsWith(command)) {
-				const response = await handler(calendarId);
+				const response = await handler(c.env.GRACE_HOPPER_CALENDAR_ID);
 				await sendGroupMeMessage(response);
 				return c.body(null, 200);
 			}
