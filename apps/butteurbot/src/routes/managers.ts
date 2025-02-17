@@ -2,16 +2,16 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
 import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
-import type { GoogleCalendar } from "../services/calendar";
+import type { GoogleCalendarService } from "../services/calendar";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-const createCommands = (googleCalendar: GoogleCalendar) => ({
+const createCommands = (googleCalendarService: GoogleCalendarService) => ({
 	"!open": async (calendarId: string) => {
-		const nextEvent = await googleCalendar.getNextEvent(calendarId);
+		const nextEvent = await googleCalendarService.getNextEvent(calendarId);
 		if (!nextEvent?.id) return "No upcoming events found";
 
-		const success = await googleCalendar.updateEventStatus(
+		const success = await googleCalendarService.updateEventStatus(
 			calendarId,
 			nextEvent.id,
 			"confirmed",
@@ -22,10 +22,10 @@ const createCommands = (googleCalendar: GoogleCalendar) => ({
 		return "Failed to update event status";
 	},
 	"!closed": async (calendarId: string) => {
-		const nextEvent = await googleCalendar.getNextEvent(calendarId);
+		const nextEvent = await googleCalendarService.getNextEvent(calendarId);
 		if (!nextEvent?.id) return "No upcoming events found";
 
-		const success = await googleCalendar.updateEventStatus(
+		const success = await googleCalendarService.updateEventStatus(
 			calendarId,
 			nextEvent.id,
 			"cancelled",
@@ -41,8 +41,8 @@ app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 	const groupMeWebhookPayload = c.req.valid("json");
 	const { text, sender_type } = groupMeWebhookPayload;
 	const butteurBot = c.get("butteurBot");
-	const googleCalendar = c.get("calendar");
-	const commands = createCommands(googleCalendar);
+	const googleCalendarService = c.get("calendar");
+	const commands = createCommands(googleCalendarService);
 
 	try {
 		const isMessageFromBot = sender_type === "bot";

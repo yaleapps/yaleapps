@@ -1,4 +1,4 @@
-import type { GoogleCalendar } from "./services/calendar";
+import type { GoogleCalendarService } from "./services/calendar";
 
 const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 const SEARCH_WINDOW_HOURS = 4;
@@ -8,7 +8,7 @@ const SEARCH_WINDOW_HOURS = 4;
  * that overlap with the given time.
  */
 export async function isButteryOpen(
-	googleCalendar: GoogleCalendar,
+	googleCalendarService: GoogleCalendarService,
 	{
 		calendarId,
 		targetTime,
@@ -32,7 +32,7 @@ export async function isButteryOpen(
 			targetTime: targetTime.toISOString(),
 		});
 
-		const eventsInSearchWindow = await googleCalendar.listEvents(calendarId, {
+		const eventsInSearchWindow = await googleCalendarService.listEvents(calendarId, {
 			timeMin: searchWindowStart.toISOString(),
 			timeMax: searchWindowEnd.toISOString(),
 			singleEvents: true,

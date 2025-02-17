@@ -1,7 +1,10 @@
 import { Hono } from "hono";
 import managers from "./routes/managers";
 import scheduled from "./routes/scheduled";
-import { type GoogleCalendar, googleCalendar } from "./services/calendar";
+import {
+	type GoogleCalendarService,
+	googleCalendarService,
+} from "./services/calendar";
 import { butteurBot, type GroupMeBot } from "./services/groupme";
 
 export type Bindings = {
@@ -12,14 +15,14 @@ export type Bindings = {
 
 declare module "hono" {
 	interface ContextVariableMap {
-		calendar: GoogleCalendar;
+		calendar: GoogleCalendarService;
 		butteurBot: GroupMeBot;
 	}
 }
 
 export const app = new Hono<{ Bindings: Bindings }>();
 
-app.use(googleCalendar);
+app.use(googleCalendarService);
 app.use(butteurBot);
 
 app.route("/scheduled", scheduled);
