@@ -32,7 +32,7 @@ export async function isButteryOpen(
 			targetTime: targetTime.toISOString(),
 		});
 
-		const eventsInSearchWindow = await googleCalendarService.listEvents(calendarId, {
+		const eventsInSearchWindow = await googleCalendarService.listEvents({
 			timeMin: searchWindowStart.toISOString(),
 			timeMax: searchWindowEnd.toISOString(),
 			singleEvents: true,

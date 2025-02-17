@@ -7,12 +7,11 @@ import type { GoogleCalendarService } from "../services/calendar";
 const app = new Hono<{ Bindings: Bindings }>();
 
 const createCommands = (googleCalendarService: GoogleCalendarService) => ({
-	"!open": async (calendarId: string) => {
-		const nextEvent = await googleCalendarService.getNextEvent(calendarId);
+	"!open": async () => {
+		const nextEvent = await googleCalendarService.getNextEvent();
 		if (!nextEvent?.id) return "No upcoming events found";
 
 		const success = await googleCalendarService.updateEventStatus(
-			calendarId,
 			nextEvent.id,
 			"confirmed",
 		);
@@ -21,12 +20,11 @@ const createCommands = (googleCalendarService: GoogleCalendarService) => ({
 		}
 		return "Failed to update event status";
 	},
-	"!closed": async (calendarId: string) => {
-		const nextEvent = await googleCalendarService.getNextEvent(calendarId);
+	"!closed": async () => {
+		const nextEvent = await googleCalendarService.getNextEvent();
 		if (!nextEvent?.id) return "No upcoming events found";
 
 		const success = await googleCalendarService.updateEventStatus(
-			calendarId,
 			nextEvent.id,
 			"cancelled",
 		);

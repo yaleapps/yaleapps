@@ -10,6 +10,7 @@ export const googleCalendarService = createMiddleware<{ Bindings: Bindings }>(
 			createGoogleCalendarService({
 				clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 				privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+				calendarId: c.env.CALENDAR_ID_GH,
 			}),
 		);
 		await next();
@@ -23,9 +24,11 @@ export type GoogleCalendarService = ReturnType<
 function createGoogleCalendarService({
 	clientEmail,
 	privateKey,
+	calendarId,
 }: {
 	clientEmail: string;
 	privateKey: string;
+	calendarId: string;
 }) {
 	const auth = new GoogleAuth(
 		{
@@ -61,7 +64,6 @@ function createGoogleCalendarService({
 	}
 
 	async function listEvents(
-		calendarId: string,
 		params: Omit<calendar_v3.Params$Resource$Events$List, "calendarId">,
 	): Promise<calendar_v3.Schema$Events> {
 		const searchParams = new URLSearchParams();
@@ -82,10 +84,7 @@ function createGoogleCalendarService({
 		return response.json<calendar_v3.Schema$Events>();
 	}
 
-	async function getEvent(
-		calendarId: string,
-		eventId: string,
-	): Promise<calendar_v3.Schema$Event> {
+	async function getEvent(eventId: string): Promise<calendar_v3.Schema$Event> {
 		const response = await fetchWithAuth({
 			endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
 				eventId,
@@ -100,7 +99,6 @@ function createGoogleCalendarService({
 	}
 
 	async function updateEvent(
-		calendarId: string,
 		eventId: string,
 		event: Partial<calendar_v3.Schema$Event>,
 	): Promise<calendar_v3.Schema$Event> {
@@ -126,13 +124,11 @@ function createGoogleCalendarService({
 
 	return {
 		listEvents,
-		getNextEvent: async (
-			calendarId: string,
-		): Promise<calendar_v3.Schema$Event | null> => {
+		getNextEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
 			try {
 				const now = new Date();
 
-				const events = await listEvents(calendarId, {
+				const events = await listEvents({
 					timeMin: now.toISOString(),
 					maxResults: 1,
 					singleEvents: true,
@@ -146,13 +142,12 @@ function createGoogleCalendarService({
 			}
 		},
 		updateEventStatus: async (
-			calendarId: string,
 			eventId: string,
 			status: "confirmed" | "cancelled",
 		): Promise<boolean> => {
 			try {
-				const event = await getEvent(calendarId, eventId);
-				const updatedEvent = await updateEvent(calendarId, eventId, {
+				const event = await getEvent(eventId);
+				const updatedEvent = await updateEvent(eventId, {
 					...event,
 					status,
 				} satisfies calendar_v3.Schema$Event);
