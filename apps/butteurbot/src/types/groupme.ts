@@ -1,7 +1,38 @@
 import { type } from "arktype";
 
 export const groupMeWebhook = type({
-	attachments: "object[]",
+	attachments: type({
+		type: "'image'",
+		url: "string",
+	})
+		.or(
+			type({
+				type: "'video'",
+				url: "string",
+				preview_url: "string",
+			}),
+		)
+		.or(
+			type({
+				type: "'file'",
+				file_id: "string",
+			}),
+		)
+		.or(
+			type({
+				type: "'location'",
+				name: "string",
+				lat: "string",
+				lng: "string",
+			}),
+		)
+		.or(
+			type({
+				type: "'emoji'",
+				placeholder: "string",
+				charmap: [["number", "number"], "[]"],
+			}),
+		),
 	avatar_url: "string.url",
 	created_at: "number",
 	group_id: "string",
