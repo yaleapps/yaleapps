@@ -15,7 +15,7 @@ export type Bindings = {
 
 declare module "hono" {
 	interface ContextVariableMap {
-		calendar: GoogleCalendarService;
+		"services.googleCalendar": GoogleCalendarService;
 		butteurBot: GroupMeBot;
 	}
 }

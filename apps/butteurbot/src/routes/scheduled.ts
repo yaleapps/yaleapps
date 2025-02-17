@@ -14,7 +14,7 @@ const app = new Hono<{ Bindings: Bindings }>();
  * - At 10:00 PM: Checks calendar and sends the final status to all students
  */
 app.get("/", async (c) => {
-	const googleCalendarService = c.get("calendar");
+	const googleCalendarService = c.get("services.googleCalendar");
 	const butteurBot = c.get("butteurBot");
 
 	const currentEasternHour = getCurrentEasternHour();

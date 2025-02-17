@@ -6,7 +6,7 @@ import type { Bindings } from "..";
 export const googleCalendarService = createMiddleware<{ Bindings: Bindings }>(
 	async (c, next) => {
 		c.set(
-			"calendar",
+			"services.googleCalendar",
 			createGoogleCalendarService({
 				clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
 				privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
