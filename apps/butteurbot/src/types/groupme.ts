@@ -1,6 +1,6 @@
 import { type } from "arktype";
 
-export const groupMeWebhook = type({
+export const groupMeWebhookPayload = type({
 	attachments: [
 		type({
 			type: "'image'",
@@ -54,5 +54,5 @@ export const groupMeBotMessage = type({
 });
 
 // Export inferred types if needed
-export type GroupMeWebhook = typeof groupMeWebhook.infer;
+export type GroupMeWebhook = typeof groupMeWebhookPayload.infer;
 export type GroupMeBotMessage = typeof groupMeBotMessage.infer;

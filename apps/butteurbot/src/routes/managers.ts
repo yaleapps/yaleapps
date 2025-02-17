@@ -1,11 +1,11 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
-import { type GroupMeWebhook, groupMeWebhook } from "../types/groupme";
+import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.post("/", arktypeValidator("json", groupMeWebhook), async (c) => {
+app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 	const commands = {
 		"!open": async (calendarId: string) => {
 			const nextEvent = await googleCalendar.getNextEvent(calendarId);
