@@ -37,8 +37,8 @@ app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 		},
 	};
 
-	const groupmeWebhookPayload = c.req.valid("json");
-	const { text, sender_type } = groupmeWebhookPayload;
+	const groupMeWebhookPayload = c.req.valid("json");
+	const { text, sender_type } = groupMeWebhookPayload;
 	const butteurBot = c.get("butteurBot");
 	const googleCalendar = c.get("calendar");
 
