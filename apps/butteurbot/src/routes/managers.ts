@@ -1,48 +1,47 @@
+import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
-import type { GroupMeWebhook } from "../types/groupme";
-import type { GoogleCalendar } from "../services/calendar";
 import type { Bindings } from "..";
-
-const createCommands = (googleCalendar: GoogleCalendar) => ({
-	"!open": async (calendarId: string) => {
-		const nextEvent = await googleCalendar.getNextEvent(calendarId);
-		if (!nextEvent?.id) return "No upcoming events found";
-
-		const success = await googleCalendar.updateEventStatus(
-			calendarId,
-			nextEvent.id,
-			"confirmed",
-		);
-		if (success) {
-			return `Updated event "${nextEvent.summary}" status to confirmed`;
-		}
-		return "Failed to update event status";
-	},
-	"!closed": async (calendarId: string) => {
-		const nextEvent = await googleCalendar.getNextEvent(calendarId);
-		if (!nextEvent?.id) return "No upcoming events found";
-
-		const success = await googleCalendar.updateEventStatus(
-			calendarId,
-			nextEvent.id,
-			"cancelled",
-		);
-		if (success) {
-			return `Updated event "${nextEvent.summary}" status to cancelled`;
-		}
-		return "Failed to update event status";
-	},
-});
+import { type GroupMeWebhook, groupMeWebhook } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-app.post("/", async (c) => {
+app.post("/", arktypeValidator("json", groupMeWebhook), async (c) => {
+	const commands = {
+		"!open": async (calendarId: string) => {
+			const nextEvent = await googleCalendar.getNextEvent(calendarId);
+			if (!nextEvent?.id) return "No upcoming events found";
+
+			const success = await googleCalendar.updateEventStatus(
+				calendarId,
+				nextEvent.id,
+				"confirmed",
+			);
+			if (success) {
+				return `Updated event "${nextEvent.summary}" status to confirmed`;
+			}
+			return "Failed to update event status";
+		},
+		"!closed": async (calendarId: string) => {
+			const nextEvent = await googleCalendar.getNextEvent(calendarId);
+			if (!nextEvent?.id) return "No upcoming events found";
+
+			const success = await googleCalendar.updateEventStatus(
+				calendarId,
+				nextEvent.id,
+				"cancelled",
+			);
+			if (success) {
+				return `Updated event "${nextEvent.summary}" status to cancelled`;
+			}
+			return "Failed to update event status";
+		},
+	};
+
+	const { text: input, sender_type } = c.req.valid("json");
 	const butteurBot = c.get("butteurBot");
 	const googleCalendar = c.get("calendar");
-	const commands = createCommands(googleCalendar);
-	try {
-		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
 
+	try {
 		const isMessageFromBot = sender_type === "bot";
 		if (isMessageFromBot) return c.body(null, 200);
 
