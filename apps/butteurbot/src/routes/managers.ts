@@ -39,7 +39,7 @@ app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 	const groupMeWebhookPayload = c.req.valid("json");
 	const { text, sender_type } = groupMeWebhookPayload;
 	const butteurBot = c.get("butteurBot");
-	const googleCalendarService = c.get("services.googleCalendar");
+	const googleCalendarService = c.get("calendars.gh");
 	const commands = createCommands(googleCalendarService);
 
 	try {
@@ -52,7 +52,7 @@ app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 		// Check if the message matches any command
 		for (const [command, handler] of Object.entries(commands)) {
 			if (text.toLowerCase().startsWith(command)) {
-				const response = await handler(c.env.CALENDAR_ID_GH);
+				const response = await handler();
 				await butteurBot.sendGroupMeMessage(response);
 				return c.body(null, 200);
 			}
