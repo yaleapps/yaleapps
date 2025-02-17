@@ -5,6 +5,7 @@
 		"deploy": "wrangler deploy --minify"
 	},
 	"dependencies": {
+		"@hono/arktype-validator": "^2.0.0",
 		"arktype": "^2.0.4",
 		"cloudflare-workers-and-google-oauth": "^2.0.0",
 		"hono": "^4.6.16"
@@ -12,6 +13,6 @@
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250109.0",
 		"@googleapis/calendar": "^9.7.9",
-		"wrangler": "^3.101.0"
+		"wrangler": "^3.109.1"
 	}
 }
