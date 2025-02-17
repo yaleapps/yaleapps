@@ -16,6 +16,11 @@ const app = new Hono<{ Bindings: Bindings }>();
 app.get("/", async (c) => {
 	const googleCalendar = c.get("calendar");
 	const butteurBot = c.get("butteurBot");
+
+	const currentEasternHour = getCurrentEasternHour();
+	const is4pm = currentEasternHour === 16;
+	const is10pm = currentEasternHour === 22;
+
 	const requestManagerConfirmation = async () => {
 		await butteurBot.sendGroupMeMessage(
 			"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
@@ -33,10 +38,6 @@ app.get("/", async (c) => {
 		console.log("🚀 ~ sendStatusToStudents ~ message:", message);
 		// await butteurBot.sendGroupMeMessage(message);
 	};
-
-	const currentEasternHour = getCurrentEasternHour();
-	const is4pm = currentEasternHour === 16;
-	const is10pm = currentEasternHour === 22;
 
 	if (is4pm) {
 		await requestManagerConfirmation();
