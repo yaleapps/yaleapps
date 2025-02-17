@@ -44,10 +44,10 @@ app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
 
 	try {
 		const isMessageFromBot = sender_type === "bot";
-		if (isMessageFromBot) return c.body(null, 200);
-
 		const isEmptyMessage = !text.trim();
-		if (isEmptyMessage) return c.body(null, 200);
+		const shouldSkip = isMessageFromBot || isEmptyMessage;
+
+		if (shouldSkip) return c.body(null, 200);
 
 		// Check if the message matches any command
 		for (const [command, handler] of Object.entries(commands)) {
