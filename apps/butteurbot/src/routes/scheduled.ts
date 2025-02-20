@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: Bindings }>();
  * - At 10:00 PM: Checks calendar and sends the final status to all students
  */
 app.get("/", async (c) => {
-	const { butterySchedules, groupmeBots } = c.var.services;
+	const { butterySchedules, groupMeBots } = c.var.services;
 
 	const currentEasternHour = getCurrentEasternHour();
 	const is4pm = currentEasternHour === 16;
@@ -20,7 +20,7 @@ app.get("/", async (c) => {
 
 	if (is4pm) {
 		const requestManagerConfirmation = async () => {
-			await groupmeBots["gh.managers"].sendGroupMeMessage(
+			await groupMeBots["gh.managers"].sendGroupMeMessage(
 				"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
 			);
 		};
@@ -31,7 +31,7 @@ app.get("/", async (c) => {
 			const message = isOpen
 				? "The Buttery is OPEN tonight!"
 				: "The Buttery is CLOSED tonight.";
-			await groupmeBots["gh.students"].sendGroupMeMessage(message);
+			await groupMeBots["gh.students"].sendGroupMeMessage(message);
 		};
 		await sendStatusToStudents();
 	}

@@ -35,7 +35,7 @@ app.post(
 	async (c) => {
 		const groupMeWebhookPayload = c.req.valid("json");
 		const { text, sender_type } = groupMeWebhookPayload;
-		const { groupmeBots, butterySchedules } = c.var.services;
+		const { groupMeBots, butterySchedules } = c.var.services;
 		const ghManagerCommands = createManagerCommands(butterySchedules.gh);
 
 		try {
@@ -49,7 +49,7 @@ app.post(
 			for (const [command, handler] of Object.entries(ghManagerCommands)) {
 				if (text.toLowerCase().startsWith(command)) {
 					const response = await handler();
-					await groupmeBots["gh.managers"].sendGroupMeMessage(response);
+					await groupMeBots["gh.managers"].sendGroupMeMessage(response);
 					return c.body(null, 200);
 				}
 			}
@@ -65,7 +65,7 @@ app.post(
 app.post("/listen", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
-		const { groupmeBots } = c.var.services;
+		const { groupMeBots } = c.var.services;
 
 		const markAsOpen = async (message: string) => {
 			try {
