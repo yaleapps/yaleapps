@@ -27,7 +27,7 @@ app.get("/", async (c) => {
 		await requestManagerConfirmation();
 	} else if (is10pm) {
 		const sendStatusToStudents = async () => {
-			const isOpen = await calendars.gh.isButteryOpen(new Date());
+			const isOpen = await calendars.gh.isOpenNow();
 			const message = isOpen
 				? "The Buttery is OPEN tonight!"
 				: "The Buttery is CLOSED tonight.";

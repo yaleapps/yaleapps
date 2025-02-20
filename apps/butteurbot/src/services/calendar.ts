@@ -91,36 +91,6 @@ export function createGoogleCalendarService({
 		}
 	}
 
-	async function updateEvent(
-		eventId: string,
-		event: Partial<calendar_v3.Schema$Event>,
-	): Promise<calendar_v3.Schema$Event> {
-		try {
-			const response = await fetchWithAuth({
-				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-					eventId,
-				)}`,
-				options: {
-					method: "PATCH",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(event),
-				},
-			});
-
-			if (!response.ok) {
-				throw new Error(`${response.statusText} ${await response.text()}`);
-			}
-
-			return response.json<calendar_v3.Schema$Event>();
-		} catch (error) {
-			throw new Error(
-				`Failed to update event: ${getMessageFromUnknownError(error)}`,
-			);
-		}
-	}
-
 	return {
 		listEvents,
 		getNextEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
@@ -140,19 +110,33 @@ export function createGoogleCalendarService({
 				);
 			}
 		},
-		updateEventStatus: async (
+		updateEvent: async (
 			eventId: string,
-			status: "confirmed" | "cancelled",
+			event: Partial<calendar_v3.Schema$Event>,
 		): Promise<calendar_v3.Schema$Event> => {
 			try {
-				const event = await getEvent(eventId);
-				const updatedEvent = await updateEvent(eventId, {
-					...event,
-					status,
-				} satisfies calendar_v3.Schema$Event);
-				return updatedEvent;
+				const response = await fetchWithAuth({
+					endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+						eventId,
+					)}`,
+					options: {
+						method: "PATCH",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify(event),
+					},
+				});
+
+				if (!response.ok) {
+					throw new Error(`${response.statusText} ${await response.text()}`);
+				}
+
+				return response.json<calendar_v3.Schema$Event>();
 			} catch (error) {
-				throw new Error(`Error updating event status: ${error}`);
+				throw new Error(
+					`Failed to update event: ${getMessageFromUnknownError(error)}`,
+				);
 			}
 		},
 		isButteryOpen: async (targetTime: Date): Promise<boolean> => {

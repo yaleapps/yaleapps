@@ -1,38 +1,31 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
+import type { ButteryScheduleService } from "../services/butterySchedule";
 import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
-import type { GoogleCalendarService } from "../services/calendar";
-import { servicesMiddleware } from "../services";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-const createCommands = (googleCalendarService: GoogleCalendarService) => ({
+const createManagerCommands = (
+	butteryScheduleService: ButteryScheduleService,
+) => ({
 	"!open": async () => {
-		const nextEvent = await googleCalendarService.getNextEvent();
-		if (!nextEvent?.id) return "No upcoming events found";
-
-		const success = await googleCalendarService.updateEventStatus(
-			nextEvent.id,
-			"confirmed",
-		);
-		if (success) {
-			return `Updated event "${nextEvent.summary}" status to confirmed`;
+		try {
+			await butteryScheduleService.updateNextEventStatus("confirmed");
+			return "Updated event status to confirmed";
+		} catch (error) {
+			console.error("Error updating event status:", error);
+			return "Failed to update event status";
 		}
-		return "Failed to update event status";
 	},
 	"!closed": async () => {
-		const nextEvent = await googleCalendarService.getNextEvent();
-		if (!nextEvent?.id) return "No upcoming events found";
-
-		const success = await googleCalendarService.updateEventStatus(
-			nextEvent.id,
-			"cancelled",
-		);
-		if (success) {
-			return `Updated event "${nextEvent.summary}" status to cancelled`;
+		try {
+			await butteryScheduleService.updateNextEventStatus("cancelled");
+			return "Updated event status to cancelled";
+		} catch (error) {
+			console.error("Error updating event status:", error);
+			return "Failed to update event status";
 		}
-		return "Failed to update event status";
 	},
 });
 
@@ -43,7 +36,7 @@ app.post(
 		const groupMeWebhookPayload = c.req.valid("json");
 		const { text, sender_type } = groupMeWebhookPayload;
 		const { groupmeBots, calendars } = c.var.services;
-		const commands = createCommands(calendars.gh);
+		const ghManagerCommands = createManagerCommands(calendars.gh);
 
 		try {
 			const isMessageFromBot = sender_type === "bot";
@@ -53,7 +46,7 @@ app.post(
 			if (shouldSkip) return c.body(null, 200);
 
 			// Check if the message matches any command
-			for (const [command, handler] of Object.entries(commands)) {
+			for (const [command, handler] of Object.entries(ghManagerCommands)) {
 				if (text.toLowerCase().startsWith(command)) {
 					const response = await handler();
 					await groupmeBots["gh.managers"].sendGroupMeMessage(response);
@@ -72,7 +65,7 @@ app.post(
 app.post("/listen", async (c) => {
 	try {
 		const { text: input, sender_type } = await c.req.json<GroupMeWebhook>();
-		const butteurBot = c.get("butteurBot");
+		const { groupmeBots } = c.var.services;
 
 		const markAsOpen = async (message: string) => {
 			try {

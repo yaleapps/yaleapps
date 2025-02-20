@@ -70,5 +70,18 @@ export function createButteryScheduleService(
 				return false;
 			}
 		},
+		updateNextEventStatus: async (status: "confirmed" | "cancelled") => {
+			try {
+				const nextEvent = await googleCalendarService.getNextEvent();
+				if (!nextEvent?.id) throw new Error("No upcoming events found");
+				const updatedEvent = await googleCalendarService.updateEvent(
+					nextEvent.id,
+					{ ...nextEvent, status },
+				);
+				return updatedEvent;
+			} catch (error) {
+				throw new Error(`Error updating event status: ${error}`);
+			}
+		},
 	};
 }
