@@ -19,8 +19,6 @@ function createGroupMeBots(c: Context<{ Bindings: Bindings }>) {
 	};
 }
 
-export type GroupMeBot = ReturnType<typeof createGroupMeBot>;
-
 export function createGroupMeBot(botId: string) {
 	return {
 		sendGroupMeMessage: async (text: string) => {
