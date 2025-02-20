@@ -5,7 +5,9 @@ import { servicesMiddleware } from "./services";
 
 export type Bindings = {
 	CALENDAR_ID_GH: string;
-	GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
+	GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL: string;
+	GOOGLE_SERVICE_ACCOUNT_CLIENT_ID: string;
+	GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID: string;
 	GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: string;
 	GROUPME_GH_MANAGERS_BOT_ID: string;
 	GROUPME_GH_STUDENTS_BOT_ID: string;

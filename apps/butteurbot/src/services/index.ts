@@ -29,7 +29,9 @@ function createServices(c: Context<{ Bindings: Bindings }>) {
 		butterySchedules: {
 			gh: createButteryScheduleService(
 				createGoogleCalendarService({
-					clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+					clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+					clientId: c.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_ID,
+					privateKeyId: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
 					privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
 					calendarId: c.env.CALENDAR_ID_GH,
 				}),
