@@ -3,6 +3,7 @@ import type { GroupMeBotMessage } from "../types/groupme";
 import type { Bindings } from "..";
 import type { Context } from "hono";
 import { createGoogleCalendarService } from "./calendar";
+import { createButteryScheduleService } from "./butterySchedule";
 
 declare module "hono" {
 	interface ContextVariableMap {
@@ -26,11 +27,13 @@ function createServices(c: Context<{ Bindings: Bindings }>) {
 			"gh.students": createGroupMeBot(c.env.GROUPME_GH_STUDENTS_BOT_ID),
 		},
 		calendars: {
-			gh: createGoogleCalendarService({
-				clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-				privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-				calendarId: c.env.CALENDAR_ID_GH,
-			}),
+			gh: createButteryScheduleService(
+				createGoogleCalendarService({
+					clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+					privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+					calendarId: c.env.CALENDAR_ID_GH,
+				}),
+			),
 		},
 	};
 }
