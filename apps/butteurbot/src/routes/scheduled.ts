@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { Bindings } from "..";
 import { isButteryOpen } from "../isButteryOpen";
-import { getCurrentEasternHour } from "../utils/time";
+import { getCurrentEasternHour } from "../utils";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
