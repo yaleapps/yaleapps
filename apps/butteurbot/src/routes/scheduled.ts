@@ -13,8 +13,7 @@ const app = new Hono<{ Bindings: Bindings }>();
  * - At 10:00 PM: Checks calendar and sends the final status to all students
  */
 app.get("/", async (c) => {
-	const googleCalendarService = c.get("calendars.gh");
-	const groupmeBots = c.get("groupmeBots");
+	const { calendars, groupmeBots } = c.var.services;
 
 	const currentEasternHour = getCurrentEasternHour();
 	const is4pm = currentEasternHour === 16;
@@ -29,7 +28,7 @@ app.get("/", async (c) => {
 		await requestManagerConfirmation();
 	} else if (is10pm) {
 		const sendStatusToStudents = async () => {
-			const isOpen = await isButteryOpen(googleCalendarService, {
+			const isOpen = await isButteryOpen(calendars.gh, {
 				calendarId: c.env.CALENDAR_ID_GH,
 				targetTime: new Date(),
 			});

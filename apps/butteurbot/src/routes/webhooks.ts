@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import type { Bindings } from "..";
 import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
 import type { GoogleCalendarService } from "../services/calendar";
+import { servicesMiddleware } from "../services";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -35,35 +36,38 @@ const createCommands = (googleCalendarService: GoogleCalendarService) => ({
 	},
 });
 
-app.post("/", arktypeValidator("json", groupMeWebhookPayload), async (c) => {
-	const groupMeWebhookPayload = c.req.valid("json");
-	const { text, sender_type } = groupMeWebhookPayload;
-	const butteurBot = c.get("butteurBot");
-	const calendarsGh = c.get("calendars.gh");
-	const commands = createCommands(calendarsGh);
+app.post(
+	"/gh/managers",
+	arktypeValidator("json", groupMeWebhookPayload),
+	async (c) => {
+		const groupMeWebhookPayload = c.req.valid("json");
+		const { text, sender_type } = groupMeWebhookPayload;
+		const { groupmeBots, calendars } = c.var.services;
+		const commands = createCommands(calendars.gh);
 
-	try {
-		const isMessageFromBot = sender_type === "bot";
-		const isEmptyMessage = !text.trim();
-		const shouldSkip = isMessageFromBot || isEmptyMessage;
+		try {
+			const isMessageFromBot = sender_type === "bot";
+			const isEmptyMessage = !text.trim();
+			const shouldSkip = isMessageFromBot || isEmptyMessage;
 
-		if (shouldSkip) return c.body(null, 200);
+			if (shouldSkip) return c.body(null, 200);
 
-		// Check if the message matches any command
-		for (const [command, handler] of Object.entries(commands)) {
-			if (text.toLowerCase().startsWith(command)) {
-				const response = await handler();
-				await butteurBot.sendGroupMeMessage(response);
-				return c.body(null, 200);
+			// Check if the message matches any command
+			for (const [command, handler] of Object.entries(commands)) {
+				if (text.toLowerCase().startsWith(command)) {
+					const response = await handler();
+					await groupmeBots["gh.managers"].sendGroupMeMessage(response);
+					return c.body(null, 200);
+				}
 			}
-		}
 
-		return c.body(null, 200);
-	} catch (error) {
-		console.error("Error processing GroupMe webhook:", error);
-		return c.body(null, 200);
-	}
-});
+			return c.body(null, 200);
+		} catch (error) {
+			console.error("Error processing GroupMe webhook:", error);
+			return c.body(null, 200);
+		}
+	},
+);
 
 app.post("/listen", async (c) => {
 	try {

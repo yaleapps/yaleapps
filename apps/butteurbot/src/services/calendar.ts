@@ -1,28 +1,12 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
-import { createMiddleware } from "hono/factory";
-import type { Bindings } from "..";
 import { getMessageFromUnknownError } from "../utils";
-
-export const googleCalendarService = createMiddleware<{ Bindings: Bindings }>(
-	async (c, next) => {
-		c.set(
-			"calendars.gh",
-			createGoogleCalendarService({
-				clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-				privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-				calendarId: c.env.CALENDAR_ID_GH,
-			}),
-		);
-		await next();
-	},
-);
 
 export type GoogleCalendarService = ReturnType<
 	typeof createGoogleCalendarService
 >;
 
-function createGoogleCalendarService({
+export function createGoogleCalendarService({
 	clientEmail,
 	privateKey,
 	calendarId,

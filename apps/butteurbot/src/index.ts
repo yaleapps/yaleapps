@@ -1,11 +1,7 @@
 import { Hono } from "hono";
-import managers from "./routes/managers";
 import scheduled from "./routes/scheduled";
-import {
-	type GoogleCalendarService,
-	googleCalendarService,
-} from "./services/calendar";
-import { butteurBot, type GroupMeBots } from "./services/groupme";
+import webhooks from "./routes/webhooks";
+import { servicesMiddleware } from "./services";
 
 export type Bindings = {
 	CALENDAR_ID_GH: string;
@@ -15,20 +11,12 @@ export type Bindings = {
 	GROUPME_GH_STUDENTS_BOT_ID: string;
 };
 
-declare module "hono" {
-	interface ContextVariableMap {
-		"calendars.gh": GoogleCalendarService;
-		groupmeBots: GroupMeBots;
-	}
-}
-
 export const app = new Hono<{ Bindings: Bindings }>();
 
-app.use(googleCalendarService);
-app.use(butteurBot);
+app.use(servicesMiddleware);
 
 app.route("/scheduled", scheduled);
-app.route("/webhooks/gh/managers", managers);
+app.route("/webhooks", webhooks);
 // app.route("/webhooks/gh/students", students);
 
 // Listen for messages from managers that hint at the Buttery being open or closed for the day. If so, ask them to confirm
