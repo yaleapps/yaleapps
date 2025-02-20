@@ -5,18 +5,20 @@ import {
 	type GoogleCalendarService,
 	googleCalendarService,
 } from "./services/calendar";
-import { butteurBot, type GroupMeBot } from "./services/groupme";
+import { butteurBot, type GroupMeBots } from "./services/groupme";
 
 export type Bindings = {
 	CALENDAR_ID_GH: string;
 	GOOGLE_SERVICE_ACCOUNT_EMAIL: string;
 	GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: string;
+	GROUPME_GH_MANAGERS_BOT_ID: string;
+	GROUPME_GH_STUDENTS_BOT_ID: string;
 };
 
 declare module "hono" {
 	interface ContextVariableMap {
 		"calendars.gh": GoogleCalendarService;
-		butteurBot: GroupMeBot;
+		groupmeBots: GroupMeBots;
 	}
 }
 
