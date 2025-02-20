@@ -2,6 +2,7 @@ import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
 import { createMiddleware } from "hono/factory";
 import type { Bindings } from "..";
+import { getMessageFromUnknownError } from "../utils";
 
 export const googleCalendarService = createMiddleware<{ Bindings: Bindings }>(
 	async (c, next) => {
@@ -73,88 +74,101 @@ function createGoogleCalendarService({
 			}
 		}
 
-		const response = await fetchWithAuth({
-			endpoint: `/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
-		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to list events: ${response.statusText}`);
+		try {
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events?${searchParams}`,
+			});
+			if (!response.ok) {
+				throw new Error(`${response.statusText} ${await response.text()}`);
+			}
+			return response.json<calendar_v3.Schema$Events>();
+		} catch (error) {
+			throw new Error(
+				`Failed to list events: ${getMessageFromUnknownError(error)}`,
+			);
 		}
-
-		return response.json<calendar_v3.Schema$Events>();
 	}
 
 	async function getEvent(eventId: string): Promise<calendar_v3.Schema$Event> {
-		const response = await fetchWithAuth({
-			endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-				eventId,
-			)}`,
-		});
-
-		if (!response.ok) {
-			throw new Error(`Failed to get event: ${response.statusText}`);
+		try {
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+					eventId,
+				)}`,
+			});
+			if (!response.ok) {
+				throw new Error(`${response.statusText} ${await response.text()}`);
+			}
+			return response.json<calendar_v3.Schema$Event>();
+		} catch (error) {
+			throw new Error(
+				`Failed to get event: ${getMessageFromUnknownError(error)}`,
+			);
 		}
-
-		return response.json<calendar_v3.Schema$Event>();
 	}
 
 	async function updateEvent(
 		eventId: string,
 		event: Partial<calendar_v3.Schema$Event>,
 	): Promise<calendar_v3.Schema$Event> {
-		const response = await fetchWithAuth({
-			endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-				eventId,
-			)}`,
-			options: {
-				method: "PATCH",
-				headers: {
-					"Content-Type": "application/json",
+		try {
+			const response = await fetchWithAuth({
+				endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
+					eventId,
+				)}`,
+				options: {
+					method: "PATCH",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify(event),
 				},
-				body: JSON.stringify(event),
-			},
-		});
+			});
 
-		if (!response.ok) {
-			throw new Error(`Failed to update event: ${response.statusText}`);
+			if (!response.ok) {
+				throw new Error(`${response.statusText} ${await response.text()}`);
+			}
+
+			return response.json<calendar_v3.Schema$Event>();
+		} catch (error) {
+			throw new Error(
+				`Failed to update event: ${getMessageFromUnknownError(error)}`,
+			);
 		}
-
-		return response.json<calendar_v3.Schema$Event>();
 	}
 
 	return {
 		listEvents,
 		getNextEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
-			try {
-				const now = new Date();
+			const now = new Date();
 
+			try {
 				const events = await listEvents({
 					timeMin: now.toISOString(),
 					maxResults: 1,
 					singleEvents: true,
 					orderBy: "startTime",
 				});
-
 				return events.items?.[0] ?? null;
 			} catch (error) {
-				console.error("Error fetching next event:", error);
-				return null;
+				throw new Error(
+					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+				);
 			}
 		},
 		updateEventStatus: async (
 			eventId: string,
 			status: "confirmed" | "cancelled",
-		): Promise<boolean> => {
+		): Promise<calendar_v3.Schema$Event> => {
 			try {
 				const event = await getEvent(eventId);
 				const updatedEvent = await updateEvent(eventId, {
 					...event,
 					status,
 				} satisfies calendar_v3.Schema$Event);
-				return !!updatedEvent;
+				return updatedEvent;
 			} catch (error) {
-				console.error("Error updating event status:", error);
-				return false;
+				throw new Error(`Error updating event status: ${error}`);
 			}
 		},
 	};
