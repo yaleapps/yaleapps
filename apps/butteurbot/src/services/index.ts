@@ -26,7 +26,7 @@ function createServices(c: Context<{ Bindings: Bindings }>) {
 			"gh.managers": createGroupMeBot(c.env.GROUPME_GH_MANAGERS_BOT_ID),
 			"gh.students": createGroupMeBot(c.env.GROUPME_GH_STUDENTS_BOT_ID),
 		},
-		calendars: {
+		butterySchedules: {
 			gh: createButteryScheduleService(
 				createGoogleCalendarService({
 					clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,

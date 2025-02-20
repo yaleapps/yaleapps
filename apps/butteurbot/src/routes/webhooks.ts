@@ -35,8 +35,8 @@ app.post(
 	async (c) => {
 		const groupMeWebhookPayload = c.req.valid("json");
 		const { text, sender_type } = groupMeWebhookPayload;
-		const { groupmeBots, calendars } = c.var.services;
-		const ghManagerCommands = createManagerCommands(calendars.gh);
+		const { groupmeBots, butterySchedules } = c.var.services;
+		const ghManagerCommands = createManagerCommands(butterySchedules.gh);
 
 		try {
 			const isMessageFromBot = sender_type === "bot";
