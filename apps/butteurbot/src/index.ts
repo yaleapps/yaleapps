@@ -15,7 +15,7 @@ export type Bindings = {
 
 declare module "hono" {
 	interface ContextVariableMap {
-		"services.googleCalendar": GoogleCalendarService;
+		"calendars.gh": GoogleCalendarService;
 		butteurBot: GroupMeBot;
 	}
 }
@@ -27,6 +27,7 @@ app.use(butteurBot);
 
 app.route("/scheduled", scheduled);
 app.route("/webhooks/gh/managers", managers);
+// app.route("/webhooks/gh/students", students);
 
 // Listen for messages from managers that hint at the Buttery being open or closed for the day. If so, ask them to confirm
 // app.post("/gh/managers/listen", async (c) => {
