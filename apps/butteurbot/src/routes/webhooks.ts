@@ -65,4 +65,30 @@ app.post(
 	},
 );
 
+app.post(
+	"/gh/students",
+	arktypeValidator("json", groupMeWebhookPayload),
+	async (c) => {
+		const groupMeWebhookPayload = c.req.valid("json");
+		const { text, sender_type } = groupMeWebhookPayload;
+		const { groupMeBots, butterySchedules } = c.var.services;
+
+		if (sender_type !== "user") return c.body(null, 200);
+
+		if (
+			text.toLowerCase().includes("is the buttery open") ||
+			text.toLowerCase().includes("is the buttery closed")
+		) {
+			const isOpen = await butterySchedules.gh.isOpenNow();
+			const message = isOpen
+				? "The Buttery is OPEN tonight!"
+				: "The Buttery is CLOSED tonight.";
+			await groupMeBots["gh.students"].sendGroupMeMessage(message);
+			return c.body(null, 200);
+		}
+
+		return c.body(null, 200);
+	},
+);
+
 export default app;
