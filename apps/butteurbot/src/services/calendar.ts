@@ -155,5 +155,67 @@ export function createGoogleCalendarService({
 				throw new Error(`Error updating event status: ${error}`);
 			}
 		},
+		isButteryOpen: async (targetTime: Date): Promise<boolean> => {
+			const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
+			const SEARCH_WINDOW_HOURS = 4;
+			try {
+				const searchWindowStart = new Date(
+					targetTime.getTime() - SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
+				);
+				const searchWindowEnd = new Date(
+					targetTime.getTime() + SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
+				);
+				console.log("Searching for Buttery events in time window:", {
+					searchWindowStart: searchWindowStart.toISOString(),
+					searchWindowEnd: searchWindowEnd.toISOString(),
+					targetTime: targetTime.toISOString(),
+				});
+
+				const eventsInSearchWindow = await listEvents({
+					timeMin: searchWindowStart.toISOString(),
+					timeMax: searchWindowEnd.toISOString(),
+					singleEvents: true,
+					orderBy: "startTime",
+				});
+
+				console.log(
+					"Found Buttery events:",
+					eventsInSearchWindow.items?.map((event) => ({
+						start: event.start?.dateTime,
+						end: event.end?.dateTime,
+						summary: event.summary,
+					})),
+				);
+
+				const isTargetTimeWithinEvent = eventsInSearchWindow.items?.some(
+					(event) => {
+						if (!event.start?.dateTime || !event.end?.dateTime) {
+							console.warn("Found event with invalid date format:", event);
+							return false;
+						}
+
+						const eventStartTime = new Date(event.start.dateTime);
+						const eventEndTime = new Date(event.end.dateTime);
+						const isWithinEvent =
+							targetTime >= eventStartTime && targetTime <= eventEndTime;
+
+						if (isWithinEvent) {
+							console.log("Matching Buttery event found:", {
+								start: event.start.dateTime,
+								end: event.end.dateTime,
+								summary: event.summary,
+							});
+						}
+
+						return isWithinEvent;
+					},
+				);
+
+				return isTargetTimeWithinEvent ?? false;
+			} catch (error) {
+				console.error("Error checking Buttery hours:", error);
+				return false;
+			}
+		},
 	};
 }
