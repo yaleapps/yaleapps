@@ -6,29 +6,6 @@ import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
-const createManagerCommands = (
-	butteryScheduleService: ButteryScheduleService,
-) => ({
-	"!open": async () => {
-		try {
-			await butteryScheduleService.updateNextEventStatus("confirmed");
-			return "Updated event status to confirmed";
-		} catch (error) {
-			console.error("Error updating event status:", error);
-			return "Failed to update event status";
-		}
-	},
-	"!closed": async () => {
-		try {
-			await butteryScheduleService.updateNextEventStatus("cancelled");
-			return "Updated event status to cancelled";
-		} catch (error) {
-			console.error("Error updating event status:", error);
-			return "Failed to update event status";
-		}
-	},
-});
-
 app.post(
 	"/gh/managers",
 	arktypeValidator("json", groupMeWebhookPayload),
@@ -36,7 +13,27 @@ app.post(
 		const groupMeWebhookPayload = c.req.valid("json");
 		const { text, sender_type } = groupMeWebhookPayload;
 		const { groupMeBots, butterySchedules } = c.var.services;
-		const ghManagerCommands = createManagerCommands(butterySchedules.gh);
+
+		const ghManagerCommands = {
+			"!open": async () => {
+				try {
+					await butterySchedules.gh.updateNextEventStatus("confirmed");
+					return "Updated event status to confirmed";
+				} catch (error) {
+					console.error("Error updating event status:", error);
+					return "Failed to update event status";
+				}
+			},
+			"!closed": async () => {
+				try {
+					await butterySchedules.gh.updateNextEventStatus("cancelled");
+					return "Updated event status to cancelled";
+				} catch (error) {
+					console.error("Error updating event status:", error);
+					return "Failed to update event status";
+				}
+			},
+		};
 
 		try {
 			const isMessageFromBot = sender_type === "bot";
@@ -69,7 +66,7 @@ app.post("/listen", async (c) => {
 
 		const markAsOpen = async (message: string) => {
 			try {
-				await butteurBot.sendGroupMeMessage(
+				await groupMeBots["gh.managers"].sendGroupMeMessage(
 					`Marking as open based on message: "${message}"`,
 				);
 				return true;
@@ -81,7 +78,7 @@ app.post("/listen", async (c) => {
 
 		const markAsClosed = async (message: string) => {
 			try {
-				await butteurBot.sendGroupMeMessage(
+				await groupMeBots["gh.managers"].sendGroupMeMessage(
 					`Marking as closed based on message: "${message}"`,
 				);
 				return true;
