@@ -22,7 +22,7 @@ type Services = ReturnType<typeof createServices>;
 
 function createServices(c: Context<{ Bindings: Bindings }>) {
 	return {
-		groupmeBots: {
+		groupMeBots: {
 			"gh.managers": createGroupMeBot(c.env.GROUPME_GH_MANAGERS_BOT_ID),
 			"gh.students": createGroupMeBot(c.env.GROUPME_GH_STUDENTS_BOT_ID),
 		},
