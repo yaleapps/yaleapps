@@ -70,17 +70,20 @@ export function createButteryScheduleService(
 				return false;
 			}
 		},
-		updateNextEventStatus: async (status: "confirmed" | "cancelled") => {
+		markNextShiftAs: async (status: "open" | "closed") => {
 			try {
 				const nextEvent = await googleCalendarService.getNextEvent();
 				if (!nextEvent?.id) throw new Error("No upcoming events found");
 				const updatedEvent = await googleCalendarService.updateEvent(
 					nextEvent.id,
-					{ ...nextEvent, status },
+					{
+						...nextEvent,
+						status: status === "open" ? "confirmed" : "cancelled",
+					},
 				);
 				return updatedEvent;
 			} catch (error) {
-				throw new Error(`Error updating event status: ${error}`);
+				throw new Error(`Error marking next shift as ${status}: ${error}`);
 			}
 		},
 	};

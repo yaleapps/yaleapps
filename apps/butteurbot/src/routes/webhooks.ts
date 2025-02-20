@@ -1,7 +1,6 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
-import type { ButteryScheduleService } from "../services/butterySchedule";
 import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -17,20 +16,28 @@ app.post(
 		const ghManagerCommands = {
 			"!open": async () => {
 				try {
-					await butterySchedules.gh.updateNextEventStatus("confirmed");
-					return "Updated event status to confirmed";
+					await butterySchedules.gh.markNextShiftAs("open");
+					await groupMeBots["gh.managers"].sendGroupMeMessage(
+						"Marked as open!",
+					);
 				} catch (error) {
 					console.error("Error updating event status:", error);
-					return "Failed to update event status";
+					await groupMeBots["gh.managers"].sendGroupMeMessage(
+						"Error marking next shift as open. Please try again.",
+					);
 				}
 			},
 			"!closed": async () => {
 				try {
-					await butterySchedules.gh.updateNextEventStatus("cancelled");
-					return "Updated event status to cancelled";
+					await butterySchedules.gh.markNextShiftAs("closed");
+					await groupMeBots["gh.managers"].sendGroupMeMessage(
+						"Marked as closed!",
+					);
 				} catch (error) {
 					console.error("Error updating event status:", error);
-					return "Failed to update event status";
+					await groupMeBots["gh.managers"].sendGroupMeMessage(
+						"Error marking next shift as closed. Please try again.",
+					);
 				}
 			},
 		};
@@ -45,8 +52,7 @@ app.post(
 			// Check if the message matches any command
 			for (const [command, handler] of Object.entries(ghManagerCommands)) {
 				if (text.toLowerCase().startsWith(command)) {
-					const response = await handler();
-					await groupMeBots["gh.managers"].sendGroupMeMessage(response);
+					await handler();
 					return c.body(null, 200);
 				}
 			}
