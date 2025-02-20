@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import type { Bindings } from "..";
-import { isButteryOpen } from "../isButteryOpen";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -28,10 +27,7 @@ app.get("/", async (c) => {
 		await requestManagerConfirmation();
 	} else if (is10pm) {
 		const sendStatusToStudents = async () => {
-			const isOpen = await isButteryOpen(calendars.gh, {
-				calendarId: c.env.CALENDAR_ID_GH,
-				targetTime: new Date(),
-			});
+			const isOpen = await calendars.gh.isButteryOpen(new Date());
 			const message = isOpen
 				? "The Buttery is OPEN tonight!"
 				: "The Buttery is CLOSED tonight.";
