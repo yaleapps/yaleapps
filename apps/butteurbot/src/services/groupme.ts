@@ -1,13 +1,25 @@
 import { createMiddleware } from "hono/factory";
 import type { GroupMeBotMessage } from "../types/groupme";
 import type { Bindings } from "..";
+import type { Context } from "hono";
 
 export const butteurBot = createMiddleware<{ Bindings: Bindings }>(
 	async (c, next) => {
-		c.set("butteurBot", createGroupMeBot(c.env.BUTTEURBOT_GROUPME_BOT_ID));
+		c.set("groupmeBots", createGroupMeBots(c));
 		await next();
 	},
 );
+
+export type GroupMeBots = ReturnType<typeof createGroupMeBots>;
+
+function createGroupMeBots(c: Context<{ Bindings: Bindings }>) {
+	return {
+		gh: {
+			managers: createGroupMeBot(c.env.GROUPME_GH_MANAGERS_BOT_ID),
+			students: createGroupMeBot(c.env.GROUPME_GH_STUDENTS_BOT_ID),
+		},
+	};
+}
 
 export type GroupMeBot = ReturnType<typeof createGroupMeBot>;
 

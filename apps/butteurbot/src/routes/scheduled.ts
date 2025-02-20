@@ -15,33 +15,30 @@ const app = new Hono<{ Bindings: Bindings }>();
  */
 app.get("/", async (c) => {
 	const googleCalendarService = c.get("calendars.gh");
-	const butteurBot = c.get("butteurBot");
+	const groupmeBots = c.get("groupmeBots");
 
 	const currentEasternHour = getCurrentEasternHour();
 	const is4pm = currentEasternHour === 16;
 	const is10pm = currentEasternHour === 22;
 
-	const requestManagerConfirmation = async () => {
-		await butteurBot.sendGroupMeMessage(
-			"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
-		);
-	};
-
-	const sendStatusToStudents = async () => {
-		const isOpen = await isButteryOpen(googleCalendarService, {
-			calendarId: c.env.CALENDAR_ID_GH,
-			targetTime: new Date(),
-		});
-		const message = isOpen
-			? "The Buttery is OPEN tonight!"
-			: "The Buttery is CLOSED tonight.";
-		console.log("🚀 ~ sendStatusToStudents ~ message:", message);
-		// await butteurBot.sendGroupMeMessage(message);
-	};
-
 	if (is4pm) {
+		const requestManagerConfirmation = async () => {
+			await groupmeBots["gh.managers"].sendGroupMeMessage(
+				"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
+			);
+		};
 		await requestManagerConfirmation();
 	} else if (is10pm) {
+		const sendStatusToStudents = async () => {
+			const isOpen = await isButteryOpen(googleCalendarService, {
+				calendarId: c.env.CALENDAR_ID_GH,
+				targetTime: new Date(),
+			});
+			const message = isOpen
+				? "The Buttery is OPEN tonight!"
+				: "The Buttery is CLOSED tonight.";
+			await groupmeBots["gh.students"].sendGroupMeMessage(message);
+		};
 		await sendStatusToStudents();
 	}
 
