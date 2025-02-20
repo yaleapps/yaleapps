@@ -1,7 +1,6 @@
 import { Hono } from "hono";
 import type { Bindings } from "..";
 import { isButteryOpen } from "../isButteryOpen";
-import { getCurrentEasternHour } from "../utils";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -44,5 +43,18 @@ app.get("/", async (c) => {
 
 	return c.text("Scheduled task completed successfully");
 });
+
+/**
+ * Get the current hour in Eastern Time (automatically handles EDT/EST)
+ */
+function getCurrentEasternHour(): number {
+	return Number.parseInt(
+		new Intl.DateTimeFormat("en-US", {
+			timeZone: "America/New_York",
+			hour: "numeric",
+			hour12: false,
+		}).format(new Date()),
+	);
+}
 
 export default app;
