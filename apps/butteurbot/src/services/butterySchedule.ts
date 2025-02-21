@@ -1,4 +1,4 @@
-import { isWithinInterval } from "date-fns";
+import { isWithinInterval, subHours, addHours } from "date-fns";
 import type { GoogleCalendarService } from "./calendar";
 import { getMessageFromUnknownError } from "../utils";
 
@@ -17,15 +17,10 @@ export function createButteryScheduleService(
 			| "should be closed according to the Buttery schedule"
 		> => {
 			const now = new Date();
-			const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 			const SEARCH_WINDOW_HOURS = 4;
 			try {
-				const searchWindowStart = new Date(
-					now.getTime() - SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
-				);
-				const searchWindowEnd = new Date(
-					now.getTime() + SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
-				);
+				const searchWindowStart = subHours(now, SEARCH_WINDOW_HOURS);
+				const searchWindowEnd = addHours(now, SEARCH_WINDOW_HOURS);
 
 				const eventsInSearchWindow = await googleCalendarService.listEvents({
 					timeMin: searchWindowStart.toISOString(),
@@ -39,8 +34,8 @@ export function createButteryScheduleService(
 						if (!event.start?.dateTime || !event.end?.dateTime) return false;
 
 						const isEventContainingNow = isWithinInterval(now, {
-							start: event.start.dateTime,
-							end: event.end.dateTime,
+							start: new Date(event.start.dateTime),
+							end: new Date(event.end.dateTime),
 						});
 
 						return isEventContainingNow;
