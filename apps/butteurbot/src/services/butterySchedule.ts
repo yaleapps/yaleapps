@@ -1,4 +1,6 @@
+import { isWithinInterval } from "date-fns";
 import type { GoogleCalendarService } from "./calendar";
+import { getMessageFromUnknownError } from "../utils";
 
 export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
@@ -8,7 +10,12 @@ export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
 ) {
 	return {
-		isOpenNow: async (): Promise<boolean> => {
+		isOpenNow: async (): Promise<
+			| "is open (confirmed by managers)"
+			| "is closed (confirmed by managers)"
+			| "should be open according to the Buttery schedule (awaiting confirmation by managers)"
+			| "should be closed according to the Buttery schedule"
+		> => {
 			const now = new Date();
 			const MILLISECONDS_PER_HOUR = 60 * 60 * 1000;
 			const SEARCH_WINDOW_HOURS = 4;
@@ -19,11 +26,6 @@ export function createButteryScheduleService(
 				const searchWindowEnd = new Date(
 					now.getTime() + SEARCH_WINDOW_HOURS * MILLISECONDS_PER_HOUR,
 				);
-				console.log("Searching for Buttery events in time window:", {
-					searchWindowStart: searchWindowStart.toISOString(),
-					searchWindowEnd: searchWindowEnd.toISOString(),
-					targetTime: now.toISOString(),
-				});
 
 				const eventsInSearchWindow = await googleCalendarService.listEvents({
 					timeMin: searchWindowStart.toISOString(),
@@ -32,54 +34,47 @@ export function createButteryScheduleService(
 					orderBy: "startTime",
 				});
 
-				console.log(
-					"Found Buttery events:",
-					eventsInSearchWindow.items?.map((event) => ({
-						start: event.start?.dateTime,
-						end: event.end?.dateTime,
-						summary: event.summary,
-					})),
-				);
+				const eventsContainingNow =
+					eventsInSearchWindow.items?.filter((event) => {
+						if (!event.start?.dateTime || !event.end?.dateTime) return false;
 
-				const isTargetTimeWithinEvent = eventsInSearchWindow.items?.some(
-					(event) => {
-						if (!event.start?.dateTime || !event.end?.dateTime) {
-							console.warn("Found event with invalid date format:", event);
-							return false;
-						}
+						const isEventContainingNow = isWithinInterval(now, {
+							start: event.start.dateTime,
+							end: event.end.dateTime,
+						});
 
-						const eventStartTime = new Date(event.start.dateTime);
-						const eventEndTime = new Date(event.end.dateTime);
-						const isWithinEvent = now >= eventStartTime && now <= eventEndTime;
+						return isEventContainingNow;
+					}) ?? [];
 
-						if (isWithinEvent) {
-							console.log("Matching Buttery event found:", {
-								start: event.start.dateTime,
-								end: event.end.dateTime,
-								summary: event.summary,
-							});
-						}
+				if (eventsContainingNow.length === 0) {
+					return "should be closed according to the Buttery schedule";
+				}
 
-						return isWithinEvent;
-					},
-				);
+				for (const event of eventsContainingNow) {
+					if (event.summary?.startsWith("[CLOSED]")) {
+						return "is closed (confirmed by managers)";
+					}
 
-				return isTargetTimeWithinEvent ?? false;
+					if (event.summary?.startsWith("[OPEN]")) {
+						return "is open (confirmed by managers)";
+					}
+				}
+
+				return "should be open according to the Buttery schedule (awaiting confirmation by managers)";
 			} catch (error) {
-				console.error("Error checking Buttery hours:", error);
-				return false;
+				throw new Error(
+					`Error checking Buttery hours: ${getMessageFromUnknownError(error)}`,
+				);
 			}
 		},
 		markNextShiftAs: async (status: "open" | "closed") => {
 			try {
 				const nextEvent = await googleCalendarService.getNextEvent();
 				if (!nextEvent?.id) throw new Error("No upcoming events found");
-				const updatedEvent = await googleCalendarService.updateEvent(
+
+				const updatedEvent = await googleCalendarService.updateEventStatus(
 					nextEvent.id,
-					{
-						...nextEvent,
-						status: status === "open" ? "confirmed" : "cancelled",
-					},
+					status,
 				);
 				return updatedEvent;
 			} catch (error) {
