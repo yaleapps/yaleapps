@@ -17,27 +17,19 @@ app.post(
 			"!open": async () => {
 				try {
 					await butterySchedules.gh.markNextShiftAs("OPEN");
-					await groupMeBots["gh.managers"].sendGroupMeMessage(
-						"Marked as open!",
-					);
+					return "Marked next shift as open!";
 				} catch (error) {
 					console.error("Error updating event status:", error);
-					await groupMeBots["gh.managers"].sendGroupMeMessage(
-						"Error marking next shift as open. Please try again.",
-					);
+					return "Error marking next shift as open. Please try again.";
 				}
 			},
 			"!closed": async () => {
 				try {
 					await butterySchedules.gh.markNextShiftAs("CLOSED");
-					await groupMeBots["gh.managers"].sendGroupMeMessage(
-						"Marked as closed!",
-					);
+					return "Marked next shift as closed!";
 				} catch (error) {
 					console.error("Error updating event status:", error);
-					await groupMeBots["gh.managers"].sendGroupMeMessage(
-						"Error marking next shift as closed. Please try again.",
-					);
+					return "Error marking next shift as closed. Please try again.";
 				}
 			},
 		};
@@ -49,10 +41,10 @@ app.post(
 
 			if (shouldSkip) return c.body(null, 200);
 
-			// Check if the message matches any command
 			for (const [command, handler] of Object.entries(ghManagerCommands)) {
 				if (text.toLowerCase().startsWith(command)) {
-					await handler();
+					const msg = await handler();
+					await groupMeBots["gh.managers"].sendGroupMeMessage(msg);
 					return c.body(null, 200);
 				}
 			}
