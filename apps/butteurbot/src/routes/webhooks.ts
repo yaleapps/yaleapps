@@ -29,7 +29,9 @@ app.post(
 						new Date(updatedNextShift.start.dateTime),
 						"America/New_York",
 					);
-					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as open!`;
+					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as open!
+
+See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as open. Please try again.";
@@ -48,7 +50,9 @@ app.post(
 						new Date(updatedNextShift.start.dateTime),
 						"America/New_York",
 					);
-					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as closed!`;
+					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as closed!
+
+See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as closed. Please try again.";
