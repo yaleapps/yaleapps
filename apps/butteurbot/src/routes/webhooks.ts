@@ -1,6 +1,7 @@
 import { arktypeValidator } from "@hono/arktype-validator";
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { Hono } from "hono";
-import { format, parseISO } from "date-fns";
 import type { Bindings } from "..";
 import { groupMeWebhookPayload } from "../types/groupme";
 
@@ -24,7 +25,11 @@ app.post(
 						return "Marked next shift as open! (Date information unavailable)";
 					}
 
-					return `Marked next shift on ${format(new Date(updatedNextShift.start.dateTime), "MMMM d, yyyy")} as open!`;
+					const nyDate = toZonedTime(
+						new Date(updatedNextShift.start.dateTime),
+						"America/New_York",
+					);
+					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as open!`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as open. Please try again.";
@@ -39,7 +44,11 @@ app.post(
 						return "Marked next shift as closed! (Date information unavailable)";
 					}
 
-					return `Marked next shift on ${format(new Date(updatedNextShift.start.dateTime), "MMMM d, yyyy")} as closed!`;
+					const nyDate = toZonedTime(
+						new Date(updatedNextShift.start.dateTime),
+						"America/New_York",
+					);
+					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as closed!`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as closed. Please try again.";
