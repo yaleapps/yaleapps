@@ -32,6 +32,9 @@ app.post(
 					return "Error marking next shift as closed. Please try again.";
 				}
 			},
+			"!help": async () => {
+				return "Available commands:\n!open (mark next shift as confirmed open)\n!closed (mark next shift as confirmed closed)";
+			},
 		};
 
 		try {
