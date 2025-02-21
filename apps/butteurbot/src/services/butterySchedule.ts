@@ -67,16 +67,47 @@ export function createButteryScheduleService(
 				);
 			}
 		},
-		markNextShiftAs: async (status: "open" | "closed") => {
+		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
+			const COLORS = { OPEN: "2", CLOSED: "11" } as const;
+			const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 			try {
 				const nextEvent = await googleCalendarService.getNextEvent();
-				if (!nextEvent?.id) throw new Error("No upcoming events found");
+				if (
+					!nextEvent?.id ||
+					nextEvent.summary === null ||
+					nextEvent.summary === undefined
+				) {
+					throw new Error("No upcoming events found");
+				}
 
-				const updatedEvent = await googleCalendarService.updateEventStatus(
-					nextEvent.id,
-					status,
-				);
-				return updatedEvent;
+				const summaryWithoutPrefix = nextEvent.summary
+					?.replace(STATUS_PREFIXES.OPEN, "")
+					.replace(STATUS_PREFIXES.CLOSED, "");
+
+				switch (status) {
+					case "OPEN": {
+						const updatedEvent = await googleCalendarService.updateEvent(
+							nextEvent.id,
+							{
+								...nextEvent,
+								colorId: COLORS.OPEN,
+								summary: `${STATUS_PREFIXES.OPEN}${summaryWithoutPrefix}`,
+							},
+						);
+						return updatedEvent;
+					}
+					case "CLOSED": {
+						const updatedEvent = await googleCalendarService.updateEvent(
+							nextEvent.id,
+							{
+								...nextEvent,
+								colorId: COLORS.CLOSED,
+								summary: `${STATUS_PREFIXES.CLOSED}${summaryWithoutPrefix}`,
+							},
+						);
+						return updatedEvent;
+					}
+				}
 			} catch (error) {
 				throw new Error(`Error marking next shift as ${status}: ${error}`);
 			}

@@ -1,7 +1,7 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
-import { type GroupMeWebhook, groupMeWebhookPayload } from "../types/groupme";
+import { groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -16,7 +16,7 @@ app.post(
 		const ghManagerCommands = {
 			"!open": async () => {
 				try {
-					await butterySchedules.gh.markNextShiftAs("open");
+					await butterySchedules.gh.markNextShiftAs("OPEN");
 					await groupMeBots["gh.managers"].sendGroupMeMessage(
 						"Marked as open!",
 					);
@@ -29,7 +29,7 @@ app.post(
 			},
 			"!closed": async () => {
 				try {
-					await butterySchedules.gh.markNextShiftAs("closed");
+					await butterySchedules.gh.markNextShiftAs("CLOSED");
 					await groupMeBots["gh.managers"].sendGroupMeMessage(
 						"Marked as closed!",
 					);
@@ -70,20 +70,28 @@ app.post(
 	arktypeValidator("json", groupMeWebhookPayload),
 	async (c) => {
 		const groupMeWebhookPayload = c.req.valid("json");
-		const { text, sender_type } = groupMeWebhookPayload;
-		const { groupMeBots, butterySchedules } = c.var.services;
 
-		if (sender_type !== "user") return c.body(null, 200);
+		if (groupMeWebhookPayload.sender_type !== "user") return c.body(null, 200);
 
-		if (
-			text.toLowerCase().includes("is the buttery open") ||
-			text.toLowerCase().includes("is the buttery closed")
-		) {
-			const isOpen = await butterySchedules.gh.isOpenNow();
+		const butteryStatusKeywords = [
+			"is the buttery open",
+			"is buttery open",
+			"is the buttery closed",
+			"is buttery closed",
+		] as const;
+
+		const isStudentAskingButteryStatus = butteryStatusKeywords.some((keyword) =>
+			groupMeWebhookPayload.text.toLowerCase().includes(keyword),
+		);
+
+		if (isStudentAskingButteryStatus) {
+			const isOpen = await c.var.services.butterySchedules.gh.isOpenNow();
 			const message = isOpen
 				? "The Buttery is OPEN tonight!"
 				: "The Buttery is CLOSED tonight.";
-			await groupMeBots["gh.students"].sendGroupMeMessage(message);
+			await c.var.services.groupMeBots["gh.students"].sendGroupMeMessage(
+				message,
+			);
 			return c.body(null, 200);
 		}
 
