@@ -63,7 +63,6 @@ export function createButteryScheduleService(
 			}
 		},
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
-			const COLORS = { OPEN: "2", CLOSED: "11" } as const;
 			const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 			try {
 				const nextEvent = await googleCalendarService.getNextEvent();
@@ -85,7 +84,6 @@ export function createButteryScheduleService(
 							nextEvent.id,
 							{
 								...nextEvent,
-								colorId: COLORS.OPEN,
 								summary: `${STATUS_PREFIXES.OPEN}${summaryWithoutPrefix}`,
 							},
 						);
@@ -96,7 +94,6 @@ export function createButteryScheduleService(
 							nextEvent.id,
 							{
 								...nextEvent,
-								colorId: COLORS.CLOSED,
 								summary: `${STATUS_PREFIXES.CLOSED}${summaryWithoutPrefix}`,
 							},
 						);
