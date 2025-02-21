@@ -1,5 +1,6 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
+import { format, parseISO } from "date-fns";
 import type { Bindings } from "..";
 import { groupMeWebhookPayload } from "../types/groupme";
 
@@ -16,8 +17,14 @@ app.post(
 		const ghManagerCommands = {
 			"!open": async () => {
 				try {
-					await butterySchedules.gh.markNextShiftAs("OPEN");
-					return "Marked next shift as open!";
+					const updatedNextShift =
+						await butterySchedules.gh.markNextShiftAs("OPEN");
+
+					if (!updatedNextShift?.start?.dateTime) {
+						return "Marked next shift as open! (Date information unavailable)";
+					}
+
+					return `Marked next shift on ${format(new Date(updatedNextShift.start.dateTime), "MMMM d, yyyy")} as open!`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as open. Please try again.";
@@ -25,8 +32,14 @@ app.post(
 			},
 			"!closed": async () => {
 				try {
-					await butterySchedules.gh.markNextShiftAs("CLOSED");
-					return "Marked next shift as closed!";
+					const updatedNextShift =
+						await butterySchedules.gh.markNextShiftAs("CLOSED");
+
+					if (!updatedNextShift?.start?.dateTime) {
+						return "Marked next shift as closed! (Date information unavailable)";
+					}
+
+					return `Marked next shift on ${format(new Date(updatedNextShift.start.dateTime), "MMMM d, yyyy")} as closed!`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as closed. Please try again.";
