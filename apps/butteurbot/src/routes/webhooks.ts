@@ -29,7 +29,7 @@ app.post(
 						new Date(updatedNextShift.start.dateTime),
 						"America/New_York",
 					);
-					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as open!
+					return `Marked next shift on ${format(nyDate, "MMMM d 'at' h:mm a")} as open!
 
 See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
@@ -50,7 +50,7 @@ See on calendar: ${updatedNextShift.htmlLink}`;
 						new Date(updatedNextShift.start.dateTime),
 						"America/New_York",
 					);
-					return `Marked next shift on ${format(nyDate, "MMMM d, yyyy")} as closed!
+					return `Marked next shift on ${format(nyDate, "MMMM d 'at' h:mm a")} as closed!
 
 See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
