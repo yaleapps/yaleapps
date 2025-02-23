@@ -25,11 +25,15 @@ app.post(
 						return "Marked next shift as open! (Date information unavailable)";
 					}
 
-					const nyDate = toZonedTime(
-						new Date(updatedNextShift.start.dateTime),
-						"America/New_York",
-					);
-					return `Marked next shift on ${format(nyDate, "MMMM d 'at' h:mm a")} as open!
+					const formattedDateTime = new Intl.DateTimeFormat("en-US", {
+						timeZone: "America/New_York",
+						month: "long",
+						day: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+					}).format(new Date(updatedNextShift.start.dateTime));
+
+					return `Marked next shift on ${formattedDateTime} as open!
 
 See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
@@ -46,11 +50,15 @@ See on calendar: ${updatedNextShift.htmlLink}`;
 						return "Marked next shift as closed! (Date information unavailable)";
 					}
 
-					const nyDate = toZonedTime(
-						new Date(updatedNextShift.start.dateTime),
-						"America/New_York",
-					);
-					return `Marked next shift on ${format(nyDate, "MMMM d 'at' h:mm a")} as closed!
+					const formattedDateTime = new Intl.DateTimeFormat("en-US", {
+						timeZone: "America/New_York",
+						month: "long",
+						day: "numeric",
+						hour: "numeric",
+						minute: "numeric",
+					}).format(new Date(updatedNextShift.start.dateTime));
+
+					return `Marked next shift on ${formattedDateTime} as closed!
 
 See on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
