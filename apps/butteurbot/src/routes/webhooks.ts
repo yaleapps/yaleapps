@@ -33,7 +33,7 @@ app.post(
 
 					return `Marked next shift on ${formattedDateTime} as open!
 
-See on calendar: ${updatedNextShift.htmlLink}`;
+See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as open. Please try again.";
@@ -58,7 +58,7 @@ See on calendar: ${updatedNextShift.htmlLink}`;
 
 					return `Marked next shift on ${formattedDateTime} as closed!
 
-See on calendar: ${updatedNextShift.htmlLink}`;
+See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 				} catch (error) {
 					console.error("Error updating event status:", error);
 					return "Error marking next shift as closed. Please try again.";
