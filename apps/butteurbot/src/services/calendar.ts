@@ -1,6 +1,8 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
 import { getMessageFromUnknownError } from "../utils";
+import { TZDate } from "@date-fns/tz";
+import { isAfter, isWithinInterval, subDays, subHours } from "date-fns";
 
 export type GoogleCalendarService = ReturnType<
 	typeof createGoogleCalendarService
@@ -97,37 +99,47 @@ export function createGoogleCalendarService({
 
 	return {
 		listEvents,
-		getNextEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
-			const now = new Date();
+		getOngoingOrNextEvent:
+			async (): Promise<calendar_v3.Schema$Event | null> => {
+				try {
+					const now = TZDate.tz("America/New_York");
+					const oneDayAgo = subHours(now, 24);
+					const events = await listEvents({
+						timeMin: oneDayAgo.toISOString(),
+						maxResults: 10,
+						singleEvents: true,
+						orderBy: "startTime",
+					});
 
-			try {
-				const events = await listEvents({
-					timeMin: now.toISOString(),
-					maxResults: 1,
-					singleEvents: true,
-					orderBy: "startTime",
-				});
-				return events.items?.[0] ?? null;
-			} catch (error) {
-				throw new Error(
-					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
-				);
-			}
-		},
+					const ongoingOrNextEvent = events.items?.find((event) => {
+						if (!event.start?.dateTime || !event.end?.dateTime) return false;
+						const isOngoing = isWithinInterval(now, {
+							start: event.start.dateTime,
+							end: event.end.dateTime,
+						});
+						if (isOngoing) return event;
+						const isStartsAfterNow = isAfter(event.start.dateTime, now);
+						if (isStartsAfterNow) return event;
+						return null;
+					});
+
+					return ongoingOrNextEvent ?? null;
+				} catch (error) {
+					throw new Error(
+						`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+					);
+				}
+			},
 		updateEvent: async (
 			eventId: string,
 			event: Partial<calendar_v3.Schema$Event>,
 		): Promise<calendar_v3.Schema$Event> => {
 			try {
 				const response = await fetchWithAuth({
-					endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(
-						eventId,
-					)}`,
+					endpoint: `/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
 					options: {
 						method: "PATCH",
-						headers: {
-							"Content-Type": "application/json",
-						},
+						headers: { "Content-Type": "application/json" },
 						body: JSON.stringify(event),
 					},
 				});
