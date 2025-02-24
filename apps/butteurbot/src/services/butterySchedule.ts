@@ -75,7 +75,6 @@ export function createButteryScheduleService(
 				});
 
 				if (!isShiftTodayExists) return "SHOULD_BE_CLOSED";
-
 				if (ongoingOrNextShift.summary?.startsWith("[CLOSED]")) {
 					return "SHOULD_BE_OPEN_CONFIRMED_CLOSED";
 				}
