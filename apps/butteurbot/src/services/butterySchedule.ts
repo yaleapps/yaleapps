@@ -4,6 +4,10 @@ export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
 >;
 
+export type ButteryOpenStatus = ReturnType<
+	ButteryScheduleService["getButteryOpenStatus"]
+>;
+
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
 ) {

@@ -1,6 +1,7 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
+import type { ButteryOpenStatus } from "../services/butterySchedule";
 import { groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -100,22 +101,38 @@ app.post(
 
 		if (groupMeWebhookPayload.sender_type !== "user") return c.body(null, 200);
 
-		const butteryStatusKeywords = [
-			"is the buttery open",
-			"is buttery open",
-			"is the buttery closed",
-			"is buttery closed",
-		] as const;
-
-		const isStudentAskingButteryStatus = butteryStatusKeywords.some((keyword) =>
+		const isAskingOpen = (
+			[
+				"is the buttery open",
+				"is buttery open",
+				"is the buttery closed",
+				"is buttery closed",
+			] as const
+		).some((keyword) =>
 			groupMeWebhookPayload.text.toLowerCase().includes(keyword),
 		);
 
-		if (isStudentAskingButteryStatus) {
-			const isOpen = await c.var.services.butterySchedules.gh.isOpenNow();
-			const message = isOpen
-				? "The Buttery is OPEN tonight!"
-				: "The Buttery is CLOSED tonight.";
+		if (isAskingOpen) {
+			const butteryScheduleStatus =
+				await c.var.services.butterySchedules.gh.getButteryOpenStatus();
+			const butteryScheduleStatusToMessage = {
+				"SHOULD_BE_OPEN_NOW/CONFIRMED_CLOSED":
+					"The buttery is confirmed closed now!",
+				"SHOULD_BE_OPEN_NOW/CONFIRMED_OPEN":
+					"The buttery is confirmed open now!",
+				SHOULD_BE_OPEN_NOW:
+					"The buttery should be open now according to the Buttery schedule!",
+				"SHOULD_BE_OPEN_TODAY/CONFIRMED_OPEN":
+					"The buttery is confirmed open today!",
+				"SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED":
+					"The buttery is confirmed closed today!",
+				SHOULD_BE_OPEN_TODAY:
+					"The buttery should be open today according to the Buttery schedule!",
+				SHOULD_BE_CLOSED_TODAY:
+					"The buttery should be closed today according to the Buttery schedule!",
+			} satisfies Record<ButteryOpenStatus, string>;
+
+			const message = butteryScheduleStatusToMessage[butteryScheduleStatus];
 			await c.var.services.groupMeBots["gh.students"].sendGroupMeMessage(
 				message,
 			);
