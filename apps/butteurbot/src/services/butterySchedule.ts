@@ -4,20 +4,11 @@ export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
 >;
 
-type ButteryScheduleStatus =
-	| "SHOULD_BE_OPEN_NOW"
-	| "SHOULD_BE_OPEN_NOW/CONFIRMED_OPEN"
-	| "SHOULD_BE_OPEN_NOW/CONFIRMED_CLOSED"
-	| "SHOULD_BE_OPEN_TODAY"
-	| "SHOULD_BE_CLOSED_TODAY"
-	| "SHOULD_BE_OPEN_TODAY/CONFIRMED_OPEN"
-	| "SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED";
-
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
 ) {
 	return {
-		isOpen: async (): Promise<ButteryScheduleStatus> => {
+		getButteryOpenStatus: async () => {
 			try {
 				const ongoingShift = await googleCalendarService.getOngoingEvent();
 				if (ongoingShift) {
