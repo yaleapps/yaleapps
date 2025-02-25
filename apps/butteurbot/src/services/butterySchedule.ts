@@ -31,7 +31,7 @@ export function createButteryScheduleService(
 				}
 				const nextShift =
 					await googleCalendarService.getNextEventBeforeTomorrow();
-				if (!nextShift) return "TODAY/SHOULD_BE_CLOSED";
+				if (!nextShift) return "SHOULD_BE_CLOSED_TODAY";
 				if (nextShift.summary?.startsWith("[CLOSED]")) {
 					return "SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED";
 				}
