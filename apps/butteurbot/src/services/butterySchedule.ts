@@ -8,13 +8,13 @@ export type ButteryScheduleService = ReturnType<
 >;
 
 type ButteryScheduleStatus =
-	| "NOW/SHOULD_BE_OPEN"
-	| "NOW/SHOULD_BE_OPEN/CONFIRMED_OPEN"
-	| "NOW/SHOULD_BE_OPEN/CONFIRMED_CLOSED"
-	| "TODAY/SHOULD_BE_OPEN"
-	| "TODAY/SHOULD_BE_CLOSED"
-	| "TODAY/SHOULD_BE_OPEN/CONFIRMED_OPEN"
-	| "TODAY/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
+	| "SHOULD_BE_OPEN_NOW"
+	| "SHOULD_BE_OPEN_NOW/CONFIRMED_OPEN"
+	| "SHOULD_BE_OPEN_NOW/CONFIRMED_CLOSED"
+	| "SHOULD_BE_OPEN_TODAY"
+	| "SHOULD_BE_CLOSED_TODAY"
+	| "SHOULD_BE_OPEN_TODAY/CONFIRMED_OPEN"
+	| "SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED";
 
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
@@ -25,25 +25,25 @@ export function createButteryScheduleService(
 				const ongoingShift = await googleCalendarService.getOngoingEvent();
 				if (ongoingShift) {
 					if (ongoingShift.summary?.startsWith("[CLOSED]")) {
-						return "NOW/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
+						return "SHOULD_BE_OPEN_NOW/CONFIRMED_CLOSED";
 					}
 					if (ongoingShift.summary?.startsWith("[OPEN]")) {
-						return "NOW/SHOULD_BE_OPEN/CONFIRMED_OPEN";
+						return "SHOULD_BE_OPEN_NOW/CONFIRMED_OPEN";
 					}
-					return "NOW/SHOULD_BE_OPEN";
+					return "SHOULD_BE_OPEN_NOW";
 				}
 				const nextShift =
 					await googleCalendarService.getNextEventBeforeTomorrow();
 				if (!nextShift) return "TODAY/SHOULD_BE_CLOSED";
 				if (nextShift.summary?.startsWith("[CLOSED]")) {
-					return "TODAY/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
+					return "SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED";
 				}
 				if (nextShift.summary?.startsWith("[OPEN]")) {
-					return "TODAY/SHOULD_BE_OPEN/CONFIRMED_OPEN";
+					return "SHOULD_BE_OPEN_TODAY/CONFIRMED_OPEN";
 				}
-				return "TODAY/SHOULD_BE_OPEN";
+				return "SHOULD_BE_OPEN_TODAY";
 			} catch (error) {
-				return "TODAY/SHOULD_BE_CLOSED";
+				return "SHOULD_BE_CLOSED_TODAY";
 			}
 		},
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
