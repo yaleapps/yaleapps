@@ -1,8 +1,14 @@
+import { TZDate, tz } from "@date-fns/tz";
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
+import {
+	addHours,
+	isAfter,
+	isWithinInterval,
+	subDays,
+	subHours,
+} from "date-fns";
 import { getMessageFromUnknownError } from "../utils";
-import { TZDate } from "@date-fns/tz";
-import { isAfter, isWithinInterval, subDays, subHours } from "date-fns";
 
 export type GoogleCalendarService = ReturnType<
 	typeof createGoogleCalendarService
@@ -99,37 +105,54 @@ export function createGoogleCalendarService({
 
 	return {
 		listEvents,
-		getOngoingOrNextEvent:
-			async (): Promise<calendar_v3.Schema$Event | null> => {
-				try {
-					const now = TZDate.tz("America/New_York");
-					const oneDayAgo = subHours(now, 24);
-					const events = await listEvents({
-						timeMin: oneDayAgo.toISOString(),
-						maxResults: 10,
-						singleEvents: true,
-						orderBy: "startTime",
-					});
+		getNextEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
+			try {
+				const events = await listEvents({
+					timeMin: new Date().toISOString(),
+					maxResults: 1,
+					singleEvents: true,
+					orderBy: "startTime",
+				});
+				return events.items?.[0] ?? null;
+			} catch (error) {
+				throw new Error(
+					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+				);
+			}
+		},
+		getOngoingEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
+			try {
+				const now = TZDate.tz("America/New_York");
+				const sixHoursAgo = subHours(now, 6);
+				const sixHoursAhead = addHours(now, 6);
+				const events = await listEvents({
+					timeMin: sixHoursAgo.toISOString(),
+					timeMax: sixHoursAhead.toISOString(),
+					maxResults: 5,
+					singleEvents: true,
+					orderBy: "startTime",
+				});
 
-					const ongoingOrNextEvent = events.items?.find((event) => {
-						if (!event.start?.dateTime || !event.end?.dateTime) return false;
-						const isOngoing = isWithinInterval(now, {
-							start: event.start.dateTime,
-							end: event.end.dateTime,
-						});
-						if (isOngoing) return event;
-						const isStartsAfterNow = isAfter(event.start.dateTime, now);
-						if (isStartsAfterNow) return event;
-						return null;
-					});
-
-					return ongoingOrNextEvent ?? null;
-				} catch (error) {
-					throw new Error(
-						`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+				const ongoingEvent = events.items?.find((event) => {
+					if (!event.start?.dateTime || !event.end?.dateTime) return false;
+					const isOngoing = isWithinInterval(
+						now,
+						{
+							start: new Date(event.start.dateTime),
+							end: new Date(event.end.dateTime),
+						},
+						{ in: tz("America/New_York") },
 					);
-				}
-			},
+					return isOngoing;
+				});
+
+				return ongoingEvent ?? null;
+			} catch (error) {
+				throw new Error(
+					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+				);
+			}
+		},
 		updateEvent: async (
 			eventId: string,
 			event: Partial<calendar_v3.Schema$Event>,

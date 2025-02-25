@@ -8,88 +8,48 @@ export type ButteryScheduleService = ReturnType<
 >;
 
 type ButteryScheduleStatus =
-	| "SHOULD_BE_OPEN"
-	| "SHOULD_BE_CLOSED"
-	| "SHOULD_BE_OPEN_CONFIRMED_OPEN"
-	| "SHOULD_BE_OPEN_CONFIRMED_CLOSED";
-
-const butteryScheduleStatusToMessage = {
-	SHOULD_BE_OPEN:
-		"The buttery should be open now according to the Buttery schedule!",
-	SHOULD_BE_CLOSED:
-		"The buttery should be closed now according to the Buttery schedule!",
-	SHOULD_BE_OPEN_CONFIRMED_OPEN: "The buttery is confirmed open now!",
-	SHOULD_BE_OPEN_CONFIRMED_CLOSED: "The buttery is confirmed closed now!",
-} satisfies Record<ButteryScheduleStatus, string>;
+	| "NOW/SHOULD_BE_OPEN"
+	| "NOW/SHOULD_BE_OPEN/CONFIRMED_OPEN"
+	| "NOW/SHOULD_BE_OPEN/CONFIRMED_CLOSED"
+	| "TODAY/SHOULD_BE_OPEN"
+	| "TODAY/SHOULD_BE_CLOSED"
+	| "TODAY/SHOULD_BE_OPEN/CONFIRMED_OPEN"
+	| "TODAY/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
 
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
 ) {
 	return {
-		isOpenNow: async (): Promise<ButteryScheduleStatus> => {
+		isOpen: async (): Promise<ButteryScheduleStatus> => {
 			try {
-				const ongoingOrNextShift =
-					await googleCalendarService.getOngoingOrNextEvent();
-				if (
-					!ongoingOrNextShift?.start?.dateTime ||
-					!ongoingOrNextShift?.end?.dateTime
-				) {
-					throw new Error("No upcoming events found");
+				const ongoingShift = await googleCalendarService.getOngoingEvent();
+				if (ongoingShift) {
+					if (ongoingShift.summary?.startsWith("[CLOSED]")) {
+						return "NOW/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
+					}
+					if (ongoingShift.summary?.startsWith("[OPEN]")) {
+						return "NOW/SHOULD_BE_OPEN/CONFIRMED_OPEN";
+					}
+					return "NOW/SHOULD_BE_OPEN";
 				}
-
-				const now = new Date();
-
-				const isShiftRightNow = isWithinInterval(
-					now,
-					{
-						start: new Date(ongoingOrNextShift.start?.dateTime),
-						end: new Date(ongoingOrNextShift.end?.dateTime),
-					},
-					{ in: tz("America/New_York") },
-				);
-
-				if (!isShiftRightNow) return "SHOULD_BE_CLOSED";
-				if (ongoingOrNextShift.summary?.startsWith("[CLOSED]")) {
-					return "SHOULD_BE_OPEN_CONFIRMED_CLOSED";
+				const nextShift =
+					await googleCalendarService.getNextEventBeforeTomorrow();
+				if (!nextShift) return "TODAY/SHOULD_BE_CLOSED";
+				if (nextShift.summary?.startsWith("[CLOSED]")) {
+					return "TODAY/SHOULD_BE_OPEN/CONFIRMED_CLOSED";
 				}
-				if (ongoingOrNextShift.summary?.startsWith("[OPEN]")) {
-					return "SHOULD_BE_OPEN_CONFIRMED_OPEN";
+				if (nextShift.summary?.startsWith("[OPEN]")) {
+					return "TODAY/SHOULD_BE_OPEN/CONFIRMED_OPEN";
 				}
-				return "SHOULD_BE_OPEN";
+				return "TODAY/SHOULD_BE_OPEN";
 			} catch (error) {
-				return "SHOULD_BE_CLOSED";
-			}
-		},
-		isOpenToday: async (): Promise<ButteryScheduleStatus> => {
-			try {
-				const ongoingOrNextShift =
-					await googleCalendarService.getOngoingOrNextEvent();
-				if (!ongoingOrNextShift?.start?.dateTime)
-					throw new Error("No upcoming events found");
-
-				const ongoingOrNextShiftStart = new Date(
-					ongoingOrNextShift.start?.dateTime,
-				);
-				const isShiftTodayExists = isToday(ongoingOrNextShiftStart, {
-					in: tz("America/New_York"),
-				});
-
-				if (!isShiftTodayExists) return "SHOULD_BE_CLOSED";
-				if (ongoingOrNextShift.summary?.startsWith("[CLOSED]")) {
-					return "SHOULD_BE_OPEN_CONFIRMED_CLOSED";
-				}
-				if (ongoingOrNextShift.summary?.startsWith("[OPEN]")) {
-					return "SHOULD_BE_OPEN_CONFIRMED_OPEN";
-				}
-				return "SHOULD_BE_OPEN";
-			} catch (error) {
-				return "SHOULD_BE_CLOSED";
+				return "TODAY/SHOULD_BE_CLOSED";
 			}
 		},
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
 			const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 			try {
-				const nextEvent = await googleCalendarService.getOngoingOrNextEvent();
+				const nextEvent = await googleCalendarService.getOngoingEvent();
 				if (
 					!nextEvent?.id ||
 					nextEvent.summary === null ||
