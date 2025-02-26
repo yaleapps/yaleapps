@@ -6,34 +6,26 @@ export const groupMeWebhookPayload = type({
 			type: "'image'",
 			url: "string",
 		})
-			.or(
-				type({
-					type: "'video'",
-					url: "string",
-					preview_url: "string",
-				}),
-			)
-			.or(
-				type({
-					type: "'file'",
-					file_id: "string",
-				}),
-			)
-			.or(
-				type({
-					type: "'location'",
-					name: "string",
-					lat: "string",
-					lng: "string",
-				}),
-			)
-			.or(
-				type({
-					type: "'emoji'",
-					placeholder: "string",
-					charmap: [["number", "number"], "[]"],
-				}),
-			),
+			.or({
+				type: "'video'",
+				url: "string",
+				preview_url: "string",
+			})
+			.or({
+				type: "'file'",
+				file_id: "string",
+			})
+			.or({
+				type: "'location'",
+				name: "string",
+				lat: "string",
+				lng: "string",
+			})
+			.or({
+				type: "'emoji'",
+				placeholder: "string",
+				charmap: [["number", "number"], "[]"],
+			}),
 		"[]",
 	],
 	avatar_url: "string.url",
