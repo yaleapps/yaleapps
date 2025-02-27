@@ -21,7 +21,7 @@ app.get("/", async (c) => {
 	if (is4pm) {
 		const requestManagerConfirmation = async () => {
 			await groupMeBots["gh.managers"].sendGroupMeMessage(
-				"Is the buttery open tonight? 🍔\n\n🚨 MANAGERS: Please confirm if the Buttery will be open by responding with:\n!open\n!closed",
+				"Is the buttery open tonight? Please confirm by responding with !open or !closed and I'll forward it to the GroupMe!",
 			);
 		};
 		await requestManagerConfirmation();
