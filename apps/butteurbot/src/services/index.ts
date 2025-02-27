@@ -1,9 +1,9 @@
-import { createMiddleware } from "hono/factory";
-import type { GroupMeBotMessage } from "../types/groupme";
-import type { Bindings } from "..";
 import type { Context } from "hono";
-import { createGoogleCalendarService } from "./calendar";
+import { createMiddleware } from "hono/factory";
+import type { Bindings } from "..";
+import type { GroupMeBotMessage } from "../types/groupme";
 import { createButteryScheduleService } from "./butterySchedule";
+import { createGoogleCalendarService } from "./calendar";
 
 declare module "hono" {
 	interface ContextVariableMap {
