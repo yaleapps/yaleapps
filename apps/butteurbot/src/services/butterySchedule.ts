@@ -11,9 +11,7 @@ export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
 >;
 
-export type ButteryOpenStatus = Awaited<
-	ReturnType<ButteryScheduleService["getButteryOpenStatus"]>
->;
+const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
@@ -31,16 +29,14 @@ export function createButteryScheduleService(
 					singleEvents: true,
 					orderBy: "startTime",
 				});
-				const maybeOngoingOrTodayShift = shifts?.at(0);
-				if (!maybeOngoingOrTodayShift) return null;
-				const ongoingOrTodayShift = maybeOngoingOrTodayShift;
-				return ongoingOrTodayShift;
+				return shifts?.at(0) ?? null;
 			} catch (error) {
 				throw new Error(
 					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
 				);
 			}
 		};
+
 	return {
 		getButteryOpenStatus: async (): Promise<
 			| "NOW/CONFIRMED_CLOSED"
@@ -51,75 +47,50 @@ export function createButteryScheduleService(
 			| "TODAY/UNCONFIRMED"
 		> => {
 			try {
-				const ongoingOrTodayShift = await getOngoingOrTodayShift();
-				if (
-					!ongoingOrTodayShift ||
-					!ongoingOrTodayShift.start?.dateTime ||
-					!ongoingOrTodayShift.end?.dateTime
-				)
+				const shift = await getOngoingOrTodayShift();
+
+				if (!shift || !shift.start?.dateTime || !shift.end?.dateTime) {
 					return "TODAY/CONFIRMED_CLOSED";
+				}
 				const isOngoing = isWithinInterval(new Date(), {
-					start: new Date(ongoingOrTodayShift.start.dateTime),
-					end: new Date(ongoingOrTodayShift.end.dateTime),
+					start: new Date(shift.start.dateTime),
+					end: new Date(shift.end.dateTime),
 				});
-				if (isOngoing) {
-					if (ongoingOrTodayShift.summary?.startsWith("[CLOSED]")) {
-						return "NOW/CONFIRMED_CLOSED";
-					}
-					if (ongoingOrTodayShift.summary?.startsWith("[OPEN]")) {
-						return "NOW/CONFIRMED_OPEN";
-					}
-					return "NOW/UNCONFIRMED";
+				const timeframe = isOngoing ? "NOW" : "TODAY";
+				if (shift.summary?.startsWith(STATUS_PREFIXES.CLOSED)) {
+					return `${timeframe}/CONFIRMED_CLOSED`;
 				}
-				if (ongoingOrTodayShift.summary?.startsWith("[CLOSED]")) {
-					return "TODAY/CONFIRMED_CLOSED";
+
+				if (shift.summary?.startsWith(STATUS_PREFIXES.OPEN)) {
+					return `${timeframe}/CONFIRMED_OPEN`;
 				}
-				if (ongoingOrTodayShift.summary?.startsWith("[OPEN]")) {
-					return "TODAY/CONFIRMED_OPEN";
-				}
-				return "TODAY/UNCONFIRMED";
+
+				return `${timeframe}/UNCONFIRMED`;
 			} catch (error) {
 				throw new Error(`Error getting buttery open status: ${error}`);
 			}
 		},
+
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
-			const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 			try {
-				const ongoingOrTodayShift = await getOngoingOrTodayShift();
+				const shift = await getOngoingOrTodayShift();
+
 				if (
-					!ongoingOrTodayShift?.id ||
-					ongoingOrTodayShift.summary === null ||
-					ongoingOrTodayShift.summary === undefined
+					!shift?.id ||
+					shift.summary === null ||
+					shift.summary === undefined
 				) {
 					throw new Error("No upcoming events found");
 				}
 
-				const summaryWithoutPrefix = ongoingOrTodayShift.summary
+				const summaryWithoutPrefix = shift.summary
 					?.replace(STATUS_PREFIXES.OPEN, "")
-					.replace(STATUS_PREFIXES.CLOSED, "");
+					?.replace(STATUS_PREFIXES.CLOSED, "");
 
-				switch (status) {
-					case "OPEN": {
-						const updatedEvent = await googleCalendarService.updateEvent(
-							ongoingOrTodayShift.id,
-							{
-								...ongoingOrTodayShift,
-								summary: `${STATUS_PREFIXES.OPEN}${summaryWithoutPrefix}`,
-							},
-						);
-						return updatedEvent;
-					}
-					case "CLOSED": {
-						const updatedEvent = await googleCalendarService.updateEvent(
-							ongoingOrTodayShift.id,
-							{
-								...ongoingOrTodayShift,
-								summary: `${STATUS_PREFIXES.CLOSED}${summaryWithoutPrefix}`,
-							},
-						);
-						return updatedEvent;
-					}
-				}
+				return googleCalendarService.updateEvent(shift.id, {
+					...shift,
+					summary: `${STATUS_PREFIXES[status]}${summaryWithoutPrefix}`,
+				});
 			} catch (error) {
 				throw new Error(`Error marking next shift as ${status}: ${error}`);
 			}
