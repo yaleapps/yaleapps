@@ -1,10 +1,6 @@
-import { TZDate, tz } from "@date-fns/tz";
 import type { calendar_v3 } from "@googleapis/calendar";
 import GoogleAuth from "cloudflare-workers-and-google-oauth";
-import { addHours, isWithinInterval, subHours } from "date-fns";
 import { getMessageFromUnknownError } from "../utils";
-
-const MAX_BUTTERY_SHIFT_LENGTH_HOURS = 3;
 
 export type GoogleCalendarService = ReturnType<
 	typeof createGoogleCalendarService
@@ -101,54 +97,6 @@ export function createGoogleCalendarService({
 
 	return {
 		listEvents,
-		getNextEventBeforeTomorrow:
-			async (): Promise<calendar_v3.Schema$Event | null> => {
-				try {
-					const events = await listEvents({
-						timeMin: new Date().toISOString(),
-						timeMax: addHours(new Date(), 24).toISOString(),
-						maxResults: 1,
-						singleEvents: true,
-						orderBy: "startTime",
-					});
-					return events.items?.[0] ?? null;
-				} catch (error) {
-					throw new Error(
-						`Failed to get next event: ${getMessageFromUnknownError(error)}`,
-					);
-				}
-			},
-		getOngoingEvent: async (): Promise<calendar_v3.Schema$Event | null> => {
-			try {
-				const now = TZDate.tz("America/New_York");
-				const events = await listEvents({
-					timeMin: subHours(now, MAX_BUTTERY_SHIFT_LENGTH_HOURS).toISOString(),
-					timeMax: addHours(now, MAX_BUTTERY_SHIFT_LENGTH_HOURS).toISOString(),
-					maxResults: 5,
-					singleEvents: true,
-					orderBy: "startTime",
-				});
-
-				const ongoingEvent = events.items?.find((event) => {
-					if (!event.start?.dateTime || !event.end?.dateTime) return false;
-					const isOngoing = isWithinInterval(
-						now,
-						{
-							start: new Date(event.start.dateTime),
-							end: new Date(event.end.dateTime),
-						},
-						{ in: tz("America/New_York") },
-					);
-					return isOngoing;
-				});
-
-				return ongoingEvent ?? null;
-			} catch (error) {
-				throw new Error(
-					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
-				);
-			}
-		},
 		updateEvent: async (
 			eventId: string,
 			event: Partial<calendar_v3.Schema$Event>,
