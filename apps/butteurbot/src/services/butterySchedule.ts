@@ -12,7 +12,7 @@ export type ButteryScheduleService = ReturnType<
 
 const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 
-type ButteryOpenStatus =
+type ButteryStatus =
 	| "NOW/CONFIRMED_OPEN"
 	| "NOW/CONFIRMED_CLOSED"
 	| "NOW/UNCONFIRMED_OPEN"
@@ -48,7 +48,7 @@ export function createButteryScheduleService(
 
 	return {
 		getButteryScheduleMessage: async () => {
-			const getButteryScheduleStatus = async (): Promise<ButteryOpenStatus> => {
+			const getButteryStatus = async (): Promise<ButteryStatus> => {
 				try {
 					const shift = await getOngoingOrTodayShift();
 
@@ -73,7 +73,7 @@ export function createButteryScheduleService(
 					throw new Error(`Error getting buttery open status: ${error}`);
 				}
 			};
-			const butteryScheduleStatusToMessage = {
+			const butteryStatusToMessage = {
 				"NOW/CONFIRMED_OPEN": "The buttery is confirmed open now!",
 				"NOW/CONFIRMED_CLOSED": "The buttery is confirmed closed now!",
 				"NOW/UNCONFIRMED_OPEN":
@@ -86,9 +86,9 @@ export function createButteryScheduleService(
 					"The buttery should be open today according to the Buttery schedule!",
 				"TODAY/UNCONFIRMED_CLOSED":
 					"The buttery should be closed today according to the Buttery schedule!",
-			} as const satisfies Record<ButteryOpenStatus, string>;
-			const butteryScheduleStatus = await getButteryScheduleStatus();
-			const message = butteryScheduleStatusToMessage[butteryScheduleStatus];
+			} as const satisfies Record<ButteryStatus, string>;
+			const butteryStatus = await getButteryStatus();
+			const message = butteryStatusToMessage[butteryStatus];
 			return message;
 		},
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
