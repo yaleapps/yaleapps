@@ -85,25 +85,25 @@ export function createButteryScheduleService(
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
 			const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
 			try {
-				const nextEvent = await getOngoingEvent();
+				const ongoingOrTodayShift = await getOngoingOrTodayShift();
 				if (
-					!nextEvent?.id ||
-					nextEvent.summary === null ||
-					nextEvent.summary === undefined
+					!ongoingOrTodayShift?.id ||
+					ongoingOrTodayShift.summary === null ||
+					ongoingOrTodayShift.summary === undefined
 				) {
 					throw new Error("No upcoming events found");
 				}
 
-				const summaryWithoutPrefix = nextEvent.summary
+				const summaryWithoutPrefix = ongoingOrTodayShift.summary
 					?.replace(STATUS_PREFIXES.OPEN, "")
 					.replace(STATUS_PREFIXES.CLOSED, "");
 
 				switch (status) {
 					case "OPEN": {
 						const updatedEvent = await googleCalendarService.updateEvent(
-							nextEvent.id,
+							ongoingOrTodayShift.id,
 							{
-								...nextEvent,
+								...ongoingOrTodayShift,
 								summary: `${STATUS_PREFIXES.OPEN}${summaryWithoutPrefix}`,
 							},
 						);
@@ -111,9 +111,9 @@ export function createButteryScheduleService(
 					}
 					case "CLOSED": {
 						const updatedEvent = await googleCalendarService.updateEvent(
-							nextEvent.id,
+							ongoingOrTodayShift.id,
 							{
-								...nextEvent,
+								...ongoingOrTodayShift,
 								summary: `${STATUS_PREFIXES.CLOSED}${summaryWithoutPrefix}`,
 							},
 						);
