@@ -27,10 +27,7 @@ app.get("/", async (c) => {
 		await requestManagerConfirmation();
 	} else if (is10pm) {
 		const sendStatusToStudents = async () => {
-			const isOpen = await butterySchedules.gh.isOpenNow();
-			const message = isOpen
-				? "The Buttery is OPEN tonight!"
-				: "The Buttery is CLOSED tonight.";
+			const message = await butterySchedules.gh.getButteryScheduleMessage();
 			await groupMeBots["gh.students"].sendGroupMeMessage(message);
 		};
 		await sendStatusToStudents();

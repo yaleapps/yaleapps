@@ -1,7 +1,6 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
-import type { ButteryOpenStatus } from "../services/butterySchedule";
 import { groupMeWebhookPayload } from "../types/groupme";
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -113,24 +112,8 @@ app.post(
 		);
 
 		if (isAskingOpen) {
-			const butteryScheduleStatus =
-				await c.var.services.butterySchedules.gh.getButteryOpenStatus();
-			const butteryScheduleStatusToMessage = {
-				"NOW/CONFIRMED_OPEN": "The buttery is confirmed open now!",
-				"NOW/CONFIRMED_CLOSED": "The buttery is confirmed closed now!",
-				"NOW/UNCONFIRMED_OPEN":
-					"The buttery should be open now according to the Buttery schedule!",
-				"NOW/UNCONFIRMED_CLOSED":
-					"The buttery should be closed now according to the Buttery schedule!",
-				"TODAY/CONFIRMED_OPEN": "The buttery is confirmed open today!",
-				"TODAY/CONFIRMED_CLOSED": "The buttery is confirmed closed today!",
-				"TODAY/UNCONFIRMED_OPEN":
-					"The buttery should be open today according to the Buttery schedule!",
-				"TODAY/UNCONFIRMED_CLOSED":
-					"The buttery should be closed today according to the Buttery schedule!",
-			} satisfies Record<ButteryOpenStatus, string>;
-
-			const message = butteryScheduleStatusToMessage[butteryScheduleStatus];
+			const message =
+				await c.var.services.butterySchedules.gh.getButteryScheduleMessage();
 			await c.var.services.groupMeBots["gh.students"].sendGroupMeMessage(
 				message,
 			);
