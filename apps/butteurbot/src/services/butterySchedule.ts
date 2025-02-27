@@ -1,6 +1,5 @@
-import { TZDate, tz } from "@date-fns/tz";
 import type { calendar_v3 } from "@googleapis/calendar";
-import { addHours, isWithinInterval, subHours } from "date-fns";
+import { addHours, isWithinInterval } from "date-fns";
 import { getMessageFromUnknownError } from "../utils";
 
 const MAX_BUTTERY_SHIFT_HOURS = 3;
@@ -12,6 +11,16 @@ export type ButteryScheduleService = ReturnType<
 >;
 
 const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
+
+export type ButteryOpenStatus =
+	| "NOW/CONFIRMED_OPEN"
+	| "NOW/CONFIRMED_CLOSED"
+	| "NOW/UNCONFIRMED_OPEN"
+	| "NOW/UNCONFIRMED_CLOSED"
+	| "TODAY/CONFIRMED_OPEN"
+	| "TODAY/CONFIRMED_CLOSED"
+	| "TODAY/UNCONFIRMED_OPEN"
+	| "TODAY/UNCONFIRMED_CLOSED";
 
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
@@ -38,19 +47,12 @@ export function createButteryScheduleService(
 		};
 
 	return {
-		getButteryOpenStatus: async (): Promise<
-			| "NOW/CONFIRMED_CLOSED"
-			| "NOW/CONFIRMED_OPEN"
-			| "NOW/UNCONFIRMED"
-			| "TODAY/CONFIRMED_CLOSED"
-			| "TODAY/CONFIRMED_OPEN"
-			| "TODAY/UNCONFIRMED"
-		> => {
+		getButteryOpenStatus: async (): Promise<ButteryOpenStatus> => {
 			try {
 				const shift = await getOngoingOrTodayShift();
 
 				if (!shift || !shift.start?.dateTime || !shift.end?.dateTime) {
-					return "TODAY/CONFIRMED_CLOSED";
+					return "TODAY/UNCONFIRMED_CLOSED";
 				}
 				const isOngoing = isWithinInterval(new Date(), {
 					start: new Date(shift.start.dateTime),
@@ -65,7 +67,7 @@ export function createButteryScheduleService(
 					return `${timeframe}/CONFIRMED_OPEN`;
 				}
 
-				return `${timeframe}/UNCONFIRMED`;
+				return `${timeframe}/UNCONFIRMED_OPEN`;
 			} catch (error) {
 				throw new Error(`Error getting buttery open status: ${error}`);
 			}

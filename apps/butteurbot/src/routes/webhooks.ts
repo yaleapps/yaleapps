@@ -116,19 +116,17 @@ app.post(
 			const butteryScheduleStatus =
 				await c.var.services.butterySchedules.gh.getButteryOpenStatus();
 			const butteryScheduleStatusToMessage = {
-				"SHOULD_BE_OPEN_NOW/CONFIRMED_CLOSED":
-					"The buttery is confirmed closed now!",
-				"SHOULD_BE_OPEN_NOW/CONFIRMED_OPEN":
-					"The buttery is confirmed open now!",
-				SHOULD_BE_OPEN_NOW:
+				"NOW/CONFIRMED_OPEN": "The buttery is confirmed open now!",
+				"NOW/CONFIRMED_CLOSED": "The buttery is confirmed closed now!",
+				"NOW/UNCONFIRMED_OPEN":
 					"The buttery should be open now according to the Buttery schedule!",
-				"SHOULD_BE_OPEN_TODAY/CONFIRMED_OPEN":
-					"The buttery is confirmed open today!",
-				"SHOULD_BE_OPEN_TODAY/CONFIRMED_CLOSED":
-					"The buttery is confirmed closed today!",
-				SHOULD_BE_OPEN_TODAY:
+				"NOW/UNCONFIRMED_CLOSED":
+					"The buttery should be closed now according to the Buttery schedule!",
+				"TODAY/CONFIRMED_OPEN": "The buttery is confirmed open today!",
+				"TODAY/CONFIRMED_CLOSED": "The buttery is confirmed closed today!",
+				"TODAY/UNCONFIRMED_OPEN":
 					"The buttery should be open today according to the Buttery schedule!",
-				SHOULD_BE_CLOSED_TODAY:
+				"TODAY/UNCONFIRMED_CLOSED":
 					"The buttery should be closed today according to the Buttery schedule!",
 			} satisfies Record<ButteryOpenStatus, string>;
 
