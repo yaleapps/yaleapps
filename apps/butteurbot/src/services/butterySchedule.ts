@@ -75,12 +75,12 @@ export function createButteryScheduleService(
 			try {
 				const shift = await getOngoingOrTodayShift();
 
-				if (
-					!shift?.id ||
-					shift.summary === null ||
-					shift.summary === undefined
-				) {
+				if (!shift?.id) {
 					throw new Error("No upcoming events found");
+				}
+
+				if (shift.summary === null || shift.summary === undefined) {
+					throw new Error("No event summary found");
 				}
 
 				const summaryWithoutPrefix = shift.summary
