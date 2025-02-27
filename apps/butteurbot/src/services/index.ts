@@ -13,27 +13,27 @@ declare module "hono" {
 
 export const servicesMiddleware = createMiddleware<{ Bindings: Bindings }>(
 	async (c, next) => {
-		c.set("services", createServices(c));
+		c.set("services", createServices(c.env));
 		await next();
 	},
 );
 
 type Services = ReturnType<typeof createServices>;
 
-function createServices(c: Context<{ Bindings: Bindings }>) {
+export function createServices(env: Bindings) {
 	return {
 		groupMeBots: {
-			"gh.managers": createGroupMeBot(c.env.GROUPME_GH_MANAGERS_BOT_ID),
-			"gh.students": createGroupMeBot(c.env.GROUPME_GH_STUDENTS_BOT_ID),
+			"gh.managers": createGroupMeBot(env.GROUPME_GH_MANAGERS_BOT_ID),
+			"gh.students": createGroupMeBot(env.GROUPME_GH_STUDENTS_BOT_ID),
 		},
 		butterySchedules: {
 			gh: createButteryScheduleService(
 				createGoogleCalendarService({
-					clientEmail: c.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
-					clientId: c.env.GOOGLE_SERVICE_ACCOUNT_CLIENT_ID,
-					privateKeyId: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
-					privateKey: c.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
-					calendarId: c.env.CALENDAR_ID_GH,
+					clientEmail: env.GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL,
+					clientId: env.GOOGLE_SERVICE_ACCOUNT_CLIENT_ID,
+					privateKeyId: env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY_ID,
+					privateKey: env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
+					calendarId: env.CALENDAR_ID_GH,
 				}),
 			),
 		},
