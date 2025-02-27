@@ -5,9 +5,11 @@
 		"deploy": "wrangler deploy --minify"
 	},
 	"dependencies": {
+		"@date-fns/tz": "^1.2.0",
 		"@hono/arktype-validator": "^2.0.0",
 		"arktype": "^2.0.4",
 		"cloudflare-workers-and-google-oauth": "^2.0.0",
+		"date-fns": "^4.1.0",
 		"hono": "^4.6.16"
 	},
 	"devDependencies": {
