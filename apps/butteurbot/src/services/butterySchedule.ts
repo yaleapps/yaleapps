@@ -46,34 +46,33 @@ export function createButteryScheduleService(
 			}
 		};
 
-	const getButteryScheduleStatus = async (): Promise<ButteryOpenStatus> => {
-		try {
-			const shift = await getOngoingOrTodayShift();
-
-			if (!shift || !shift.start?.dateTime || !shift.end?.dateTime) {
-				return "TODAY/UNCONFIRMED_CLOSED";
-			}
-			const isOngoing = isWithinInterval(new Date(), {
-				start: new Date(shift.start.dateTime),
-				end: new Date(shift.end.dateTime),
-			});
-			const timeframe = isOngoing ? "NOW" : "TODAY";
-			if (shift.summary?.startsWith(STATUS_PREFIXES.CLOSED)) {
-				return `${timeframe}/CONFIRMED_CLOSED`;
-			}
-
-			if (shift.summary?.startsWith(STATUS_PREFIXES.OPEN)) {
-				return `${timeframe}/CONFIRMED_OPEN`;
-			}
-
-			return `${timeframe}/UNCONFIRMED_OPEN`;
-		} catch (error) {
-			throw new Error(`Error getting buttery open status: ${error}`);
-		}
-	};
-
 	return {
 		getButteryScheduleMessage: async () => {
+			const getButteryScheduleStatus = async (): Promise<ButteryOpenStatus> => {
+				try {
+					const shift = await getOngoingOrTodayShift();
+
+					if (!shift || !shift.start?.dateTime || !shift.end?.dateTime) {
+						return "TODAY/UNCONFIRMED_CLOSED";
+					}
+					const isOngoing = isWithinInterval(new Date(), {
+						start: new Date(shift.start.dateTime),
+						end: new Date(shift.end.dateTime),
+					});
+					const timeframe = isOngoing ? "NOW" : "TODAY";
+					if (shift.summary?.startsWith(STATUS_PREFIXES.CLOSED)) {
+						return `${timeframe}/CONFIRMED_CLOSED`;
+					}
+
+					if (shift.summary?.startsWith(STATUS_PREFIXES.OPEN)) {
+						return `${timeframe}/CONFIRMED_OPEN`;
+					}
+
+					return `${timeframe}/UNCONFIRMED_OPEN`;
+				} catch (error) {
+					throw new Error(`Error getting buttery open status: ${error}`);
+				}
+			};
 			const butteryScheduleStatusToMessage = {
 				"NOW/CONFIRMED_OPEN": "The buttery is confirmed open now!",
 				"NOW/CONFIRMED_CLOSED": "The buttery is confirmed closed now!",
