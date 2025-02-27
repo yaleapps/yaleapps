@@ -1,3 +1,5 @@
+import { tz } from "@date-fns/tz";
+import { getHours } from "date-fns";
 import { Hono } from "hono";
 import webhooks from "./routes/webhooks";
 import { createServices, servicesMiddleware } from "./services";
@@ -33,7 +35,9 @@ export default {
 		const cronTask = async () => {
 			const { butterySchedules, groupMeBots } = createServices(env);
 
-			const currentEasternHour = getCurrentEasternHour();
+			const currentEasternHour = getHours(new Date(), {
+				in: tz("America/New_York"),
+			});
 			const is4pm = currentEasternHour === 16;
 			const is10pm = currentEasternHour === 22;
 
@@ -56,16 +60,3 @@ export default {
 		ctx.waitUntil(cronTask());
 	},
 };
-
-/**
- * Get the current hour in Eastern Time (automatically handles EDT/EST)
- */
-function getCurrentEasternHour(): number {
-	return Number.parseInt(
-		new Intl.DateTimeFormat("en-US", {
-			timeZone: "America/New_York",
-			hour: "numeric",
-			hour12: false,
-		}).format(new Date()),
-	);
-}
