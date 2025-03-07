@@ -2,6 +2,8 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 import type { Bindings } from "..";
 import { groupMeWebhookPayload } from "../types/groupme";
+import { format } from "date-fns";
+import { tz } from "@date-fns/tz";
 
 const app = new Hono<{ Bindings: Bindings }>();
 
@@ -23,13 +25,11 @@ app.post(
 						return "Marked next shift as open! (Date information unavailable)";
 					}
 
-					const formattedDateTime = new Intl.DateTimeFormat("en-US", {
-						timeZone: "America/New_York",
-						month: "long",
-						day: "numeric",
-						hour: "numeric",
-						minute: "numeric",
-					}).format(new Date(updatedNextShift.start.dateTime));
+					const formattedDateTime = format(
+						new Date(updatedNextShift.start.dateTime),
+						"MMMM d 'at' p",
+						{ in: tz("America/New_York") },
+					);
 
 					await groupMeBots["gh.students"].sendGroupMeMessage(
 						"The buttery was just confirmed as open for today by the buttery team!",
@@ -52,13 +52,11 @@ See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 						return "Marked next shift as closed! (Date information unavailable)";
 					}
 
-					const formattedDateTime = new Intl.DateTimeFormat("en-US", {
-						timeZone: "America/New_York",
-						month: "long",
-						day: "numeric",
-						hour: "numeric",
-						minute: "numeric",
-					}).format(new Date(updatedNextShift.start.dateTime));
+					const formattedDateTime = format(
+						new Date(updatedNextShift.start.dateTime),
+						"MMMM d 'at' p",
+						{ in: tz("America/New_York") },
+					);
 
 					await groupMeBots["gh.students"].sendGroupMeMessage(
 						"The buttery was just confirmed as closed for today by the buttery team!",
