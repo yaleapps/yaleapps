@@ -3,7 +3,6 @@ import { getHours } from "date-fns";
 import { Hono } from "hono";
 import webhooks from "./routes/webhooks";
 import { createServices, servicesMiddleware } from "./services";
-import { calendar_v3 } from "@googleapis/calendar";
 import { STATUS_PREFIXES } from "./services/butterySchedule";
 
 export type Bindings = {
