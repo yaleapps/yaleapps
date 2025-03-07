@@ -9,7 +9,10 @@ export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
 >;
 
-const STATUS_PREFIXES = { OPEN: "[OPEN] ", CLOSED: "[CLOSED] " } as const;
+export const STATUS_PREFIXES = {
+	OPEN: "[OPEN] ",
+	CLOSED: "[CLOSED] ",
+} as const;
 
 type ButteryStatus =
 	| "NOW/CONFIRMED_OPEN"
