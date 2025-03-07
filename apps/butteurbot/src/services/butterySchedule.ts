@@ -1,10 +1,9 @@
 import type { calendar_v3 } from "@googleapis/calendar";
 import { addHours, isWithinInterval } from "date-fns";
 import { getMessageFromUnknownError } from "../utils";
+import type { GoogleCalendarService } from "./calendar";
 
 const MAX_BUTTERY_SHIFT_HOURS = 3;
-
-import type { GoogleCalendarService } from "./calendar";
 
 export type ButteryScheduleService = ReturnType<
 	typeof createButteryScheduleService
@@ -25,49 +24,46 @@ type ButteryStatus =
 export function createButteryScheduleService(
 	googleCalendarService: GoogleCalendarService,
 ) {
-	const getOngoingOrTodayShift =
-		async (): Promise<calendar_v3.Schema$Event | null> => {
-			try {
-				const { items: shifts } = await googleCalendarService.listEvents({
-					timeMin: new Date().toISOString(),
-					timeMax: addHours(
-						new Date(),
-						24 - MAX_BUTTERY_SHIFT_HOURS,
-					).toISOString(),
-					maxResults: 1,
-					singleEvents: true,
-					orderBy: "startTime",
-				});
-				return shifts?.at(0) ?? null;
-			} catch (error) {
-				throw new Error(
-					`Failed to get next event: ${getMessageFromUnknownError(error)}`,
-				);
-			}
-		};
+	const getOngoingOrTodayEvent = async () => {
+		try {
+			const { items: events } = await googleCalendarService.listEvents({
+				timeMin: new Date().toISOString(),
+				timeMax: addHours(
+					new Date(),
+					24 - MAX_BUTTERY_SHIFT_HOURS,
+				).toISOString(),
+				maxResults: 1,
+				singleEvents: true,
+				orderBy: "startTime",
+			});
+			return events?.at(0) ?? null;
+		} catch (error) {
+			throw new Error(
+				`Failed to get next event: ${getMessageFromUnknownError(error)}`,
+			);
+		}
+	};
+
+	const isEventOngoing = (event: calendar_v3.Schema$Event) => {
+		const now = new Date();
+		if (!event.start?.dateTime || !event.end?.dateTime) return false;
+		const start = new Date(event.start.dateTime);
+		const end = new Date(event.end.dateTime);
+		return isWithinInterval(now, { start, end });
+	};
 
 	return {
+		getOngoingOrTodayEvent,
 		getButteryScheduleMessage: async () => {
 			const getButteryStatus = async (): Promise<ButteryStatus> => {
 				try {
-					const shift = await getOngoingOrTodayShift();
-
-					if (!shift || !shift.start?.dateTime || !shift.end?.dateTime) {
-						return "TODAY/UNCONFIRMED_CLOSED";
-					}
-					const isOngoing = isWithinInterval(new Date(), {
-						start: new Date(shift.start.dateTime),
-						end: new Date(shift.end.dateTime),
-					});
-					const timeframe = isOngoing ? "NOW" : "TODAY";
-					if (shift.summary?.startsWith(STATUS_PREFIXES.CLOSED)) {
-						return `${timeframe}/CONFIRMED_CLOSED`;
-					}
-
-					if (shift.summary?.startsWith(STATUS_PREFIXES.OPEN)) {
+					const event = await getOngoingOrTodayEvent();
+					if (!event) return "TODAY/UNCONFIRMED_CLOSED";
+					const timeframe = isEventOngoing(event) ? "NOW" : "TODAY";
+					if (event.summary?.startsWith(STATUS_PREFIXES.OPEN))
 						return `${timeframe}/CONFIRMED_OPEN`;
-					}
-
+					if (event.summary?.startsWith(STATUS_PREFIXES.CLOSED))
+						return `${timeframe}/CONFIRMED_CLOSED`;
 					return `${timeframe}/UNCONFIRMED_OPEN`;
 				} catch (error) {
 					throw new Error(`Error getting buttery open status: ${error}`);
@@ -93,22 +89,18 @@ export function createButteryScheduleService(
 		},
 		markNextShiftAs: async (status: "OPEN" | "CLOSED") => {
 			try {
-				const shift = await getOngoingOrTodayShift();
+				const maybeEvent = await getOngoingOrTodayEvent();
+				if (!maybeEvent) throw new Error("No upcoming event found");
+				if (!maybeEvent.id) throw new Error("Upcoming event has no id");
+				if (!maybeEvent.summary)
+					throw new Error("Upcoming event has no summary");
 
-				if (!shift?.id) {
-					throw new Error("No upcoming events found");
-				}
+				const summaryWithoutPrefix = maybeEvent.summary
+					.replace(STATUS_PREFIXES.OPEN, "")
+					.replace(STATUS_PREFIXES.CLOSED, "");
 
-				if (shift.summary === null || shift.summary === undefined) {
-					throw new Error("No event summary found");
-				}
-
-				const summaryWithoutPrefix = shift.summary
-					?.replace(STATUS_PREFIXES.OPEN, "")
-					?.replace(STATUS_PREFIXES.CLOSED, "");
-
-				return googleCalendarService.updateEvent(shift.id, {
-					...shift,
+				return googleCalendarService.updateEvent(maybeEvent.id, {
+					...maybeEvent,
 					summary: `${STATUS_PREFIXES[status]}${summaryWithoutPrefix}`,
 				});
 			} catch (error) {
