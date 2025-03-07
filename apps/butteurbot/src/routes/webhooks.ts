@@ -21,6 +21,10 @@ app.post(
 					const updatedNextShift =
 						await butterySchedules.gh.markNextShiftAs("OPEN");
 
+					await groupMeBots["gh.students"].sendGroupMeMessage(
+						"The buttery was just confirmed as open for today by the buttery team!",
+					);
+
 					if (!updatedNextShift?.start?.dateTime) {
 						return "Marked next shift as open! (Date information unavailable)";
 					}
@@ -29,10 +33,6 @@ app.post(
 						new Date(updatedNextShift.start.dateTime),
 						"MMMM d 'at' p",
 						{ in: tz("America/New_York") },
-					);
-
-					await groupMeBots["gh.students"].sendGroupMeMessage(
-						"The buttery was just confirmed as open for today by the buttery team!",
 					);
 
 					return `Marked next shift on ${formattedDateTime} as open!
@@ -48,6 +48,10 @@ See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 					const updatedNextShift =
 						await butterySchedules.gh.markNextShiftAs("CLOSED");
 
+					await groupMeBots["gh.students"].sendGroupMeMessage(
+						"The buttery was just confirmed as closed for today by the buttery team!",
+					);
+
 					if (!updatedNextShift?.start?.dateTime) {
 						return "Marked next shift as closed! (Date information unavailable)";
 					}
@@ -56,10 +60,6 @@ See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 						new Date(updatedNextShift.start.dateTime),
 						"MMMM d 'at' p",
 						{ in: tz("America/New_York") },
-					);
-
-					await groupMeBots["gh.students"].sendGroupMeMessage(
-						"The buttery was just confirmed as closed for today by the buttery team!",
 					);
 
 					return `Marked next shift on ${formattedDateTime} as closed!
