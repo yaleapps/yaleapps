@@ -49,21 +49,21 @@ export default {
 						"Is the buttery open tonight? Please confirm by responding with !open or !closed and I'll forward it to the GroupMe!",
 					);
 				};
-				const isEventConfirmed = (event: calendar_v3.Schema$Event) =>
-					event.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
-					event.summary?.startsWith(STATUS_PREFIXES.CLOSED);
 
 				const maybeEvent = await butterySchedules.gh.getOngoingOrTodayEvent();
-				const isAlreadyConfirmed = maybeEvent
-					? isEventConfirmed(maybeEvent)
-					: false;
-				if (isAlreadyConfirmed) return;
+				if (maybeEvent) {
+					const isAlreadyConfirmed =
+						maybeEvent.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
+						maybeEvent.summary?.startsWith(STATUS_PREFIXES.CLOSED);
+					if (isAlreadyConfirmed) return;
+				}
 				await requestManagerConfirmation();
 			} else if (is10pm) {
 				const sendStatusToStudents = async () => {
 					const message = await butterySchedules.gh.getButteryScheduleMessage();
 					await groupMeBots["gh.students"].sendGroupMeMessage(message);
 				};
+
 				await sendStatusToStudents();
 			}
 		};
