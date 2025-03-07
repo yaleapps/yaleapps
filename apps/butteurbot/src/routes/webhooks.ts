@@ -31,6 +31,10 @@ app.post(
 						minute: "numeric",
 					}).format(new Date(updatedNextShift.start.dateTime));
 
+					await groupMeBots["gh.students"].sendGroupMeMessage(
+						"The buttery was just confirmed as open for today by the buttery team!",
+					);
+
 					return `Marked next shift on ${formattedDateTime} as open!
 
 See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
@@ -55,6 +59,10 @@ See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 						hour: "numeric",
 						minute: "numeric",
 					}).format(new Date(updatedNextShift.start.dateTime));
+
+					await groupMeBots["gh.students"].sendGroupMeMessage(
+						"The buttery was just confirmed as closed for today by the buttery team!",
+					);
 
 					return `Marked next shift on ${formattedDateTime} as closed!
 
