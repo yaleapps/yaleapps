@@ -3,6 +3,8 @@ import { getHours } from "date-fns";
 import { Hono } from "hono";
 import webhooks from "./routes/webhooks";
 import { createServices, servicesMiddleware } from "./services";
+import { calendar_v3 } from "@googleapis/calendar";
+import { STATUS_PREFIXES } from "./services/butterySchedule";
 
 export type Bindings = {
 	CALENDAR_ID_GH: string;
@@ -47,6 +49,15 @@ export default {
 						"Is the buttery open tonight? Please confirm by responding with !open or !closed and I'll forward it to the GroupMe!",
 					);
 				};
+				const isEventConfirmed = (event: calendar_v3.Schema$Event) =>
+					event.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
+					event.summary?.startsWith(STATUS_PREFIXES.CLOSED);
+
+				const maybeEvent = await butterySchedules.gh.getOngoingOrTodayEvent();
+				const isAlreadyConfirmed = maybeEvent
+					? isEventConfirmed(maybeEvent)
+					: false;
+				if (isAlreadyConfirmed) return;
 				await requestManagerConfirmation();
 			} else if (is10pm) {
 				const sendStatusToStudents = async () => {
