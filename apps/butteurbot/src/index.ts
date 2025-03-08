@@ -49,11 +49,11 @@ export default {
 					);
 				};
 
-				const maybeEvent = await butterySchedules.gh.getOngoingOrTodayEvent();
-				if (maybeEvent) {
+				const event = await butterySchedules.gh.getOngoingOrTodayEvent();
+				if (event) {
 					const isAlreadyConfirmed =
-						maybeEvent.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
-						maybeEvent.summary?.startsWith(STATUS_PREFIXES.CLOSED);
+						event.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
+						event.summary?.startsWith(STATUS_PREFIXES.CLOSED);
 					if (isAlreadyConfirmed) return;
 				}
 				await requestManagerConfirmation();
