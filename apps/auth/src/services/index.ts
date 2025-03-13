@@ -24,6 +24,12 @@ export const dbAuthMiddleware = createMiddleware<{ Bindings: Bindings }>(
 				schema: authSchema,
 				usePlural: true,
 			}),
+			advanced: {
+				crossSubDomainCookies: {
+					enabled: true,
+					domain: ".yaleapps.com",
+				},
+			},
 		});
 		c.set("auth", auth);
 		await next();
