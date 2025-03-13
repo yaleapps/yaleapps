@@ -1,9 +1,14 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import { dbAuthMiddleware } from "./services";
 
-const app = new Hono()
+export type Bindings = { DB: D1Database };
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+export const app = new Hono<{ Bindings: Bindings }>();
 
-export default app
+app.use(dbAuthMiddleware);
+
+app.get("/", (c) => {
+	return c.text("Hello Hono!");
+});
+
+export default app;
