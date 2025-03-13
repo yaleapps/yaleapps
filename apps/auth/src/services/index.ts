@@ -17,6 +17,7 @@ export const dbAuthMiddleware = createMiddleware<{ Bindings: Bindings }>(
 		const db = drizzle<typeof authSchema>(c.env.DB);
 		c.set("db", db);
 		const auth = betterAuth({
+			trustedOrigins: ["http://localhost:3000"],
 			database: drizzleAdapter(db, {
 				provider: "sqlite",
 				schema: authSchema,
