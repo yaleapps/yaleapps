@@ -9,6 +9,10 @@ declare module "hono" {
 	interface ContextVariableMap {
 		db: DrizzleD1Database<typeof authSchema>;
 		auth: ReturnType<typeof betterAuth>;
+		user: ReturnType<typeof betterAuth>["$Infer"]["Session"]["user"] | null;
+		session:
+			| ReturnType<typeof betterAuth>["$Infer"]["Session"]["session"]
+			| null;
 	}
 }
 
@@ -32,6 +36,16 @@ export const dbAuthMiddleware = createMiddleware<{ Bindings: Bindings }>(
 			},
 		});
 		c.set("auth", auth);
-		await next();
+		const session = await auth.api.getSession({ headers: c.req.raw.headers });
+
+		if (!session) {
+			c.set("user", null);
+			c.set("session", null);
+			return next();
+		}
+
+		c.set("user", session.user);
+		c.set("session", session.session);
+		return next();
 	},
 );
