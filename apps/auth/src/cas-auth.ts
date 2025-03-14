@@ -35,7 +35,7 @@ export async function casAuth(c: Context) {
 
 			if (netIdMatch?.[1]) {
 				const netId = netIdMatch[1];
-				const user: User = { netId };
+				const user = { netId } satisfies User;
 
 				// Create a session
 				const sessionId = nanoid();
