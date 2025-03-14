@@ -14,16 +14,25 @@ function setupPassport() {
 		),
 	);
 
-	// User to session
-	passport.serializeUser((untypedUser, done) => {
-		const user = untypedUser as User;
-		const session = user.netId;
-		done(null, session);
-	});
+	const setupPassportSerializeDeserialize = <
+		User extends Express.User,
+		Session extends string,
+	>(
+		serialize: (user: User) => Session,
+		deserialize: (session: Session) => User,
+	) => {
+		passport.serializeUser((user, done) => {
+			const session = serialize(user as User);
+			done(null, session);
+		});
+		passport.deserializeUser((session, done) => {
+			const user = deserialize(session as Session);
+			done(null, user);
+		});
+	};
 
-	// Session to user
-	passport.deserializeUser((session: string, done) => {
-		const user = { netId: session } satisfies User;
-		done(null, user);
-	});
+	setupPassportSerializeDeserialize<User, string>(
+		(user) => user.netId,
+		(session) => ({ netId: session }) satisfies User,
+	);
 }
