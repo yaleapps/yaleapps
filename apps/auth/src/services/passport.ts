@@ -14,6 +14,11 @@ function setupPassport() {
 		),
 	);
 
+	/**
+	 * Wraps passport.serializeUser and passport.deserializeUser with type safety
+	 * @param serialize - Function to serialize user to session
+	 * @param deserialize - Function to deserialize session to user
+	 */
 	const setupPassportSerializeDeserialize = <
 		User extends Express.User,
 		Session extends string,
