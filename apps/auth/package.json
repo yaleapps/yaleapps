@@ -5,9 +5,12 @@
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
+    "@types/passport": "^1.0.17",
     "better-auth": "^1.2.3",
     "drizzle-orm": "^0.40.0",
-    "hono": "^4.7.4"
+    "hono": "^4.7.4",
+    "passport": "^0.7.0",
+    "passport-cas": "^0.1.1"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250312.0",
