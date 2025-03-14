@@ -19,10 +19,13 @@ function setupPassport() {
 	 * @param serialize - Function to serialize user to session
 	 * @param deserialize - Function to deserialize session to user
 	 */
-	const setupPassportSerializeDeserialize = <User extends Express.User>(
-		serialize: (user: User) => string,
-		deserialize: (session: string) => User,
-	) => {
+	const setupPassportSerializeDeserialize = <User extends Express.User>({
+		serialize,
+		deserialize,
+	}: {
+		serialize: (user: User) => string;
+		deserialize: (session: string) => User;
+	}) => {
 		passport.serializeUser((user, done) => {
 			const session = serialize(user as User);
 			done(null, session);
@@ -33,8 +36,8 @@ function setupPassport() {
 		});
 	};
 
-	setupPassportSerializeDeserialize<User>(
-		(user) => user.netId,
-		(session) => ({ netId: session }) satisfies User,
-	);
+	setupPassportSerializeDeserialize<User>({
+		serialize: (user) => user.netId,
+		deserialize: (session) => ({ netId: session }) satisfies User,
+	});
 }
