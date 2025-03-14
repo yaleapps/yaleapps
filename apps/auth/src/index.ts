@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { dbAuthMiddleware } from "./services";
+import { setupPassport } from "./services/passport";
+import { casAuth } from "./cas-auth";
 
 export type Bindings = { DB: D1Database };
 
@@ -24,8 +26,6 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 	return c.get("auth").handler(c.req.raw);
 });
 
-app.get("/", (c) => {
-	return c.text("Hello Hono!");
-});
+app.get("/login", casAuth);
 
 export default app;
