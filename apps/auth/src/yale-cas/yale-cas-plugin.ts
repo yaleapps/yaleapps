@@ -70,135 +70,211 @@ export const yaleCas = (options?: YaleCASOptions) => {
 	return {
 		id: "yale-cas",
 		endpoints: {
-			signInYaleCAS: createAuthEndpoint(
+			signInWithYaleCas: createAuthEndpoint(
 				"/sign-in/yale-cas",
 				{
-					requireHeaders: true,
 					method: "POST",
-					query: z.object({ callbackURL: z.string().optional() }).optional(),
+					body: z.object({
+						disableRedirect: z
+							.boolean({ description: "Disable redirect" })
+							.optional(),
+					}),
 					metadata: {
 						openapi: {
 							description: "Sign in with Yale CAS",
 							responses: {
-								302: { description: "Redirect to Yale CAS login page" },
+								200: {
+									description: "Sign in with OAuth2",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													url: { type: "string" },
+													redirect: { type: "boolean" },
+												},
+											},
+										},
+									},
+								},
 							},
 						},
 					},
+					requireRequest: true,
 				},
 				async (ctx) => {
-					const { query, headers, redirect } = ctx;
-					const callbackURL = query?.callbackURL ?? "/";
-					const service = getServiceUrl(headers, callbackURL);
-					const loginUrl = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(service)}`;
-					return redirect(loginUrl);
+					const {
+						body: { disableRedirect },
+					} = ctx;
+					const baseUrl = getBaseUrl(ctx.request.url);
+					const serviceCallbackUrl =
+						`${baseUrl}/api/auth/callback/yale-cas` as const;
+					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
+					return ctx.json({ url, redirect: !disableRedirect });
 				},
 			),
 
-			callbackYaleCAS: createAuthEndpoint(
+			yaleCasCallback: createAuthEndpoint(
 				"/callback/yale-cas",
 				{
-					requireHeaders: true,
 					method: "GET",
-					query: z.object({
-						ticket: z.string(),
-						callbackURL: z.string().optional(),
-					}),
+					query: z
+						.object({
+							ticket: z
+								.string({ description: "The ticket from Yale CAS" })
+								.optional(),
+						})
+						.strip(),
 					metadata: {
 						openapi: {
 							description: "Yale CAS callback endpoint",
 							responses: {
-								302: {
-									description:
-										"Redirect to callback URL after successful authentication",
+								200: {
+									description: "Yale CAS callback",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: { url: { type: "string" } },
+											},
+										},
+									},
 								},
-								401: { description: "Authentication failed" },
-								500: { description: "Internal server error" },
 							},
 						},
 					},
+					requireRequest: true,
 				},
 				async (ctx) => {
-					const { query, headers } = ctx;
-					const ticket = query.ticket;
-					const callbackURL = query.callbackURL ?? "/";
-
+					const { ticket } = ctx.query;
 					if (!ticket) {
 						throw new APIError("BAD_REQUEST", {
 							message: ERROR_CODES.NO_TICKET_PROVIDED,
 						});
 					}
+					const baseUrl = getBaseUrl(ctx.request.url);
+					const serviceCallbackUrl =
+						`${baseUrl}/api/auth/callback/yale-cas"` as const;
 
 					try {
-						const service = getServiceUrl(headers, callbackURL);
+						const validateTicket = async () => {
+							const response = await fetch(
+								`${YALE_CAS_BASE_URL}/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(serviceCallbackUrl)}`,
+							);
 
-						const response = await fetch(
-							`${YALE_CAS_BASE_URL}/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(service)}`,
-						);
+							const xml = await response.text();
 
-						const xml = await response.text();
-
-						if (xml.includes("<cas:authenticationSuccess>")) {
-							const netIdMatch = xml.match(/<cas:user>(.*?)<\/cas:user>/);
-
-							if (netIdMatch?.[1]) {
-								const netId = netIdMatch[1];
-
-								let user = await ctx.context.adapter.findOne<YaleUserWithCAS>({
-									model: "user",
-									where: [{ field: "netId", value: netId }],
+							if (!xml.includes("<cas:authenticationSuccess>")) {
+								throw new APIError("UNAUTHORIZED", {
+									message: ERROR_CODES.AUTHENTICATION_FAILED,
 								});
+							}
+							const netIdMatch = xml.match(/<cas:user>(.*?)<\/cas:user>/);
+							const netId = netIdMatch?.[1];
+							if (!netId) {
+								throw new APIError("UNAUTHORIZED", {
+									message: ERROR_CODES.AUTHENTICATION_FAILED,
+								});
+							}
+							return netId;
+						};
 
-								const email = await getYaleEmailByNetId(netId);
+						const netId = await validateTicket();
 
-								// If user doesn't exist, create a new one
-								if (!user) {
-									const id = ctx.context.generateId({ model: "user" });
-									user = await ctx.context.internalAdapter.createUser(
-										{
-											id,
-											netId,
-											email,
-											emailVerified: true,
-											name: netId,
-											createdAt: new Date(),
-											updatedAt: new Date(),
-										},
-										ctx,
-									);
+						const user = await ctx.context.adapter.findOne<YaleUserWithCAS>({
+							model: "user",
+							where: [{ field: "netId", value: netId }],
+						});
 
-									if (!user) {
-										throw ctx.error("INTERNAL_SERVER_ERROR", {
-											message: ERROR_CODES.FAILED_TO_CREATE_USER,
-										});
-									}
-								}
-
-								// Create a session
-								const session = await ctx.context.internalAdapter.createSession(
-									user.id,
-									ctx.request,
+						if (!user) {
+							const yalie = await getYalieByNetId(netId);
+							if (!yalie.email) {
+								throw new APIError("INTERNAL_SERVER_ERROR", {
+									message: ERROR_CODES.FAILED_TO_CREATE_USER,
+								});
+							}
+							const newUser =
+								await ctx.context.internalAdapter.createUser<YaleUserWithCAS>(
+									{
+										id: ctx.context.generateId({ model: "user" }),
+										netId: yalie.netid,
+										email: yalie.email,
+										emailVerified: false,
+										name: `${yalie.first_name} ${yalie.last_name}`,
+										image: yalie.image,
+										createdAt: new Date(),
+										updatedAt: new Date(),
+									},
+									ctx,
 								);
 
-								if (!session) {
-									return ctx.json(null, {
-										status: 400,
-										body: {
-											message: ERROR_CODES.COULD_NOT_CREATE_SESSION,
-										},
-									});
-								}
-
-								await setSessionCookie(ctx, {
-									session,
-									user,
+							if (!newUser) {
+								throw ctx.error("INTERNAL_SERVER_ERROR", {
+									message: ERROR_CODES.FAILED_TO_CREATE_USER,
 								});
-
-								return ctx.redirect(callbackURL);
 							}
+
+							const session = await ctx.context.internalAdapter.createSession(
+								newUser.id,
+								ctx.request,
+							);
+
+							if (!session) {
+								return ctx.json(null, {
+									status: 400,
+									body: {
+										message: ERROR_CODES.COULD_NOT_CREATE_SESSION,
+									},
+								});
+							}
+
+							await setSessionCookie(ctx, {
+								session,
+								user: newUser,
+							});
+
+							return ctx.json({
+								token: session.token,
+								user: {
+									id: newUser.id,
+									email: newUser.email,
+									emailVerified: newUser.emailVerified,
+									name: newUser.name,
+									createdAt: newUser.createdAt,
+									updatedAt: newUser.updatedAt,
+								},
+							});
 						}
 
-						throw new APIError("UNAUTHORIZED", {
-							message: ERROR_CODES.AUTHENTICATION_FAILED,
+						const session = await ctx.context.internalAdapter.createSession(
+							user.id,
+							ctx.request,
+						);
+
+						if (!session) {
+							return ctx.json(null, {
+								status: 400,
+								body: {
+									message: ERROR_CODES.COULD_NOT_CREATE_SESSION,
+								},
+							});
+						}
+
+						await setSessionCookie(ctx, {
+							session,
+							user,
+						});
+
+						return ctx.json({
+							token: session.token,
+							user: {
+								id: user.id,
+								email: user.email,
+								emailVerified: user.emailVerified,
+								name: user.name,
+								createdAt: user.createdAt,
+								updatedAt: user.updatedAt,
+							},
 						});
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
@@ -259,14 +335,17 @@ export const yaleCas = (options?: YaleCASOptions) => {
 /**
  * Get the service URL for CAS callback
  */
-function getServiceUrl(headers: Headers, callbackURL: string): string {
+function getServiceUrl({
+	headers,
+	callbackURL,
+}: { headers: Headers; callbackURL: string }): string {
 	// Check if we're in development mode
 	const isDev = process.env.NODE_ENV !== "production";
 
 	// For development, force localhost
 	if (isDev) {
 		const port = process.env.PORT ?? "3000"; // Default port
-		const url = new URL(`http://localhost:${port}/api/auth/callback/cas`);
+		const url = new URL(`http://localhost:${port}/api/auth/callback/yale-cas`);
 		url.searchParams.set("callbackURL", callbackURL);
 		url.searchParams.delete("ticket");
 		return url.toString();
@@ -372,4 +451,9 @@ async function getYalieByNetId(netId: string) {
 	}
 
 	return yalie;
+}
+
+function getBaseUrl(url: string): string {
+	const urlObj = new URL(url);
+	return urlObj.origin;
 }
