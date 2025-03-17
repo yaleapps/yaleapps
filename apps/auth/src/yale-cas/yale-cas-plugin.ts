@@ -363,13 +363,13 @@ async function getYalieByNetId(netId: string) {
 		});
 	}
 
-	const maybeYalie = data.at(0);
+	const yalie = data.at(0);
 
-	if (!maybeYalie) {
+	if (!yalie) {
 		throw new APIError("NOT_FOUND", {
 			message: "Yale user not found",
 		});
 	}
 
-	return maybeYalie;
+	return yalie;
 }
