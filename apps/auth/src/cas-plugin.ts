@@ -1,36 +1,95 @@
-import type { BetterAuthPlugin, EndpointContext } from "better-auth";
+import type {
+	BetterAuthPlugin,
+	EndpointContext,
+	AuthContext,
+	MiddlewareContext,
+	MiddlewareOptions,
+} from "better-auth";
 import {
 	createAuthEndpoint,
 	createAuthMiddleware,
 	sessionMiddleware,
+	APIError,
+	getSessionFromCtx,
 } from "better-auth/api";
 import { nanoid } from "nanoid";
-import type { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import { type } from "arktype";
+import { setSessionCookie } from "better-auth/cookies";
+import { mergeSchema } from "better-auth/db";
 
 const CAS_BASE_URL = "https://secure.its.yale.edu/cas";
 const SESSION_COOKIE_NAME = "auth_session";
 
-type User = { netId: string };
+export interface UserWithCAS {
+	netId: string;
+	[key: string]: unknown;
+}
 
-export const casPlugin = (options?: {
+export interface CASOptions {
+	/**
+	 * Base URL for the CAS server
+	 * @default "https://secure.its.yale.edu/cas"
+	 */
 	casBaseUrl?: string;
+	/**
+	 * Name of the session cookie
+	 * @default "auth_session"
+	 */
 	sessionCookieName?: string;
-}) => {
+	/**
+	 * Custom schema for the CAS plugin
+	 */
+	schema?: Record<string, unknown>;
+}
+
+const schema = {
+	user: {
+		fields: {
+			netId: {
+				type: "string",
+				unique: true,
+			},
+		},
+	},
+};
+
+export const casPlugin = (options?: CASOptions) => {
 	const casBaseUrl = options?.casBaseUrl ?? CAS_BASE_URL;
 	const sessionCookieName = options?.sessionCookieName ?? SESSION_COOKIE_NAME;
 
+	const ERROR_CODES = {
+		NO_TICKET_PROVIDED: "No ticket provided",
+		AUTHENTICATION_FAILED: "Authentication failed",
+		AUTHENTICATION_ERROR: "Authentication error",
+		UNAUTHORIZED: "Unauthorized",
+	} as const;
+
 	return {
 		id: "cas",
-
-		// Define endpoints for CAS authentication
 		endpoints: {
 			login: createAuthEndpoint(
 				"/cas/login",
-				{ method: "GET" },
+				{
+					method: "GET",
+					metadata: {
+						openapi: {
+							description: "Redirect to CAS login",
+							responses: {
+								302: {
+									description: "Redirect to CAS login page",
+								},
+							},
+						},
+					},
+				},
 				async (ctx) => {
-					const service = getServiceUrl(ctx);
+					// Ensure headers are available
+					if (!ctx.headers) {
+						throw new Error("Headers not available");
+					}
+
+					const service = getServiceUrl(ctx.headers);
 
 					// Redirect to CAS login
 					const loginUrl = `${casBaseUrl}/login?service=${encodeURIComponent(service)}`;
@@ -44,22 +103,38 @@ export const casPlugin = (options?: {
 					method: "GET",
 					query: type({ ticket: "string", callbackURL: "string" }),
 					requireHeaders: true,
+					metadata: {
+						openapi: {
+							description: "CAS callback endpoint",
+							responses: {
+								302: {
+									description:
+										"Redirect to callback URL after successful authentication",
+								},
+								401: {
+									description: "Authentication failed",
+								},
+								500: {
+									description: "Internal server error",
+								},
+							},
+						},
+					},
 				},
 				async (ctx) => {
 					const ticket = ctx.query.ticket;
+
+					// Ensure headers are available
+					if (!ctx.headers) {
+						throw new Error("Headers not available");
+					}
+
 					const service = getServiceUrl(ctx.headers);
 
 					if (!ticket) {
-						return ctx.json(
-							{
-								status: 400,
-								error: "No ticket provided",
-							},
-							{
-								status: 400,
-								statusText: "Bad Request",
-							},
-						);
+						throw new APIError("BAD_REQUEST", {
+							message: ERROR_CODES.NO_TICKET_PROVIDED,
+						});
 					}
 
 					try {
@@ -75,21 +150,47 @@ export const casPlugin = (options?: {
 
 							if (netIdMatch?.[1]) {
 								const netId = netIdMatch[1];
-								const user = { netId } satisfies User;
+
+								// Create or find user
+								const id = ctx.context.generateId({ model: "user" });
+								const user = await ctx.context.internalAdapter.createUser(
+									{
+										id,
+										netId,
+										email: `${netId}@yale.edu`,
+										emailVerified: true,
+										name: netId,
+										createdAt: new Date(),
+										updatedAt: new Date(),
+									},
+									ctx,
+								);
+
+								if (!user) {
+									throw ctx.error("INTERNAL_SERVER_ERROR", {
+										message: "Failed to create user",
+									});
+								}
 
 								// Create a session
-								const sessionId = nanoid();
+								const session = await ctx.context.internalAdapter.createSession(
+									user.id,
+									ctx.request,
+								);
 
-								// In a real implementation, you would store this session in your database
-								// await ctx.context.internalAdapter.createSession(user.netId);
+								if (!session) {
+									return ctx.json(null, {
+										status: 400,
+										body: {
+											message: "Could not create session",
+										},
+									});
+								}
 
 								// Set session cookie
-								ctx.setCookie(sessionCookieName, sessionId, {
-									httpOnly: true,
-									secure: process.env.NODE_ENV === "production",
-									sameSite: "Lax",
-									path: "/",
-									maxAge: 60 * 60 * 24 * 7, // 1 week
+								await setSessionCookie(ctx, {
+									session,
+									user,
 								});
 
 								// Get the callback URL from query or use default
@@ -99,22 +200,17 @@ export const casPlugin = (options?: {
 						}
 
 						// Authentication failed
-						return ctx.json(
-							{ error: "Authentication failed" },
-							{ status: 401, statusText: "Unauthorized" },
-						);
+						throw new APIError("UNAUTHORIZED", {
+							message: ERROR_CODES.AUTHENTICATION_FAILED,
+						});
 					} catch (error) {
 						console.error("CAS authentication error:", error);
-						return ctx.json(
-							{
-								status: 500,
-								error: "Authentication error",
-							},
-							{
-								status: 500,
-								statusText: "Internal Server Error",
-							},
-						);
+						if (error instanceof APIError) {
+							throw error;
+						}
+						throw new APIError("INTERNAL_SERVER_ERROR", {
+							message: ERROR_CODES.AUTHENTICATION_ERROR,
+						});
 					}
 				},
 			),
@@ -125,6 +221,28 @@ export const casPlugin = (options?: {
 				{
 					method: "GET",
 					use: [sessionMiddleware], // Use the session middleware to check if user is authenticated
+					metadata: {
+						openapi: {
+							description: "Get the current user",
+							responses: {
+								200: {
+									description: "Current user",
+									content: {
+										"application/json": {
+											schema: {
+												type: "object",
+												properties: {
+													user: {
+														$ref: "#/components/schemas/User",
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
 				async (ctx) => {
 					// Session is available in ctx.context.session
@@ -135,51 +253,31 @@ export const casPlugin = (options?: {
 			),
 		},
 
-		// Middleware to check if user is authenticated
-		middleware: [
-			{
-				matcher: (context) => context.path.startsWith("/api/protected"),
-				handler: createAuthMiddleware(async (ctx) => {
-					const sessionId = getCookie(ctx.c, sessionCookieName);
-
-					if (!sessionId) {
-						return {
-							status: 401,
-							json: { success: false, error: "Unauthorized" },
-						};
-					}
-
-					// In a real implementation, you would fetch the session from your database
-					// const session = await ctx.context.adapter.session.findFirst({
-					//   where: { id: sessionId }
-					// });
-					//
-					// if (!session) {
-					//   return { status: 401, json: { success: false, error: "Invalid session" } };
-					// }
-					//
-					// const user = await ctx.context.adapter.user.findFirst({
-					//   where: { id: session.userId }
-					// });
-					//
-					// ctx.set("user", user);
-
-					return { context: ctx };
-				}),
-			},
-		],
-
-		// Optional: Define schema for CAS-specific data
-		schema: {
-			user: {
-				fields: {
-					netId: {
-						type: "string",
-						unique: true,
+		// Hooks for authentication flow
+		hooks: {
+			after: [
+				{
+					matcher(ctx) {
+						return ctx.path.startsWith("/api/protected");
 					},
+					handler: createAuthMiddleware(async (ctx) => {
+						const session = await getSessionFromCtx(ctx);
+
+						if (!session) {
+							throw new APIError("UNAUTHORIZED", {
+								message: ERROR_CODES.UNAUTHORIZED,
+							});
+						}
+
+						return { context: ctx };
+					}),
 				},
-			},
+			],
 		},
+
+		// Define schema for CAS-specific data
+		schema: mergeSchema(schema, options?.schema),
+		$ERROR_CODES: ERROR_CODES,
 	} satisfies BetterAuthPlugin;
 };
 
