@@ -23,7 +23,8 @@ app.use(
 app.use(dbAuthMiddleware);
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => {
-	return c.get("auth").handler(c.req.raw);
+	const auth = c.get("auth");
+	return auth.handler(c.req.raw);
 });
 
 app.get("/login", casAuth);
