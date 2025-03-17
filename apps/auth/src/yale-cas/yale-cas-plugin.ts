@@ -18,7 +18,6 @@ import { mergeSchema } from "better-auth/db";
 import { type } from "arktype";
 
 const YALE_CAS_BASE_URL = "https://secure.its.yale.edu/cas";
-const YALE_EMAIL_DOMAIN = "yale.edu";
 
 export interface YaleUserWithCAS extends User {
 	netId: string;
