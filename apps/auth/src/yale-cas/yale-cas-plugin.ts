@@ -57,7 +57,7 @@ const schema = {
 	},
 } satisfies AuthPluginSchema;
 
-export const cas = (options?: YaleCASOptions) => {
+export const yaleCas = (options?: YaleCASOptions) => {
 	const ERROR_CODES = {
 		FAILED_TO_CREATE_USER: "Failed to create user",
 		COULD_NOT_CREATE_SESSION: "Could not create session",
@@ -74,7 +74,7 @@ export const cas = (options?: YaleCASOptions) => {
 				"/sign-in/yale-cas",
 				{
 					requireHeaders: true,
-					method: "GET",
+					method: "POST",
 					query: z.object({ callbackURL: z.string().optional() }).optional(),
 					metadata: {
 						openapi: {
@@ -85,7 +85,8 @@ export const cas = (options?: YaleCASOptions) => {
 						},
 					},
 				},
-				async ({ query, headers, redirect }) => {
+				async (ctx) => {
+					const { query, headers, redirect } = ctx;
 					const callbackURL = query?.callbackURL ?? "/";
 					const service = getServiceUrl(headers, callbackURL);
 					const loginUrl = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(service)}`;
