@@ -1,3 +1,4 @@
+import { betterFetch } from "@better-fetch/fetch";
 import {
 	APIError,
 	createAuthEndpoint,
@@ -14,6 +15,7 @@ import type {
 import { setSessionCookie } from "better-auth/cookies";
 import { z } from "zod";
 import { mergeSchema } from "better-auth/db";
+import { type } from "arktype";
 
 const YALE_CAS_BASE_URL = "https://secure.its.yale.edu/cas";
 const YALE_EMAIL_DOMAIN = "yale.edu";
@@ -73,11 +75,7 @@ export const cas = (options?: YaleCASOptions) => {
 				{
 					requireHeaders: true,
 					method: "GET",
-					query: z
-						.object({
-							callbackURL: z.string().optional(),
-						})
-						.optional(),
+					query: z.object({ callbackURL: z.string().optional() }).optional(),
 					metadata: {
 						openapi: {
 							description: "Sign in with Yale CAS",
@@ -119,7 +117,7 @@ export const cas = (options?: YaleCASOptions) => {
 					},
 				},
 				async (ctx) => {
-					const { query, headers, redirect } = ctx;
+					const { query, headers } = ctx;
 					const ticket = query.ticket;
 					const callbackURL = query.callbackURL ?? "/";
 
@@ -146,13 +144,10 @@ export const cas = (options?: YaleCASOptions) => {
 
 								let user = await ctx.context.adapter.findOne<YaleUserWithCAS>({
 									model: "user",
-									where: [
-										{
-											field: "netId",
-											value: netId,
-										},
-									],
+									where: [{ field: "netId", value: netId }],
 								});
+
+								const email = await getYaleEmailByNetId(netId);
 
 								// If user doesn't exist, create a new one
 								if (!user) {
@@ -161,7 +156,7 @@ export const cas = (options?: YaleCASOptions) => {
 										{
 											id,
 											netId,
-											email: `${netId}@${YALE_EMAIL_DOMAIN}`,
+											email,
 											emailVerified: true,
 											name: netId,
 											createdAt: new Date(),
@@ -192,18 +187,15 @@ export const cas = (options?: YaleCASOptions) => {
 									});
 								}
 
-								// Set session cookie
 								await setSessionCookie(ctx, {
 									session,
 									user,
 								});
 
-								// Redirect to callback URL
 								return ctx.redirect(callbackURL);
 							}
 						}
 
-						// Authentication failed
 						throw new APIError("UNAUTHORIZED", {
 							message: ERROR_CODES.AUTHENTICATION_FAILED,
 						});
@@ -289,4 +281,29 @@ function getServiceUrl(headers: Headers, callbackURL: string): string {
 	url.searchParams.delete("ticket");
 
 	return url.toString();
+}
+
+async function getYaleEmailByNetId(netId: string) {
+	const { data, error } = await betterFetch("https://api.yalies.io/v2/people", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${process.env.YALE_API_KEY}`,
+		},
+		body: JSON.stringify({
+			filters: {
+				netid: netId,
+			},
+			pageSize: 1,
+		}),
+		output: type({
+			email: "string",
+		}),
+	});
+	if (error) {
+		throw new APIError("INTERNAL_SERVER_ERROR", {
+			message: "Failed to get Yale email by netId",
+		});
+	}
+	return data?.email;
 }
