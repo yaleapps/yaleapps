@@ -1,12 +1,24 @@
+import type { betterAuth } from "better-auth";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
+import type * as authSchema from "../db/schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { dbAuthMiddleware } from "./services";
-import { setupPassport } from "./services/passport";
 import { casAuth } from "./cas-auth";
+import { dbAuthMiddleware } from "./services";
 
-export type Bindings = { DB: D1Database };
+export type Env = {
+	Bindings: { DB: D1Database };
+	Variables: {
+		db: DrizzleD1Database<typeof authSchema>;
+		auth: ReturnType<typeof betterAuth>;
+		user: ReturnType<typeof betterAuth>["$Infer"]["Session"]["user"] | null;
+		session:
+			| ReturnType<typeof betterAuth>["$Infer"]["Session"]["session"]
+			| null;
+	};
+};
 
-export const app = new Hono<{ Bindings: Bindings }>();
+export const app = new Hono<Env>();
 
 app.use(
 	"/api/auth/*", // or replace with "*" to enable cors for all routes
