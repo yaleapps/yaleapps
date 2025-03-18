@@ -2,10 +2,10 @@ import { tz } from "@date-fns/tz";
 import { getHours } from "date-fns";
 import { Hono } from "hono";
 import webhooks from "./routes/webhooks";
-import { createServices, servicesMiddleware } from "./services";
+import { type Services, createServices, servicesMiddleware } from "./services";
 import { STATUS_PREFIXES } from "./services/butterySchedule";
 
-export type Bindings = {
+type Bindings = {
 	CALENDAR_ID_GH: string;
 	GOOGLE_SERVICE_ACCOUNT_CLIENT_EMAIL: string;
 	GOOGLE_SERVICE_ACCOUNT_CLIENT_ID: string;
@@ -15,7 +15,16 @@ export type Bindings = {
 	GROUPME_GH_STUDENTS_BOT_ID: string;
 };
 
-export const app = new Hono<{ Bindings: Bindings }>();
+type Variables = {
+	services: Services;
+};
+
+export type Env = {
+	Bindings: Bindings;
+	Variables: Variables;
+};
+
+export const app = new Hono<Env>();
 
 app.use(servicesMiddleware);
 

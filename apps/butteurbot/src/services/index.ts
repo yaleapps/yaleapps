@@ -1,26 +1,17 @@
-import type { Context } from "hono";
 import { createMiddleware } from "hono/factory";
-import type { Bindings } from "..";
+import type { Env } from "..";
 import type { GroupMeBotMessage } from "../types/groupme";
 import { createButteryScheduleService } from "./butterySchedule";
 import { createGoogleCalendarService } from "./calendar";
 
-declare module "hono" {
-	interface ContextVariableMap {
-		services: Services;
-	}
-}
+export const servicesMiddleware = createMiddleware<Env>(async (c, next) => {
+	c.set("services", createServices(c.env));
+	await next();
+});
 
-export const servicesMiddleware = createMiddleware<{ Bindings: Bindings }>(
-	async (c, next) => {
-		c.set("services", createServices(c.env));
-		await next();
-	},
-);
+export type Services = ReturnType<typeof createServices>;
 
-type Services = ReturnType<typeof createServices>;
-
-export function createServices(env: Bindings) {
+export function createServices(env: Env["Bindings"]) {
 	return {
 		groupMeBots: {
 			"gh.managers": createGroupMeBot(env.GROUPME_GH_MANAGERS_BOT_ID),
