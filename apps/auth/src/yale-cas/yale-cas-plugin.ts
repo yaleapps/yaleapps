@@ -157,7 +157,7 @@ export const yaleCas = (options?: YaleCASOptions) => {
 					const baseUrl = getBaseUrl(ctx.request.url);
 					ctx.context.logger.info(baseUrl);
 					const serviceCallbackUrl =
-						`${baseUrl}/api/auth/callback/yale-cas"` as const;
+						`${baseUrl}/api/auth/callback/yale-cas` as const;
 
 					try {
 						const validateTicket = async () => {
