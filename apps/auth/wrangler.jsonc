@@ -24,7 +24,7 @@
 			"binding": "DB",
 			"database_name": "yaleapps_db",
 			"database_id": "be3bf0a6-4908-45cb-9205-b09336ad4fd9",
-			"migrations_dir": "drizzle/migrations"
+			"migrations_dir": "drizzle"
 		}
 	]
 	// "ai": {
