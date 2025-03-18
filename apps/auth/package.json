@@ -15,7 +15,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250312.0",
     "drizzle-kit": "^0.30.5",
-    "wrangler": "^4.0.0"
+    "wrangler": "^4.1.0"
   },
   "exports": {
     ".": "./src/yale-cas/index.ts"
