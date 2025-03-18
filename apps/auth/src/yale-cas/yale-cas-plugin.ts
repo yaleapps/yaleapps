@@ -161,11 +161,18 @@ export const yaleCas = (options?: YaleCASOptions) => {
 
 					try {
 						const validateTicket = async () => {
-							const response = await fetch(
+							const { data: xml, error } = await betterFetch(
 								`${YALE_CAS_BASE_URL}/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(serviceCallbackUrl)}`,
+								{ method: "GET", output: z.string() },
 							);
 
-							const xml = await response.text();
+							if (error) {
+								throw new APIError("INTERNAL_SERVER_ERROR", {
+									message: ERROR_CODES.AUTHENTICATION_ERROR,
+								});
+							}
+
+							ctx.context.logger.info(xml);
 
 							if (!xml.includes("<cas:authenticationSuccess>")) {
 								throw new APIError("UNAUTHORIZED", {
