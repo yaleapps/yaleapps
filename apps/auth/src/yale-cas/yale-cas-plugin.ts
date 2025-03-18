@@ -1,21 +1,21 @@
 import { betterFetch } from "@better-fetch/fetch";
+import { type } from "arktype";
 import {
 	APIError,
 	createAuthEndpoint,
 	createAuthMiddleware,
 	getSessionFromCtx,
 } from "better-auth/api";
+import { setSessionCookie } from "better-auth/cookies";
+import { mergeSchema } from "better-auth/db";
 import type {
+	AuthPluginSchema,
 	BetterAuthPlugin,
 	InferOptionSchema,
-	AuthPluginSchema,
 	Session,
 	User,
 } from "better-auth/types";
-import { setSessionCookie } from "better-auth/cookies";
 import { z } from "zod";
-import { mergeSchema } from "better-auth/db";
-import { type } from "arktype";
 
 const YALE_CAS_BASE_URL = "https://secure.its.yale.edu/cas";
 
@@ -106,9 +106,11 @@ export const yaleCas = (options?: YaleCASOptions) => {
 						body: { disableRedirect },
 					} = ctx;
 					const baseUrl = getBaseUrl(ctx.request.url);
+					ctx.context.logger.info(baseUrl);
 					const serviceCallbackUrl =
 						`${baseUrl}/api/auth/callback/yale-cas` as const;
 					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
+					ctx.context.logger.info(url);
 					return ctx.json({ url, redirect: !disableRedirect });
 				},
 			),
@@ -151,7 +153,9 @@ export const yaleCas = (options?: YaleCASOptions) => {
 							message: ERROR_CODES.NO_TICKET_PROVIDED,
 						});
 					}
+					ctx.context.logger.info(ticket);
 					const baseUrl = getBaseUrl(ctx.request.url);
+					ctx.context.logger.info(baseUrl);
 					const serviceCallbackUrl =
 						`${baseUrl}/api/auth/callback/yale-cas"` as const;
 
