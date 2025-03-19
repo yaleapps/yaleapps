@@ -25,6 +25,10 @@ export interface YaleUserWithCAS extends User {
 
 export interface YaleCASOptions {
 	/**
+	 * The API key for the Yalies API.
+	 */
+	yaliesApiKey: string;
+	/**
 	 * A useful hook to run after a CAS user
 	 * is about to link their account.
 	 */
@@ -56,7 +60,7 @@ const schema = {
 	},
 } satisfies AuthPluginSchema;
 
-export const yaleCas = (options?: YaleCASOptions) => {
+export const yaleCas = (options: YaleCASOptions) => {
 	const ERROR_CODES = {
 		FAILED_TO_CREATE_USER: "Failed to create user",
 		COULD_NOT_CREATE_SESSION: "Could not create session",
@@ -197,7 +201,10 @@ export const yaleCas = (options?: YaleCASOptions) => {
 						});
 
 						if (!user) {
-							const yalie = await getYalieByNetId(netId);
+							const yalie = await getYalieByNetId({
+								netId,
+								apiKey: options.yaliesApiKey,
+							});
 							if (!yalie.email) {
 								throw new APIError("INTERNAL_SERVER_ERROR", {
 									message: ERROR_CODES.FAILED_TO_CREATE_USER,
@@ -373,12 +380,18 @@ function getServiceUrl({
 	return url.toString();
 }
 
-async function getYalieByNetId(netId: string) {
+async function getYalieByNetId({
+	netId,
+	apiKey,
+}: {
+	netId: string;
+	apiKey: string;
+}) {
 	const { data, error } = await betterFetch("https://api.yalies.io/v2/people", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: `Bearer ${process.env.YALE_API_KEY}`,
+			Authorization: `Bearer ${apiKey}`,
 		},
 		body: JSON.stringify({
 			filters: {
