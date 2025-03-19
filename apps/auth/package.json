@@ -2,6 +2,8 @@
   "name": "auth",
   "scripts": {
     "dev": "wrangler dev",
+    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local",
+    "predev": "pnpm db:migrate:dev",
     "deploy": "wrangler deploy --minify"
   },
   "dependencies": {
