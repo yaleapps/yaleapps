@@ -29,20 +29,6 @@ export interface YaleCASOptions {
 	 */
 	yaliesApiKey: string;
 	/**
-	 * A useful hook to run after a CAS user
-	 * is about to link their account.
-	 */
-	onLinkAccount?: (data: {
-		casUser: {
-			user: YaleUserWithCAS & Record<string, any>;
-			session: Session & Record<string, any>;
-		};
-		newUser: {
-			user: User & Record<string, any>;
-			session: Session & Record<string, any>;
-		};
-	}) => Promise<void> | void;
-	/**
 	 * Custom schema for the CAS plugin
 	 */
 	schema?: InferOptionSchema<typeof schema>;
