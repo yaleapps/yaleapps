@@ -7,7 +7,7 @@ import { casAuth } from "./cas-auth";
 import { dbAuthMiddleware } from "./services";
 
 export type Env = {
-	Bindings: { DB: D1Database };
+	Bindings: { DB: D1Database; YALIES_API_KEY: string };
 	Variables: {
 		db: DrizzleD1Database<typeof authSchema>;
 		auth: ReturnType<typeof betterAuth>;
