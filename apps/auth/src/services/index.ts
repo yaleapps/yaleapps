@@ -17,7 +17,13 @@ export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 			schema: authSchema,
 			usePlural: true,
 		}),
-		plugins: [yaleCas({ yaliesApiKey: c.env.YALIES_API_KEY })],
+		plugins: [
+			yaleCas({
+				yaliesApiKey: c.env.YALIES_API_KEY,
+				authServerBaseUrl: "http://localhost:8787",
+				redirectUrl: "http://localhost:3000",
+			}),
+		],
 		account: {
 			accountLinking: {
 				enabled: true,

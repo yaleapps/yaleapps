@@ -12,7 +12,6 @@ import type {
 	AuthPluginSchema,
 	BetterAuthPlugin,
 	InferOptionSchema,
-	Session,
 	User,
 } from "better-auth/types";
 import { z } from "zod";
@@ -28,6 +27,14 @@ export interface YaleCASOptions {
 	 * The API key for the Yalies API.
 	 */
 	yaliesApiKey: string;
+	/**
+	 * The base URL for the auth server.
+	 */
+	authServerBaseUrl: string;
+	/**
+	 * The URL to redirect to after successful authentication.
+	 */
+	redirectUrl: string;
 	/**
 	 * Custom schema for the CAS plugin
 	 */
@@ -95,10 +102,8 @@ export const yaleCas = (options: YaleCASOptions) => {
 					const {
 						body: { disableRedirect },
 					} = ctx;
-					const baseUrl = getBaseUrl(ctx.request.url);
-					ctx.context.logger.info(baseUrl);
 					const serviceCallbackUrl =
-						`${baseUrl}/api/auth/callback/yale-cas` as const;
+						`${options.authServerBaseUrl}/api/auth/callback/yale-cas` as const;
 					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
 					ctx.context.logger.info(url);
 					return ctx.json({ url, redirect: !disableRedirect });
@@ -144,10 +149,8 @@ export const yaleCas = (options: YaleCASOptions) => {
 						});
 					}
 					ctx.context.logger.info(ticket);
-					const baseUrl = getBaseUrl(ctx.request.url);
-					ctx.context.logger.info(baseUrl);
 					const serviceCallbackUrl =
-						`${baseUrl}/api/auth/callback/yale-cas` as const;
+						`${options.authServerBaseUrl}/api/auth/callback/yale-cas` as const;
 
 					try {
 						const validateTicket = async () => {
@@ -181,12 +184,15 @@ export const yaleCas = (options: YaleCASOptions) => {
 
 						const netId = await validateTicket();
 
+						ctx.context.logger.info(netId);
+
 						const user = await ctx.context.adapter.findOne<YaleUserWithCAS>({
 							model: "user",
 							where: [{ field: "netId", value: netId }],
 						});
 
 						if (!user) {
+							ctx.context.logger.info("User not found, creating user");
 							const yalie = await getYalieByNetId({
 								netId,
 								apiKey: options.yaliesApiKey,
@@ -236,18 +242,10 @@ export const yaleCas = (options: YaleCASOptions) => {
 								user: newUser,
 							});
 
-							return ctx.json({
-								token: session.token,
-								user: {
-									id: newUser.id,
-									email: newUser.email,
-									emailVerified: newUser.emailVerified,
-									name: newUser.name,
-									createdAt: newUser.createdAt,
-									updatedAt: newUser.updatedAt,
-								},
-							});
+							throw ctx.redirect(`${options.redirectUrl}`);
 						}
+
+						ctx.context.logger.info("User found, creating session");
 
 						const session = await ctx.context.internalAdapter.createSession(
 							user.id,
@@ -255,6 +253,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 						);
 
 						if (!session) {
+							ctx.context.logger.error("Could not create session");
 							return ctx.json(null, {
 								status: 400,
 								body: {
@@ -263,22 +262,18 @@ export const yaleCas = (options: YaleCASOptions) => {
 							});
 						}
 
+						ctx.context.logger.info("Setting session cookie");
+
 						await setSessionCookie(ctx, {
 							session,
 							user,
 						});
 
-						return ctx.json({
-							token: session.token,
-							user: {
-								id: user.id,
-								email: user.email,
-								emailVerified: user.emailVerified,
-								name: user.name,
-								createdAt: user.createdAt,
-								updatedAt: user.updatedAt,
-							},
-						});
+						ctx.context.logger.info(
+							`Redirecting to base URL: ${options.redirectUrl}`,
+						);
+
+						throw ctx.redirect(`${options.redirectUrl}`);
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
 						if (error instanceof APIError) {
@@ -460,9 +455,4 @@ async function getYalieByNetId({
 	}
 
 	return yalie;
-}
-
-function getBaseUrl(url: string): string {
-	const urlObj = new URL(url);
-	return urlObj.origin;
 }
