@@ -129,7 +129,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 
 					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
 					ctx.context.logger.info(url);
-					return ctx.json({ url });
+					return ctx.json({ url, redirect: true });
 				},
 			),
 
@@ -272,7 +272,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 								user: newUser,
 							});
 
-							throw ctx.redirect(newUserCallbackURL);
+							return ctx.redirect(newUserCallbackURL);
 						}
 
 						ctx.context.logger.info("User found, creating session");
@@ -298,7 +298,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 
 						ctx.context.logger.info(`Redirecting to URL: ${callbackURL}`);
 
-						throw ctx.redirect(callbackURL);
+						return ctx.redirect(callbackURL);
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
 						throw ctx.redirect(errorCallbackURL);
