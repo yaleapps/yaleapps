@@ -1,11 +1,6 @@
 import { betterFetch } from "@better-fetch/fetch";
 import { type } from "arktype";
-import {
-	APIError,
-	createAuthEndpoint,
-	createAuthMiddleware,
-	getSessionFromCtx,
-} from "better-auth/api";
+import { APIError, createAuthEndpoint } from "better-auth/api";
 import { setSessionCookie } from "better-auth/cookies";
 import { mergeSchema } from "better-auth/db";
 import type {
@@ -63,6 +58,22 @@ export const yaleCas = (options: YaleCASOptions) => {
 		UNAUTHORIZED: "Unauthorized",
 	} as const;
 
+	const callbackUrlsSchema = {
+		callbackURL: z
+			.string({ description: "The URL to redirect to after sign in" })
+			.optional(),
+		errorCallbackURL: z
+			.string({
+				description: "The URL to redirect to if an error occurs",
+			})
+			.optional(),
+		newUserCallbackURL: z
+			.string({
+				description: "The URL to redirect to after login if the user is new",
+			})
+			.optional(),
+	};
+
 	return {
 		id: "yale-cas",
 		endpoints: {
@@ -70,11 +81,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 				"/sign-in/yale-cas",
 				{
 					method: "POST",
-					body: z.object({
-						disableRedirect: z
-							.boolean({ description: "Disable redirect" })
-							.optional(),
-					}),
+					body: z.object({ ...callbackUrlsSchema }),
 					metadata: {
 						openapi: {
 							description: "Sign in with Yale CAS",
@@ -100,13 +107,13 @@ export const yaleCas = (options: YaleCASOptions) => {
 				},
 				async (ctx) => {
 					const {
-						body: { disableRedirect },
+						body: { callbackURL, errorCallbackURL, newUserCallbackURL },
 					} = ctx;
 					const serviceCallbackUrl =
 						`${options.authServerBaseUrl}/api/auth/callback/yale-cas` as const;
 					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
 					ctx.context.logger.info(url);
-					return ctx.json({ url, redirect: !disableRedirect });
+					return ctx.json({ url });
 				},
 			),
 
@@ -116,6 +123,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 					method: "GET",
 					query: z
 						.object({
+							...callbackUrlsSchema,
 							ticket: z
 								.string({ description: "The ticket from Yale CAS" })
 								.optional(),
@@ -242,6 +250,10 @@ export const yaleCas = (options: YaleCASOptions) => {
 								user: newUser,
 							});
 
+							return ctx.json({
+								url: `${options.redirectUrl}`,
+								redirect: true,
+							});
 							throw ctx.redirect(`${options.redirectUrl}`);
 						}
 
@@ -264,15 +276,16 @@ export const yaleCas = (options: YaleCASOptions) => {
 
 						ctx.context.logger.info("Setting session cookie");
 
-						await setSessionCookie(ctx, {
-							session,
-							user,
-						});
+						await setSessionCookie(ctx, { session, user });
 
 						ctx.context.logger.info(
 							`Redirecting to base URL: ${options.redirectUrl}`,
 						);
 
+						return ctx.json({
+							url: `${options.redirectUrl}`,
+							redirect: true,
+						});
 						throw ctx.redirect(`${options.redirectUrl}`);
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
@@ -285,38 +298,6 @@ export const yaleCas = (options: YaleCASOptions) => {
 					}
 				},
 			),
-		},
-		hooks: {
-			after: [
-				{
-					matcher(ctx) {
-						return (
-							ctx.path.startsWith("/sign-in") ||
-							ctx.path.startsWith("/sign-up") ||
-							ctx.path.startsWith("/callback") ||
-							ctx.path.startsWith("/oauth2/callback") ||
-							ctx.path.startsWith("/magic-link/verify") ||
-							ctx.path.startsWith("/email-otp/verify-email")
-						);
-					},
-					handler: createAuthMiddleware(async (ctx) => {
-						// This hook would handle account linking if needed
-						// Similar to the anonymous plugin's account linking functionality
-						const session = await getSessionFromCtx<{ netId: string }>(ctx, {
-							disableRefresh: true,
-						});
-
-						if (!session || !session.user.netId) {
-							return;
-						}
-
-						const newSession = ctx.context.newSession;
-						if (!newSession) {
-							return;
-						}
-					}),
-				},
-			],
 		},
 		schema: mergeSchema(schema, options?.schema),
 		$ERROR_CODES: ERROR_CODES,
