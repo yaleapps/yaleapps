@@ -27,10 +27,6 @@ export interface YaleCASOptions {
 	 */
 	authServerBaseUrl: string;
 	/**
-	 * The URL to redirect to after successful authentication.
-	 */
-	redirectUrl: string;
-	/**
 	 * Custom schema for the CAS plugin
 	 */
 	schema?: InferOptionSchema<typeof schema>;
@@ -59,19 +55,34 @@ export const yaleCas = (options: YaleCASOptions) => {
 	} as const;
 
 	const callbackUrlsSchema = {
-		callbackURL: z
-			.string({ description: "The URL to redirect to after sign in" })
-			.optional(),
-		errorCallbackURL: z
-			.string({
-				description: "The URL to redirect to if an error occurs",
-			})
-			.optional(),
-		newUserCallbackURL: z
-			.string({
-				description: "The URL to redirect to after login if the user is new",
-			})
-			.optional(),
+		callbackURL: z.string({
+			description: "The URL to redirect to after sign in",
+		}),
+		errorCallbackURL: z.string({
+			description: "The URL to redirect to if an error occurs",
+		}),
+		newUserCallbackURL: z.string({
+			description: "The URL to redirect to after login if the user is new",
+		}),
+	};
+
+	/**
+	 * Create a consistent service URL for CAS callback
+	 * This URL must be identical in both the initial login request and validation request
+	 */
+	const createServiceUrl = (params: {
+		callbackURL: string;
+		errorCallbackURL: string;
+		newUserCallbackURL: string;
+	}): string => {
+		const baseCallbackUrl = `${options.authServerBaseUrl}/api/auth/callback/yale-cas`;
+		const url = new URL(baseCallbackUrl);
+
+		url.searchParams.set("callbackURL", params.callbackURL);
+		url.searchParams.set("errorCallbackURL", params.errorCallbackURL);
+		url.searchParams.set("newUserCallbackURL", params.newUserCallbackURL);
+
+		return url.toString();
 	};
 
 	return {
@@ -109,8 +120,13 @@ export const yaleCas = (options: YaleCASOptions) => {
 					const {
 						body: { callbackURL, errorCallbackURL, newUserCallbackURL },
 					} = ctx;
-					const serviceCallbackUrl =
-						`${options.authServerBaseUrl}/api/auth/callback/yale-cas` as const;
+
+					const serviceCallbackUrl = createServiceUrl({
+						callbackURL,
+						errorCallbackURL,
+						newUserCallbackURL,
+					});
+
 					const url = `${YALE_CAS_BASE_URL}/login?service=${encodeURIComponent(serviceCallbackUrl)}`;
 					ctx.context.logger.info(url);
 					return ctx.json({ url });
@@ -150,15 +166,22 @@ export const yaleCas = (options: YaleCASOptions) => {
 					requireRequest: true,
 				},
 				async (ctx) => {
-					const { ticket } = ctx.query;
+					const { ticket, callbackURL, errorCallbackURL, newUserCallbackURL } =
+						ctx.query;
+
 					if (!ticket) {
 						throw new APIError("BAD_REQUEST", {
 							message: ERROR_CODES.NO_TICKET_PROVIDED,
 						});
 					}
+
 					ctx.context.logger.info(ticket);
-					const serviceCallbackUrl =
-						`${options.authServerBaseUrl}/api/auth/callback/yale-cas` as const;
+
+					const serviceCallbackUrl = createServiceUrl({
+						callbackURL,
+						errorCallbackURL,
+						newUserCallbackURL,
+					});
 
 					try {
 						const validateTicket = async () => {
@@ -250,11 +273,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 								user: newUser,
 							});
 
-							return ctx.json({
-								url: `${options.redirectUrl}`,
-								redirect: true,
-							});
-							throw ctx.redirect(`${options.redirectUrl}`);
+							throw ctx.redirect(newUserCallbackURL);
 						}
 
 						ctx.context.logger.info("User found, creating session");
@@ -278,17 +297,12 @@ export const yaleCas = (options: YaleCASOptions) => {
 
 						await setSessionCookie(ctx, { session, user });
 
-						ctx.context.logger.info(
-							`Redirecting to base URL: ${options.redirectUrl}`,
-						);
+						ctx.context.logger.info(`Redirecting to URL: ${callbackURL}`);
 
-						return ctx.json({
-							url: `${options.redirectUrl}`,
-							redirect: true,
-						});
-						throw ctx.redirect(`${options.redirectUrl}`);
+						throw ctx.redirect(callbackURL);
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
+						throw ctx.redirect(errorCallbackURL);
 						if (error instanceof APIError) {
 							throw error;
 						}
