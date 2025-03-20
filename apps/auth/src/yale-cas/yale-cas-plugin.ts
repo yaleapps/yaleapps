@@ -314,13 +314,6 @@ export const yaleCas = (options: YaleCASOptions) => {
 						if (!newSession) {
 							return;
 						}
-
-						if (options?.onLinkAccount) {
-							await options.onLinkAccount({
-								casUser: session,
-								newUser: newSession,
-							});
-						}
 					}),
 				},
 			],
