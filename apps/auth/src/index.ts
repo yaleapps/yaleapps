@@ -1,6 +1,6 @@
 import type { betterAuth } from "better-auth";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
-import type * as authSchema from "../db/schema";
+import type * as authSchema from "./db/schema";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { casAuth } from "./cas-auth";
