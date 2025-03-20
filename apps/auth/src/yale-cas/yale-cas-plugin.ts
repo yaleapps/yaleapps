@@ -54,7 +54,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 		UNAUTHORIZED: "Unauthorized",
 	} as const;
 
-	const callbackUrlsSchema = {
+	const callbackUrlsSchema = z.object({
 		callbackURL: z.string({
 			description: "The URL to redirect to after sign in",
 		}),
@@ -64,7 +64,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 		newUserCallbackURL: z.string({
 			description: "The URL to redirect to after login if the user is new",
 		}),
-	};
+	});
 
 	/**
 	 * Create a consistent service URL for CAS callback
@@ -92,7 +92,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 				"/sign-in/yale-cas",
 				{
 					method: "POST",
-					body: z.object({ ...callbackUrlsSchema }),
+					body: callbackUrlsSchema,
 					metadata: {
 						openapi: {
 							description: "Sign in with Yale CAS",
@@ -137,9 +137,8 @@ export const yaleCas = (options: YaleCASOptions) => {
 				"/callback/yale-cas",
 				{
 					method: "GET",
-					query: z
-						.object({
-							...callbackUrlsSchema,
+					query: callbackUrlsSchema
+						.extend({
 							ticket: z
 								.string({ description: "The ticket from Yale CAS" })
 								.optional(),
