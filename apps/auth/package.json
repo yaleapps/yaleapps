@@ -9,7 +9,7 @@
   "dependencies": {
     "@better-fetch/fetch": "^1.1.15",
     "arktype": "^2.1.9",
-    "better-auth": "^1.2.3",
+    "better-auth": "^1.2.4",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.4",
     "nanoid": "^5.1.3"
