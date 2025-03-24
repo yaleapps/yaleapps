@@ -2,16 +2,17 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
+import type { Env } from "..";
 import * as authSchema from "../db/schema";
 import { yaleCas } from "../yale-cas/yale-cas-plugin";
-import type { Env } from "..";
 
 export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const db = drizzle<typeof authSchema>(c.env.DB);
 	c.set("db", db);
 	const auth = betterAuth({
+		baseURL: "http://localhost:3000",
 		emailAndPassword: { enabled: true },
-		trustedOrigins: ["http://localhost:3000"],
+		trustedOrigins: ["http://localhost:3000", "http://localhost:8787"],
 		database: drizzleAdapter(db, {
 			provider: "sqlite",
 			schema: authSchema,
@@ -21,7 +22,6 @@ export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 			yaleCas({
 				yaliesApiKey: c.env.YALIES_API_KEY,
 				authServerBaseUrl: "http://localhost:8787",
-				redirectUrl: "http://localhost:3000",
 			}),
 		],
 		account: {
@@ -33,7 +33,7 @@ export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 		advanced: {
 			crossSubDomainCookies: {
 				enabled: true,
-				domain: ".yaleapps.com",
+				// domain: ".yaleapps.com",
 			},
 		},
 	});

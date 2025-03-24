@@ -4,10 +4,18 @@ import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [TanStackRouterVite({ autoCodeSplitting: true }), viteReact()],
-  test: {
-    globals: true,
-    environment: "jsdom",
-  },
-
+	plugins: [TanStackRouterVite({ autoCodeSplitting: true }), viteReact()],
+	test: {
+		globals: true,
+		environment: "jsdom",
+	},
+	server: {
+			proxy: {
+				"/api/auth": {
+					target: "http://localhost:8787",
+					changeOrigin: true,
+					secure: false,
+				},
+			},
+		}
 });

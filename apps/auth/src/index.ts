@@ -30,7 +30,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 app.use(
 	"*",
 	cors({
-		origin: "http://localhost:8787",
+		origin: ["http://localhost:3000", "http://localhost:8787"],
 		allowHeaders: ["Content-Type", "Authorization"],
 		allowMethods: ["POST", "GET", "OPTIONS"],
 		exposeHeaders: ["Content-Length"],
