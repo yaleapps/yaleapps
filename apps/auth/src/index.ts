@@ -23,7 +23,7 @@ export const app = new Hono<Env>();
 app.use(
 	"*",
 	cors({
-		origin: ["http://localhost:3000", "http://localhost:8787"],
+		origin: ["http://localhost:3000"],
 		allowHeaders: ["Content-Type", "Authorization"],
 		allowMethods: ["POST", "GET", "OPTIONS"],
 		exposeHeaders: ["Content-Length"],

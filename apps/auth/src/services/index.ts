@@ -10,7 +10,7 @@ export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const db = drizzle<typeof authSchema>(c.env.DB);
 	c.set("db", db);
 	const auth = betterAuth({
-		baseURL: "http://localhost:3000",
+		baseURL: "http://localhost:8787",
 		emailAndPassword: { enabled: true },
 		trustedOrigins: ["http://localhost:3000", "http://localhost:8787"],
 		database: drizzleAdapter(db, {
