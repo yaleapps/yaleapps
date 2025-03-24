@@ -1,13 +1,12 @@
 import type { BetterAuthClientPlugin } from "better-auth/client";
-import type { anonymous } from "better-auth/plugins";
+import type { yaleCas } from "./yale-cas-plugin";
 
-export const casClient = (options?: {
-	casLoginPage?: string;
-}) => {
-	const casLoginPage = options?.casLoginPage || "/api/auth/cas/login";
-
+export const yaleCasClient = (options?: undefined) => {
 	return {
-		id: "cas",
-		$InferServerPlugin: {} as ReturnType<typeof anonymous>,
+		id: "yale-cas",
+		$InferServerPlugin: {} as ReturnType<typeof yaleCas>,
+		pathMethods: {
+			"/sign-in/yale-cas": "POST",
+		},
 	} satisfies BetterAuthClientPlugin;
 };
