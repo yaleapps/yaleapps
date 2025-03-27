@@ -28,6 +28,10 @@ export const app = new Hono<Env>();
 
 app.use(servicesMiddleware);
 
+app.get("/", (c) => {
+	return c.text("Hello, world!");
+});
+
 app.route("/webhooks", webhooks);
 
 export default {
@@ -59,12 +63,11 @@ export default {
 				};
 
 				const event = await butterySchedules.gh.getOngoingOrTodayEvent();
-				if (event) {
-					const isAlreadyConfirmed =
-						event.summary?.startsWith(STATUS_PREFIXES.OPEN) ||
-						event.summary?.startsWith(STATUS_PREFIXES.CLOSED);
-					if (isAlreadyConfirmed) return;
-				}
+				const isAlreadyConfirmed =
+					(event?.summary?.startsWith(STATUS_PREFIXES.OPEN) ?? false) ||
+					(event?.summary?.startsWith(STATUS_PREFIXES.CLOSED) ?? false);
+				if (isAlreadyConfirmed) return;
+
 				await requestManagerConfirmation();
 			} else if (is10pm) {
 				const sendStatusToStudents = async () => {
