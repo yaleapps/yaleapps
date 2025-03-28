@@ -2,7 +2,7 @@
   "name": "lobby",
   "module": "index.ts",
   "type": "module",
-    "scripts": {
+  "scripts": {
     "dev": "vinxi dev",
     "build": "vinxi build",
     "start": "vinxi start"
@@ -18,10 +18,13 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@tailwindcss/postcss": "^4.0.17",
     "@tanstack/react-router": "^1.114.29",
     "@tanstack/react-start": "^1.114.29",
+    "postcss": "^8.5.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.17",
     "vinxi": "^0.5.3"
   }
 }
