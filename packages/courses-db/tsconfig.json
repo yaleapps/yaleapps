@@ -16,7 +16,7 @@
 					"url": "https://api.coursetable.com/ferry/v1/graphql",
 					"headers": {
 						"Accept": "application/graphql-response+json",
-						"Cookie": "YOUR_COOKIE_HERE"
+						"Cookie": "session=eyJwYXNzcG9ydCI6eyJ1c2VyIjoiYm13NTIifX0=; session.sig=9N9bd7zpEH1gThC_TECRXdnxv7A; G_AUTHUSER_H=0; connect.sid=s%3AIZJBAGYtVI2nF_BUf0s4vadURPGABVqP.54GfMl0lB2e0b59ESsGYmjR0yV5Ya2JrVCZYeZCzMbo; G_ENABLED_IDPS=google"
 					}
 				},
 				"tadaOutputLocation": "./courses/graphql-env.d.ts"

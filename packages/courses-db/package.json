@@ -1,5 +1,5 @@
 {
-	"name": "@repo/db",
+	"name": "@repo/courses-db",
 	"version": "0.0.1",
 	"dependencies": {
 		"@repo/env": "workspace:*",
