@@ -302,12 +302,6 @@ export const yaleCas = (options: YaleCASOptions) => {
 					} catch (error) {
 						ctx.context.logger.error("CAS authentication error:", error);
 						throw ctx.redirect(errorCallbackURL);
-						if (error instanceof APIError) {
-							throw error;
-						}
-						throw new APIError("INTERNAL_SERVER_ERROR", {
-							message: ERROR_CODES.AUTHENTICATION_ERROR,
-						});
 					}
 				},
 			),
