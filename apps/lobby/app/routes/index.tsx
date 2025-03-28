@@ -1,48 +1,68 @@
-// app/routes/index.tsx
-import * as fs from "node:fs";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 
-const filePath = "count.txt";
-
-async function readCount() {
-	return Number.parseInt(
-		await fs.promises.readFile(filePath, "utf-8").catch(() => "0"),
-	);
-}
-
-const getCount = createServerFn({
-	method: "GET",
-}).handler(() => {
-	return readCount();
-});
-
-const updateCount = createServerFn({ method: "POST" })
-	.validator((d: number) => d)
-	.handler(async ({ data }) => {
-		const count = await readCount();
-		await fs.promises.writeFile(filePath, `${count + data}`);
-	});
-
 export const Route = createFileRoute("/")({
-	component: Home,
-	loader: async () => await getCount(),
+	component: LandingPage,
+	// loader: async () => await getCount(),
 });
 
-function Home() {
-	// const router = useRouter();
+function LandingPage() {
+	const router = useRouter();
 	const state = Route.useLoaderData();
-
 	return (
-		<button
-			type="button"
-			onClick={() => {
-				updateCount({ data: 1 }).then(() => {
-					// router.invalidate();
-				});
-			}}
-		>
-			Add 1 to {state}?
-		</button>
+		<div className="relative h-screen w-full overflow-hidden bg-gradient-to-br from-blue-50 to-indigo-100">
+			{/* Decorative background elements */}
+			<div className="absolute inset-0 z-0">
+				<div className="absolute top-1/4 left-1/4 h-64 w-64 rounded-full bg-blue-200 opacity-20 blur-3xl"></div>
+				<div className="absolute bottom-1/4 right-1/3 h-96 w-96 rounded-full bg-indigo-300 opacity-20 blur-3xl"></div>
+				<div className="absolute top-1/3 right-1/4 h-72 w-72 rounded-full bg-purple-200 opacity-20 blur-3xl"></div>
+			</div>
+
+			{/* Content */}
+			<div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.8 }}
+					className="mb-8"
+				>
+					<h1 className="mb-2 text-5xl font-bold tracking-tight text-gray-900 md:text-6xl">
+						Lobby
+					</h1>
+					<p className="text-xl text-gray-600 md:text-2xl">
+						Find last-minute lunch and dinner plans at Yale
+					</p>
+				</motion.div>
+
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.4, duration: 0.8 }}
+				>
+					<Link href="/login">
+						<Button
+							size="lg"
+							className="bg-blue-600 px-8 py-6 text-lg font-medium hover:bg-blue-700"
+						>
+							Get Started
+						</Button>
+					</Link>
+				</motion.div>
+
+				<motion.div
+					initial={{ opacity: 0 }}
+					animate={{ opacity: 1 }}
+					transition={{ delay: 0.6, duration: 0.8 }}
+					className="mt-12 max-w-md text-gray-500"
+				>
+					<p>
+						Connect with fellow Yalies for spontaneous meals on campus. No more
+						eating alone!
+					</p>
+				</motion.div>
+			</div>
+		</div>
 	);
 }
