@@ -1,5 +1,5 @@
 import type { BetterAuthClientPlugin } from "better-auth/client";
-import type { yaleCas } from "./yale-cas-plugin";
+import type { yaleCas } from "./yale-cas";
 
 export const yaleCasClient = (options?: undefined) => {
 	return {
