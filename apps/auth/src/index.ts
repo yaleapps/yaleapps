@@ -1,9 +1,8 @@
 import type { betterAuth } from "better-auth";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
-import type * as authSchema from "./db/schema";
+import type * as authSchema from "@repo/db";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { casAuth } from "./cas-auth";
 import { dbAuthMiddleware } from "./services";
 
 export type Env = {
@@ -38,7 +37,5 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => {
 	const auth = c.get("auth");
 	return auth.handler(c.req.raw);
 });
-
-app.get("/login", casAuth);
 
 export default app;

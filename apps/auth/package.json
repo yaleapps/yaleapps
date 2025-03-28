@@ -8,15 +8,14 @@
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.15",
-    "arktype": "^2.1.9",
     "better-auth": "^1.2.4",
     "drizzle-orm": "^0.40.0",
     "hono": "^4.7.4",
-    "nanoid": "^5.1.3"
+    "@repo/db": "workspace:*",
+    "@yaleapps/better-auth-yale-cas": "workspace:*"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250312.0",
-    "drizzle-kit": "^0.30.5",
     "wrangler": "^4.1.0"
   },
   "exports": {
