@@ -9,7 +9,6 @@ import type {
 	InferOptionSchema,
 	User,
 } from "better-auth/types";
-import { z } from "zod";
 
 const YALE_CAS_BASE_URL = "https://secure.its.yale.edu/cas";
 
@@ -54,16 +53,13 @@ export const yaleCas = (options: YaleCASOptions) => {
 		UNAUTHORIZED: "Unauthorized",
 	} as const;
 
-	const callbackUrlsSchema = z.object({
-		callbackURL: z.string({
-			description: "The URL to redirect to after sign in",
-		}),
-		errorCallbackURL: z.string({
-			description: "The URL to redirect to if an error occurs",
-		}),
-		newUserCallbackURL: z.string({
-			description: "The URL to redirect to after login if the user is new",
-		}),
+	const callbackUrlsSchema = type({
+		/** The URL to redirect to after successful sign in */
+		callbackURL: "string",
+		/** The URL to redirect to if an error occurs during authentication */
+		errorCallbackURL: "string",
+		/** The URL to redirect to after login if the user is new */
+		newUserCallbackURL: "string",
 	});
 
 	/**
@@ -137,13 +133,10 @@ export const yaleCas = (options: YaleCASOptions) => {
 				"/callback/yale-cas",
 				{
 					method: "GET",
-					query: callbackUrlsSchema
-						.extend({
-							ticket: z
-								.string({ description: "The ticket from Yale CAS" })
-								.optional(),
-						})
-						.strip(),
+					query: type({
+						"...": callbackUrlsSchema,
+						ticket: "string?",
+					}),
 					metadata: {
 						openapi: {
 							description: "Yale CAS callback endpoint",
@@ -186,7 +179,7 @@ export const yaleCas = (options: YaleCASOptions) => {
 						const validateTicket = async () => {
 							const { data: xml, error } = await betterFetch(
 								`${YALE_CAS_BASE_URL}/serviceValidate?ticket=${ticket}&service=${encodeURIComponent(serviceCallbackUrl)}`,
-								{ method: "GET", output: z.string() },
+								{ method: "GET", output: type("string") },
 							);
 
 							if (error) {
@@ -390,6 +383,7 @@ async function getYalieByNetId({
 			.array()
 			.atMostLength(1),
 	});
+
 	if (error) {
 		throw new APIError("INTERNAL_SERVER_ERROR", {
 			message: "Failed to get Yale email by netId",
