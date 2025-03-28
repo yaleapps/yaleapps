@@ -317,37 +317,6 @@ export const yaleCas = (options: YaleCASOptions) => {
 	} satisfies BetterAuthPlugin;
 };
 
-/**
- * Get the service URL for CAS callback
- */
-function getServiceUrl({
-	headers,
-	callbackURL,
-}: { headers: Headers; callbackURL: string }): string {
-	// Check if we're in development mode
-	const isDev = process.env.NODE_ENV !== "production";
-
-	// For development, force localhost
-	if (isDev) {
-		const port = process.env.PORT ?? "3000"; // Default port
-		const url = new URL(`http://localhost:${port}/api/auth/callback/yale-cas`);
-		url.searchParams.set("callbackURL", callbackURL);
-		url.searchParams.delete("ticket");
-		return url.toString();
-	}
-
-	// For production, use the headers
-	const protocol = headers.get("x-forwarded-proto") ?? "https";
-	const host = headers.get("x-forwarded-host") ?? headers.get("host") ?? "";
-
-	// Remove ticket parameter if present
-	const url = new URL(`${protocol}://${host}/api/auth/callback/cas`);
-	url.searchParams.set("callbackURL", callbackURL);
-	url.searchParams.delete("ticket");
-
-	return url.toString();
-}
-
 async function getYalieByNetId({
 	netId,
 	apiKey,
