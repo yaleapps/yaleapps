@@ -1,11 +1,11 @@
-import { arktypeValidator } from "@hono/arktype-validator";
-import { Hono } from "hono";
-import type { Bindings } from "..";
-import { groupMeWebhookPayload } from "../types/groupme";
-import { format } from "date-fns";
 import { tz } from "@date-fns/tz";
+import { arktypeValidator } from "@hono/arktype-validator";
+import { format } from "date-fns";
+import { Hono } from "hono";
+import type { Env } from "..";
+import { groupMeWebhookPayload } from "../types/groupme";
 
-const app = new Hono<{ Bindings: Bindings }>();
+const app = new Hono<Env>();
 
 app.post(
 	"/gh/managers",
