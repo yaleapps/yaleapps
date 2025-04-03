@@ -23,6 +23,8 @@
     "@tanstack/react-router": "^1.114.29",
     "@tanstack/react-start": "^1.114.29",
     "@tanstack/start": "^1.114.29",
+    "@yaleapps/better-auth-yale-cas": "workspace:*",
+    "better-auth": "^1.2.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.25",
