@@ -217,10 +217,11 @@ function LunchLobbyForm() {
 											</FormControl>
 											<SelectContent>
 												{GRADUATION_YEARS.map((year) => (
-													<SelectItem key={year} value={year}>
+													<SelectItem key={year} value={year.toString()}>
 														{year}
 													</SelectItem>
 												))}
+												<SelectItem value="Graduate">Graduate</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
