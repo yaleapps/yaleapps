@@ -1,0 +1,15 @@
+export const RESIDENTIAL_COLLEGES = [
+	"Berkeley",
+	"Branford",
+	"Davenport",
+	"Franklin",
+	"Grace Hopper",
+	"Jonathan Edwards",
+	"Morse",
+	"Pauli Murray",
+	"Pierson",
+	"Saybrook",
+	"Silliman",
+	"Timothy Dwight",
+	"Trumbull",
+] as const;
