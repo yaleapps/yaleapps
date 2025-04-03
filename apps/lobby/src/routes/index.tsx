@@ -1,3 +1,4 @@
+import { RESIDENTIAL_COLLEGES } from "@repo/constants";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
@@ -34,23 +35,6 @@ export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
 });
 
-// Constants for form options
-const COLLEGES = [
-	"Berkeley",
-	"Branford",
-	"Davenport",
-	"Franklin",
-	"Grace Hopper",
-	"Jonathan Edwards",
-	"Morse",
-	"Pauli Murray",
-	"Pierson",
-	"Saybrook",
-	"Silliman",
-	"Timothy Dwight",
-	"Trumbull",
-] as const;
-
 const GRADUATION_YEARS = Array.from(
 	{ length: 4 },
 	(_, i) => new Date().getFullYear() + i,
@@ -58,7 +42,7 @@ const GRADUATION_YEARS = Array.from(
 
 // Form validation schema
 const formSchema = z.object({
-	college: z.enum(COLLEGES, {
+	college: z.enum(RESIDENTIAL_COLLEGES, {
 		required_error: "Please select a dining hall",
 	}),
 	major: z.string().min(1, "Please enter your major"),
@@ -168,7 +152,7 @@ function LunchLobbyForm() {
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{COLLEGES.map((college) => (
+												{RESIDENTIAL_COLLEGES.map((college) => (
 													<SelectItem key={college} value={college}>
 														{college}
 													</SelectItem>
