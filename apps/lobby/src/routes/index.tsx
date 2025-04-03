@@ -83,14 +83,15 @@ function LivePreviewCard({
 	year,
 	conversationTopic,
 }: Partial<FormValues>) {
+	const yearSuffix = year ? `'${year.slice(-2)}` : "'YY";
 	return (
 		<Card className="w-full bg-card/50 backdrop-blur-sm">
 			<CardHeader className="pb-3">
 				<CardTitle className="text-lg">
-					{college || "Preferred College"}
+					{college ?? "Preferred College"}
 				</CardTitle>
 				<CardDescription>
-					{major || "Major"} {year ? `'${year.slice(-2)}` : "'YY"}
+					{major ?? "Major"} {yearSuffix}
 				</CardDescription>
 			</CardHeader>
 			<CardContent>
