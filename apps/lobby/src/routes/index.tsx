@@ -53,7 +53,7 @@ const COLLEGES = [
 	"Trumbull",
 ] as const;
 
-const YEARS = ["2024", "2025", "2026", "2027", "Graduate"] as const;
+const YEARS = Array.from({ length: 4 }, (_, i) => new Date().getFullYear() + i);
 
 // Form validation schema
 const formSchema = z.object({
