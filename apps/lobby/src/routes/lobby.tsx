@@ -1,20 +1,20 @@
 import { RESIDENTIAL_COLLEGES } from "@repo/constants";
-import { Badge } from "@repo/ui/components/badge";
-import { Button } from "@repo/ui/components/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
 	Card,
 	CardContent,
 	CardDescription,
 	CardHeader,
 	CardTitle,
-} from "@repo/ui/components/card";
+} from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
-} from "@repo/ui/components/dropdown-menu";
-import { Skeleton } from "@repo/ui/components/skeleton";
+} from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Filter, School, Users } from "lucide-react";
 import { useEffect, useState } from "react";
