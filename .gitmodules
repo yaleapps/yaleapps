@@ -1,3 +1,6 @@
-[submodule "apps/yalies-archive/yalies-archive"]
-	path = apps/yalies-archive/yalies-archive
-	url = https://github.com/yaleapps/yalies-archive.git
+[submodule "apps/birthday-bot"]
+	path = apps/birthday-bot
+	url = https://github.com/ErikBoesen/BirthdayBot
+[submodule "apps/butteur-bot"]
+	path = apps/butteur-bot
+	url = https://github.com/ErikBoesen/ButteurBot
