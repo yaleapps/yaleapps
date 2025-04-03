@@ -175,8 +175,7 @@ function App() {
 													{y}
 												</SelectItem>
 											))}
-											<SelectItem value="Grad">Graduate</SelectItem>
-											<SelectItem value="Other">Other</SelectItem>
+											<SelectItem value="Graduate">Graduate</SelectItem>
 										</SelectContent>
 									</Select>
 									<FormMessage />
