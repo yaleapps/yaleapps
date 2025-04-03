@@ -1,6 +1,5 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { Button } from "../components/ui/button";
@@ -30,7 +29,6 @@ import {
 } from "../components/ui/select";
 import { Separator } from "../components/ui/separator";
 import { Textarea } from "../components/ui/textarea";
-import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
