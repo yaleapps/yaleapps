@@ -12,11 +12,11 @@ import type {
 
 const YALE_CAS_BASE_URL = "https://secure.its.yale.edu/cas";
 
-export interface YaleUserWithCAS extends User {
+export type YaleUserWithCAS = User & {
 	netId: string;
-}
+};
 
-export interface YaleCASOptions {
+export type YaleCASOptions = {
 	/**
 	 * The API key for the Yalies API.
 	 */
@@ -29,7 +29,7 @@ export interface YaleCASOptions {
 	 * Custom schema for the CAS plugin
 	 */
 	schema?: InferOptionSchema<typeof schema>;
-}
+};
 
 const schema = {
 	user: {
