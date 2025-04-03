@@ -1,4 +1,3 @@
-import path from "node:path";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "@tanstack/react-start/config";
 import { cloudflare } from "unenv";
@@ -16,11 +15,6 @@ export default defineConfig({
 			}),
 			tailwindcss(),
 		],
-		resolve: {
-			alias: {
-				"@": path.resolve(__dirname, "./src"),
-			},
-		},
 	},
 	server: {
 		preset: "cloudflare-pages",
