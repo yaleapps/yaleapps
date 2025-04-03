@@ -67,6 +67,9 @@ function App() {
 	const [conversationTopic, setConversationTopic] = React.useState("");
 	const [phoneNumber, setPhoneNumber] = React.useState("");
 
+	const currentYear = new Date().getFullYear();
+	const years = Array.from({ length: 4 }, (_, i) => currentYear + i);
+
 	// TODO: Implement actual submission logic (e.g., API call, navigation)
 	const navigate = useNavigate({ from: Route.fullPath });
 	const handleSubmit = (event: React.FormEvent) => {
@@ -132,16 +135,16 @@ function App() {
 					<div className="grid gap-2">
 						<Label htmlFor="year">Year</Label>
 						{/* Using Select for predefined years */}
-						<Select onValueChange={setYear} value={year}>
+						<Select onValueChange={setYear} value={year} required>
 							<SelectTrigger id="year">
 								<SelectValue placeholder="Select year" />
 							</SelectTrigger>
 							<SelectContent>
-								{/* Add more years as needed */}
-								<SelectItem value="2028">2028</SelectItem>
-								<SelectItem value="2027">2027</SelectItem>
-								<SelectItem value="2026">2026</SelectItem>
-								<SelectItem value="2025">2025</SelectItem>
+								{years.map((y) => (
+									<SelectItem key={y} value={String(y)}>
+										{y}
+									</SelectItem>
+								))}
 								<SelectItem value="Grad">Graduate</SelectItem>
 								<SelectItem value="Other">Other</SelectItem>
 							</SelectContent>
