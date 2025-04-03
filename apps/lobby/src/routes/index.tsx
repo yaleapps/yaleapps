@@ -21,6 +21,7 @@ import {
 	FormMessage,
 } from "../components/ui/form";
 import { Input } from "../components/ui/input";
+import { PhoneInput } from "../components/ui/phone-input";
 import {
 	Select,
 	SelectContent,
@@ -236,17 +237,7 @@ function LunchLobbyForm() {
 									<FormItem>
 										<FormLabel>Phone Number</FormLabel>
 										<FormControl>
-											<Input
-												type="tel"
-												inputMode="numeric"
-												placeholder="(123) 456-7890"
-												{...field}
-												onChange={(e) => {
-													// Strip non-numeric characters
-													const value = e.target.value.replace(/\D/g, "");
-													field.onChange(value);
-												}}
-											/>
+											<PhoneInput {...field} />
 										</FormControl>
 										<FormDescription className="text-xs">
 											Only shared via iMessage upon connection
