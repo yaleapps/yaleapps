@@ -1,0 +1,15 @@
+{
+	"$schema": "../auth/node_modules/wrangler/config-schema.json",
+	"name": "lobby",
+	"pages_build_output_dir": "./dist",
+	"compatibility_date": "2025-03-13",
+	"compatibility_flags": ["nodejs_compat"],
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "yaleapps_db",
+			"database_id": "be3bf0a6-4908-45cb-9205-b09336ad4fd9",
+			"migrations_dir": "../../packages/db/drizzle"
+		}
+	]
+}
