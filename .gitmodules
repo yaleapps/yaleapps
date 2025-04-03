@@ -1,6 +1,3 @@
 [submodule "apps/birthday-bot"]
 	path = apps/birthday-bot
 	url = https://github.com/ErikBoesen/BirthdayBot
-[submodule "apps/butteur-bot"]
-	path = apps/butteur-bot
-	url = https://github.com/ErikBoesen/ButteurBot
