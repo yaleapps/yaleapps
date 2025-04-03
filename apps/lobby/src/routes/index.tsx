@@ -64,9 +64,7 @@ const formSchema = z.object({
 		required_error: "Please select a dining hall",
 	}),
 	major: z.string().min(1, "Please enter your major"),
-	year: z.enum(GRADUATION_YEARS, {
-		required_error: "Please select your year",
-	}),
+	year: z.string().min(1, "Please select your year"),
 	conversationTopic: z
 		.string()
 		.min(1, "Please enter a conversation topic")
