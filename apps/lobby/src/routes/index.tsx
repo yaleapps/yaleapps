@@ -53,7 +53,10 @@ const COLLEGES = [
 	"Trumbull",
 ] as const;
 
-const YEARS = Array.from({ length: 4 }, (_, i) => new Date().getFullYear() + i);
+const GRADUATION_YEARS = Array.from(
+	{ length: 4 },
+	(_, i) => new Date().getFullYear() + i,
+);
 
 // Form validation schema
 const formSchema = z.object({
@@ -61,7 +64,7 @@ const formSchema = z.object({
 		required_error: "Please select a dining hall",
 	}),
 	major: z.string().min(1, "Please enter your major"),
-	year: z.enum(YEARS, {
+	year: z.enum(GRADUATION_YEARS, {
 		required_error: "Please select your year",
 	}),
 	conversationTopic: z
@@ -215,7 +218,7 @@ function LunchLobbyForm() {
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												{YEARS.map((year) => (
+												{GRADUATION_YEARS.map((year) => (
 													<SelectItem key={year} value={year}>
 														{year}
 													</SelectItem>
