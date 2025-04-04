@@ -7,7 +7,9 @@
     "build": "vinxi build",
     "serve": "vite preview",
     "test": "vitest run",
-    "dev": "vinxi dev"
+    "dev": "vinxi dev",
+    "deploy": "wrangler pages deploy dist --project-name lobby",
+    "build-and-deploy": "pnpm build && pnpm deploy"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -58,6 +60,7 @@
     "typescript": "^5.7.2",
     "vite": "^6.1.0",
     "vitest": "^3.0.5",
-    "web-vitals": "^4.2.4"
+    "web-vitals": "^4.2.4",
+    "wrangler": "^4.7.0"
   }
 }
