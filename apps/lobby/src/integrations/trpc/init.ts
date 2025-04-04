@@ -1,17 +1,15 @@
-import { getEvent } from "@tanstack/react-start/server";
-import { initTRPC } from "@trpc/server";
-import superjson from "superjson";
 import type { D1Database } from "@cloudflare/workers-types";
-import { drizzle } from "drizzle-orm/d1";
 import * as schema from "@repo/db";
+import { initTRPC } from "@trpc/server";
+import { drizzle } from "drizzle-orm/d1";
+import superjson from "superjson";
+import { getPlatformProxy } from "wrangler";
 
-export type Env = { DB: D1Database };
+type Env = { DB: D1Database };
 
-export function createContext() {
-	const event = getEvent();
-	const cloudflare = event.context?.cloudflare?.env as Env | undefined;
-	if (!cloudflare) throw new Error("Cloudflare environment not found.");
-	const db = drizzle(cloudflare.DB, { schema, logger: true });
+export async function createContext() {
+	const { env } = await getPlatformProxy<Env>();
+	const db = drizzle(env.DB, { schema, logger: true });
 	return { db };
 }
 
