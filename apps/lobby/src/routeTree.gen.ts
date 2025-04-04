@@ -15,7 +15,6 @@ import { Route as LobbyImport } from './routes/lobby'
 import { Route as LandingImport } from './routes/landing'
 import { Route as IndexImport } from './routes/index'
 import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
-import { Route as DemoStartServerFuncsImport } from './routes/demo.start.server-funcs'
 import { Route as DemoStartApiRequestImport } from './routes/demo.start.api-request'
 
 // Create/Update Routes
@@ -41,12 +40,6 @@ const IndexRoute = IndexImport.update({
 const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
   id: '/demo/tanstack-query',
   path: '/demo/tanstack-query',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoStartServerFuncsRoute = DemoStartServerFuncsImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -95,13 +88,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoStartApiRequestImport
       parentRoute: typeof rootRoute
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsImport
-      parentRoute: typeof rootRoute
-    }
   }
 }
 
@@ -113,7 +99,6 @@ export interface FileRoutesByFullPath {
   '/lobby': typeof LobbyRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRoutesByTo {
@@ -122,7 +107,6 @@ export interface FileRoutesByTo {
   '/lobby': typeof LobbyRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRoutesById {
@@ -132,7 +116,6 @@ export interface FileRoutesById {
   '/lobby': typeof LobbyRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
 }
 
 export interface FileRouteTypes {
@@ -143,7 +126,6 @@ export interface FileRouteTypes {
     | '/lobby'
     | '/demo/tanstack-query'
     | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -151,7 +133,6 @@ export interface FileRouteTypes {
     | '/lobby'
     | '/demo/tanstack-query'
     | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
   id:
     | '__root__'
     | '/'
@@ -159,7 +140,6 @@ export interface FileRouteTypes {
     | '/lobby'
     | '/demo/tanstack-query'
     | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
   fileRoutesById: FileRoutesById
 }
 
@@ -169,7 +149,6 @@ export interface RootRouteChildren {
   LobbyRoute: typeof LobbyRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -178,7 +157,6 @@ const rootRouteChildren: RootRouteChildren = {
   LobbyRoute: LobbyRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
 }
 
 export const routeTree = rootRoute
@@ -195,8 +173,7 @@ export const routeTree = rootRoute
         "/landing",
         "/lobby",
         "/demo/tanstack-query",
-        "/demo/start/api-request",
-        "/demo/start/server-funcs"
+        "/demo/start/api-request"
       ]
     },
     "/": {
@@ -213,9 +190,6 @@ export const routeTree = rootRoute
     },
     "/demo/start/api-request": {
       "filePath": "demo.start.api-request.tsx"
-    },
-    "/demo/start/server-funcs": {
-      "filePath": "demo.start.server-funcs.tsx"
     }
   }
 }
