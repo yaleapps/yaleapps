@@ -7,9 +7,10 @@
     "build": "vinxi build",
     "serve": "vite preview",
     "test": "vitest run",
+    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local",
+    "predev": "pnpm db:migrate:dev",
     "dev": "vinxi dev",
-    "deploy": "wrangler pages deploy dist --project-name lobby",
-    "build-and-deploy": "pnpm build && pnpm deploy"
+    "deploy": "pnpm build && wrangler pages deploy dist --project-name lobby"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.1",
@@ -20,6 +21,7 @@
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.2",
     "@repo/constants": "workspace:*",
+    "@repo/db": "workspace:*",
     "@tailwindcss/vite": "^4.0.6",
     "@tanstack/react-query": "^5.66.5",
     "@tanstack/react-query-devtools": "^5.66.5",
