@@ -93,7 +93,7 @@ function LivePreviewCard({
 }
 
 function LunchLobbyForm() {
-	const navigate = useNavigate({ from: Route.fullPath });
+	const navigate = useNavigate();
 
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
@@ -108,22 +108,6 @@ function LunchLobbyForm() {
 
 	const formValues = form.watch();
 
-	async function onSubmit(values: FormValues) {
-		try {
-			// TODO: Implement API call to join lobby
-			console.log("Form Submitted:", values);
-			// Temporarily disable navigation until route is added
-			console.log("TODO: Add /lobby route");
-			// navigate({ to: "/lobby" });
-		} catch (error) {
-			console.error("Failed to join lobby:", error);
-			form.setError("root", {
-				type: "submit",
-				message: "Failed to join lobby. Please try again.",
-			});
-		}
-	}
-
 	return (
 		<div className="flex min-h-svh w-full flex-col items-center bg-gradient-to-b from-background to-background/95 p-4 md:p-6 lg:p-8">
 			<div className="w-full max-w-md space-y-6">
@@ -137,7 +121,22 @@ function LunchLobbyForm() {
 				</div>
 
 				<Form {...form}>
-					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+					<form
+						onSubmit={form.handleSubmit(async (values) => {
+							try {
+								console.log("Form Submitted:", values);
+								console.log("TODO: Add /lobby route");
+								navigate({ to: "/lobby" });
+							} catch (error) {
+								console.error("Failed to join lobby:", error);
+								form.setError("root", {
+									type: "submit",
+									message: "Failed to join lobby. Please try again.",
+								});
+							}
+						})}
+						className="space-y-6"
+					>
 						<div className="space-y-4">
 							<FormField
 								control={form.control}
