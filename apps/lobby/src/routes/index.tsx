@@ -41,7 +41,7 @@ const GRADUATION_YEARS = Array.from(
 	(_, i) => new Date().getFullYear() + i,
 );
 
-const DINING_HALLS = ["Commons", ...RESIDENTIAL_COLLEGES];
+const DINING_HALLS = ["Commons", ...RESIDENTIAL_COLLEGES] as const;
 
 // Form validation schema
 const formSchema = z.object({
