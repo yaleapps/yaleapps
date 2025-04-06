@@ -4,19 +4,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { User } from "lucide-react";
 
-interface ProfileCardProps {
-	name?: string;
-	image?: string | null;
-	diningHall: string;
-	major: string;
-	year: string;
-	conversationTopic?: string;
-	joinedAt?: Date;
-	isPreview?: boolean;
-	isAnonymous?: boolean;
-	onClick?: () => void;
-}
-
 export function ProfileCard({
 	name,
 	image,
@@ -28,7 +15,18 @@ export function ProfileCard({
 	isPreview = false,
 	isAnonymous = false,
 	onClick,
-}: ProfileCardProps) {
+}: {
+	name?: string;
+	image?: string | null;
+	diningHall: string;
+	major: string;
+	year: string;
+	conversationTopic?: string;
+	joinedAt?: Date;
+	isPreview?: boolean;
+	isAnonymous?: boolean;
+	onClick?: () => void;
+}) {
 	return (
 		<Card className="overflow-hidden transition-colors hover:bg-accent/5">
 			<CardHeader className="space-y-2">
