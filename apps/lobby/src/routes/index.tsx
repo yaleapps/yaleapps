@@ -69,7 +69,7 @@ function LunchLobbyForm() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			college: undefined,
+			college: "Commons",
 			major: "",
 			year: undefined,
 			conversationTopic: "",
