@@ -30,13 +30,6 @@ import { z } from "zod";
 // Form validation schema
 const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
-const VIBE_OPTIONS = [
-	"Quick Bite",
-	"Chill Chat",
-	"Study Break",
-	"Open to Anything",
-] as const;
-
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",
 	"CS major seeking break from leetcode and internship talk...",
