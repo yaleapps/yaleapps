@@ -9,24 +9,23 @@ const sqliteTableWithLobbyPrefix = sqliteTableCreator(
 );
 
 export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
-	id: text("id").primaryKey(),
+	id: integer("id").primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
 	joinedAt: integer("joined_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	lastPingAt: integer("last_ping_at", { mode: "timestamp" })
+	lastPingedAt: integer("last_pinged_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	conversationTopic: text("conversation_topic").notNull(),
 	status: text("status", { enum: ["active", "inactive", "matched"] })
 		.notNull()
 		.default("active"),
 });
 
 export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
-	id: text("id").primaryKey(),
+	id: integer("id").primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
@@ -48,6 +47,7 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	userId: text("user_id")
 		.primaryKey()
 		.references(() => users.id, { onDelete: "cascade" }),
+	conversationTopic: text("conversation_topic").notNull(),
 	diningHall: text("dining_hall", {
 		enum: RESIDENTIAL_COLLEGE_ABBREVIATIONS,
 	}).notNull(),
