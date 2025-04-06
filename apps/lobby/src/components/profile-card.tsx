@@ -8,9 +8,8 @@ export function ProfileCard({
 	name,
 	image,
 	diningHall,
-	major,
 	year,
-	conversationTopic,
+	vibes,
 	joinedAt,
 	isPreview = false,
 	isAnonymous = false,
@@ -19,9 +18,8 @@ export function ProfileCard({
 	name?: string;
 	image?: string | null;
 	diningHall: string;
-	major: string;
 	year: string;
-	conversationTopic?: string;
+	vibes?: string;
 	joinedAt?: Date;
 	isPreview?: boolean;
 	isAnonymous?: boolean;
@@ -52,12 +50,12 @@ export function ProfileCard({
 						</div>
 					)}
 					<div className="ml-auto text-sm text-muted-foreground">
-						{diningHall} • {major} • {year}
+						{diningHall} • {year}
 					</div>
 				</div>
 			</CardHeader>
 			<CardContent className="space-y-4">
-				{conversationTopic && <p className="text-sm">{conversationTopic}</p>}
+				{vibes && <p className="text-sm">Lunch Vibe: {vibes}</p>}
 				<div className="flex items-center justify-between">
 					{joinedAt && (
 						<p className="text-xs text-muted-foreground">

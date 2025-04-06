@@ -10,7 +10,6 @@ import {
 	FormLabel,
 	FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import {
 	Select,
@@ -24,19 +23,44 @@ import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 // Form validation schema
 const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
+const VIBE_OPTIONS = [
+	"Quick Bite",
+	"Chill Chat",
+	"Study Break",
+	"Open to Anything",
+] as const;
+
+const VIBE_PLACEHOLDERS = [
+	"Econ major slithering around, looking for quick lunch chat",
+	"CS major seeking break from leetcode and internship talk",
+	"Pre-med needing study break from orgo problem sets",
+	"Philosophy major pondering: if a sandwich falls in the dining hall...",
+	"History major time-traveling through meals, stories welcome",
+	"Math major calculating optimal bite-to-conversation ratio",
+	"Physics major studying food thermodynamics, seeking company",
+	"Art major sketching their sandwich, open to creative convos",
+	"Drama major rehearsing with their salad, seeking audience",
+	"Just a hungry soul seeking good company",
+] as const;
+
+const PLACEHOLDER_ROTATION_INTERVAL = 3500; // 3.5 seconds
+
 export const lobbyFormSchema = z.object({
 	diningHall: z.enum(DINING_HALL_NAMES, {
 		required_error: "Please select a dining hall",
 	}),
-	major: z.string().min(1, "Please enter your major"),
 	year: z.string().min(1, "Please select your year"),
-	conversationTopic: z.string().min(1, "Please enter a conversation topic"),
+	vibes: z
+		.string()
+		.min(1, "Tell us about your lunch vibe")
+		.max(200, "Keep it brief - under 200 characters"),
 	phoneNumber: z
 		.string()
 		.min(10, "Please enter a valid phone number")
@@ -54,16 +78,38 @@ const GRADUATION_YEARS = Array.from(
 	(_, i) => new Date().getFullYear() + i,
 );
 
+function usePlaceholderRotation() {
+	const [currentPlaceholder, setCurrentPlaceholder] = useState(
+		() =>
+			VIBE_PLACEHOLDERS[Math.floor(Math.random() * VIBE_PLACEHOLDERS.length)],
+	);
+
+	useEffect(() => {
+		// Only start rotation if the user hasn't started typing
+		const intervalId = setInterval(() => {
+			setCurrentPlaceholder((prev) => {
+				const currentIndex = VIBE_PLACEHOLDERS.indexOf(prev);
+				const nextIndex = (currentIndex + 1) % VIBE_PLACEHOLDERS.length;
+				return VIBE_PLACEHOLDERS[nextIndex];
+			});
+		}, PLACEHOLDER_ROTATION_INTERVAL);
+
+		return () => clearInterval(intervalId);
+	}, []);
+
+	return currentPlaceholder;
+}
+
 function LunchLobbyForm() {
 	const navigate = useNavigate();
+	const placeholder = usePlaceholderRotation();
 
 	const form = useForm<LobbyForm>({
 		resolver: zodResolver(lobbyFormSchema),
 		defaultValues: {
 			diningHall: "Commons",
-			major: "",
 			year: undefined,
-			conversationTopic: "",
+			vibes: "",
 			phoneNumber: "",
 		},
 		mode: "onBlur",
@@ -131,24 +177,6 @@ function LunchLobbyForm() {
 
 								<FormField
 									control={form.control}
-									name="major"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Major</FormLabel>
-											<FormControl>
-												<Input
-													placeholder="e.g., Computer Science"
-													{...field}
-													className="w-full"
-												/>
-											</FormControl>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
 									name="year"
 									render={({ field }) => (
 										<FormItem>
@@ -178,17 +206,21 @@ function LunchLobbyForm() {
 
 								<FormField
 									control={form.control}
-									name="conversationTopic"
+									name="vibes"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Looking for conversations on...</FormLabel>
+											<FormLabel>What's your lunch vibe?</FormLabel>
 											<FormControl>
 												<Textarea
-													placeholder="e.g., Summer internships, favorite classes, weekend plans..."
-													className="resize-none"
+													placeholder={placeholder}
+													className="resize-none h-20"
 													{...field}
 												/>
 											</FormControl>
+											<FormDescription>
+												Express yourself! Share your major, interests, or
+												current mood (max 200 chars)
+											</FormDescription>
 											<FormMessage />
 										</FormItem>
 									)}
@@ -221,9 +253,8 @@ function LunchLobbyForm() {
 								<ProfileCard
 									isPreview
 									diningHall={formValues.diningHall}
-									major={formValues.major}
 									year={formValues.year}
-									conversationTopic={formValues.conversationTopic}
+									vibes={formValues.vibes}
 								/>
 							</div>
 
