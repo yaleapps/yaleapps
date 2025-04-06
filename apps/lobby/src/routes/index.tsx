@@ -22,7 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RESIDENTIAL_COLLEGES } from "@repo/constants";
+import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -36,11 +36,11 @@ const GRADUATION_YEARS = Array.from(
 	(_, i) => new Date().getFullYear() + i,
 );
 
-const DINING_HALLS = ["Commons", ...RESIDENTIAL_COLLEGES] as const;
+const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
 // Form validation schema
 const formSchema = z.object({
-	diningHall: z.enum(DINING_HALLS, {
+	diningHall: z.enum(DINING_HALL_NAMES, {
 		required_error: "Please select a dining hall",
 	}),
 	major: z.string().min(1, "Please enter your major"),
@@ -119,9 +119,9 @@ function LunchLobbyForm() {
 													</SelectTrigger>
 												</FormControl>
 												<SelectContent>
-													{DINING_HALLS.map((college) => (
-														<SelectItem key={college} value={college}>
-															{college}
+													{DINING_HALL_NAMES.map((diningHall) => (
+														<SelectItem key={diningHall} value={diningHall}>
+															{diningHall}
 														</SelectItem>
 													))}
 												</SelectContent>
