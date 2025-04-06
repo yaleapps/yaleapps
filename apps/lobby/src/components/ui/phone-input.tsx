@@ -3,12 +3,30 @@ import type { ComponentProps } from "react";
 import { Input } from "./input";
 
 function formatPhoneNumber(value: string): string {
-	const numbers = value.replace(/\D/g, "").slice(0, 15);
-	if (numbers.length === 0) return "";
-	if (numbers.length <= 3) return `(${numbers}`;
-	if (numbers.length <= 6)
-		return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-	return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+	// For exactly 10 digits - Presumably US format
+	if (value.length === 10) {
+		return `(${(value).slice(0, 3)}) ${(value).slice(3, 6)}-${(value).slice(6)}`;
+	}
+
+	// For international numbers (more than 10 digits)
+	if (value.length > 10) {
+		const countryCodeLength = value.length > 12 ? 3 : value.length > 11 ? 2 : 1;
+		const countryCode = value.slice(0, countryCodeLength);
+		const remainingNumbers = value.slice(countryCodeLength);
+
+		// Format remaining numbers in groups of 3-3-4
+		const formatted = [
+			remainingNumbers.slice(0, 3),
+			remainingNumbers.slice(3, 6),
+			remainingNumbers.slice(6),
+		]
+			.filter(Boolean)
+			.join(" ");
+
+		return `+${countryCode} ${formatted}`.trim();
+	}
+
+	return value;
 }
 
 export function PhoneInput({

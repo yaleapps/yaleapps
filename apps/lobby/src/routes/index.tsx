@@ -53,10 +53,7 @@ export const lobbyFormSchema = z.object({
 		.string()
 		.min(1, "Tell us about your lunch vibe")
 		.max(200, "Keep it brief - under 200 characters"),
-	phoneNumber: z
-		.string()
-		.min(10, "Please enter a valid phone number")
-		.regex(/^\d{10}$/, "Please enter a 10-digit phone number"),
+	phoneNumber: z.string().min(10, "Please enter a valid phone number"),
 });
 
 export type LobbyForm = z.infer<typeof lobbyFormSchema>;
