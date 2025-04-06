@@ -46,6 +46,8 @@ export const lobbyFormSchema = z.object({
 		.regex(/^\d{10}$/, "Please enter a 10-digit phone number"),
 });
 
+export type LobbyForm = z.infer<typeof lobbyFormSchema>;
+
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
 });
@@ -55,12 +57,10 @@ const GRADUATION_YEARS = Array.from(
 	(_, i) => new Date().getFullYear() + i,
 );
 
-type LobbyFormValues = z.infer<typeof lobbyFormSchema>;
-
 function LunchLobbyForm() {
 	const navigate = useNavigate();
 
-	const form = useForm<LobbyFormValues>({
+	const form = useForm<LobbyForm>({
 		resolver: zodResolver(lobbyFormSchema),
 		defaultValues: {
 			diningHall: "Commons",

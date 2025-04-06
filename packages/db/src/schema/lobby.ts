@@ -1,3 +1,4 @@
+import type { LobbyForm, lobbyFormSchema } from "@/routes";
 import { RESIDENTIAL_COLLEGE_ABBREVIATIONS } from "@repo/constants";
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
@@ -47,12 +48,17 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	userId: text("user_id")
 		.primaryKey()
 		.references(() => users.id, { onDelete: "cascade" }),
-	conversationTopic: text("conversation_topic").notNull(),
-	diningHall: text("dining_hall", {
-		enum: RESIDENTIAL_COLLEGE_ABBREVIATIONS,
-	}).notNull(),
-	major: text("major").notNull(),
-	year: text("year").notNull(),
+
+	...({
+		conversationTopic: text("conversation_topic").notNull(),
+		diningHall: text("dining_hall", {
+			enum: RESIDENTIAL_COLLEGE_ABBREVIATIONS,
+		}).notNull(),
+		major: text().notNull(),
+		year: text().notNull(),
+		phoneNumber: text("phone_number").notNull(),
+	} satisfies Record<keyof LobbyForm, ReturnType<typeof text>>),
+
 	updatedAt: integer("updated_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
