@@ -66,6 +66,7 @@ function LunchLobbyForm() {
 			conversationTopic: "",
 			phoneNumber: "",
 		},
+		mode: "onBlur",
 	});
 
 	const formValues = form.watch();
