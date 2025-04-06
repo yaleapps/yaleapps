@@ -12,7 +12,7 @@ export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const auth = betterAuth({
 		baseURL: "http://localhost:8787",
 		emailAndPassword: { enabled: true },
-		trustedOrigins: ["http://localhost:3000", "http://localhost:8787"],
+		trustedOrigins: ["http://localhost:3000"],
 		database: drizzleAdapter(db, {
 			provider: "sqlite",
 			schema: authSchema,
