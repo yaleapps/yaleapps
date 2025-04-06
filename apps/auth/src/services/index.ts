@@ -7,10 +7,7 @@ import { createAuth } from "./createAuth";
 export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const db = drizzle<typeof authSchema>(c.env.DB);
 	c.set("db", db);
-	const auth = createAuth({
-		DB: c.env.DB,
-		YALIES_API_KEY: c.env.YALIES_API_KEY,
-	});
+	const auth = createAuth(c.env);
 	c.set("auth", auth);
 	const session = await auth.api.getSession({ headers: c.req.raw.headers });
 

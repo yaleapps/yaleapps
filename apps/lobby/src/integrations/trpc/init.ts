@@ -27,10 +27,7 @@ async function getEnv(): Promise<Env> {
 export async function createContext({ req }: FetchCreateContextFnOptions) {
 	const env = await getEnv();
 	const db = drizzle(env.DB, { schema, logger: true });
-	const auth = createAuth({
-		DB: env.DB,
-		YALIES_API_KEY: env.YALIES_API_KEY,
-	});
+	const auth = createAuth(env);
 
 	const session = await auth.api.getSession({
 		headers: req.headers,
