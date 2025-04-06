@@ -1,79 +1,77 @@
-import { Badge } from "@/components/ui/badge";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
-import { Clock, School } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatDistanceToNow } from "date-fns";
+import { User } from "lucide-react";
 
-export function ProfileCard({
-	college,
-	major,
-	year,
-	conversationTopic,
-	joinedAt,
-	isPreview = false,
-	onClick,
-}: {
-	college: string;
+interface ProfileCardProps {
+	name?: string;
+	image?: string | null;
+	diningHall: string;
 	major: string;
 	year: string;
 	conversationTopic?: string;
 	joinedAt?: Date;
 	isPreview?: boolean;
+	isAnonymous?: boolean;
 	onClick?: () => void;
-}) {
-	const yearSuffix = year ? `'${year.toString().slice(-2)}` : "'YY";
-	const timeSinceJoined = joinedAt
-		? `${Math.floor((Date.now() - joinedAt.getTime()) / (1000 * 60))}m ago`
-		: null;
+}
 
+export function ProfileCard({
+	name,
+	image,
+	diningHall,
+	major,
+	year,
+	conversationTopic,
+	joinedAt,
+	isPreview = false,
+	isAnonymous = false,
+	onClick,
+}: ProfileCardProps) {
 	return (
-		<Card
-			className={
-				onClick
-					? "group cursor-pointer transition-colors hover:bg-muted/50"
-					: ""
-			}
-			onClick={onClick}
-		>
-			<CardHeader className="pb-3">
-				<div className="flex items-start justify-between">
-					<div className="space-y-1">
-						<CardTitle className="flex items-center gap-2">
-							<School className="h-4 w-4" />
-							{college ?? "Preferred College"}
-						</CardTitle>
-						<CardDescription>
-							{major ?? "Major"} {yearSuffix}
-						</CardDescription>
-					</div>
-					{!isPreview && timeSinceJoined && (
-						<Badge variant="secondary" className="flex items-center gap-1">
-							<Clock className="h-3 w-3" />
-							{timeSinceJoined}
-						</Badge>
-					)}
-				</div>
-			</CardHeader>
-			<CardContent>
-				<p
-					className="text-sm text-muted-foreground"
-					aria-live={isPreview ? "polite" : "off"}
-				>
-					{isPreview ? (
+		<Card className="overflow-hidden transition-colors hover:bg-accent/5">
+			<CardHeader className="space-y-2">
+				<div className="flex items-center gap-3">
+					{!isAnonymous ? (
 						<>
-							Chatting about:{" "}
-							{conversationTopic ?? (
-								<span className="italic">What's on your mind?</span>
-							)}
+							<Avatar>
+								<AvatarImage src={image || undefined} alt={name || "User"} />
+								<AvatarFallback>
+									{name ? name.slice(0, 2).toUpperCase() : "AN"}
+								</AvatarFallback>
+							</Avatar>
+							{name && <h3 className="font-semibold">{name}</h3>}
 						</>
 					) : (
-						<>Looking for conversations on: {conversationTopic}</>
+						<div className="flex items-center gap-2">
+							<div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+								<User className="h-5 w-5 text-muted-foreground" />
+							</div>
+							<h3 className="font-semibold text-muted-foreground">
+								Anonymous User
+							</h3>
+						</div>
 					)}
-				</p>
+					<div className="ml-auto text-sm text-muted-foreground">
+						{diningHall} • {major} • {year}
+					</div>
+				</div>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				{conversationTopic && <p className="text-sm">{conversationTopic}</p>}
+				<div className="flex items-center justify-between">
+					{joinedAt && (
+						<p className="text-xs text-muted-foreground">
+							Joined {formatDistanceToNow(joinedAt, { addSuffix: true })}
+						</p>
+					)}
+					{!isPreview && onClick && (
+						<Button onClick={onClick} size="sm">
+							Connect
+						</Button>
+					)}
+				</div>
 			</CardContent>
 		</Card>
 	);
