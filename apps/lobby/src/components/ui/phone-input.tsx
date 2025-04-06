@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
-import type { ChangeEvent, ComponentProps } from "react";
+import type { ComponentProps } from "react";
 import { Input } from "./input";
 
 function formatPhoneNumber(value: string): string {
-	const numbers = value.replace(/\D/g, "").slice(0, 10);
+	const numbers = value.replace(/\D/g, "").slice(0, 15);
 	if (numbers.length === 0) return "";
 	if (numbers.length <= 3) return `(${numbers}`;
 	if (numbers.length <= 6)
@@ -28,9 +28,8 @@ export function PhoneInput({
 			type="tel"
 			inputMode="numeric"
 			value={displayValue}
-			onChange={(e: ChangeEvent<HTMLInputElement>) => {
-				const rawValue = e.target.value.replace(/\D/g, "");
-				onChange(rawValue);
+			onChange={(e) => {
+				onChange(e.target.value);
 			}}
 			placeholder="(123) 456-7890"
 			className={cn("font-mono", className)}
