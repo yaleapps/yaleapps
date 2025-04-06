@@ -1,5 +1,5 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import { createAuth } from "@repo/auth/services";
+import { createAuth } from "@repo/auth/createAuth";
 import * as schema from "@repo/db/schema";
 import { getEvent } from "@tanstack/react-start/server";
 import { initTRPC } from "@trpc/server";
@@ -7,7 +7,7 @@ import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { drizzle } from "drizzle-orm/d1";
 import superjson from "superjson";
 
-type Env = { DB: D1Database };
+type Env = { DB: D1Database; YALIES_API_KEY: string };
 
 // Get the Cloudflare bindings for the current environment. Workaround provided by:
 // https://github.com/cloudflare/workers-sdk/issues/5315#issuecomment-2779711600
@@ -35,7 +35,6 @@ export async function createContext({ req }: FetchCreateContextFnOptions) {
 	const session = await auth.api.getSession({
 		headers: req.headers,
 	});
-	console.log("🚀 ~ createContext ~ session:", session);
 
 	return { db, session };
 }
