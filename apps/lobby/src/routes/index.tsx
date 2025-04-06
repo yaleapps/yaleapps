@@ -1,16 +1,6 @@
-import { RESIDENTIAL_COLLEGES } from "@repo/constants";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { ProfileCard } from "@/components/profile-card";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -31,7 +21,11 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { ProfileCard } from "@/components/profile-card";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { RESIDENTIAL_COLLEGES } from "@repo/constants";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
@@ -46,7 +40,7 @@ const DINING_HALLS = ["Commons", ...RESIDENTIAL_COLLEGES] as const;
 
 // Form validation schema
 const formSchema = z.object({
-	college: z.enum(DINING_HALLS, {
+	diningHall: z.enum(DINING_HALLS, {
 		required_error: "Please select a dining hall",
 	}),
 	major: z.string().min(1, "Please enter your major"),
@@ -69,7 +63,7 @@ function LunchLobbyForm() {
 	const form = useForm<FormValues>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			college: "Commons",
+			diningHall: "Commons",
 			major: "",
 			year: undefined,
 			conversationTopic: "",
@@ -111,7 +105,7 @@ function LunchLobbyForm() {
 							<div className="space-y-4">
 								<FormField
 									control={form.control}
-									name="college"
+									name="diningHall"
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>Preferred College/Dining Hall</FormLabel>
@@ -228,7 +222,7 @@ function LunchLobbyForm() {
 								<h2 className="text-sm font-medium">Preview Your Profile</h2>
 								<ProfileCard
 									isPreview
-									college={formValues.college ?? ""}
+									diningHall={formValues.diningHall ?? ""}
 									major={formValues.major}
 									year={formValues.year ?? ""}
 									conversationTopic={formValues.conversationTopic}
