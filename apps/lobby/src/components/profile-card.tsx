@@ -8,16 +8,6 @@ import {
 } from "@/components/ui/card";
 import { Clock, School } from "lucide-react";
 
-type ProfileCardProps = {
-	college: string;
-	major: string;
-	year: string;
-	conversationTopic?: string;
-	joinedAt?: Date;
-	isPreview?: boolean;
-	onClick?: () => void;
-};
-
 export function ProfileCard({
 	college,
 	major,
@@ -26,7 +16,15 @@ export function ProfileCard({
 	joinedAt,
 	isPreview = false,
 	onClick,
-}: ProfileCardProps) {
+}: {
+	college: string;
+	major: string;
+	year: string;
+	conversationTopic?: string;
+	joinedAt?: Date;
+	isPreview?: boolean;
+	onClick?: () => void;
+}) {
 	const yearSuffix = year ? `'${year.toString().slice(-2)}` : "'YY";
 	const timeSinceJoined = joinedAt
 		? `${Math.floor((Date.now() - joinedAt.getTime()) / (1000 * 60))}m ago`
@@ -46,10 +44,10 @@ export function ProfileCard({
 					<div className="space-y-1">
 						<CardTitle className="flex items-center gap-2">
 							<School className="h-4 w-4" />
-							{college || "Preferred College"}
+							{college ?? "Preferred College"}
 						</CardTitle>
 						<CardDescription>
-							{major || "Major"} {yearSuffix}
+							{major ?? "Major"} {yearSuffix}
 						</CardDescription>
 					</div>
 					{!isPreview && timeSinceJoined && (
@@ -68,7 +66,7 @@ export function ProfileCard({
 					{isPreview ? (
 						<>
 							Chatting about:{" "}
-							{conversationTopic || (
+							{conversationTopic ?? (
 								<span className="italic">What's on your mind?</span>
 							)}
 						</>
