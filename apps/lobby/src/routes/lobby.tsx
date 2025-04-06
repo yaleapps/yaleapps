@@ -1,13 +1,6 @@
-import { RESIDENTIAL_COLLEGES } from "@repo/constants";
-import { Badge } from "@/components/ui/badge";
+import { ProfileCard } from "@/components/profile-card";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -15,8 +8,9 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RESIDENTIAL_COLLEGES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, Filter, School, Users } from "lucide-react";
+import { Filter, Users } from "lucide-react";
 import { useEffect, useState } from "react";
 
 // Types for our lobby data
@@ -77,12 +71,6 @@ function LobbyScreen() {
 	const filteredUsers = selectedCollege
 		? users.filter((user) => user.college === selectedCollege)
 		: users;
-
-	// Calculate time since joined
-	const getTimeSinceJoined = (joinedAt: Date) => {
-		const minutes = Math.floor((Date.now() - joinedAt.getTime()) / (1000 * 60));
-		return `${minutes}m ago`;
-	};
 
 	// Handle leaving lobby
 	const handleLeaveLobby = () => {
@@ -146,7 +134,7 @@ function LobbyScreen() {
 				{/* Empty State */}
 				{!isLoading && filteredUsers.length === 0 && (
 					<Card className="p-8 text-center">
-						<div className="mx-auto mb-4 rounded-full bg-muted p-3 w-12 h-12 flex items-center justify-center">
+						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
 							<Users className="h-6 w-6 text-muted-foreground" />
 						</div>
 						<h2 className="mb-2 text-xl font-semibold">
@@ -162,40 +150,18 @@ function LobbyScreen() {
 				{!isLoading && filteredUsers.length > 0 && (
 					<div className="space-y-4">
 						{filteredUsers.map((user) => (
-							<Card
+							<ProfileCard
 								key={user.id}
-								className="group cursor-pointer transition-colors hover:bg-muted/50"
+								college={user.college}
+								major={user.major}
+								year={user.year}
+								conversationTopic={user.conversationTopic}
+								joinedAt={user.joinedAt}
 								onClick={() => {
 									// TODO: Implement connection dialog
 									console.log("Connecting with user:", user.id);
 								}}
-							>
-								<CardHeader className="pb-3">
-									<div className="flex items-start justify-between">
-										<div className="space-y-1">
-											<CardTitle className="flex items-center gap-2">
-												<School className="h-4 w-4" />
-												{user.college}
-											</CardTitle>
-											<CardDescription>
-												{user.major} '{user.year.slice(-2)}
-											</CardDescription>
-										</div>
-										<Badge
-											variant="secondary"
-											className="flex items-center gap-1"
-										>
-											<Clock className="h-3 w-3" />
-											{getTimeSinceJoined(user.joinedAt)}
-										</Badge>
-									</div>
-								</CardHeader>
-								<CardContent>
-									<p className="text-sm text-muted-foreground">
-										Looking for conversations on: {user.conversationTopic}
-									</p>
-								</CardContent>
-							</Card>
+							/>
 						))}
 					</div>
 				)}

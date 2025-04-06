@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { ProfileCard } from "@/components/profile-card";
 
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
@@ -61,36 +62,6 @@ const formSchema = z.object({
 });
 
 type FormValues = z.infer<typeof formSchema>;
-
-// Live preview card component
-function LivePreviewCard({
-	college,
-	major,
-	year,
-	conversationTopic,
-}: Partial<FormValues>) {
-	const yearSuffix = year ? `'${year.slice(-2)}` : "'YY";
-	return (
-		<Card className="w-full bg-card/50 backdrop-blur-sm">
-			<CardHeader className="pb-3">
-				<CardTitle className="text-lg">
-					{college ?? "Preferred College"}
-				</CardTitle>
-				<CardDescription>
-					{major ?? "Major"} {yearSuffix}
-				</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<p className="text-sm text-muted-foreground">
-					Chatting about:{" "}
-					{conversationTopic || (
-						<span className="italic">What's on your mind?</span>
-					)}
-				</p>
-			</CardContent>
-		</Card>
-	);
-}
 
 function LunchLobbyForm() {
 	const navigate = useNavigate();
@@ -125,7 +96,6 @@ function LunchLobbyForm() {
 						onSubmit={form.handleSubmit(async (values) => {
 							try {
 								console.log("Form Submitted:", values);
-								console.log("TODO: Add /lobby route");
 								navigate({ to: "/lobby" });
 							} catch (error) {
 								console.error("Failed to join lobby:", error);
@@ -137,124 +107,132 @@ function LunchLobbyForm() {
 						})}
 						className="space-y-6"
 					>
-						<div className="space-y-4">
-							<FormField
-								control={form.control}
-								name="college"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Preferred College/Dining Hall</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}
-										>
+						<Card className="p-6">
+							<div className="space-y-4">
+								<FormField
+									control={form.control}
+									name="college"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Preferred College/Dining Hall</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="Select a dining hall" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{DINING_HALLS.map((college) => (
+														<SelectItem key={college} value={college}>
+															{college}
+														</SelectItem>
+													))}
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+
+								<FormField
+									control={form.control}
+									name="major"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Major</FormLabel>
 											<FormControl>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Select a dining hall" />
-												</SelectTrigger>
+												<Input
+													placeholder="e.g., Computer Science"
+													{...field}
+													className="w-full"
+												/>
 											</FormControl>
-											<SelectContent>
-												{DINING_HALLS.map((college) => (
-													<SelectItem key={college} value={college}>
-														{college}
-													</SelectItem>
-												))}
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							<FormField
-								control={form.control}
-								name="major"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Major</FormLabel>
-										<FormControl>
-											<Input
-												placeholder="e.g., Computer Science"
-												{...field}
-												className="w-full"
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+								<FormField
+									control={form.control}
+									name="year"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Year</FormLabel>
+											<Select
+												onValueChange={field.onChange}
+												defaultValue={field.value}
+											>
+												<FormControl>
+													<SelectTrigger className="w-full">
+														<SelectValue placeholder="Select your year" />
+													</SelectTrigger>
+												</FormControl>
+												<SelectContent>
+													{GRADUATION_YEARS.map((year) => (
+														<SelectItem key={year} value={year.toString()}>
+															{year}
+														</SelectItem>
+													))}
+													<SelectItem value="Graduate">Graduate</SelectItem>
+												</SelectContent>
+											</Select>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							<FormField
-								control={form.control}
-								name="year"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Year</FormLabel>
-										<Select
-											onValueChange={field.onChange}
-											defaultValue={field.value}
-										>
+								<FormField
+									control={form.control}
+									name="conversationTopic"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Looking for conversations on...</FormLabel>
 											<FormControl>
-												<SelectTrigger className="w-full">
-													<SelectValue placeholder="Select your year" />
-												</SelectTrigger>
+												<Textarea
+													placeholder="e.g., Summer internships, favorite classes, weekend plans..."
+													className="resize-none"
+													{...field}
+												/>
 											</FormControl>
-											<SelectContent>
-												{GRADUATION_YEARS.map((year) => (
-													<SelectItem key={year} value={year.toString()}>
-														{year}
-													</SelectItem>
-												))}
-												<SelectItem value="Graduate">Graduate</SelectItem>
-											</SelectContent>
-										</Select>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
 
-							<FormField
-								control={form.control}
-								name="conversationTopic"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Looking for conversations on...</FormLabel>
-										<FormControl>
-											<Textarea
-												placeholder="e.g., Summer internships, favorite classes, weekend plans..."
-												className="resize-none"
-												{...field}
-											/>
-										</FormControl>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-
-							<FormField
-								control={form.control}
-								name="phoneNumber"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Phone Number</FormLabel>
-										<FormControl>
-											<PhoneInput {...field} />
-										</FormControl>
-										<FormDescription className="text-xs">
-											Only shared via iMessage upon connection
-										</FormDescription>
-										<FormMessage />
-									</FormItem>
-								)}
-							/>
-						</div>
+								<FormField
+									control={form.control}
+									name="phoneNumber"
+									render={({ field }) => (
+										<FormItem>
+											<FormLabel>Phone Number</FormLabel>
+											<FormControl>
+												<PhoneInput {...field} />
+											</FormControl>
+											<FormDescription className="text-xs">
+												Only shared via iMessage upon connection
+											</FormDescription>
+											<FormMessage />
+										</FormItem>
+									)}
+								/>
+							</div>
+						</Card>
 
 						<Separator className="my-6" />
 
 						<div className="space-y-4">
 							<div className="space-y-2">
 								<h2 className="text-sm font-medium">Preview Your Profile</h2>
-								<LivePreviewCard {...formValues} />
+								<ProfileCard
+									isPreview
+									college={formValues.college ?? ""}
+									major={formValues.major}
+									year={formValues.year ?? ""}
+									conversationTopic={formValues.conversationTopic}
+								/>
 							</div>
 
 							<Button
