@@ -38,16 +38,16 @@ const VIBE_OPTIONS = [
 ] as const;
 
 const VIBE_PLACEHOLDERS = [
-	"Econ major slithering around, looking for quick lunch chat",
-	"CS major seeking break from leetcode and internship talk",
-	"Pre-med needing study break from orgo problem sets",
+	"Econ major slithering around, looking for quick lunch chat...",
+	"CS major seeking break from leetcode and internship talk...",
+	"Pre-med needing study break from orgo problem sets...",
 	"Philosophy major pondering: if a sandwich falls in the dining hall...",
-	"History major time-traveling through meals, stories welcome",
-	"Math major calculating optimal bite-to-conversation ratio",
-	"Physics major studying food thermodynamics, seeking company",
-	"Art major sketching their sandwich, open to creative convos",
-	"Drama major rehearsing with their salad, seeking audience",
-	"Just a hungry soul seeking good company",
+	"History major time-traveling through meals, stories welcome...",
+	"Math major calculating optimal bite-to-conversation ratio...",
+	"Physics major studying food thermodynamics, seeking company...",
+	"Art major sketching their sandwich, open to creative convos...",
+	"Drama major rehearsing with their salad, seeking audience...",
+	"Just a hungry soul seeking good company...",
 ] as const;
 
 const PLACEHOLDER_ROTATION_INTERVAL = 3500; // 3.5 seconds
