@@ -58,10 +58,38 @@ export const RESIDENTIAL_COLLEGES = [
 	},
 ] as const;
 
-export const RESIDENTIAL_COLLEGE_ABBREVIATIONS = RESIDENTIAL_COLLEGES.map(
-	(college) => college.abbreviation,
-);
+export type ResidentialCollege = (typeof RESIDENTIAL_COLLEGES)[number];
 
-export const RESIDENTIAL_COLLEGE_NAMES = RESIDENTIAL_COLLEGES.map(
-	(college) => college.name,
-);
+export const RESIDENTIAL_COLLEGE_NAMES = [
+	"Benjamin Franklin",
+	"Berkeley",
+	"Branford",
+	"Davenport",
+	"Ezra Stiles",
+	"Grace Hopper",
+	"Jonathan Edwards",
+	"Morse",
+	"Pauli Murray",
+	"Pierson",
+	"Saybrook",
+	"Silliman",
+	"Timothy Dwight",
+	"Trumbull",
+] as const satisfies readonly ResidentialCollege["name"][];
+
+export const RESIDENTIAL_COLLEGE_ABBREVIATIONS = [
+	"BF",
+	"BK",
+	"BR",
+	"DC",
+	"ES",
+	"GH",
+	"JE",
+	"MC",
+	"MY",
+	"PC",
+	"SY",
+	"SM",
+	"TD",
+	"TC",
+] as const satisfies readonly ResidentialCollege["abbreviation"][];
