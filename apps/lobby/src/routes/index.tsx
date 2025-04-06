@@ -36,10 +36,7 @@ export const lobbyFormSchema = z.object({
 	}),
 	major: z.string().min(1, "Please enter your major"),
 	year: z.string().min(1, "Please select your year"),
-	conversationTopic: z
-		.string()
-		.min(1, "Please enter a conversation topic")
-		.max(200, "Topic must be less than 200 characters"),
+	conversationTopic: z.string().min(1, "Please enter a conversation topic"),
 	phoneNumber: z
 		.string()
 		.min(10, "Please enter a valid phone number")
