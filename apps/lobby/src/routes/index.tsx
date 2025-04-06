@@ -27,7 +27,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-// Form validation schema
 const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
 const VIBE_PLACEHOLDERS = [
