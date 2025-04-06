@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
 import type { Env } from "..";
-import * as authSchema from "@repo/db";
+import * as authSchema from "@repo/db/schema";
 import { yaleCas } from "@yaleapps/better-auth-yale-cas";
 
 export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
