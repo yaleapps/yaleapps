@@ -2,33 +2,6 @@ import { cn } from "@/lib/utils";
 import type { ComponentProps } from "react";
 import { Input } from "./input";
 
-function formatPhoneNumber(value: string): string {
-	// For exactly 10 digits - Presumably US format
-	if (value.length === 10) {
-		return `(${(value).slice(0, 3)}) ${(value).slice(3, 6)}-${(value).slice(6)}`;
-	}
-
-	// For international numbers (more than 10 digits)
-	if (value.length > 10) {
-		const countryCodeLength = value.length > 12 ? 3 : value.length > 11 ? 2 : 1;
-		const countryCode = value.slice(0, countryCodeLength);
-		const remainingNumbers = value.slice(countryCodeLength);
-
-		// Format remaining numbers in groups of 3-3-4
-		const formatted = [
-			remainingNumbers.slice(0, 3),
-			remainingNumbers.slice(3, 6),
-			remainingNumbers.slice(6),
-		]
-			.filter(Boolean)
-			.join(" ");
-
-		return `+${countryCode} ${formatted}`.trim();
-	}
-
-	return value;
-}
-
 export function PhoneInput({
 	value,
 	onChange,
@@ -53,4 +26,42 @@ export function PhoneInput({
 			className={cn("font-mono", className)}
 		/>
 	);
+}
+
+function formatPhoneNumber(value: string): string {
+	const number = value.replace(/\D/g, "");
+	const isUsNumber =
+		number.length === 10 || (number.startsWith("1") && number.length === 11);
+	if (isUsNumber) {
+		const areaCode = number.slice(-10, -7);
+		const prefix = number.slice(-7, -4);
+		const lineNumber = number.slice(-4);
+
+		if (lineNumber) return `(${areaCode}) ${prefix}-${lineNumber}`.trim();
+		if (prefix) return `(${areaCode}) ${prefix}`.trim();
+		if (areaCode) return `(${areaCode}`.trim();
+	}
+
+	const isInternationalNumber = number.length > 10;
+	if (isInternationalNumber) {
+		const countryCode = number.slice(
+			0,
+			number.length > 12 ? 3 : number.length > 11 ? 2 : 1,
+		);
+		const remainingNumbers = number.slice(countryCode.length);
+
+		// Format remaining numbers in groups of 3-3-4 or 3-3-3 depending on length
+		const areaCode = remainingNumbers.slice(0, 3);
+		const prefix = remainingNumbers.slice(3, 6);
+		const lineNumber = remainingNumbers.slice(6);
+
+		if (lineNumber)
+			return `+${countryCode} ${areaCode} ${prefix}-${lineNumber}`.trim();
+		if (prefix) return `+${countryCode} ${areaCode} ${prefix}`.trim();
+		if (areaCode) return `+${countryCode} ${areaCode}`.trim();
+
+		return `+${countryCode}`.trim();
+	}
+
+	return number;
 }
