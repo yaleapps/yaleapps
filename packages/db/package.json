@@ -1,12 +1,13 @@
 {
 	"name": "@repo/db",
 	"dependencies": {
-		"drizzle-orm": "^0.41.0"
+		"drizzle-orm": "^0.41.0",
+		"@repo/constants": "workspace:*"
 	},
 	"devDependencies": {
 		"drizzle-kit": "^0.30.6"
 	},
 	"exports": {
-		".": "./src/index.ts"
+		"./schema": "./src/schema/index.ts"
 	}
 }

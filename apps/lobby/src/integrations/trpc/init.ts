@@ -1,5 +1,5 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import * as schema from "@repo/db";
+import * as schema from "@repo/db/schema";
 import { getEvent } from "@tanstack/react-start/server";
 import { initTRPC } from "@trpc/server";
 import { drizzle } from "drizzle-orm/d1";
