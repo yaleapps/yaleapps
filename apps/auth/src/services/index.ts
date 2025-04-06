@@ -1,41 +1,15 @@
-import { betterAuth } from "better-auth";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import type * as authSchema from "@repo/db/schema";
 import { drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
 import type { Env } from "..";
-import * as authSchema from "@repo/db/schema";
-import { yaleCas } from "@yaleapps/better-auth-yale-cas";
+import { createAuth } from "./createAuth";
 
 export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const db = drizzle<typeof authSchema>(c.env.DB);
 	c.set("db", db);
-	const auth = betterAuth({
-		baseURL: "http://localhost:8787",
-		emailAndPassword: { enabled: true },
-		trustedOrigins: ["http://localhost:3000"],
-		database: drizzleAdapter(db, {
-			provider: "sqlite",
-			schema: authSchema,
-			usePlural: true,
-		}),
-		plugins: [
-			yaleCas({
-				yaliesApiKey: c.env.YALIES_API_KEY,
-				authServerBaseUrl: "http://localhost:8787",
-			}),
-		],
-		account: {
-			accountLinking: {
-				enabled: true,
-				trustedProviders: ["google", "github"],
-			},
-		},
-		advanced: {
-			crossSubDomainCookies: {
-				enabled: true,
-				// domain: ".yaleapps.com",
-			},
-		},
+	const auth = createAuth({
+		DB: c.env.DB,
+		YALIES_API_KEY: c.env.YALIES_API_KEY,
 	});
 	c.set("auth", auth);
 	const session = await auth.api.getSession({ headers: c.req.raw.headers });

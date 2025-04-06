@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "@repo/auth",
   "scripts": {
     "dev": "wrangler dev",
     "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local",
@@ -19,6 +19,6 @@
     "wrangler": "^4.1.0"
   },
   "exports": {
-    ".": "./src/yale-cas/index.ts"
+    "./createAuth": "./src/services/createAuth.ts"
   }
 }

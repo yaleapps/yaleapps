@@ -1,7 +1,9 @@
 import type { D1Database } from "@cloudflare/workers-types";
+import { createAuth } from "@repo/auth/services";
 import * as schema from "@repo/db/schema";
 import { getEvent } from "@tanstack/react-start/server";
 import { initTRPC } from "@trpc/server";
+import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { drizzle } from "drizzle-orm/d1";
 import superjson from "superjson";
 
@@ -22,12 +24,20 @@ async function getEnv(): Promise<Env> {
 	return env;
 }
 
-// Example creating a context for a TRPC router
-export async function createContext() {
+export async function createContext({ req }: FetchCreateContextFnOptions) {
 	const env = await getEnv();
 	const db = drizzle(env.DB, { schema, logger: true });
+	const auth = createAuth({
+		DB: env.DB,
+		YALIES_API_KEY: env.YALIES_API_KEY,
+	});
 
-	return { db };
+	const session = await auth.api.getSession({
+		headers: req.headers,
+	});
+	console.log("🚀 ~ createContext ~ session:", session);
+
+	return { db, session };
 }
 
 export type Context = Awaited<ReturnType<typeof createContext>>;
