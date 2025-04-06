@@ -25,21 +25,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-
-export const Route = createFileRoute("/")({
-	component: LunchLobbyForm,
-});
-
-const GRADUATION_YEARS = Array.from(
-	{ length: 4 },
-	(_, i) => new Date().getFullYear() + i,
-);
-
-const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
+import { z } from "zod";
 
 // Form validation schema
-const formSchema = z.object({
+const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
+
+export const lobbyFormSchema = z.object({
 	diningHall: z.enum(DINING_HALL_NAMES, {
 		required_error: "Please select a dining hall",
 	}),
@@ -55,13 +46,22 @@ const formSchema = z.object({
 		.regex(/^\d{10}$/, "Please enter a 10-digit phone number"),
 });
 
-type FormValues = z.infer<typeof formSchema>;
+export const Route = createFileRoute("/")({
+	component: LunchLobbyForm,
+});
+
+const GRADUATION_YEARS = Array.from(
+	{ length: 4 },
+	(_, i) => new Date().getFullYear() + i,
+);
+
+type LobbyFormValues = z.infer<typeof lobbyFormSchema>;
 
 function LunchLobbyForm() {
 	const navigate = useNavigate();
 
-	const form = useForm<FormValues>({
-		resolver: zodResolver(formSchema),
+	const form = useForm<LobbyFormValues>({
+		resolver: zodResolver(lobbyFormSchema),
 		defaultValues: {
 			diningHall: "Commons",
 			major: "",
