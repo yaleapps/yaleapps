@@ -1,13 +1,7 @@
-import type { TRPCRouterRecord } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "./init";
-
-const peopleRouter = {
-	list: publicProcedure.query(async ({ ctx }) => {
-		return { ctx };
-	}),
-} satisfies TRPCRouterRecord;
+import { createTRPCRouter } from "./init";
+import { lobbyRouter } from "./routers/lobby";
 
 export const trpcRouter = createTRPCRouter({
-	people: peopleRouter,
+	lobby: lobbyRouter,
 });
 export type TRPCRouter = typeof trpcRouter;
