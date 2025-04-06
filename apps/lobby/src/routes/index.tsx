@@ -220,9 +220,9 @@ function LunchLobbyForm() {
 								<h2 className="text-sm font-medium">Preview Your Profile</h2>
 								<ProfileCard
 									isPreview
-									diningHall={formValues.diningHall ?? ""}
+									diningHall={formValues.diningHall}
 									major={formValues.major}
-									year={formValues.year ?? ""}
+									year={formValues.year}
 									conversationTopic={formValues.conversationTopic}
 								/>
 							</div>
