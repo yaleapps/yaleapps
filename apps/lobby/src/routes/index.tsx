@@ -1,4 +1,3 @@
-import { ProfileCard } from "@/components/profile-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -42,7 +41,7 @@ const VIBE_PLACEHOLDERS = [
 	"Just a hungry soul seeking good company...",
 ] as const;
 
-const PLACEHOLDER_ROTATION_INTERVAL = 3500; // 3.5 seconds
+const PLACEHOLDER_ROTATION_INTERVAL = 2500; // 3.5 seconds
 
 export const lobbyFormSchema = z.object({
 	diningHall: z.enum(DINING_HALL_NAMES, {
@@ -103,8 +102,6 @@ function LunchLobbyForm() {
 		},
 		mode: "onBlur",
 	});
-
-	const formValues = form.watch();
 
 	return (
 		<div className="flex min-h-svh w-full flex-col items-center bg-gradient-to-b from-background to-background/95 p-4 md:p-6 lg:p-8">
@@ -236,25 +233,9 @@ function LunchLobbyForm() {
 
 						<Separator className="my-6" />
 
-						<div className="space-y-4">
-							<div className="space-y-2">
-								<h2 className="text-sm font-medium">Preview Your Profile</h2>
-								<ProfileCard
-									isPreview
-									diningHall={formValues.diningHall}
-									year={formValues.year}
-									vibes={formValues.vibes}
-								/>
-							</div>
-
-							<Button
-								type="submit"
-								className="w-full bg-blue-600 hover:bg-blue-700"
-								size="lg"
-							>
-								Join Lobby for 1 Hour
-							</Button>
-						</div>
+						<Button type="submit" className="w-full" size="lg">
+							Join Lobby for 1 Hour
+						</Button>
 					</form>
 				</Form>
 			</div>
