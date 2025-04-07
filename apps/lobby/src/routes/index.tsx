@@ -42,7 +42,7 @@ const VIBE_PLACEHOLDERS = [
 	"Just a hungry soul seeking good company...",
 ] as const;
 
-const PLACEHOLDER_ROTATION_INTERVAL = 2500; // 3.5 seconds
+const PLACEHOLDER_ROTATION_INTERVAL_MS = 2500;
 
 export const VIBE_MAX_LENGTH = 100;
 
@@ -86,7 +86,7 @@ function usePlaceholderRotation() {
 				const nextIndex = (currentIndex + 1) % VIBE_PLACEHOLDERS.length;
 				return VIBE_PLACEHOLDERS[nextIndex];
 			});
-		}, PLACEHOLDER_ROTATION_INTERVAL);
+		}, PLACEHOLDER_ROTATION_INTERVAL_MS);
 
 		return () => clearInterval(intervalId);
 	}, []);
