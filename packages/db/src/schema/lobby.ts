@@ -1,5 +1,4 @@
-import type { LobbyForm } from "@/routes";
-import { RESIDENTIAL_COLLEGE_ABBREVIATIONS } from "@repo/constants";
+import { type LobbyForm, VIBE_MAX_LENGTH } from "@/routes";
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 import { users } from "./auth";
@@ -50,7 +49,7 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 		.references(() => users.id, { onDelete: "cascade" }),
 
 	...({
-		vibes: text("vibes", { length: 200 }).notNull(),
+		vibes: text("vibes", { length: VIBE_MAX_LENGTH }).notNull(),
 		diningHall: text("dining_hall", {
 			enum: RESIDENTIAL_COLLEGE_ABBREVIATIONS,
 		}).notNull(),

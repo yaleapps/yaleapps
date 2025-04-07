@@ -44,6 +44,8 @@ const VIBE_PLACEHOLDERS = [
 
 const PLACEHOLDER_ROTATION_INTERVAL = 2500; // 3.5 seconds
 
+export const VIBE_MAX_LENGTH = 100;
+
 export const lobbyFormSchema = z.object({
 	diningHall: z.enum(DINING_HALL_NAMES, {
 		required_error: "Please select a dining hall",
@@ -52,7 +54,10 @@ export const lobbyFormSchema = z.object({
 	vibes: z
 		.string()
 		.min(1, "Tell us about your lunch vibe")
-		.max(200, "Keep it brief - under 200 characters"),
+		.max(
+			VIBE_MAX_LENGTH,
+			`Keep it brief - under ${VIBE_MAX_LENGTH} characters`,
+		),
 	phoneNumber: z.string().min(10, "Please enter a valid phone number"),
 });
 
@@ -212,12 +217,18 @@ function LunchLobbyForm() {
 												<span
 													className={cn(
 														"transition-colors text-muted-foreground",
-														field.value.length > 20 ? "text-yellow-500" : "",
-														field.value.length > 50 ? "text-orange-500" : "",
-														field.value.length > 100 ? "text-destructive" : "",
+														field.value.length > VIBE_MAX_LENGTH / 5
+															? "text-yellow-500"
+															: "",
+														field.value.length > VIBE_MAX_LENGTH / 2
+															? "text-orange-500"
+															: "",
+														field.value.length > VIBE_MAX_LENGTH
+															? "text-destructive"
+															: "",
 													)}
 												>
-													{field.value.length}/100
+													{field.value.length}/{VIBE_MAX_LENGTH}
 												</span>
 											</FormDescription>
 											<FormMessage />
