@@ -21,18 +21,18 @@ export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
 
 export const matches = sqliteTableWithLobbyPrefix("matches", {
 	id: integer().primaryKey({ autoIncrement: true }),
-	user1Id: text("user1_id")
+	user1Id: text("user_1_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
-	user2Id: text("user2_id")
+	user2Id: text("user_2_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
-	user1Status: text({
+	user1Status: text("user_1_status", {
 		enum: ["pending", "accepted", "rejected"],
 	})
 		.notNull()
 		.default("pending"),
-	user2Status: text({
+	user2Status: text("user_2_status", {
 		enum: ["pending", "accepted", "rejected"],
 	})
 		.notNull()
