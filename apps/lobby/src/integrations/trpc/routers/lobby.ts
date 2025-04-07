@@ -14,14 +14,14 @@ const INACTIVE_THRESHOLD = 30 * 1000;
 const MATCH_EXPIRY = 15 * 60 * 1000; // 15 minutes
 
 export const lobbyRouter = {
-	join: protectedProcedure
-		.input(lobbyFormSchema)
-		.mutation(async ({ ctx, input }) => {
+	joinLobby: protectedProcedure
+		.input(z.object({ lobbyProfile: lobbyFormSchema }))
+		.mutation(async ({ ctx, input: { lobbyProfile } }) => {
 			await ctx.db.transaction(async (tx) => {
 				// Insert profile
 				await tx.insert(lobbyProfiles).values({
 					userId: ctx.session.user.id,
-					...input,
+					...lobbyProfile,
 					updatedAt: new Date(),
 				});
 
