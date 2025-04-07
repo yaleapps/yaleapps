@@ -9,7 +9,7 @@ const sqliteTableWithLobbyPrefix = sqliteTableCreator(
 );
 
 export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
+	id: integer().primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
@@ -19,13 +19,21 @@ export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
 	lastPingedAt: integer("last_pinged_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	status: text("status", { enum: ["active", "inactive", "matched"] })
+	status: text({
+		enum: ["active", "inactive", "matched", "matching"],
+	})
 		.notNull()
 		.default("active"),
+	matchedWithUserId: text("matched_with_user_id").references(() => users.id, {
+		onDelete: "set null",
+	}),
+	hasAcceptedMatch: integer("has_accepted_match", { mode: "boolean" })
+		.notNull()
+		.default(false),
 });
 
 export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
-	id: integer("id").primaryKey({ autoIncrement: true }),
+	id: integer().primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
@@ -38,7 +46,7 @@ export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
 	matchedWithUserId: text("matched_with_user_id").references(() => users.id, {
 		onDelete: "set null",
 	}),
-	reason: text("reason", {
+	reason: text({
 		enum: ["matched", "timeout", "left", "kicked"],
 	}).notNull(),
 });
@@ -49,17 +57,18 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 		.references(() => users.id, { onDelete: "cascade" }),
 
 	...({
-		vibes: text("vibes", { length: VIBE_MAX_LENGTH }).notNull(),
+		vibes: text({ length: VIBE_MAX_LENGTH }).notNull(),
 		diningHall: text("dining_hall", {
-			enum: RESIDENTIAL_COLLEGE_ABBREVIATIONS,
+			enum: DINING_HALL_NAMES,
 		}).notNull(),
 		year: text().notNull(),
 		phoneNumber: text("phone_number").notNull(),
 	} satisfies Record<keyof LobbyForm, ReturnType<typeof text>>),
 
-	updatedAt: integer("updated_at", { mode: "timestamp" })
+	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
+	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
 export const activeLobbyUsersRelations = relations(
