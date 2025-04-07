@@ -17,34 +17,41 @@ export const lobbyRouter = {
 		.mutation(
 			async ({ ctx, input: { lobbyProfile } }) =>
 				await ctx.db.transaction(async (tx) => {
-					const newLobbyProfile = {
-						userId: ctx.session.user.id,
-						...lobbyProfile,
-						updatedAt: new Date(),
-					} satisfies typeof lobbyProfiles.$inferInsert;
+					const upsertLobbyProfile = async () => {
+						const newLobbyProfile = {
+							userId: ctx.session.user.id,
+							...lobbyProfile,
+							updatedAt: new Date(),
+						} satisfies typeof lobbyProfiles.$inferInsert;
 
-					await tx
-						.insert(lobbyProfiles)
-						.values(newLobbyProfile)
-						.onConflictDoUpdate({
-							target: [lobbyProfiles.userId],
-							set: buildConflictUpdateColumns(lobbyProfiles, [
-								"diningHall",
-								"year",
-								"vibes",
-								"phoneNumber",
-								"updatedAt",
-							]),
-						});
+						await tx
+							.insert(lobbyProfiles)
+							.values(newLobbyProfile)
+							.onConflictDoUpdate({
+								target: [lobbyProfiles.userId],
+								set: buildConflictUpdateColumns(lobbyProfiles, [
+									"diningHall",
+									"year",
+									"vibes",
+									"phoneNumber",
+									"updatedAt",
+								]),
+							});
+					};
 
-					const newActiveUser = {
-						userId: ctx.session.user.id,
-					} satisfies typeof activeLobbyUsers.$inferInsert;
+					const insertUserToLobby = async () => {
+						const newActiveUser = {
+							userId: ctx.session.user.id,
+						} satisfies typeof activeLobbyUsers.$inferInsert;
 
-					await tx
-						.insert(activeLobbyUsers)
-						.values(newActiveUser)
-						.onConflictDoNothing({ target: activeLobbyUsers.userId });
+						await tx
+							.insert(activeLobbyUsers)
+							.values(newActiveUser)
+							.onConflictDoNothing({ target: activeLobbyUsers.userId });
+					};
+
+					await upsertLobbyProfile();
+					await insertUserToLobby();
 				}),
 		),
 
