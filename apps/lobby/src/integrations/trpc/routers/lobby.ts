@@ -1,54 +1,66 @@
-import { activeLobbyUsers, lobbyProfiles, matches } from "@repo/db/schema";
-import type { TRPCRouterRecord } from "@trpc/server";
-import { and, eq, gt, ne, or, sql } from "drizzle-orm";
-import { protectedProcedure } from "../init";
 import { lobbyFormSchema } from "@/routes";
+import {
+	activeLobbyUsers,
+	lobbyProfiles,
+	matchParticipants,
+	matches,
+} from "@repo/db/schema";
+import { buildConflictUpdateColumns } from "@repo/db/utils";
+import type { TRPCRouterRecord } from "@trpc/server";
+import { and, desc, eq, ne, notInArray, or } from "drizzle-orm";
 import { z } from "zod";
-
-const INACTIVE_THRESHOLD = 30 * 1000;
+import { protectedProcedure } from "../init";
 
 export const lobbyRouter = {
 	joinLobby: protectedProcedure
 		.input(z.object({ lobbyProfile: lobbyFormSchema }))
-		.mutation(async ({ ctx, input: { lobbyProfile } }) => {
-			await ctx.db.transaction(async (tx) => {
-				const newLobbyProfile = {
-					userId: ctx.session.user.id,
-					...lobbyProfile,
-					updatedAt: new Date(),
-				} satisfies typeof lobbyProfiles.$inferInsert;
+		.mutation(
+			async ({ ctx, input: { lobbyProfile } }) =>
+				await ctx.db.transaction(async (tx) => {
+					const newLobbyProfile = {
+						userId: ctx.session.user.id,
+						...lobbyProfile,
+						updatedAt: new Date(),
+					} satisfies typeof lobbyProfiles.$inferInsert;
 
-				const newActiveUser = {
-					userId: ctx.session.user.id,
-					lastPingedAt: new Date(),
-				} satisfies typeof activeLobbyUsers.$inferInsert;
+					await tx
+						.insert(lobbyProfiles)
+						.values(newLobbyProfile)
+						.onConflictDoUpdate({
+							target: [lobbyProfiles.userId],
+							set: buildConflictUpdateColumns(lobbyProfiles, [
+								"diningHall",
+								"year",
+								"vibes",
+								"phoneNumber",
+								"updatedAt",
+							]),
+						});
 
-				await tx.insert(lobbyProfiles).values(newLobbyProfile);
-				await tx.insert(activeLobbyUsers).values(newActiveUser);
-			});
-		}),
+					const newActiveUser = {
+						userId: ctx.session.user.id,
+					} satisfies typeof activeLobbyUsers.$inferInsert;
 
-	getPotentialMatches: protectedProcedure.query(async ({ ctx }) => {
-		const potentialMatches = await ctx.db.query.activeLobbyUsers.findMany({
-			where: and(
-				gt(
-					activeLobbyUsers.lastPingedAt,
-					new Date(new Date().getTime() - INACTIVE_THRESHOLD),
+					await tx
+						.insert(activeLobbyUsers)
+						.values(newActiveUser)
+						.onConflictDoNothing({ target: activeLobbyUsers.userId });
+				}),
+		),
+
+	getPotentialMatch: protectedProcedure
+		.input(z.object({ rejectedUserIds: z.array(z.string()) }))
+		.query(async ({ ctx, input: { rejectedUserIds } }) => {
+			const potentialMatches = await ctx.db.query.activeLobbyUsers.findMany({
+				where: and(
+					ne(activeLobbyUsers.userId, ctx.session.user.id),
+					notInArray(activeLobbyUsers.userId, rejectedUserIds),
 				),
-				ne(activeLobbyUsers.userId, ctx.session.user.id),
-			),
-			with: { profile: true },
-		});
+				with: { profile: true },
+			});
 
-		return potentialMatches;
-	}),
-
-	updatePingTime: protectedProcedure.mutation(async ({ ctx }) => {
-		await ctx.db
-			.update(activeLobbyUsers)
-			.set({ lastPingedAt: new Date() })
-			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
-	}),
+			return potentialMatches;
+		}),
 
 	leaveLobby: protectedProcedure.mutation(async ({ ctx }) => {
 		await ctx.db
@@ -57,33 +69,41 @@ export const lobbyRouter = {
 	}),
 
 	getCurrentMatch: protectedProcedure.query(async ({ ctx }) => {
-		const match = await ctx.db.query.matches.findFirst({
+		// Find the most recent match where the current user is a participant
+		const matchParticipant = await ctx.db.query.matchParticipants.findFirst({
+			where: eq(matchParticipants.userId, ctx.session.user.id),
+			with: {
+				match: true,
+				profile: true,
+			},
+			orderBy: [desc(matchParticipants.joinedAt)],
+		});
+
+		if (!matchParticipant) return null;
+
+		// Find the other participant(s) in this match
+		const otherParticipants = await ctx.db.query.matchParticipants.findMany({
 			where: and(
-				or(
-					eq(matches.user1Id, ctx.session.user.id),
-					eq(matches.user2Id, ctx.session.user.id),
-				),
-				and(
-					eq(matches.user1Status, "accepted"),
-					eq(matches.user2Status, "accepted"),
-				),
+				eq(matchParticipants.matchId, matchParticipant.matchId),
+				ne(matchParticipants.userId, ctx.session.user.id),
 			),
 			with: {
-				user1: true,
-				user2: true,
-				user1Profile: true,
-				user2Profile: true,
+				user: true,
+				profile: true,
 			},
 		});
 
-		if (!match) return null;
+		if (otherParticipants.length === 0) return null;
 
-		const isUser1 = match.user1Id === ctx.session.user.id;
+		// For now, we'll just return the first other participant
+		// In the future, this could be expanded to handle multiple participants
+		const otherParticipant = otherParticipants[0];
+
 		return {
-			matchId: match.id,
+			matchId: matchParticipant.matchId,
 			otherUser: {
-				user: isUser1 ? match.user2 : match.user1,
-				profile: isUser1 ? match.user2Profile : match.user1Profile,
+				user: otherParticipant.user,
+				profile: otherParticipant.profile,
 			},
 			isFullyMatched: true,
 		};
@@ -92,31 +112,38 @@ export const lobbyRouter = {
 	acceptMatch: protectedProcedure
 		.input(z.object({ matchedUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
-			const existingMatch = await ctx.db.query.matches.findFirst({
-				where: and(
-					eq(matches.user1Id, input.matchedUserId),
-					eq(matches.user2Id, ctx.session.user.id),
-					eq(matches.user1Status, "accepted"),
-					eq(matches.user2Status, "pending"),
-				),
-			});
+			await ctx.db.transaction(async (tx) => {
+				// Create a new match
+				const [newMatch] = await tx
+					.insert(matches)
+					.values({
+						createdAt: new Date(),
+					})
+					.returning();
 
-			if (existingMatch) {
-				// If there is, update it to fully matched
-				await ctx.db
-					.update(matches)
-					.set({ user2Status: "accepted" })
-					.where(eq(matches.id, existingMatch.id));
-				return;
-			}
+				// Add both participants
+				await tx.insert(matchParticipants).values([
+					{
+						matchId: newMatch.id,
+						userId: ctx.session.user.id,
+						joinedAt: new Date(),
+					},
+					{
+						matchId: newMatch.id,
+						userId: input.matchedUserId,
+						joinedAt: new Date(),
+					},
+				]);
 
-			// Otherwise create a new match record
-			await ctx.db.insert(matches).values({
-				user1Id: ctx.session.user.id,
-				user2Id: input.matchedUserId,
-				user1Status: "accepted",
-				user2Status: "pending",
-				createdAt: new Date(),
+				// Remove both users from the active lobby
+				await tx
+					.delete(activeLobbyUsers)
+					.where(
+						or(
+							eq(activeLobbyUsers.userId, ctx.session.user.id),
+							eq(activeLobbyUsers.userId, input.matchedUserId),
+						),
+					);
 			});
 		}),
 } satisfies TRPCRouterRecord;
