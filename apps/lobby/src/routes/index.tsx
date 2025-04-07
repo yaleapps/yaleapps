@@ -25,6 +25,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { cn } from "@/lib/utils";
 
 const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
@@ -203,9 +204,21 @@ function LunchLobbyForm() {
 													{...field}
 												/>
 											</FormControl>
-											<FormDescription>
-												Express yourself! Share your major, interests, or
-												current mood (max 200 chars)
+											<FormDescription className="text-xs flex justify-between items-center">
+												<span>
+													Express yourself! Share your major, interests, or
+													mood...
+												</span>
+												<span
+													className={cn(
+														"transition-colors text-muted-foreground",
+														field.value.length > 20 ? "text-yellow-500" : "",
+														field.value.length > 50 ? "text-orange-500" : "",
+														field.value.length > 100 ? "text-destructive" : "",
+													)}
+												>
+													{field.value.length}/100
+												</span>
 											</FormDescription>
 											<FormMessage />
 										</FormItem>
