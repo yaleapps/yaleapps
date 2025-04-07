@@ -75,48 +75,7 @@ export const lobbyRouter = {
 			return potentialMatches;
 		}),
 
-	getCurrentMatch: protectedProcedure.query(async ({ ctx }) => {
-		// Find the most recent match where the current user is a participant
-		const matchParticipant = await ctx.db.query.matchParticipants.findFirst({
-			where: eq(matchParticipants.userId, ctx.session.user.id),
-			with: {
-				match: true,
-				profile: true,
-			},
-			orderBy: [desc(matchParticipants.joinedAt)],
-		});
-
-		if (!matchParticipant) return null;
-
-		// Find the other participant(s) in this match
-		const otherParticipants = await ctx.db.query.matchParticipants.findMany({
-			where: and(
-				eq(matchParticipants.matchId, matchParticipant.matchId),
-				ne(matchParticipants.userId, ctx.session.user.id),
-			),
-			with: {
-				user: true,
-				profile: true,
-			},
-		});
-
-		if (otherParticipants.length === 0) return null;
-
-		// For now, we'll just return the first other participant
-		// In the future, this could be expanded to handle multiple participants
-		const otherParticipant = otherParticipants[0];
-
-		return {
-			matchId: matchParticipant.matchId,
-			otherUser: {
-				user: otherParticipant.user,
-				profile: otherParticipant.profile,
-			},
-			isFullyMatched: true,
-		};
-	}),
-
-	acceptMatch: protectedProcedure
+	acceptAndRecordMatch: protectedProcedure
 		.input(z.object({ matchedUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			await ctx.db.transaction(async (tx) => {
