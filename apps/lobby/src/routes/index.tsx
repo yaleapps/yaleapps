@@ -235,7 +235,8 @@ function LunchLobbyForm() {
 												<PhoneInput {...field} />
 											</FormControl>
 											<FormDescription className="text-xs">
-												Only shared via iMessage upon connection
+												Your number remains private until both parties accept
+												the match
 											</FormDescription>
 											<FormMessage />
 										</FormItem>
