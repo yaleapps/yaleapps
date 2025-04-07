@@ -1,14 +1,14 @@
 import { activeLobbyUsers } from "@repo/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { and, eq, gt } from "drizzle-orm";
-import { publicProcedure } from "../init";
+import { protectedProcedure } from "../init";
 import { lobbyFormSchema } from "@/routes";
 import { z } from "zod";
 
 const INACTIVE_THRESHOLD = 30 * 1000;
 
 export const lobbyRouter = {
-	getActiveUsers: publicProcedure.query(async ({ ctx }) => {
+	getActiveUsers: protectedProcedure.query(async ({ ctx }) => {
 		const activeUsers = await ctx.db.query.activeLobbyUsers.findMany({
 			where: and(
 				eq(activeLobbyUsers.status, "active"),
@@ -23,7 +23,7 @@ export const lobbyRouter = {
 		return activeUsers;
 	}),
 
-	join: publicProcedure
+	join: protectedProcedure
 		.input(lobbyFormSchema)
 		.mutation(async ({ ctx, input }) => {
 			const user = ctx.session?.user;
@@ -46,7 +46,7 @@ export const lobbyRouter = {
 			// 	status: "active",
 			// });
 		}),
-	updatePingTime: publicProcedure.mutation(async ({ ctx }) => {
+	updatePingTime: protectedProcedure.mutation(async ({ ctx }) => {
 		if (!ctx.session?.user) {
 			throw new Error("User not found");
 		}
@@ -56,7 +56,7 @@ export const lobbyRouter = {
 			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
 	}),
 
-	leave: publicProcedure.mutation(async ({ ctx }) => {
+	leave: protectedProcedure.mutation(async ({ ctx }) => {
 		if (!ctx.session?.user) {
 			throw new Error("User not found");
 		}
@@ -75,7 +75,7 @@ export const lobbyRouter = {
 	}),
 
 	// New match-related procedures
-	initiateMatch: publicProcedure
+	initiateMatch: protectedProcedure
 		.input(z.object({ targetUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			if (!ctx.session?.user) {
@@ -102,7 +102,7 @@ export const lobbyRouter = {
 			});
 		}),
 
-	acceptMatch: publicProcedure.mutation(async ({ ctx }) => {
+	acceptMatch: protectedProcedure.mutation(async ({ ctx }) => {
 		if (!ctx.session?.user) {
 			throw new Error("User not found");
 		}
@@ -147,7 +147,7 @@ export const lobbyRouter = {
 		};
 	}),
 
-	rejectMatch: publicProcedure.mutation(async ({ ctx }) => {
+	rejectMatch: protectedProcedure.mutation(async ({ ctx }) => {
 		if (!ctx.session?.user) {
 			throw new Error("User not found");
 		}
@@ -182,7 +182,7 @@ export const lobbyRouter = {
 		});
 	}),
 
-	getCurrentMatch: publicProcedure.query(async ({ ctx }) => {
+	getCurrentMatch: protectedProcedure.query(async ({ ctx }) => {
 		if (!ctx.session?.user) {
 			throw new Error("User not found");
 		}

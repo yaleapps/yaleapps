@@ -2,7 +2,7 @@ import type { D1Database } from "@cloudflare/workers-types";
 import { createAuth } from "@repo/auth/createAuth";
 import * as schema from "@repo/db/schema";
 import { getEvent } from "@tanstack/react-start/server";
-import { initTRPC } from "@trpc/server";
+import { initTRPC, TRPCError } from "@trpc/server";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { drizzle } from "drizzle-orm/d1";
 import superjson from "superjson";
@@ -42,3 +42,14 @@ const t = initTRPC.context<Context>().create({ transformer: superjson });
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure;
+export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
+	if (!ctx.session) {
+		throw new TRPCError({ code: "UNAUTHORIZED" });
+	}
+	return next({
+		ctx: {
+			...ctx,
+			session: ctx.session,
+		},
+	});
+});
