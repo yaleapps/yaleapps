@@ -245,9 +245,8 @@ function LunchLobbyForm() {
 						</Card>
 
 						<Separator className="my-6" />
-
 						<Button type="submit" className="w-full" size="lg">
-							Join Lobby for 1 Hour
+							Join Lobby
 						</Button>
 					</form>
 				</Form>
