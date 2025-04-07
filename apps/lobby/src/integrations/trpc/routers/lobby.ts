@@ -55,6 +55,12 @@ export const lobbyRouter = {
 				}),
 		),
 
+	leaveLobby: protectedProcedure.mutation(async ({ ctx }) => {
+		await ctx.db
+			.delete(activeLobbyUsers)
+			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
+	}),
+
 	getPotentialMatch: protectedProcedure
 		.input(z.object({ rejectedUserIds: z.array(z.string()) }))
 		.query(async ({ ctx, input: { rejectedUserIds } }) => {
@@ -68,12 +74,6 @@ export const lobbyRouter = {
 
 			return potentialMatches;
 		}),
-
-	leaveLobby: protectedProcedure.mutation(async ({ ctx }) => {
-		await ctx.db
-			.delete(activeLobbyUsers)
-			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
-	}),
 
 	getCurrentMatch: protectedProcedure.query(async ({ ctx }) => {
 		// Find the most recent match where the current user is a participant
@@ -120,16 +120,8 @@ export const lobbyRouter = {
 		.input(z.object({ matchedUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			await ctx.db.transaction(async (tx) => {
-				// Create a new match
-				const [newMatch] = await tx
-					.insert(matches)
-					.values({
-						createdAt: new Date(),
-					})
-					.returning();
-
-				// Add both participants
-				await tx.insert(matchParticipants).values([
+				const [newMatch] = await tx.insert(matches).values({}).returning();
+				const bothMatchParticipants = [
 					{
 						matchId: newMatch.id,
 						userId: ctx.session.user.id,
@@ -140,17 +132,22 @@ export const lobbyRouter = {
 						userId: input.matchedUserId,
 						joinedAt: new Date(),
 					},
-				]);
+				] satisfies (typeof matchParticipants.$inferInsert)[];
+				await tx.insert(matchParticipants).values(bothMatchParticipants);
 
 				// Remove both users from the active lobby
-				await tx
-					.delete(activeLobbyUsers)
-					.where(
-						or(
-							eq(activeLobbyUsers.userId, ctx.session.user.id),
-							eq(activeLobbyUsers.userId, input.matchedUserId),
-						),
-					);
+				const removeBothUsersFromLobby = async () => {
+					await tx
+						.delete(activeLobbyUsers)
+						.where(
+							or(
+								eq(activeLobbyUsers.userId, ctx.session.user.id),
+								eq(activeLobbyUsers.userId, input.matchedUserId),
+							),
+						);
+				};
+
+				await removeBothUsersFromLobby();
 			});
 		}),
 } satisfies TRPCRouterRecord;
