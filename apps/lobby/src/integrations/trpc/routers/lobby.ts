@@ -14,46 +14,6 @@ const INACTIVE_THRESHOLD = 30 * 1000;
 const MATCH_EXPIRY = 15 * 60 * 1000; // 15 minutes
 
 export const lobbyRouter = {
-	getActiveUsers: protectedProcedure.query(async ({ ctx }) => {
-		// Get users who have pinged recently and don't have an active match
-		const activeUsers = await ctx.db
-			.select({
-				user: activeLobbyUsers,
-				profile: lobbyProfiles,
-				hasActiveMatch: sql<boolean>`EXISTS (
-					SELECT 1 FROM ${matches}
-					WHERE (${matches.user1Id} = ${activeLobbyUsers.userId} OR ${matches.user2Id} = ${activeLobbyUsers.userId})
-					AND (
-						(${matches.user1Status} = 'pending' AND ${matches.user2Status} = 'pending')
-						OR (${matches.user1Status} = 'accepted' AND ${matches.user2Status} = 'accepted')
-					)
-				)`,
-			})
-			.from(activeLobbyUsers)
-			.leftJoin(
-				lobbyProfiles,
-				eq(activeLobbyUsers.userId, lobbyProfiles.userId),
-			)
-			.where(
-				and(
-					gt(
-						activeLobbyUsers.lastPingedAt,
-						new Date(new Date().getTime() - INACTIVE_THRESHOLD),
-					),
-					sql`NOT EXISTS (
-						SELECT 1 FROM ${matches}
-						WHERE (${matches.user1Id} = ${activeLobbyUsers.userId} OR ${matches.user2Id} = ${activeLobbyUsers.userId})
-						AND (
-							(${matches.user1Status} = 'pending' AND ${matches.user2Status} = 'pending')
-							OR (${matches.user1Status} = 'accepted' AND ${matches.user2Status} = 'accepted')
-						)
-					)`,
-				),
-			);
-
-		return activeUsers.filter((u) => !u.hasActiveMatch);
-	}),
-
 	join: protectedProcedure
 		.input(lobbyFormSchema)
 		.mutation(async ({ ctx, input }) => {
