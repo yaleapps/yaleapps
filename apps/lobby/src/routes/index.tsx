@@ -19,15 +19,13 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
+import { DINING_HALL_NAMES } from "@repo/constants";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { cn } from "@/lib/utils";
-
-const DINING_HALL_NAMES = ["Commons", ...RESIDENTIAL_COLLEGE_NAMES] as const;
 
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",

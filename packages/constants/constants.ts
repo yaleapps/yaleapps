@@ -93,3 +93,8 @@ export const RESIDENTIAL_COLLEGE_ABBREVIATIONS = [
 	"TD",
 	"TC",
 ] as const satisfies readonly ResidentialCollege["abbreviation"][];
+
+export const DINING_HALL_NAMES = [
+	"Commons",
+	...RESIDENTIAL_COLLEGE_NAMES,
+] as const;

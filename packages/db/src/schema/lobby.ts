@@ -1,3 +1,4 @@
+import { DINING_HALL_NAMES } from "@repo/constants";
 import { type LobbyForm, VIBE_MAX_LENGTH } from "@/routes";
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
