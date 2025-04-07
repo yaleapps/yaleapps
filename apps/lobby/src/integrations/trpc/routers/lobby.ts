@@ -61,7 +61,7 @@ export const lobbyRouter = {
 			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
 	}),
 
-	getPotentialMatch: protectedProcedure
+	getNextPotentialMatch: protectedProcedure
 		.input(z.object({ rejectedUserIds: z.array(z.string()) }))
 		.query(async ({ ctx, input: { rejectedUserIds } }) => {
 			const potentialMatches = await ctx.db.query.activeLobbyUsers.findMany({
