@@ -39,7 +39,7 @@ export const lobbyRouter = {
 							});
 					};
 
-					const insertUserToLobbyIfNotAlreadyIn = async () => {
+					const ensureUserInLobby = async () => {
 						const newActiveUser = {
 							userId: ctx.session.user.id,
 						} satisfies typeof activeLobbyUsers.$inferInsert;
@@ -51,7 +51,7 @@ export const lobbyRouter = {
 					};
 
 					await upsertLobbyProfile();
-					await insertUserToLobbyIfNotAlreadyIn();
+					await ensureUserInLobby();
 				}),
 		),
 
