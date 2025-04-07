@@ -9,53 +9,18 @@ const sqliteTableWithLobbyPrefix = sqliteTableCreator(
 	(name) => `lobby_${name}`,
 );
 
-export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
-	id: integer().primaryKey({ autoIncrement: true }),
+export const lobbyParticipants = sqliteTableWithLobbyPrefix("participants", {
+	id: integer("id").primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
-});
-
-export const matchHistory = sqliteTableWithLobbyPrefix("matches", {
-	id: integer().primaryKey({ autoIncrement: true }),
-	createdAt: integer("created_at", { mode: "timestamp" })
+	status: text("status", { enum: ["available", "pending_match"] })
 		.notNull()
-		.default(sql`(unixepoch())`),
-});
-
-export const matchParticipants = sqliteTableWithLobbyPrefix(
-	"match_participants",
-	{
-		id: integer().primaryKey({ autoIncrement: true }),
-		matchId: integer("match_id")
-			.notNull()
-			.references(() => matchHistory.id, { onDelete: "cascade" }),
-		userId: text("user_id")
-			.notNull()
-			.references(() => users.id, { onDelete: "cascade" }),
-		joinedAt: integer("joined_at", { mode: "timestamp" })
-			.notNull()
-			.default(sql`(unixepoch())`),
-	},
-);
-
-export const lobbyHistory = sqliteTableWithLobbyPrefix("interactions", {
-	id: integer().primaryKey({ autoIncrement: true }),
-	userId: text("user_id")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
+		.default("available"),
 	joinedAt: integer("joined_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	leftAt: integer("left_at", { mode: "timestamp" })
-		.notNull()
-		.default(sql`(unixepoch())`),
-	matchId: integer("match_id").references(() => matchHistory.id, {
-		onDelete: "set null",
-	}),
-	reason: text({
-		enum: ["matched", "timeout", "left", "kicked"],
-	}).notNull(),
+	currentMatchId: integer("current_match_id"),
 });
 
 export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
@@ -78,59 +43,56 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const activeLobbyUsersRelations = relations(
-	activeLobbyUsers,
+export const activeMatches = sqliteTableWithLobbyPrefix("active_matches", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	user1LobbyId: text("user1_lobby_id")
+		.notNull()
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	user2LobbyId: text("user2_lobby_id")
+		.notNull()
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	user1Accepted: integer("user1_accepted", { mode: "boolean" }),
+	user2Accepted: integer("user2_accepted", { mode: "boolean" }),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export const lobbyRejections = sqliteTableWithLobbyPrefix("rejections", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	sourceParticipantId: text("source_participant_id")
+		.notNull()
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	targetParticipantId: text("target_participant_id")
+		.notNull()
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+// Relations
+export const lobbyParticipantsRelations = relations(
+	lobbyParticipants,
 	({ one }) => ({
 		user: one(users, {
-			fields: [activeLobbyUsers.userId],
+			fields: [lobbyParticipants.userId],
 			references: [users.id],
 		}),
 		profile: one(lobbyProfiles, {
-			fields: [activeLobbyUsers.userId],
+			fields: [lobbyParticipants.id],
 			references: [lobbyProfiles.userId],
 		}),
 	}),
 );
 
-export const matchesRelations = relations(matchHistory, ({ many }) => ({
-	participants: many(matchParticipants),
-}));
-
-export const matchParticipantsRelations = relations(
-	matchParticipants,
-	({ one }) => ({
-		match: one(matchHistory, {
-			fields: [matchParticipants.matchId],
-			references: [matchHistory.id],
-		}),
-		user: one(users, {
-			fields: [matchParticipants.userId],
-			references: [users.id],
-		}),
-		profile: one(lobbyProfiles, {
-			fields: [matchParticipants.userId],
-			references: [lobbyProfiles.userId],
-		}),
+export const activeMatchesRelations = relations(activeMatches, ({ one }) => ({
+	user1: one(lobbyParticipants, {
+		fields: [activeMatches.user1LobbyId],
+		references: [lobbyParticipants.id],
 	}),
-);
-
-export const lobbyInteractionsRelations = relations(
-	lobbyHistory,
-	({ one }) => ({
-		user: one(users, {
-			fields: [lobbyHistory.userId],
-			references: [users.id],
-		}),
-		match: one(matchHistory, {
-			fields: [lobbyHistory.matchId],
-			references: [matchHistory.id],
-		}),
-	}),
-);
-
-export const lobbyProfilesRelations = relations(lobbyProfiles, ({ one }) => ({
-	user: one(users, {
-		fields: [lobbyProfiles.userId],
-		references: [users.id],
+	user2: one(lobbyParticipants, {
+		fields: [activeMatches.user2LobbyId],
+		references: [lobbyParticipants.id],
 	}),
 }));
