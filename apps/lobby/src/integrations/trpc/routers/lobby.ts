@@ -1,4 +1,4 @@
-import { activeLobbyUsers } from "@repo/db/schema";
+import { activeLobbyUsers, lobbyProfiles } from "@repo/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
 import { and, eq, gt } from "drizzle-orm";
 import { protectedProcedure } from "../init";
@@ -26,25 +26,17 @@ export const lobbyRouter = {
 	join: protectedProcedure
 		.input(lobbyFormSchema)
 		.mutation(async ({ ctx, input }) => {
-			const user = ctx.session?.user;
-			if (!user) {
-				throw new Error("User not found");
-			}
+			await ctx.db.insert(lobbyProfiles).values({
+				userId: ctx.session.user.id,
+				...input,
+				updatedAt: new Date(),
+			});
 			await ctx.db.insert(activeLobbyUsers).values({
-				userId: user.id,
+				userId: ctx.session.user.id,
 				joinedAt: new Date(),
 				lastPingedAt: new Date(),
 				status: "active",
 			});
-
-			// await ctx.db.insert(activeLobbyUsers).values({
-			// 	id: createId(),
-			// 	userId,
-			// 	conversationTopic,
-			// 	joinedAt: new Date(),
-			// 	lastPingAt: new Date(),
-			// 	status: "active",
-			// });
 		}),
 	updatePingTime: protectedProcedure.mutation(async ({ ctx }) => {
 		if (!ctx.session?.user) {
