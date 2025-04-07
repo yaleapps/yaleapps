@@ -19,6 +19,8 @@ export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
 		.default(sql`(unixepoch())`),
 });
 
+const FIFTEEN_MINUTES_IN_SECONDS = 900;
+
 export const matches = sqliteTableWithLobbyPrefix("matches", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	user1Id: text("user_1_id")
@@ -42,7 +44,7 @@ export const matches = sqliteTableWithLobbyPrefix("matches", {
 		.default(sql`(unixepoch())`),
 	expiresAt: integer("expires_at", { mode: "timestamp" })
 		.notNull()
-		.default(sql`(unixepoch() + 900)`), // 15 minutes by default
+		.default(sql`(unixepoch() + ${FIFTEEN_MINUTES_IN_SECONDS})`),
 });
 
 export const lobbyHistory = sqliteTableWithLobbyPrefix("interactions", {
