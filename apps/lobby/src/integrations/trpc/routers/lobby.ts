@@ -1,47 +1,108 @@
-import { activeLobbyUsers, lobbyProfiles } from "@repo/db/schema";
+import {
+	activeLobbyUsers,
+	lobbyHistory,
+	lobbyProfiles,
+	matches,
+} from "@repo/db/schema";
 import type { TRPCRouterRecord } from "@trpc/server";
-import { and, eq, gt } from "drizzle-orm";
+import { and, eq, gt, or, sql } from "drizzle-orm";
 import { protectedProcedure } from "../init";
 import { lobbyFormSchema } from "@/routes";
 import { z } from "zod";
 
 const INACTIVE_THRESHOLD = 30 * 1000;
+const MATCH_EXPIRY = 15 * 60 * 1000; // 15 minutes
 
 export const lobbyRouter = {
 	getActiveUsers: protectedProcedure.query(async ({ ctx }) => {
-		const activeUsers = await ctx.db.query.activeLobbyUsers.findMany({
-			where: and(
-				eq(activeLobbyUsers.status, "active"),
-				// Only show users who have pinged recently
-				gt(
-					activeLobbyUsers.lastPingedAt,
-					new Date(new Date().getTime() - INACTIVE_THRESHOLD),
+		// Get users who have pinged recently and don't have an active match
+		const activeUsers = await ctx.db
+			.select({
+				user: activeLobbyUsers,
+				profile: lobbyProfiles,
+				hasActiveMatch: sql<boolean>`EXISTS (
+					SELECT 1 FROM ${matches}
+					WHERE (${matches.user1Id} = ${activeLobbyUsers.userId} OR ${matches.user2Id} = ${activeLobbyUsers.userId})
+					AND (
+						(${matches.user1Status} = 'pending' AND ${matches.user2Status} = 'pending')
+						OR (${matches.user1Status} = 'accepted' AND ${matches.user2Status} = 'accepted')
+					)
+				)`,
+			})
+			.from(activeLobbyUsers)
+			.leftJoin(
+				lobbyProfiles,
+				eq(activeLobbyUsers.userId, lobbyProfiles.userId),
+			)
+			.where(
+				and(
+					gt(
+						activeLobbyUsers.lastPingedAt,
+						new Date(new Date().getTime() - INACTIVE_THRESHOLD),
+					),
+					sql`NOT EXISTS (
+						SELECT 1 FROM ${matches}
+						WHERE (${matches.user1Id} = ${activeLobbyUsers.userId} OR ${matches.user2Id} = ${activeLobbyUsers.userId})
+						AND (
+							(${matches.user1Status} = 'pending' AND ${matches.user2Status} = 'pending')
+							OR (${matches.user1Status} = 'accepted' AND ${matches.user2Status} = 'accepted')
+						)
+					)`,
 				),
-			),
-			with: { user: true, profile: true },
-		});
-		return activeUsers;
+			);
+
+		return activeUsers.filter((u) => !u.hasActiveMatch);
 	}),
 
 	join: protectedProcedure
 		.input(lobbyFormSchema)
 		.mutation(async ({ ctx, input }) => {
-			await ctx.db.insert(lobbyProfiles).values({
-				userId: ctx.session.user.id,
-				...input,
-				updatedAt: new Date(),
-			});
-			await ctx.db.insert(activeLobbyUsers).values({
-				userId: ctx.session.user.id,
-				joinedAt: new Date(),
-				lastPingedAt: new Date(),
-				status: "active",
+			await ctx.db.transaction(async (tx) => {
+				// Insert profile
+				await tx.insert(lobbyProfiles).values({
+					userId: ctx.session.user.id,
+					...input,
+					updatedAt: new Date(),
+				});
+
+				// Add to active users
+				await tx.insert(activeLobbyUsers).values({
+					userId: ctx.session.user.id,
+					lastPingedAt: new Date(),
+				});
+
+				// Find a potential match
+				const potentialMatch = await tx.query.activeLobbyUsers.findFirst({
+					where: and(
+						gt(
+							activeLobbyUsers.lastPingedAt,
+							new Date(new Date().getTime() - INACTIVE_THRESHOLD),
+						),
+						sql`NOT EXISTS (
+							SELECT 1 FROM ${matches}
+							WHERE (${matches.user1Id} = ${activeLobbyUsers.userId} OR ${matches.user2Id} = ${activeLobbyUsers.userId})
+							AND (
+								(${matches.user1Status} = 'pending' AND ${matches.user2Status} = 'pending')
+								OR (${matches.user1Status} = 'accepted' AND ${matches.user2Status} = 'accepted')
+							)
+						)`,
+					),
+					with: { user: true, profile: true },
+				});
+
+				if (potentialMatch) {
+					// Create a new match
+					await tx.insert(matches).values({
+						user1Id: ctx.session.user.id,
+						user2Id: potentialMatch.userId,
+						createdAt: new Date(),
+						expiresAt: new Date(Date.now() + MATCH_EXPIRY),
+					});
+				}
 			});
 		}),
+
 	updatePingTime: protectedProcedure.mutation(async ({ ctx }) => {
-		if (!ctx.session?.user) {
-			throw new Error("User not found");
-		}
 		await ctx.db
 			.update(activeLobbyUsers)
 			.set({ lastPingedAt: new Date() })
@@ -49,156 +110,154 @@ export const lobbyRouter = {
 	}),
 
 	leave: protectedProcedure.mutation(async ({ ctx }) => {
-		if (!ctx.session?.user) {
-			throw new Error("User not found");
-		}
-		await ctx.db
-			.delete(activeLobbyUsers)
-			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
+		await ctx.db.transaction(async (tx) => {
+			// Get current matches
+			const activeMatches = await tx.query.matches.findMany({
+				where: or(
+					eq(matches.user1Id, ctx.session.user.id),
+					eq(matches.user2Id, ctx.session.user.id),
+				),
+			});
 
-		// Record in history
-		// await ctx.db.insert(lobbyInteractions).values({
-		// 	id: createId(),
-		// 	userId: ctx.session.user.id,
-		// 	joinedAt: new Date(), // This should ideally come from the activeLobbyUsers record
-		// 	leftAt: new Date(),
-		// 	reason,
-		// });
-	}),
-
-	// New match-related procedures
-	initiateMatch: protectedProcedure
-		.input(z.object({ targetUserId: z.string() }))
-		.mutation(async ({ ctx, input }) => {
-			if (!ctx.session?.user) {
-				throw new Error("User not found");
+			// Record matches in history
+			for (const match of activeMatches) {
+				const otherUserId =
+					match.user1Id === ctx.session.user.id ? match.user2Id : match.user1Id;
+				await tx.insert(lobbyHistory).values({
+					userId: ctx.session.user.id,
+					joinedAt: match.createdAt,
+					leftAt: new Date(),
+					matchedWithUserId: otherUserId,
+					reason: "left",
+				});
 			}
 
-			// Update both users' status to matching
-			await ctx.db.transaction(async (tx) => {
-				await tx
-					.update(activeLobbyUsers)
-					.set({
-						status: "matching",
-						matchedWithUserId: input.targetUserId,
-					})
-					.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
-
-				await tx
-					.update(activeLobbyUsers)
-					.set({
-						status: "matching",
-						matchedWithUserId: ctx.session.user.id,
-					})
-					.where(eq(activeLobbyUsers.userId, input.targetUserId));
-			});
-		}),
-
-	acceptMatch: protectedProcedure.mutation(async ({ ctx }) => {
-		if (!ctx.session?.user) {
-			throw new Error("User not found");
-		}
-
-		// Mark current user as accepted
-		await ctx.db
-			.update(activeLobbyUsers)
-			.set({ hasAcceptedMatch: true })
-			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
-
-		// Check if both users have accepted
-		const [currentUser, matchedUser] = await Promise.all([
-			ctx.db.query.activeLobbyUsers.findFirst({
-				where: eq(activeLobbyUsers.userId, ctx.session.user.id),
-			}),
-			ctx.db.query.activeLobbyUsers.findFirst({
-				where: eq(activeLobbyUsers.userId, ctx.session.user.id),
-				with: { matchedWith: true },
-			}),
-		]);
-
-		if (currentUser?.hasAcceptedMatch && matchedUser?.hasAcceptedMatch) {
-			// Both users accepted, update their status to matched
-			await ctx.db.transaction(async (tx) => {
-				await tx
-					.update(activeLobbyUsers)
-					.set({ status: "matched" })
-					.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
-
-				if (matchedUser.matchedWithUserId) {
-					await tx
-						.update(activeLobbyUsers)
-						.set({ status: "matched" })
-						.where(eq(activeLobbyUsers.userId, matchedUser.matchedWithUserId));
-				}
-			});
-		}
-
-		return {
-			isFullyMatched:
-				currentUser?.hasAcceptedMatch && matchedUser?.hasAcceptedMatch,
-		};
-	}),
-
-	rejectMatch: protectedProcedure.mutation(async ({ ctx }) => {
-		if (!ctx.session?.user) {
-			throw new Error("User not found");
-		}
-
-		const currentUser = await ctx.db.query.activeLobbyUsers.findFirst({
-			where: eq(activeLobbyUsers.userId, ctx.session.user.id),
-		});
-
-		if (!currentUser?.matchedWithUserId) {
-			throw new Error("No active match found");
-		}
-
-		// Reset both users to active status
-		await ctx.db.transaction(async (tx) => {
+			// Remove from active users
 			await tx
-				.update(activeLobbyUsers)
-				.set({
-					status: "active",
-					matchedWithUserId: null,
-					hasAcceptedMatch: false,
-				})
+				.delete(activeLobbyUsers)
 				.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
 
+			// Cancel any pending matches
 			await tx
-				.update(activeLobbyUsers)
+				.update(matches)
 				.set({
-					status: "active",
-					matchedWithUserId: null,
-					hasAcceptedMatch: false,
+					user1Status: sql`CASE WHEN user1_id = ${ctx.session.user.id} THEN 'rejected' ELSE user1_status END`,
+					user2Status: sql`CASE WHEN user2_id = ${ctx.session.user.id} THEN 'rejected' ELSE user2_status END`,
 				})
-				.where(eq(activeLobbyUsers.userId, currentUser.matchedWithUserId));
+				.where(
+					and(
+						or(
+							eq(matches.user1Id, ctx.session.user.id),
+							eq(matches.user2Id, ctx.session.user.id),
+						),
+						or(
+							eq(matches.user1Status, "pending"),
+							eq(matches.user2Status, "pending"),
+						),
+					),
+				);
 		});
 	}),
 
 	getCurrentMatch: protectedProcedure.query(async ({ ctx }) => {
-		if (!ctx.session?.user) {
-			throw new Error("User not found");
-		}
-
-		const currentUser = await ctx.db.query.activeLobbyUsers.findFirst({
-			where: eq(activeLobbyUsers.userId, ctx.session.user.id),
+		const match = await ctx.db.query.matches.findFirst({
+			where: and(
+				or(
+					eq(matches.user1Id, ctx.session.user.id),
+					eq(matches.user2Id, ctx.session.user.id),
+				),
+				or(
+					and(
+						eq(matches.user1Status, "pending"),
+						eq(matches.user2Status, "pending"),
+					),
+					and(
+						eq(matches.user1Status, "accepted"),
+						eq(matches.user2Status, "accepted"),
+					),
+				),
+			),
 			with: {
-				matchedWith: {
-					with: {
-						user: true,
-						profile: true,
-					},
-				},
+				user1: true,
+				user2: true,
+				user1Profile: true,
+				user2Profile: true,
 			},
 		});
 
-		if (!currentUser || !currentUser.matchedWith) {
-			return null;
-		}
+		if (!match) return null;
 
+		const isUser1 = match.user1Id === ctx.session.user.id;
 		return {
-			matchedUser: currentUser.matchedWith,
-			hasAcceptedMatch: currentUser.hasAcceptedMatch,
-			status: currentUser.status,
+			matchId: match.id,
+			status: isUser1 ? match.user1Status : match.user2Status,
+			otherUser: {
+				user: isUser1 ? match.user2 : match.user1,
+				profile: isUser1 ? match.user2Profile : match.user1Profile,
+			},
+			hasAcceptedMatch: isUser1
+				? match.user1Status === "accepted"
+				: match.user2Status === "accepted",
+			isFullyMatched:
+				match.user1Status === "accepted" && match.user2Status === "accepted",
 		};
 	}),
+
+	acceptMatch: protectedProcedure
+		.input(z.object({ matchId: z.number() }))
+		.mutation(async ({ ctx, input }) => {
+			const match = await ctx.db.query.matches.findFirst({
+				where: eq(matches.id, input.matchId),
+			});
+
+			if (!match) throw new Error("Match not found");
+
+			const isUser1 = match.user1Id === ctx.session.user.id;
+			if (!isUser1 && match.user2Id !== ctx.session.user.id) {
+				throw new Error("Not a participant in this match");
+			}
+
+			await ctx.db
+				.update(matches)
+				.set(
+					isUser1
+						? { user1Status: "accepted" as const }
+						: { user2Status: "accepted" as const },
+				)
+				.where(eq(matches.id, input.matchId));
+
+			const updatedMatch = await ctx.db.query.matches.findFirst({
+				where: eq(matches.id, input.matchId),
+			});
+
+			return {
+				isFullyMatched:
+					updatedMatch?.user1Status === "accepted" &&
+					updatedMatch?.user2Status === "accepted",
+			};
+		}),
+
+	rejectMatch: protectedProcedure
+		.input(z.object({ matchId: z.number() }))
+		.mutation(async ({ ctx, input }) => {
+			const match = await ctx.db.query.matches.findFirst({
+				where: eq(matches.id, input.matchId),
+			});
+
+			if (!match) throw new Error("Match not found");
+
+			const isUser1 = match.user1Id === ctx.session.user.id;
+			if (!isUser1 && match.user2Id !== ctx.session.user.id) {
+				throw new Error("Not a participant in this match");
+			}
+
+			await ctx.db
+				.update(matches)
+				.set(
+					isUser1
+						? { user1Status: "rejected" as const }
+						: { user2Status: "rejected" as const },
+				)
+				.where(eq(matches.id, input.matchId));
+		}),
 } satisfies TRPCRouterRecord;

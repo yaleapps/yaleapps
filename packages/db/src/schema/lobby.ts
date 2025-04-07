@@ -14,26 +14,38 @@ export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
 	userId: text("user_id")
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
-	joinedAt: integer("joined_at", { mode: "timestamp" })
-		.notNull()
-		.default(sql`(unixepoch())`),
 	lastPingedAt: integer("last_pinged_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	status: text({
-		enum: ["active", "inactive", "matched", "matching"],
-	})
-		.notNull()
-		.default("active"),
-	matchedWithUserId: text("matched_with_user_id").references(() => users.id, {
-		onDelete: "set null",
-	}),
-	hasAcceptedMatch: integer("has_accepted_match", { mode: "boolean" })
-		.notNull()
-		.default(false),
 });
 
-export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
+export const matches = sqliteTableWithLobbyPrefix("matches", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	user1Id: text("user1_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	user2Id: text("user2_id")
+		.notNull()
+		.references(() => users.id, { onDelete: "cascade" }),
+	user1Status: text({
+		enum: ["pending", "accepted", "rejected"],
+	})
+		.notNull()
+		.default("pending"),
+	user2Status: text({
+		enum: ["pending", "accepted", "rejected"],
+	})
+		.notNull()
+		.default("pending"),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+	expiresAt: integer("expires_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch() + 900)`), // 15 minutes by default
+});
+
+export const lobbyHistory = sqliteTableWithLobbyPrefix("interactions", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	userId: text("user_id")
 		.notNull()
@@ -86,15 +98,34 @@ export const activeLobbyUsersRelations = relations(
 	}),
 );
 
+export const matchesRelations = relations(matches, ({ one }) => ({
+	user1: one(users, {
+		fields: [matches.user1Id],
+		references: [users.id],
+	}),
+	user2: one(users, {
+		fields: [matches.user2Id],
+		references: [users.id],
+	}),
+	user1Profile: one(lobbyProfiles, {
+		fields: [matches.user1Id],
+		references: [lobbyProfiles.userId],
+	}),
+	user2Profile: one(lobbyProfiles, {
+		fields: [matches.user2Id],
+		references: [lobbyProfiles.userId],
+	}),
+}));
+
 export const lobbyInteractionsRelations = relations(
-	lobbyInteractions,
+	lobbyHistory,
 	({ one }) => ({
 		user: one(users, {
-			fields: [lobbyInteractions.userId],
+			fields: [lobbyHistory.userId],
 			references: [users.id],
 		}),
 		matchedWith: one(users, {
-			fields: [lobbyInteractions.matchedWithUserId],
+			fields: [lobbyHistory.matchedWithUserId],
 			references: [users.id],
 			relationName: "matched_user",
 		}),
