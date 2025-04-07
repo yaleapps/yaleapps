@@ -3,7 +3,7 @@ import {
 	activeLobbyUsers,
 	lobbyProfiles,
 	matchParticipants,
-	matches,
+	matchHistory,
 } from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
 import type { TRPCRouterRecord } from "@trpc/server";
@@ -79,7 +79,7 @@ export const lobbyRouter = {
 		.input(z.object({ matchedUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			await ctx.db.transaction(async (tx) => {
-				const [newMatch] = await tx.insert(matches).values({}).returning();
+				const [newMatch] = await tx.insert(matchHistory).values({}).returning();
 				const bothMatchParticipants = [
 					{
 						matchId: newMatch.id,

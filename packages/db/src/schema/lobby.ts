@@ -16,7 +16,7 @@ export const activeLobbyUsers = sqliteTableWithLobbyPrefix("active_users", {
 		.references(() => users.id, { onDelete: "cascade" }),
 });
 
-export const matches = sqliteTableWithLobbyPrefix("matches", {
+export const matchHistory = sqliteTableWithLobbyPrefix("matches", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
@@ -29,7 +29,7 @@ export const matchParticipants = sqliteTableWithLobbyPrefix(
 		id: integer().primaryKey({ autoIncrement: true }),
 		matchId: integer("match_id")
 			.notNull()
-			.references(() => matches.id, { onDelete: "cascade" }),
+			.references(() => matchHistory.id, { onDelete: "cascade" }),
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
@@ -50,7 +50,7 @@ export const lobbyHistory = sqliteTableWithLobbyPrefix("interactions", {
 	leftAt: integer("left_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
-	matchId: integer("match_id").references(() => matches.id, {
+	matchId: integer("match_id").references(() => matchHistory.id, {
 		onDelete: "set null",
 	}),
 	reason: text({
@@ -92,16 +92,16 @@ export const activeLobbyUsersRelations = relations(
 	}),
 );
 
-export const matchesRelations = relations(matches, ({ many }) => ({
+export const matchesRelations = relations(matchHistory, ({ many }) => ({
 	participants: many(matchParticipants),
 }));
 
 export const matchParticipantsRelations = relations(
 	matchParticipants,
 	({ one }) => ({
-		match: one(matches, {
+		match: one(matchHistory, {
 			fields: [matchParticipants.matchId],
-			references: [matches.id],
+			references: [matchHistory.id],
 		}),
 		user: one(users, {
 			fields: [matchParticipants.userId],
@@ -121,9 +121,9 @@ export const lobbyInteractionsRelations = relations(
 			fields: [lobbyHistory.userId],
 			references: [users.id],
 		}),
-		match: one(matches, {
+		match: one(matchHistory, {
 			fields: [lobbyHistory.matchId],
-			references: [matches.id],
+			references: [matchHistory.id],
 		}),
 	}),
 );

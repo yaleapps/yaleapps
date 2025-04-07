@@ -27,7 +27,7 @@ function MatchQueue() {
 	});
 
 	const { mutate: acceptMatch } = useMutation(
-		trpc.lobby.acceptMatch.mutationOptions({
+		trpc.lobby.acceptAndRecordMatch.mutationOptions({
 			onSuccess: (data) => {
 				if (data.isFullyMatched) {
 					toast.success("Match accepted! You can now message each other.");
