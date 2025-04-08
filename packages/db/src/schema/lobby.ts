@@ -28,42 +28,6 @@ export const lobbyParticipants = sqliteTableWithLobbyPrefix("participants", {
 	),
 });
 
-export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
-	userId: text("user_id")
-		.primaryKey()
-		.references(() => users.id, { onDelete: "cascade" }),
-
-	...({
-		vibes: text({ length: VIBE_MAX_LENGTH }).notNull(),
-		diningHall: text("dining_hall", {
-			enum: DINING_HALL_NAMES,
-		}).notNull(),
-		year: text().notNull(),
-		phoneNumber: text("phone_number").notNull(),
-	} satisfies Record<keyof LobbyForm, ReturnType<typeof text>>),
-
-	createdAt: integer("created_at", { mode: "timestamp" })
-		.notNull()
-		.default(sql`(unixepoch())`),
-	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
-});
-
-export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
-	id: integer().primaryKey({ autoIncrement: true }),
-	fromParticipantId: integer("from_participant_id")
-		.notNull()
-		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-	toParticipantId: integer("to_participant_id")
-		.notNull()
-		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-	interactionType: text("interaction_type", {
-		enum: ["interested", "not_interested"],
-	}).notNull(),
-	createdAt: integer("created_at", { mode: "timestamp" })
-		.notNull()
-		.default(sql`(unixepoch())`),
-});
-
 export const lobbyParticipantsRelations = relations(
 	lobbyParticipants,
 	({ one }) => ({
@@ -71,26 +35,116 @@ export const lobbyParticipantsRelations = relations(
 			fields: [lobbyParticipants.userId],
 			references: [users.id],
 		}),
+		profile: one(lobbyParticipantProfiles, {
+			fields: [lobbyParticipants.userId],
+			references: [lobbyParticipantProfiles.userId],
+		}),
 	}),
 );
 
-export const lobbyProfilesRelations = relations(lobbyProfiles, ({ one }) => ({
-	user: one(users, {
-		fields: [lobbyProfiles.userId],
-		references: [users.id],
-	}),
-}));
+export const lobbyParticipantPreferences = sqliteTableWithLobbyPrefix(
+	"participant_preferences",
+	{
+		id: integer().primaryKey({ autoIncrement: true }),
+		fromParticipantId: integer("from_participant_id")
+			.notNull()
+			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+		toParticipantId: integer("to_participant_id")
+			.notNull()
+			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+		preference: text("preference", {
+			enum: ["interested", "not_interested"],
+		}).notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.notNull()
+			.default(sql`(unixepoch())`),
+	},
+);
 
-export const lobbyInteractionsRelations = relations(
-	lobbyInteractions,
+export const lobbyParticipantPreferencesRelations = relations(
+	lobbyParticipantPreferences,
 	({ one }) => ({
 		fromParticipant: one(lobbyParticipants, {
-			fields: [lobbyInteractions.fromParticipantId],
+			fields: [lobbyParticipantPreferences.fromParticipantId],
 			references: [lobbyParticipants.id],
 		}),
 		toParticipant: one(lobbyParticipants, {
-			fields: [lobbyInteractions.toParticipantId],
+			fields: [lobbyParticipantPreferences.toParticipantId],
 			references: [lobbyParticipants.id],
+		}),
+	}),
+);
+
+export const lobbyParticipantProfiles = sqliteTableWithLobbyPrefix(
+	"participant_profiles",
+	{
+		userId: text("user_id")
+			.primaryKey()
+			.references(() => users.id, { onDelete: "cascade" }),
+
+		...({
+			vibes: text({ length: VIBE_MAX_LENGTH }).notNull(),
+			diningHall: text("dining_hall", {
+				enum: DINING_HALL_NAMES,
+			}).notNull(),
+			year: text().notNull(),
+			phoneNumber: text("phone_number").notNull(),
+		} satisfies Record<keyof LobbyForm, ReturnType<typeof text>>),
+
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.notNull()
+			.default(sql`(unixepoch())`),
+		updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+	},
+);
+
+export const lobbyParticipantProfilesRelations = relations(
+	lobbyParticipantProfiles,
+	({ one }) => ({
+		user: one(users, {
+			fields: [lobbyParticipantProfiles.userId],
+			references: [users.id],
+		}),
+	}),
+);
+
+export const matchHistory = sqliteTableWithLobbyPrefix("match_history", {
+	id: integer().primaryKey({ autoIncrement: true }),
+	createdAt: integer("created_at", { mode: "timestamp" })
+		.notNull()
+		.default(sql`(unixepoch())`),
+});
+
+export const matchHistoryRelations = relations(matchHistory, ({ many }) => ({
+	participants: many(matchParticipants),
+}));
+
+export const matchParticipants = sqliteTableWithLobbyPrefix(
+	"match_participants",
+	{
+		id: integer().primaryKey({ autoIncrement: true }),
+		matchId: integer("match_id")
+			.notNull()
+			.references(() => matchHistory.id, { onDelete: "cascade" }),
+		userId: text("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		joinedAt: integer("joined_at", { mode: "timestamp" })
+			.notNull()
+			.default(sql`(unixepoch())`),
+	},
+);
+
+export const matchParticipantsRelations = relations(
+	matchParticipants,
+	({ one }) => ({
+		match: one(matchHistory, {
+			fields: [matchParticipants.matchId],
+			references: [matchHistory.id],
+		}),
+		user: one(users, {
+			fields: [matchParticipants.userId],
+			references: [users.id],
 		}),
 	}),
 );
