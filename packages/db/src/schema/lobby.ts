@@ -108,14 +108,14 @@ export const lobbyParticipantProfilesRelations = relations(
 	}),
 );
 
-export const matchHistory = sqliteTableWithLobbyPrefix("match_history", {
+export const matches = sqliteTableWithLobbyPrefix("matches", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
 });
 
-export const matchHistoryRelations = relations(matchHistory, ({ many }) => ({
+export const matchesRelations = relations(matches, ({ many }) => ({
 	participants: many(matchParticipants),
 }));
 
@@ -125,7 +125,7 @@ export const matchParticipants = sqliteTableWithLobbyPrefix(
 		id: integer().primaryKey({ autoIncrement: true }),
 		matchId: integer("match_id")
 			.notNull()
-			.references(() => matchHistory.id, { onDelete: "cascade" }),
+			.references(() => matches.id, { onDelete: "cascade" }),
 		userId: text("user_id")
 			.notNull()
 			.references(() => users.id, { onDelete: "cascade" }),
@@ -138,9 +138,9 @@ export const matchParticipants = sqliteTableWithLobbyPrefix(
 export const matchParticipantsRelations = relations(
 	matchParticipants,
 	({ one }) => ({
-		match: one(matchHistory, {
+		match: one(matches, {
 			fields: [matchParticipants.matchId],
-			references: [matchHistory.id],
+			references: [matches.id],
 		}),
 		user: one(users, {
 			fields: [matchParticipants.userId],
