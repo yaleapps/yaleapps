@@ -7,7 +7,7 @@ import {
 	matches,
 } from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
-import type { TRPCRouterRecord } from "@trpc/server";
+import { TRPCError, type TRPCRouterRecord } from "@trpc/server";
 import { and, eq, ne, or } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
@@ -68,7 +68,10 @@ export const lobbyRouter = {
 		});
 
 		if (!myParticipant) {
-			throw new Error("You must be in the lobby to view other participants");
+			throw new TRPCError({
+				code: "UNAUTHORIZED",
+				message: "You must be in the lobby to view other participants",
+			});
 		}
 
 		const otherParticipants = await ctx.db.query.lobbyParticipants.findMany({
@@ -129,13 +132,20 @@ export const lobbyRouter = {
 				});
 
 				// Check if there's a mutual interest
-				const mutualInterest = await tx.query.lobbyParticipantPreferences.findFirst({
-					where: and(
-						eq(lobbyParticipantPreferences.fromParticipantId, input.matchedUserId),
-						eq(lobbyParticipantPreferences.toParticipantId, ctx.session.user.id),
-						eq(lobbyParticipantPreferences.preference, "interested"),
-					),
-				});
+				const mutualInterest =
+					await tx.query.lobbyParticipantPreferences.findFirst({
+						where: and(
+							eq(
+								lobbyParticipantPreferences.fromParticipantId,
+								input.matchedUserId,
+							),
+							eq(
+								lobbyParticipantPreferences.toParticipantId,
+								ctx.session.user.id,
+							),
+							eq(lobbyParticipantPreferences.preference, "interested"),
+						),
+					});
 
 				// If there's mutual interest, create a match
 				if (mutualInterest) {
