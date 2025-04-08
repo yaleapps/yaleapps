@@ -1,6 +1,6 @@
-import { DINING_HALL_NAMES } from "@repo/constants";
 import { type LobbyForm, VIBE_MAX_LENGTH } from "@/routes";
-import { relations, sql } from "drizzle-orm";
+import { DINING_HALL_NAMES } from "@repo/constants";
+import { sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 import { users } from "./auth";
 
@@ -21,16 +21,16 @@ export const tempLobbyUsers = sqliteTableWithLobbyPrefix("users", {
 		.notNull()
 		.references(() => users.id, { onDelete: "cascade" }),
 	/**
-	 * The timestamp when the user joined the lobby. Null when the user is not in the lobby.
+	 * The timestamp when the user joined the lobby
 	 */
-	activeSince: integer("active_since", { mode: "timestamp" }).default(
+	joinedAt: integer("joined_at", { mode: "timestamp" }).default(
 		sql`(unixepoch())`,
 	),
 });
 
 export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	userId: text("user_id")
-		.notNull()
+		.primaryKey()
 		.references(() => users.id, { onDelete: "cascade" }),
 
 	...({
@@ -50,35 +50,13 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 
 export const lobbyRejections = sqliteTableWithLobbyPrefix("rejections", {
 	id: integer().primaryKey({ autoIncrement: true }),
-	rejectingUserId: text("rejecting_user_id")
+	fromUserId: text("from_user_id")
 		.notNull()
 		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	rejectedUserId: text("rejected_user_id")
+	toUserId: text("to_user_id")
 		.notNull()
 		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	createdAt: integer("created_at", { mode: "timestamp" })
-		.notNull()
-		.default(sql`(unixepoch())`),
-});
-
-export const activeMatches = sqliteTableWithLobbyPrefix("active_matches", {
-	id: integer().primaryKey({ autoIncrement: true }),
-	user1Id: text("user_1_id")
-		.notNull()
-		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	user2Id: text("user_2_id")
-		.notNull()
-		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	user1Status: text("user_1_status", {
-		enum: ["pending", "accepted", "rejected"],
-	})
-		.notNull()
-		.default("pending"),
-	user2Status: text("user_2_status", {
-		enum: ["pending", "accepted", "rejected"],
-	})
-		.notNull()
-		.default("pending"),
+	response: text("response", { enum: ["accepted", "rejected"] }).notNull(),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
