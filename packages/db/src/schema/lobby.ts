@@ -48,7 +48,7 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const lobbyRejections = sqliteTableWithLobbyPrefix("rejections", {
+export const lobbyResponses = sqliteTableWithLobbyPrefix("responses", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	fromUserId: text("from_user_id")
 		.notNull()
