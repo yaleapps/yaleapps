@@ -1,13 +1,14 @@
 import { lobbyFormSchema } from "@/routes";
 import {
-	activeLobbyUsers,
-	lobbyProfiles,
+	lobbyParticipantPreferences,
+	lobbyParticipantProfiles,
+	lobbyParticipants,
 	matchParticipants,
-	matchHistory,
+	matches,
 } from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
 import type { TRPCRouterRecord } from "@trpc/server";
-import { and, desc, eq, ne, notInArray, or } from "drizzle-orm";
+import { and, eq, ne, or } from "drizzle-orm";
 import { z } from "zod";
 import { protectedProcedure } from "../init";
 
@@ -22,14 +23,14 @@ export const lobbyRouter = {
 							userId: ctx.session.user.id,
 							...lobbyProfile,
 							updatedAt: new Date(),
-						} satisfies typeof lobbyProfiles.$inferInsert;
+						} satisfies typeof lobbyParticipantProfiles.$inferInsert;
 
 						await tx
-							.insert(lobbyProfiles)
+							.insert(lobbyParticipantProfiles)
 							.values(newLobbyProfile)
 							.onConflictDoUpdate({
-								target: [lobbyProfiles.userId],
-								set: buildConflictUpdateColumns(lobbyProfiles, [
+								target: [lobbyParticipantProfiles.userId],
+								set: buildConflictUpdateColumns(lobbyParticipantProfiles, [
 									"diningHall",
 									"year",
 									"vibes",
@@ -39,74 +40,130 @@ export const lobbyRouter = {
 							});
 					};
 
-					const ensureUserInLobby = async () => {
-						const newActiveUser = {
+					const ensureParticipantInLobby = async () => {
+						const newParticipant = {
 							userId: ctx.session.user.id,
-						} satisfies typeof activeLobbyUsers.$inferInsert;
+						} satisfies typeof lobbyParticipants.$inferInsert;
 
 						await tx
-							.insert(activeLobbyUsers)
-							.values(newActiveUser)
-							.onConflictDoNothing({ target: activeLobbyUsers.userId });
+							.insert(lobbyParticipants)
+							.values(newParticipant)
+							.onConflictDoNothing({ target: [lobbyParticipants.userId] });
 					};
 
 					await upsertLobbyProfile();
-					await ensureUserInLobby();
+					await ensureParticipantInLobby();
 				}),
 		),
 
 	leaveLobby: protectedProcedure.mutation(async ({ ctx }) => {
 		await ctx.db
-			.delete(activeLobbyUsers)
-			.where(eq(activeLobbyUsers.userId, ctx.session.user.id));
+			.delete(lobbyParticipants)
+			.where(eq(lobbyParticipants.userId, ctx.session.user.id));
 	}),
 
-	getNextPotentialMatch: protectedProcedure
-		.input(z.object({ rejectedUserIds: z.array(z.string()) }))
-		.query(async ({ ctx, input: { rejectedUserIds } }) => {
-			const potentialMatches = await ctx.db.query.activeLobbyUsers.findMany({
-				where: and(
-					ne(activeLobbyUsers.userId, ctx.session.user.id),
-					notInArray(activeLobbyUsers.userId, rejectedUserIds),
-				),
-				with: { profile: true },
-			});
+	getLobby: protectedProcedure.query(async ({ ctx }) => {
+		const myParticipant = await ctx.db.query.lobbyParticipants.findFirst({
+			where: eq(lobbyParticipants.userId, ctx.session.user.id),
+		});
 
-			return potentialMatches;
-		}),
+		if (!myParticipant) {
+			throw new Error("You must be in the lobby to view other participants");
+		}
+
+		const otherParticipants = await ctx.db.query.lobbyParticipants.findMany({
+			where: ne(lobbyParticipants.userId, ctx.session.user.id),
+			with: {
+				user: true,
+				profile: true,
+			},
+		});
+
+		const allPreferences = await ctx.db
+			.select({
+				fromParticipantId: lobbyParticipantPreferences.fromParticipantId,
+				toParticipantId: lobbyParticipantPreferences.toParticipantId,
+				preference: lobbyParticipantPreferences.preference,
+			})
+			.from(lobbyParticipantPreferences)
+			.where(
+				or(
+					eq(lobbyParticipantPreferences.fromParticipantId, myParticipant.id),
+					eq(lobbyParticipantPreferences.toParticipantId, myParticipant.id),
+				),
+			);
+
+		// Map the preferences to each participant
+		const participantsWithPreferences = otherParticipants.map((participant) => {
+			const myResponse = allPreferences.find(
+				(pref) =>
+					pref.fromParticipantId === myParticipant.id &&
+					pref.toParticipantId === participant.id,
+			)?.preference;
+
+			const theirResponse = allPreferences.find(
+				(pref) =>
+					pref.fromParticipantId === participant.id &&
+					pref.toParticipantId === myParticipant.id,
+			)?.preference;
+
+			return {
+				...participant,
+				my_response: myResponse ?? null,
+				their_response: theirResponse ?? null,
+			};
+		});
+
+		return participantsWithPreferences;
+	}),
 
 	acceptAndRecordMatch: protectedProcedure
 		.input(z.object({ matchedUserId: z.string() }))
 		.mutation(async ({ ctx, input }) => {
 			await ctx.db.transaction(async (tx) => {
-				const [newMatch] = await tx.insert(matchHistory).values({}).returning();
-				const bothMatchParticipants = [
-					{
-						matchId: newMatch.id,
-						userId: ctx.session.user.id,
-						joinedAt: new Date(),
-					},
-					{
-						matchId: newMatch.id,
-						userId: input.matchedUserId,
-						joinedAt: new Date(),
-					},
-				] satisfies (typeof matchParticipants.$inferInsert)[];
-				await tx.insert(matchParticipants).values(bothMatchParticipants);
+				// Record the interaction first
+				await tx.insert(lobbyParticipantPreferences).values({
+					fromParticipantId: ctx.session.user.id,
+					toParticipantId: input.matchedUserId,
+					preference: "interested",
+				});
 
-				// Remove both users from the active lobby
-				const removeBothUsersFromLobby = async () => {
+				// Check if there's a mutual interest
+				const mutualInterest = await tx.query.lobbyParticipantPreferences.findFirst({
+					where: and(
+						eq(lobbyParticipantPreferences.fromParticipantId, input.matchedUserId),
+						eq(lobbyParticipantPreferences.toParticipantId, ctx.session.user.id),
+						eq(lobbyParticipantPreferences.preference, "interested"),
+					),
+				});
+
+				// If there's mutual interest, create a match
+				if (mutualInterest) {
+					const [newMatch] = await tx.insert(matches).values({}).returning();
+
+					const bothMatchParticipants = [
+						{
+							matchId: newMatch.id,
+							userId: ctx.session.user.id,
+						},
+						{
+							matchId: newMatch.id,
+							userId: input.matchedUserId,
+						},
+					] satisfies (typeof matchParticipants.$inferInsert)[];
+
+					await tx.insert(matchParticipants).values(bothMatchParticipants);
+
+					// Remove both users from the lobby
 					await tx
-						.delete(activeLobbyUsers)
+						.delete(lobbyParticipants)
 						.where(
 							or(
-								eq(activeLobbyUsers.userId, ctx.session.user.id),
-								eq(activeLobbyUsers.userId, input.matchedUserId),
+								eq(lobbyParticipants.userId, ctx.session.user.id),
+								eq(lobbyParticipants.userId, input.matchedUserId),
 							),
 						);
-				};
-
-				await removeBothUsersFromLobby();
+				}
 			});
 		}),
 } satisfies TRPCRouterRecord;
