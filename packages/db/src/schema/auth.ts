@@ -1,4 +1,6 @@
+import { relations } from "drizzle-orm";
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { lobbyProfiles, lobbyParticipants } from "./lobby";
 
 export const users = sqliteTable("users", {
 	// Better Auth built-in fields
@@ -13,6 +15,17 @@ export const users = sqliteTable("users", {
 	// Added NetID field for yale-cas-plugin
 	netId: text("net_id"),
 });
+
+export const usersRelations = relations(users, ({ one }) => ({
+	lobbyProfile: one(lobbyProfiles, {
+		fields: [users.id],
+		references: [lobbyProfiles.userId],
+	}),
+	lobbyParticipation: one(lobbyParticipants, {
+		fields: [users.id],
+		references: [lobbyParticipants.userId],
+	}),
+}));
 
 export const sessions = sqliteTable("sessions", {
 	id: text("id").primaryKey(),

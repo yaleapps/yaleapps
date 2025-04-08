@@ -1,6 +1,6 @@
 import { type LobbyForm, VIBE_MAX_LENGTH } from "@/routes";
 import { DINING_HALL_NAMES } from "@repo/constants";
-import { sql } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 import { users } from "./auth";
 
@@ -9,7 +9,7 @@ const sqliteTableWithLobbyPrefix = sqliteTableCreator(
 	(name) => `lobby_${name}`,
 );
 
-export const tempLobbyUsers = sqliteTableWithLobbyPrefix("users", {
+export const lobbyParticipants = sqliteTableWithLobbyPrefix("participants", {
 	/**
 	 * The id of the user in the lobby.
 	 */
@@ -48,16 +48,49 @@ export const lobbyProfiles = sqliteTableWithLobbyPrefix("profiles", {
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
-export const lobbyResponses = sqliteTableWithLobbyPrefix("responses", {
+export const lobbyInteractions = sqliteTableWithLobbyPrefix("interactions", {
 	id: integer().primaryKey({ autoIncrement: true }),
-	fromUserId: text("from_user_id")
+	fromParticipantId: integer("from_participant_id")
 		.notNull()
-		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	toUserId: text("to_user_id")
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	toParticipantId: integer("to_participant_id")
 		.notNull()
-		.references(() => tempLobbyUsers.id, { onDelete: "cascade" }),
-	response: text("response", { enum: ["accepted", "rejected"] }).notNull(),
+		.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+	interactionType: text("interaction_type", {
+		enum: ["interested", "not_interested"],
+	}).notNull(),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
 		.default(sql`(unixepoch())`),
 });
+
+export const lobbyParticipantsRelations = relations(
+	lobbyParticipants,
+	({ one }) => ({
+		user: one(users, {
+			fields: [lobbyParticipants.userId],
+			references: [users.id],
+		}),
+	}),
+);
+
+export const lobbyProfilesRelations = relations(lobbyProfiles, ({ one }) => ({
+	user: one(users, {
+		fields: [lobbyProfiles.userId],
+		references: [users.id],
+	}),
+}));
+
+export const lobbyInteractionsRelations = relations(
+	lobbyInteractions,
+	({ one }) => ({
+		fromParticipant: one(lobbyParticipants, {
+			fields: [lobbyInteractions.fromParticipantId],
+			references: [lobbyParticipants.id],
+		}),
+		toParticipant: one(lobbyParticipants, {
+			fields: [lobbyInteractions.toParticipantId],
+			references: [lobbyParticipants.id],
+		}),
+	}),
+);
