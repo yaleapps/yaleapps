@@ -42,39 +42,6 @@ export const lobbyParticipantsRelations = relations(
 	}),
 );
 
-export const lobbyParticipantPreferences = sqliteTableWithLobbyPrefix(
-	"participant_preferences",
-	{
-		id: integer().primaryKey({ autoIncrement: true }),
-		fromParticipantId: integer("from_participant_id")
-			.notNull()
-			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-		toParticipantId: integer("to_participant_id")
-			.notNull()
-			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-		preference: text("preference", {
-			enum: ["interested", "not_interested"],
-		}).notNull(),
-		createdAt: integer("created_at", { mode: "timestamp" })
-			.notNull()
-			.default(sql`(unixepoch())`),
-	},
-);
-
-export const lobbyParticipantPreferencesRelations = relations(
-	lobbyParticipantPreferences,
-	({ one }) => ({
-		fromParticipant: one(lobbyParticipants, {
-			fields: [lobbyParticipantPreferences.fromParticipantId],
-			references: [lobbyParticipants.id],
-		}),
-		toParticipant: one(lobbyParticipants, {
-			fields: [lobbyParticipantPreferences.toParticipantId],
-			references: [lobbyParticipants.id],
-		}),
-	}),
-);
-
 export const lobbyParticipantProfiles = sqliteTableWithLobbyPrefix(
 	"participant_profiles",
 	{
@@ -104,6 +71,39 @@ export const lobbyParticipantProfilesRelations = relations(
 		user: one(users, {
 			fields: [lobbyParticipantProfiles.userId],
 			references: [users.id],
+		}),
+	}),
+);
+
+export const lobbyParticipantPreferences = sqliteTableWithLobbyPrefix(
+	"participant_preferences",
+	{
+		id: integer().primaryKey({ autoIncrement: true }),
+		fromParticipantId: integer("from_participant_id")
+			.notNull()
+			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+		toParticipantId: integer("to_participant_id")
+			.notNull()
+			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
+		preference: text("preference", {
+			enum: ["interested", "not_interested"],
+		}).notNull(),
+		createdAt: integer("created_at", { mode: "timestamp" })
+			.notNull()
+			.default(sql`(unixepoch())`),
+	},
+);
+
+export const lobbyParticipantPreferencesRelations = relations(
+	lobbyParticipantPreferences,
+	({ one }) => ({
+		fromParticipant: one(lobbyParticipants, {
+			fields: [lobbyParticipantPreferences.fromParticipantId],
+			references: [lobbyParticipants.id],
+		}),
+		toParticipant: one(lobbyParticipants, {
+			fields: [lobbyParticipantPreferences.toParticipantId],
+			references: [lobbyParticipants.id],
 		}),
 	}),
 );
