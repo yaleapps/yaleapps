@@ -1,22 +1,9 @@
 import { DurableObject } from "cloudflare:workers";
-import { wsMessage } from "./types";
-
-type UserId = string;
-
-type LobbyMember = {
-	id: UserId;
-	profile: {
-		diningHall: string;
-		year: string;
-		vibes: string;
-		phoneNumber: string;
-	};
-	preferences: Record<UserId, boolean>;
-};
+import { incomingClientWsMessageSchema, type LobbyParticipant } from "./types";
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class LobbyDurableObject extends DurableObject<Env> {
-	lobby: LobbyMember[];
+	lobby: LobbyParticipant[];
 
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
@@ -70,21 +57,23 @@ export class LobbyDurableObject extends DurableObject<Env> {
 		try {
 			if (typeof message !== "string") return;
 			const data = JSON.parse(message);
-			const validatedMessage = wsMessage(data);
-
-			if (validatedMessage instanceof wsMessage.errors) {
+			const validatedMessageResult =
+				incomingClientWsMessageSchema.safeParse(data);
+			if (!validatedMessageResult.success) {
 				ws.send(
 					JSON.stringify({
 						type: "ERROR",
-						error: `Invalid message format: ${validatedMessage.summary}`,
+						error: `Invalid message format: ${validatedMessageResult.error.message}`,
 					}),
 				);
 				return;
 			}
 
+			const validatedMessage = validatedMessageResult.data;
+
 			switch (validatedMessage.type) {
 				case "JOIN":
-					await this.join(validatedMessage.member);
+					await this.join(validatedMessage.participant);
 					break;
 				case "LEAVE":
 					await this.leave(validatedMessage.userId);
@@ -123,7 +112,7 @@ export class LobbyDurableObject extends DurableObject<Env> {
 	 */
 	webSocketError(ws: WebSocket, error: unknown): void | Promise<void> {}
 
-	async join(member: LobbyMember) {
+	async join(member: LobbyParticipant) {
 		const existingIndex = this.lobby.findIndex((m) => m.id === member.id);
 		if (existingIndex >= 0) {
 			this.lobby[existingIndex] = {
