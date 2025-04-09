@@ -40,6 +40,18 @@ export class Lobby extends DurableObject {
 		await this.ctx.storage.put("lobby", this.lobby);
 	}
 
+	async fetch(request: Request): Promise<Response> {
+		const webSocketPair = new WebSocketPair();
+		const [client, server] = Object.values(webSocketPair);
+
+		this.ctx.acceptWebSocket(server);
+
+		return new Response(null, {
+			status: 101,
+			webSocket: client,
+		});
+	}
+
 	/**
 	 * Broadcasts the current lobby state to all connected clients
 	 */
