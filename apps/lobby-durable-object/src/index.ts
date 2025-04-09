@@ -122,9 +122,6 @@ export class Lobby extends DurableObject {
 	webSocketError(ws: WebSocket, error: unknown): void | Promise<void> {}
 
 	async join(participant: LobbyParticipant) {
-		const webSocketPair = new WebSocketPair();
-		const [client, server] = Object.values(webSocketPair);
-		this.ctx.acceptWebSocket(server);
 		const existingLobbyParticipantIndex = this.lobby.findIndex(
 			(p) => p.userId === participant.userId,
 		);
@@ -139,10 +136,6 @@ export class Lobby extends DurableObject {
 		await this.persistState();
 		// Broadcast the update to all connected clients
 		await this.broadcastLobbyUpdate();
-		return new Response(null, {
-			status: 101,
-			webSocket: client,
-		});
 	}
 
 	async leave(userId: UserId) {
