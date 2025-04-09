@@ -1,4 +1,7 @@
-import { type LobbyForm, VIBE_MAX_LENGTH } from "@/routes";
+import {
+	type LobbyProfileForm,
+	VIBE_MAX_LENGTH,
+} from "@repo/db/validators/lobby";
 import { DINING_HALL_NAMES } from "@repo/constants";
 import { relations, sql } from "drizzle-orm";
 import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
@@ -56,7 +59,7 @@ export const lobbyParticipantProfiles = sqliteTableWithLobbyPrefix(
 			}).notNull(),
 			year: text().notNull(),
 			phoneNumber: text("phone_number").notNull(),
-		} satisfies Record<keyof LobbyForm, ReturnType<typeof text>>),
+		} satisfies Record<keyof LobbyProfileForm, ReturnType<typeof text>>),
 
 		createdAt: integer("created_at", { mode: "timestamp" })
 			.notNull()

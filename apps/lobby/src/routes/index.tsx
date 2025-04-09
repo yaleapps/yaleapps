@@ -22,10 +22,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DINING_HALL_NAMES } from "@repo/constants";
+import { VIBE_MAX_LENGTH, lobbyProfileFormSchema } from "@repo/db/validators/lobby";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",
@@ -41,25 +41,6 @@ const VIBE_PLACEHOLDERS = [
 ] as const;
 
 const PLACEHOLDER_ROTATION_INTERVAL_MS = 2500;
-
-export const VIBE_MAX_LENGTH = 100;
-
-export const lobbyFormSchema = z.object({
-	diningHall: z.enum(DINING_HALL_NAMES, {
-		required_error: "Please select a dining hall",
-	}),
-	year: z.string().min(1, "Please select your year"),
-	vibes: z
-		.string()
-		.min(1, "Tell us about your lunch vibe")
-		.max(
-			VIBE_MAX_LENGTH,
-			`Keep it brief - under ${VIBE_MAX_LENGTH} characters`,
-		),
-	phoneNumber: z.string().min(10, "Please enter a valid phone number"),
-});
-
-export type LobbyForm = z.infer<typeof lobbyFormSchema>;
 
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
@@ -96,8 +77,8 @@ function LunchLobbyForm() {
 	const navigate = useNavigate();
 	const placeholder = usePlaceholderRotation();
 
-	const form = useForm<LobbyForm>({
-		resolver: zodResolver(lobbyFormSchema),
+	const form = useForm<LobbyProfileForm>({
+		resolver: zodResolver(lobbyProfileFormSchema),
 		defaultValues: {
 			diningHall: "Commons",
 			year: undefined,

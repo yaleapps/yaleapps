@@ -1,13 +1,16 @@
 {
 	"name": "@repo/db",
 	"dependencies": {
+		"@repo/constants": "workspace:*",
 		"drizzle-orm": "^0.41.0",
-		"@repo/constants": "workspace:*"
+		"zod": "^3.24.2"
 	},
 	"devDependencies": {
 		"drizzle-kit": "^0.30.6"
 	},
 	"exports": {
-		"./schema": "./src/schema/index.ts"
+		"./schema": "./src/schema/index.ts",
+		"./validators/*": "./src/validators/*.ts",
+		"./utils": "./src/utils.ts"
 	}
 }
