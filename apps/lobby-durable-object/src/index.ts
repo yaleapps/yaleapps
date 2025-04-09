@@ -1,20 +1,22 @@
 import { DurableObject } from "cloudflare:workers";
 
-/**
- * Welcome to Cloudflare Workers! This is your first Durable Objects application.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your Durable Object in action
- * - Run `npm run deploy` to publish your application
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/durable-objects
- */
+type UserId = string;
+
+type LobbyMember = {
+	id: UserId;
+	profile: {
+		diningHall: string;
+		year: string;
+		vibes: string;
+		phoneNumber: string;
+	};
+	preferences: Record<UserId, boolean>;
+};
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
-export class MyDurableObject extends DurableObject<Env> {
+export class LobbyDurableObject extends DurableObject<Env> {
+	lobby: LobbyMember[];
+
 	/**
 	 * The constructor is invoked once upon creation of the Durable Object, i.e. the first call to
 	 * 	`DurableObjectStub::get` for a given identifier (no-op constructors can be omitted)
@@ -24,6 +26,9 @@ export class MyDurableObject extends DurableObject<Env> {
 	 */
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
+		ctx.blockConcurrencyWhile(async () => {
+			this.lobby = (await ctx.storage.get("lobby")) ?? [];
+		});
 	}
 
 	/**
