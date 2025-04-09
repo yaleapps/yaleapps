@@ -139,7 +139,7 @@ export class Lobby extends DurableObject {
 	}
 
 	async leave(userId: UserId) {
-		this.lobby = this.lobby.filter((m) => m.id !== userId);
+		this.lobby = this.lobby.filter((m) => m.userId !== userId);
 		await this.persistState();
 		// Broadcast the update to all connected clients
 		await this.broadcastLobbyUpdate();
