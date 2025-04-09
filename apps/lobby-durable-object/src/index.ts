@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { wsMessage } from "./types";
 
 type UserId = string;
 
@@ -21,18 +22,12 @@ export class LobbyDurableObject extends DurableObject<Env> {
 		super(ctx, env);
 
 		this.lobby = [];
-
-		// Initialize state
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby = (await ctx.storage.get("lobby")) ?? [];
 		});
 	}
 
-	private async persistState() {
-		await this.ctx.storage.put("lobby", this.lobby);
-	}
-
-	async fetch(request: Request) {
+	async fetch() {
 		const webSocketPair = new WebSocketPair();
 		const [client, server] = Object.values(webSocketPair);
 		this.ctx.acceptWebSocket(server);
@@ -42,18 +37,29 @@ export class LobbyDurableObject extends DurableObject<Env> {
 		});
 	}
 
+	private async persistState() {
+		await this.ctx.storage.put("lobby", this.lobby);
+	}
+
 	/**
 	 * Broadcasts the current lobby state to all connected clients
 	 */
 	private async broadcastLobbyUpdate() {
 		const connections = this.ctx.getWebSockets();
+
 		const message = JSON.stringify({
 			type: "LOBBY_UPDATE",
 			lobby: this.lobby,
 		});
 
 		for (const ws of connections) {
-			ws.send(message);
+			try {
+				if (ws.readyState === WebSocket.OPEN) {
+					ws.send(message);
+				}
+			} catch (error) {
+				console.error(error);
+			}
 		}
 	}
 
@@ -61,19 +67,29 @@ export class LobbyDurableObject extends DurableObject<Env> {
 	 * Called automatically when a WebSocket receives a message from the client
 	 */
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
-		// Parse incoming messages and handle them accordingly
 		try {
-			const data = JSON.parse(message as string);
+			if (typeof message !== "string") return;
+			const data = JSON.parse(message);
+			const validatedMessage = wsMessage(data);
 
-			switch (data.type) {
+			if (validatedMessage instanceof wsMessage.errors) {
+				ws.send(
+					JSON.stringify({
+						type: "ERROR",
+						error: `Invalid message format: ${validatedMessage.summary}`,
+					}),
+				);
+				return;
+			}
+
+			switch (validatedMessage.type) {
 				case "JOIN":
-					await this.join(data.member);
+					await this.join(validatedMessage.member);
 					break;
 				case "LEAVE":
-					await this.leave(data.userId);
+					await this.leave(validatedMessage.userId);
 					break;
 				case "GET_LOBBY":
-					// Send current lobby state just to this client
 					ws.send(
 						JSON.stringify({
 							type: "LOBBY_UPDATE",
@@ -86,7 +102,7 @@ export class LobbyDurableObject extends DurableObject<Env> {
 			ws.send(
 				JSON.stringify({
 					type: "ERROR",
-					error: "Invalid message format",
+					error: "Failed to parse message",
 				}),
 			);
 		}
@@ -144,8 +160,8 @@ export default {
 	 * @returns The response to be sent back to the client
 	 */
 	async fetch(request, env, ctx): Promise<Response> {
-		const lobbyId: DurableObjectId =
-			env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+		const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
 		const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+		return lobby.fetch(request);
 	},
 } satisfies ExportedHandler<Env>;
