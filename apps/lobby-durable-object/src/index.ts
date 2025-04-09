@@ -1,4 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
+import { Hono } from "hono";
 import {
 	type LobbyParticipant,
 	type UserId,
@@ -6,10 +7,10 @@ import {
 } from "./types";
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
-export class Lobby extends DurableObject<Env> {
+export class Lobby extends DurableObject<Cloudflare.Env> {
 	lobby: LobbyParticipant[];
 
-	constructor(ctx: DurableObjectState, env: Env) {
+	constructor(ctx: DurableObjectState, env: Cloudflare.Env) {
 		super(ctx, env);
 
 		this.lobby = [];
@@ -145,18 +146,27 @@ export class Lobby extends DurableObject<Env> {
 	}
 }
 
-export default {
-	/**
-	 * This is the standard fetch handler for a Cloudflare Worker
-	 *
-	 * @param request - The request submitted to the Worker from the client
-	 * @param env - The interface to reference bindings declared in wrangler.jsonc
-	 * @param ctx - The execution context of the Worker
-	 * @returns The response to be sent back to the client
-	 */
-	async fetch(request, env, ctx): Promise<Response> {
-		const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
-		const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-		return lobby.fetch(request);
-	},
-} satisfies ExportedHandler<Env>;
+export type Env = {
+	Bindings: Cloudflare.Env;
+	// { DB: D1Database; YALIES_API_KEY: string };
+	// Variables: {
+	// 	db: DrizzleD1Database<typeof authSchema>;
+	// 	auth: ReturnType<typeof createAuth>;
+	// 	user: ReturnType<typeof createAuth>["$Infer"]["Session"]["user"] | null;
+	// 	session:
+	// 		| ReturnType<typeof createAuth>["$Infer"]["Session"]["session"]
+	// 		| null;
+	// };
+};
+
+const app = new Hono<Env>();
+
+app.get("/", (c) => c.text("Hello World"));
+
+app.get("/ws", (c) => {
+	const lobbyId = c.env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+	const lobby = c.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+	return lobby.fetch(c.req.raw);
+});
+
+export default app;
