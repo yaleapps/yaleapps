@@ -43,12 +43,53 @@ export class LobbyDurableObject extends DurableObject<Env> {
 	}
 
 	/**
+	 * Broadcasts the current lobby state to all connected clients
+	 */
+	private async broadcastLobbyUpdate() {
+		const connections = this.ctx.getWebSockets();
+		const message = JSON.stringify({
+			type: "LOBBY_UPDATE",
+			lobby: this.lobby,
+		});
+
+		for (const ws of connections) {
+			ws.send(message);
+		}
+	}
+
+	/**
 	 * Called automatically when a WebSocket receives a message from the client
 	 */
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
-		ws.send(
-			`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`,
-		);
+		// Parse incoming messages and handle them accordingly
+		try {
+			const data = JSON.parse(message as string);
+
+			switch (data.type) {
+				case "JOIN":
+					await this.join(data.member);
+					break;
+				case "LEAVE":
+					await this.leave(data.userId);
+					break;
+				case "GET_LOBBY":
+					// Send current lobby state just to this client
+					ws.send(
+						JSON.stringify({
+							type: "LOBBY_UPDATE",
+							lobby: this.lobby,
+						}),
+					);
+					break;
+			}
+		} catch (error) {
+			ws.send(
+				JSON.stringify({
+					type: "ERROR",
+					error: "Invalid message format",
+				}),
+			);
+		}
 	}
 
 	/**
@@ -77,11 +118,15 @@ export class LobbyDurableObject extends DurableObject<Env> {
 			this.lobby.push({ ...member, preferences: {} });
 		}
 		await this.persistState();
+		// Broadcast the update to all connected clients
+		await this.broadcastLobbyUpdate();
 	}
 
 	async leave(userId: UserId) {
 		this.lobby = this.lobby.filter((m) => m.id !== userId);
 		await this.persistState();
+		// Broadcast the update to all connected clients
+		await this.broadcastLobbyUpdate();
 	}
 
 	async getMembers() {
