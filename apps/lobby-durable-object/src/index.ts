@@ -118,7 +118,7 @@ export class LobbyDurableObject extends DurableObject<Env> {
 
 	async join(participant: LobbyParticipant) {
 		const existingLobbyParticipantIndex = this.lobby.findIndex(
-			(p) => p.id === participant.id,
+			(p) => p.userId === participant.userId,
 		);
 		if (existingLobbyParticipantIndex < 0) {
 			this.lobby.push({ ...participant, preferences: {} });
