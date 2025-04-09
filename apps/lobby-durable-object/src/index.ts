@@ -1,5 +1,9 @@
 import { DurableObject } from "cloudflare:workers";
-import { incomingClientWsMessageSchema, type LobbyParticipant } from "./types";
+import {
+	incomingClientWsMessageSchema,
+	type UserId,
+	type LobbyParticipant,
+} from "./types";
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class LobbyDurableObject extends DurableObject<Env> {
@@ -112,15 +116,17 @@ export class LobbyDurableObject extends DurableObject<Env> {
 	 */
 	webSocketError(ws: WebSocket, error: unknown): void | Promise<void> {}
 
-	async join(member: LobbyParticipant) {
-		const existingIndex = this.lobby.findIndex((m) => m.id === member.id);
-		if (existingIndex >= 0) {
-			this.lobby[existingIndex] = {
-				...member,
-				preferences: this.lobby[existingIndex].preferences,
-			};
+	async join(participant: LobbyParticipant) {
+		const existingLobbyParticipantIndex = this.lobby.findIndex(
+			(p) => p.id === participant.id,
+		);
+		if (existingLobbyParticipantIndex < 0) {
+			this.lobby.push({ ...participant, preferences: {} });
 		} else {
-			this.lobby.push({ ...member, preferences: {} });
+			this.lobby[existingLobbyParticipantIndex] = {
+				...participant,
+				preferences: this.lobby[existingLobbyParticipantIndex].preferences,
+			};
 		}
 		await this.persistState();
 		// Broadcast the update to all connected clients
@@ -134,7 +140,7 @@ export class LobbyDurableObject extends DurableObject<Env> {
 		await this.broadcastLobbyUpdate();
 	}
 
-	async getMembers() {
+	async getParticipants() {
 		return this.lobby;
 	}
 }
