@@ -17,29 +17,75 @@ type LobbyMember = {
 export class LobbyDurableObject extends DurableObject<Env> {
 	lobby: LobbyMember[];
 
-	/**
-	 * The constructor is invoked once upon creation of the Durable Object, i.e. the first call to
-	 * 	`DurableObjectStub::get` for a given identifier (no-op constructors can be omitted)
-	 *
-	 * @param ctx - The interface for interacting with Durable Object state
-	 * @param env - The interface to reference bindings declared in wrangler.jsonc
-	 */
 	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
+
+		this.lobby = [];
+
+		// Initialize state
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby = (await ctx.storage.get("lobby")) ?? [];
 		});
 	}
 
+	private async persistState() {
+		await this.ctx.storage.put("lobby", this.lobby);
+	}
+
+	async fetch(request: Request) {
+		const webSocketPair = new WebSocketPair();
+		const [client, server] = Object.values(webSocketPair);
+		this.ctx.acceptWebSocket(server);
+		return new Response(null, {
+			status: 101,
+			webSocket: client,
+		});
+	}
+
 	/**
-	 * The Durable Object exposes an RPC method sayHello which will be invoked when when a Durable
-	 *  Object instance receives a request from a Worker via the same method invocation on the stub
-	 *
-	 * @param name - The name provided to a Durable Object instance from a Worker
-	 * @returns The greeting to be sent back to the Worker
+	 * Called automatically when a WebSocket receives a message from the client
 	 */
-	async sayHello(name: string): Promise<string> {
-		return `Hello, ${name}!`;
+	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
+		ws.send(
+			`[Durable Object] message: ${message}, connections: ${this.ctx.getWebSockets().length}`,
+		);
+	}
+
+	/**
+	 * Called automatically when a WebSocket connection is closed
+	 */
+	webSocketClose(
+		ws: WebSocket,
+		code: number,
+		reason: string,
+		wasClean: boolean,
+	): void | Promise<void> {}
+
+	/**
+	 * Called automatically when a WebSocket connection encounters a non-disconnect error
+	 */
+	webSocketError(ws: WebSocket, error: unknown): void | Promise<void> {}
+
+	async join(member: LobbyMember) {
+		const existingIndex = this.lobby.findIndex((m) => m.id === member.id);
+		if (existingIndex >= 0) {
+			this.lobby[existingIndex] = {
+				...member,
+				preferences: this.lobby[existingIndex].preferences,
+			};
+		} else {
+			this.lobby.push({ ...member, preferences: {} });
+		}
+		await this.persistState();
+	}
+
+	async leave(userId: UserId) {
+		this.lobby = this.lobby.filter((m) => m.id !== userId);
+		await this.persistState();
+	}
+
+	async getMembers() {
+		return this.lobby;
 	}
 }
 
@@ -53,19 +99,8 @@ export default {
 	 * @returns The response to be sent back to the client
 	 */
 	async fetch(request, env, ctx): Promise<Response> {
-		// Create a `DurableObjectId` for an instance of the `MyDurableObject`
-		// class named "foo". Requests from all Workers to the instance named
-		// "foo" will go to a single globally unique Durable Object instance.
-		const id: DurableObjectId = env.MY_DURABLE_OBJECT.idFromName("foo");
-
-		// Create a stub to open a communication channel with the Durable
-		// Object instance.
-		const stub = env.MY_DURABLE_OBJECT.get(id);
-
-		// Call the `sayHello()` RPC method on the stub to invoke the method on
-		// the remote Durable Object instance
-		const greeting = await stub.sayHello("world");
-
-		return new Response(greeting);
+		const lobbyId: DurableObjectId =
+			env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+		const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 	},
 } satisfies ExportedHandler<Env>;
