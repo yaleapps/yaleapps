@@ -1,12 +1,12 @@
 import { DurableObject } from "cloudflare:workers";
 import {
-	incomingClientWsMessageSchema,
-	type UserId,
 	type LobbyParticipant,
+	type UserId,
+	incomingClientWsMessageSchema,
 } from "./types";
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
-export class LobbyDurableObject extends DurableObject<Env> {
+export class Lobby extends DurableObject<Env> {
 	lobby: LobbyParticipant[];
 
 	constructor(ctx: DurableObjectState, env: Env) {
