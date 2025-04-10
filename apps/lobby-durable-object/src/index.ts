@@ -1,20 +1,22 @@
+import { zValidator } from "@hono/zod-validator";
+import { createCorsMiddleware } from "@repo/auth/middleware/cors";
+import { createDbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
 import * as schema from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
-import { DurableObject, env } from "cloudflare:workers";
+import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
+import { DurableObject } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
-import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
+import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import {
 	type LobbyParticipant,
 	type UserId,
 	createLobbyWsService,
+	userIdSchema,
 	wsMessageInSchema,
 } from "./types";
-import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
-import { zValidator } from "@hono/zod-validator";
-import { dbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
-import { createCorsMiddleware } from "@repo/auth/middleware/cors";
+import { z } from "zod";
 
 type Bindings = {
 	DB: D1Database;
@@ -30,7 +32,7 @@ export class Lobby extends DurableObject<Bindings> {
 
 	constructor(ctx: DurableObjectState, env: Bindings) {
 		super(ctx, env);
-		this.db = drizzle(env.DB, { schema });
+		this.db = drizzle(env.DB, { schema, logger: true });
 		this.lobby = [];
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby = (await ctx.storage.get("lobby")) ?? [];
@@ -134,20 +136,36 @@ export class Lobby extends DurableObject<Bindings> {
 					break;
 			}
 		} catch (error) {
-			wsService.sendError(
-				`Failed to parse message: ${(error as Error).message}`,
-			);
+			wsService.sendError(` ${(error as Error).message}`);
 		}
 	}
 }
 
 const app = new Hono<Env>()
 	.use("*", createCorsMiddleware())
-	.use(dbAuthMiddleware)
+	.use(createDbAuthMiddleware())
+	.get(
+		"/getLobbyProfileById",
+		zValidator("form", z.object({ userId: userIdSchema })),
+		async (c) => {
+			const { userId } = c.req.valid("form");
+
+			const db = drizzle(c.env.DB, { schema, logger: true });
+
+			const lobbyProfile = await db.query.lobbyParticipantProfiles.findFirst({
+				where: eq(schema.lobbyParticipantProfiles.userId, userId),
+			});
+
+			return c.json({ lobbyProfile });
+		},
+	)
 	.post(
 		"/upsertLobbyProfile",
 		zValidator("form", lobbyProfileFormSchema),
 		async (c) => {
+			const userId = c.get("user")?.id as UserId;
+			if (!userId) throw new HTTPException(401, { message: "Unauthorized" });
+
 			const profile = c.req.valid("form");
 
 			const db = drizzle(c.env.DB, { schema, logger: true });
@@ -155,7 +173,7 @@ const app = new Hono<Env>()
 			await db
 				.insert(schema.lobbyParticipantProfiles)
 				.values({
-					userId: "1",
+					userId,
 					...profile,
 					updatedAt: new Date(),
 				})
@@ -175,7 +193,7 @@ const app = new Hono<Env>()
 	);
 
 export default {
-	async fetch(request: Request, env): Promise<Response> {
+	async fetch(request, env, ctx): Promise<Response> {
 		if (request.url.includes("/ws")) {
 			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
 			const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
@@ -183,7 +201,7 @@ export default {
 			return lobby.fetch(request);
 		}
 
-		return app.fetch(request);
+		return app.fetch(request, env, ctx);
 	},
 } satisfies ExportedHandler<Env["Bindings"]>;
 

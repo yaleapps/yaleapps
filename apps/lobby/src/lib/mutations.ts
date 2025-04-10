@@ -1,19 +1,24 @@
-import { hc } from "hono/client";
-import type { AppType } from "@repo/lobby-durable-object/app";
 import type { LobbyProfileForm } from "@repo/db/validators/lobby";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
-
-const client = hc<AppType>("http://localhost:8787/", {
-	fetch: ((input, init) => {
-		return fetch(input, { ...init, credentials: "include" });
-	}) satisfies typeof fetch,
-});
+import { authClient } from "@repo/auth/better-auth/client";
+import { client } from "./client";
 
 export const useUpsertLobbyProfile = () =>
 	useMutation({
-		mutationFn: (profile: LobbyProfileForm) =>
-			client.upsertLobbyProfile.$post({ form: profile }),
+		onMutate: async () => {
+			const { data: session, error } = await authClient.getSession();
+			if (error) throw new Error(`${error.status} ${error.statusText}`);
+			if (!session) {
+				const { error } = await authClient.signIn.anonymous();
+				if (error) throw new Error(`${error.status} ${error.statusText}`);
+			}
+		},
+		mutationFn: async (profile: LobbyProfileForm) => {
+			const res = await client.upsertLobbyProfile.$post({ form: profile });
+			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+			return res.json();
+		},
 
 		onSuccess: () => {
 			toast.success("Lobby profile updated");

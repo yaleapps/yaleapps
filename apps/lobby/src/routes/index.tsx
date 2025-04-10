@@ -19,11 +19,21 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { client } from "@/lib/client";
+import { useUpsertLobbyProfile } from "@/lib/mutations";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@repo/auth/better-auth/client";
 import { DINING_HALL_NAMES } from "@repo/constants";
-import { VIBE_MAX_LENGTH, lobbyProfileFormSchema } from "@repo/db/validators/lobby";
+import {
+	type LobbyProfileForm,
+	VIBE_MAX_LENGTH,
+	lobbyProfileFormSchema,
+} from "@repo/db/validators/lobby";
+import type { UserId } from "@repo/lobby-durable-object/types";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -88,6 +98,27 @@ function LunchLobbyForm() {
 		mode: "onBlur",
 	});
 
+	const { data: session } = authClient.useSession();
+
+	const { data: response, isPending: isLobbyProfilePending } = useQuery({
+		enabled: !!session?.user.id,
+		queryKey: ["lobbyProfile", session?.user.id],
+		queryFn: async () => {
+			const res = await client.getLobbyProfileById[":userId"].$get({
+				param: { userId: session?.user.id as UserId },
+			});
+			return res.json();
+		},
+	});
+
+	useEffect(() => {
+		if (response?.lobbyProfile) {
+			form.reset(response.lobbyProfile);
+		}
+	}, [response, form]);
+
+	const { mutate: upsertLobbyProfile, isPending } = useUpsertLobbyProfile();
+
 	return (
 		<div className="flex min-h-svh w-full flex-col items-center bg-gradient-to-b from-background to-background/95 p-4 md:p-6 lg:p-8">
 			<div className="w-full max-w-md space-y-6">
@@ -102,18 +133,19 @@ function LunchLobbyForm() {
 
 				<Form {...form}>
 					<form
-						onSubmit={form.handleSubmit(async (values) => {
-							try {
-								console.log("Form Submitted:", values);
-								navigate({ to: "/lobby" });
-							} catch (error) {
-								console.error("Failed to join lobby:", error);
-								form.setError("root", {
-									type: "submit",
-									message: "Failed to join lobby. Please try again.",
-								});
-							}
-						})}
+						onSubmit={form.handleSubmit(async (values) =>
+							upsertLobbyProfile(values, {
+								onSuccess: () => {
+									navigate({ to: "/lobby" });
+								},
+								onError: () => {
+									form.setError("root", {
+										type: "submit",
+										message: "Failed to join lobby. Please try again.",
+									});
+								},
+							}),
+						)}
 						className="space-y-6"
 					>
 						<Card className="p-6">
@@ -236,7 +268,15 @@ function LunchLobbyForm() {
 						</Card>
 
 						<Separator className="my-6" />
-						<Button type="submit" className="w-full" size="lg">
+						<Button
+							type="submit"
+							className="w-full"
+							size="lg"
+							disabled={isPending}
+						>
+							{isPending ? (
+								<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+							) : null}
 							Join Lobby
 						</Button>
 					</form>
