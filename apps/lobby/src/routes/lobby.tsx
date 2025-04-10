@@ -8,24 +8,111 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLobbyWebSocket } from "@/lib/useLobby";
+import { authClient } from "@repo/auth/better-auth/client";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
-import { createFileRoute } from "@tanstack/react-router";
-import { Filter, Users } from "lucide-react";
-import { useState } from "react";
+import type {
+	LobbyParticipant,
+	UserId,
+} from "@repo/lobby-durable-object/types";
+import {
+	createFileRoute,
+	useNavigate
+} from "@tanstack/react-router";
+import { Check, Filter, Users, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { toast } from "sonner";
+
+type CategorizedUsers = {
+	mutual: LobbyParticipant[];
+	incoming: LobbyParticipant[];
+	outgoing: LobbyParticipant[];
+	neutral: LobbyParticipant[];
+};
 
 export const Route = createFileRoute("/lobby")({
 	component: LobbyScreen,
+	loader: async ({ context: { trpc, queryClient } }) => {
+		const lobbyParticipants = await queryClient.ensureQueryData(
+			trpc.lobby.getLobbyParticipants.queryOptions(),
+		);
+		return { lobbyParticipants };
+	},
 });
 
 function LobbyScreen() {
-	const { data: lobbyParticipants } = useLobbyWebSocket();
+	const navigate = useNavigate();
+	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
+	const { data: lobbyParticipants } = useLobbyWebSocket({
+		initialParticipants,
+	});
+
+	const { data: session } = authClient.useSession();
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
 
-	const filteredUsers = selectedCollege
-		? lobbyParticipants?.filter(
+	const categorizedUsers = useMemo(() => {
+		const myProfile = lobbyParticipants.find(
+			(user) => user.userId === session?.user.id,
+		);
+		const otherProfiles = lobbyParticipants.filter(
+			(user) => user.userId !== session?.user.id,
+		);
+
+		const myUserId = session?.user.id as UserId;
+
+		if (!myProfile) {
+			toast.error("Something went wrong: no profile found for current user");
+			throw navigate({ to: "/" });
+		}
+
+		if (!session) {
+			toast.error("Something went wrong: no session found");
+			throw navigate({ to: "/" });
+		}
+
+		return otherProfiles.reduce(
+			(acc, user) => {
+				const theyLikeMe = user.preferences[myUserId] ?? false;
+				const iLikeThem = myProfile.preferences[user.userId] ?? false;
+
+				if (iLikeThem && theyLikeMe) {
+					acc.mutual.push(user);
+				} else if (theyLikeMe) {
+					acc.incoming.push(user);
+				} else if (iLikeThem) {
+					acc.outgoing.push(user);
+				} else {
+					acc.neutral.push(user);
+				}
+
+				return acc;
+			},
+			{
+				mutual: [],
+				incoming: [],
+				outgoing: [],
+				neutral: [],
+			} as CategorizedUsers,
+		);
+	}, [lobbyParticipants, session, navigate]);
+
+	const filteredUsers = useMemo(() => {
+		if (!selectedCollege) return categorizedUsers;
+
+		return {
+			mutual: categorizedUsers.mutual.filter(
 				(user) => user.profile.diningHall === selectedCollege,
-			)
-		: lobbyParticipants;
+			),
+			incoming: categorizedUsers.incoming.filter(
+				(user) => user.profile.diningHall === selectedCollege,
+			),
+			outgoing: categorizedUsers.outgoing.filter(
+				(user) => user.profile.diningHall === selectedCollege,
+			),
+			neutral: categorizedUsers.neutral.filter(
+				(user) => user.profile.diningHall === selectedCollege,
+			),
+		};
+	}, [categorizedUsers, selectedCollege]);
 
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
@@ -57,14 +144,11 @@ function LobbyScreen() {
 								))}
 							</DropdownMenuContent>
 						</DropdownMenu>
-						{/* <Button variant="outline" size="sm" onClick={handleLeaveLobby}>
-							Leave Lobby
-						</Button> */}
 					</div>
 				</div>
 
 				{/* Empty State */}
-				{filteredUsers?.length === 0 && (
+				{Object.values(filteredUsers).every((users) => users.length === 0) && (
 					<Card className="p-8 text-center">
 						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
 							<Users className="h-6 w-6 text-muted-foreground" />
@@ -78,10 +162,63 @@ function LobbyScreen() {
 					</Card>
 				)}
 
-				{/* User Cards */}
-				{filteredUsers && filteredUsers.length > 0 && (
-					<div className="space-y-4">
-						{filteredUsers.map((user) => (
+				{/* User Sections */}
+				<div className="space-y-8">
+					<RenderUserSection
+						title="Mutual Interest"
+						users={filteredUsers.mutual}
+					/>
+					<RenderUserSection
+						title="Interested in You"
+						users={filteredUsers.incoming}
+						showActions={true}
+						actionType="accept"
+					/>
+					<RenderUserSection
+						title="Your Interests"
+						users={filteredUsers.outgoing}
+					/>
+					<RenderUserSection
+						title="Others in Lobby"
+						users={filteredUsers.neutral}
+						showActions={true}
+						actionType="accept"
+					/>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function RenderUserSection({
+	title,
+	users,
+	showActions = false,
+	actionType = "none",
+}: {
+	title: string;
+	users: LobbyParticipant[];
+	showActions?: boolean;
+	actionType?: "accept" | "reject" | "none";
+}) {
+	if (users.length === 0) return null;
+	const handleAccept = (userId: string) => {
+		// TODO: Implement accept logic
+		toast.success("Interest shown!");
+	};
+
+	const handleReject = (userId: string) => {
+		// TODO: Implement reject logic
+		toast.info("Maybe next time!");
+	};
+
+	return (
+		<div className="space-y-4">
+			<h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+			<div className="space-y-4">
+				{users.map((user) => (
+					<Card key={user.userId} className="overflow-hidden">
+						<div className="flex items-center justify-between p-4">
 							<ProfileCard
 								key={user.userId}
 								name={""}
@@ -93,33 +230,29 @@ function LobbyScreen() {
 								isAnonymous={false}
 								onClick={() => {}}
 							/>
-						))}
-					</div>
-				)}
-
-				{/* Match Confirmation Dialog */}
-				{/* <Dialog open={showMatchDialog} onOpenChange={setShowMatchDialog}>
-					<DialogContent>
-						<DialogHeader>
-							<DialogTitle>Confirm Match</DialogTitle>
-							<DialogDescription>
-								Are you sure you want to connect with{" "}
-								{selectedUser?.isAnonymous ? "this user" : selectedUser?.name}?
-								Once confirmed, you'll both be removed from the lobby and can
-								start messaging.
-							</DialogDescription>
-						</DialogHeader>
-						<div className="flex justify-end gap-2">
-							<Button
-								variant="outline"
-								onClick={() => setShowMatchDialog(false)}
-							>
-								Cancel
-							</Button>
-							<Button onClick={handleMatchConfirm}>Confirm Match</Button>
+							{showActions && (
+								<div className="flex gap-2">
+									{actionType === "accept" && (
+										<Button size="sm" onClick={() => handleAccept(user.userId)}>
+											<Check className="mr-2 h-4 w-4" />
+											Accept
+										</Button>
+									)}
+									{actionType === "reject" && (
+										<Button
+											variant="outline"
+											size="sm"
+											onClick={() => handleReject(user.userId)}
+										>
+											<X className="mr-2 h-4 w-4" />
+											Decline
+										</Button>
+									)}
+								</div>
+							)}
 						</div>
-					</DialogContent>
-				</Dialog> */}
+					</Card>
+				))}
 			</div>
 		</div>
 	);
