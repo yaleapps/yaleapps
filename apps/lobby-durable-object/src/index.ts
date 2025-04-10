@@ -7,7 +7,8 @@ import { HTTPException } from "hono/http-exception";
 import {
 	type LobbyParticipant,
 	type UserId,
-	incomingClientWsMessageSchema
+	createLobbyWsService,
+	incomingClientWsMessageSchema,
 } from "./types";
 
 type Bindings = {
@@ -57,68 +58,45 @@ export class Lobby extends DurableObject {
 	}
 
 	/**
-	 * Broadcasts the current lobby state to all connected clients
-	 */
-	private async broadcastLobbyUpdate() {
-		const connections = this.ctx.getWebSockets();
-
-		const message = JSON.stringify({
-			type: "LOBBY_UPDATE",
-			lobby: this.lobby,
-		});
-
-		for (const ws of connections) {
-			try {
-				if (ws.readyState === WebSocket.OPEN) {
-					ws.send(message);
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		}
-	}
-
-	/**
 	 * Called automatically when a WebSocket receives a message from the client
 	 */
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
+		const wsService = createLobbyWsService(ws);
 		try {
 			if (typeof message !== "string") return;
 			const data = JSON.parse(message);
-			const validatedMessageResult =
-				incomingClientWsMessageSchema.safeParse(data);
-			if (!validatedMessageResult.success) {
-				ws.send(
-					JSON.stringify({
-						type: "ERROR",
-						error: `Invalid message format: ${validatedMessageResult.error.message}`,
-					}),
-				);
-				return;
-			}
-
-			const validatedMessage = validatedMessageResult.data;
+			const validatedMessage = incomingClientWsMessageSchema.parse(data);
 
 			switch (validatedMessage.type) {
 				case "LEAVE":
 					await this.leave(validatedMessage.userId);
 					break;
 				case "GET_LOBBY":
-					ws.send(
-						JSON.stringify({
-							type: "LOBBY_UPDATE",
-							lobby: this.lobby,
-						}),
-					);
+					wsService.sendLobbyUpdate(this.lobby);
 					break;
 			}
 		} catch (error) {
-			ws.send(
-				JSON.stringify({
-					type: "ERROR",
-					error: "Failed to parse message",
-				}),
+			wsService.sendError(
+				`Failed to parse message: ${(error as Error).message}`,
 			);
+		}
+	}
+
+	/**
+	 * Broadcasts the current lobby state to all connected clients
+	 */
+	private async broadcastLobbyUpdate() {
+		const connections = this.ctx.getWebSockets();
+
+		for (const ws of connections) {
+			const wsService = createLobbyWsService(ws);
+			try {
+				if (ws.readyState === WebSocket.OPEN) {
+					wsService.sendLobbyUpdate(this.lobby);
+				}
+			} catch (error) {
+				console.error(error);
+			}
 		}
 	}
 
