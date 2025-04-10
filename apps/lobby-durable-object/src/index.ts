@@ -145,10 +145,10 @@ const app = new Hono<Env>()
 	.use("*", createCorsMiddleware())
 	.use(createDbAuthMiddleware())
 	.get(
-		"/getLobbyProfileById",
-		zValidator("form", z.object({ userId: userIdSchema })),
+		"/getLobbyProfileById/:userId",
+		zValidator("param", z.object({ userId: userIdSchema })),
 		async (c) => {
-			const { userId } = c.req.valid("form");
+			const { userId } = c.req.valid("param");
 
 			const db = drizzle(c.env.DB, { schema, logger: true });
 
