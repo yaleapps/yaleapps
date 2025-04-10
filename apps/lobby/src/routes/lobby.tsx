@@ -1,82 +1,29 @@
 import { ProfileCard } from "@/components/profile-card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Skeleton } from "@/components/ui/skeleton";
-import { RESIDENTIAL_COLLEGES } from "@repo/constants";
+import { useLobbyWebSocket } from "@/lib/useLobby";
+import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
 import { Filter, Users } from "lucide-react";
-import { useEffect, useState } from "react";
-
-// Types for our lobby data
-interface LobbyUser {
-	id: string;
-	college: (typeof RESIDENTIAL_COLLEGES)[number];
-	major: string;
-	year: string;
-	conversationTopic: string;
-	joinedAt: Date;
-}
+import { useState } from "react";
 
 export const Route = createFileRoute("/lobby")({
 	component: LobbyScreen,
 });
 
 function LobbyScreen() {
-	// State management
-	const [isLoading, setIsLoading] = useState(true);
+	const { data: lobby } = useLobbyWebSocket();
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
-	const [users, setUsers] = useState<LobbyUser[]>([]);
 
-	// Mock data fetching
-	useEffect(() => {
-		const fetchUsers = async () => {
-			// Simulate API call
-			await new Promise((resolve) => setTimeout(resolve, 1500));
-
-			// Mock data
-			const mockUsers: LobbyUser[] = [
-				{
-					id: "1",
-					college: "Berkeley",
-					major: "Computer Science",
-					year: "2025",
-					conversationTopic: "Summer internships and tech industry trends",
-					joinedAt: new Date(Date.now() - 1000 * 60 * 5), // 5 minutes ago
-				},
-				{
-					id: "2",
-					college: "Branford",
-					major: "Economics",
-					year: "2024",
-					conversationTopic: "Post-graduation plans and career advice",
-					joinedAt: new Date(Date.now() - 1000 * 60 * 15), // 15 minutes ago
-				},
-				// Add more mock users as needed
-			];
-
-			setUsers(mockUsers);
-			setIsLoading(false);
-		};
-
-		fetchUsers();
-	}, []);
-
-	// Filter users by selected college
 	const filteredUsers = selectedCollege
-		? users.filter((user) => user.college === selectedCollege)
-		: users;
-
-	// Handle leaving lobby
-	const handleLeaveLobby = () => {
-		// TODO: Implement leave lobby logic
-		console.log("Leaving lobby...");
-	};
+		? lobby?.filter((user) => user.profile.diningHall === selectedCollege)
+		: lobby;
 
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
@@ -93,7 +40,7 @@ function LobbyScreen() {
 								</Button>
 							</DropdownMenuTrigger>
 							<DropdownMenuContent align="end" className="w-48">
-								{RESIDENTIAL_COLLEGES.map((college) => (
+								{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
 									<DropdownMenuCheckboxItem
 										key={college}
 										checked={selectedCollege === college}
@@ -108,31 +55,14 @@ function LobbyScreen() {
 								))}
 							</DropdownMenuContent>
 						</DropdownMenu>
-						<Button variant="outline" size="sm" onClick={handleLeaveLobby}>
+						{/* <Button variant="outline" size="sm" onClick={handleLeaveLobby}>
 							Leave Lobby
-						</Button>
+						</Button> */}
 					</div>
 				</div>
 
-				{/* Loading State */}
-				{isLoading && (
-					<div className="space-y-4">
-						{[1, 2, 3].map((i) => (
-							<Card key={i} className="overflow-hidden">
-								<CardHeader className="space-y-3">
-									<Skeleton className="h-4 w-1/3" />
-									<Skeleton className="h-3 w-1/4" />
-								</CardHeader>
-								<CardContent>
-									<Skeleton className="h-16 w-full" />
-								</CardContent>
-							</Card>
-						))}
-					</div>
-				)}
-
 				{/* Empty State */}
-				{!isLoading && filteredUsers.length === 0 && (
+				{filteredUsers?.length === 0 && (
 					<Card className="p-8 text-center">
 						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
 							<Users className="h-6 w-6 text-muted-foreground" />
@@ -146,25 +76,50 @@ function LobbyScreen() {
 					</Card>
 				)}
 
+				{JSON.stringify(lobby)}
+
 				{/* User Cards */}
-				{!isLoading && filteredUsers.length > 0 && (
+				{filteredUsers && filteredUsers.length > 0 && (
 					<div className="space-y-4">
 						{filteredUsers.map((user) => (
 							<ProfileCard
-								key={user.id}
-								college={user.college}
-								major={user.major}
-								year={user.year}
-								conversationTopic={user.conversationTopic}
-								joinedAt={user.joinedAt}
-								onClick={() => {
-									// TODO: Implement connection dialog
-									console.log("Connecting with user:", user.id);
-								}}
+								key={user.userId}
+								name={""}
+								image={null}
+								diningHall={user.profile.diningHall}
+								year={user.profile.year}
+								vibes={user.profile.vibes}
+								joinedAt={new Date()}
+								isAnonymous={false}
+								onClick={() => {}}
 							/>
 						))}
 					</div>
 				)}
+
+				{/* Match Confirmation Dialog */}
+				{/* <Dialog open={showMatchDialog} onOpenChange={setShowMatchDialog}>
+					<DialogContent>
+						<DialogHeader>
+							<DialogTitle>Confirm Match</DialogTitle>
+							<DialogDescription>
+								Are you sure you want to connect with{" "}
+								{selectedUser?.isAnonymous ? "this user" : selectedUser?.name}?
+								Once confirmed, you'll both be removed from the lobby and can
+								start messaging.
+							</DialogDescription>
+						</DialogHeader>
+						<div className="flex justify-end gap-2">
+							<Button
+								variant="outline"
+								onClick={() => setShowMatchDialog(false)}
+							>
+								Cancel
+							</Button>
+							<Button onClick={handleMatchConfirm}>Confirm Match</Button>
+						</div>
+					</DialogContent>
+				</Dialog> */}
 			</div>
 		</div>
 	);
