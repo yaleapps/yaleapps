@@ -1,4 +1,5 @@
 import * as schema from "@repo/db/schema";
+import { buildConflictUpdateColumns } from "@repo/db/utils";
 import { DurableObject } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
@@ -10,6 +11,8 @@ import {
 	createLobbyWsService,
 	wsMessageInSchema,
 } from "./types";
+import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
+import { zValidator } from "@hono/zod-validator";
 
 type Bindings = {
 	DB: D1Database;
@@ -146,18 +149,48 @@ export class Lobby extends DurableObject<Bindings> {
 	}
 }
 
-const app = new Hono<Env>();
+const app = new Hono<Env>()
+	.get("/", (c) => c.text("Hello World"))
+	.get("/joinAndGetLobby", async (c) => {
+		const userId = c.req.query("userId");
+		if (!userId)
+			throw new HTTPException(400, { message: "User ID is required" });
 
-app.get("/", (c) => c.text("Hello World"));
+		const lobbyId = c.env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+		const lobby = c.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 
-app.get("/joinAndGetLobby", async (c) => {
-	const userId = c.req.query("userId");
-	if (!userId) throw new HTTPException(400, { message: "User ID is required" });
+		return lobby.fetch(c.req.raw);
+	})
+	.post(
+		"/upsertLobbyProfile",
+		zValidator("form", lobbyProfileFormSchema),
+		async (c) => {
+			const profile = c.req.valid("form");
+			console.log("🚀 ~ profile:", profile);
 
-	const lobbyId = c.env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
-	const lobby = c.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+			const db = drizzle(c.env.DB, { schema, logger: true });
 
-	return lobby.fetch(c.req.raw);
-});
+			await db
+				.insert(schema.lobbyParticipantProfiles)
+				.values({
+					userId: "1",
+					...profile,
+					updatedAt: new Date(),
+				})
+				.onConflictDoUpdate({
+					target: [schema.lobbyParticipantProfiles.userId],
+					set: buildConflictUpdateColumns(schema.lobbyParticipantProfiles, [
+						"diningHall",
+						"year",
+						"vibes",
+						"phoneNumber",
+						"updatedAt",
+					]),
+				});
+
+			return c.json({ success: true });
+		},
+	);
 
 export default app;
+export type AppType = typeof app;
