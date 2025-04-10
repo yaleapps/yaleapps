@@ -1,14 +1,31 @@
 {
-	"name": "lobby-durable-object",
+	"name": "@repo/lobby-durable-object",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
 		"dev": "wrangler dev --persist-to=../../packages/db/data/state",
 		"db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local --persist-to=../../packages/db/data/state",
+		"predev": "pnpm db:migrate:dev",
+		"deploy": "wrangler deploy --minify"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250409.0",
-		"typescript": "^5.5.2",
+		"typescript": "^5.7.3",
 		"wrangler": "^4.9.1"
+	},
+	"dependencies": {
+		"@hono/trpc-server": "^0.3.4",
+		"@repo/auth": "workspace:*",
+		"@repo/constants": "workspace:*",
+		"@repo/db": "workspace:*",
+		"@trpc/server": "^11.0.0",
+		"drizzle-orm": "^0.41.0",
+		"hono": "^4.7.6",
+		"superjson": "^2.2.2",
+		"zod": "^3.24.2"
+	},
+	"exports": {
+		"./app": "./src/index.ts",
+		"./types": "./src/types.ts"
 	}
 }
