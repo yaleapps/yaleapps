@@ -34,7 +34,7 @@ export function useLobbyWebSocket() {
 			switch (message.type) {
 				case "LOBBY_UPDATE":
 					queryClient.setQueryData(
-						trpc.lobby.getLobby.queryKey(),
+						trpc.lobby.getLobbyParticipants.queryKey(),
 						message.lobby,
 					);
 					break;
@@ -52,6 +52,10 @@ export function useLobbyWebSocket() {
 		return () => {
 			ws.close();
 		};
-	}, [queryClient.setQueryData, session, trpc.lobby.getLobby.queryKey]);
-	return useQuery(trpc.lobby.getLobby.queryOptions());
+	}, [
+		queryClient.setQueryData,
+		session,
+		trpc.lobby.getLobbyParticipants.queryKey,
+	]);
+	return useQuery(trpc.lobby.getLobbyParticipants.queryOptions());
 }
