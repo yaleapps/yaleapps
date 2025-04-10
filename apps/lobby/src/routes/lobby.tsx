@@ -1,6 +1,10 @@
-import { ProfileCard } from "@/components/profile-card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+} from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -8,12 +12,8 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useLobbyWebSocket } from "@/lib/useLobby";
-import { authClient } from "@repo/auth/better-auth/client";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
-import type {
-	LobbyParticipant,
-	UserId,
-} from "@repo/lobby-durable-object/types";
+import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, Filter, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -157,43 +157,66 @@ function RenderUserSection({
 
 	return (
 		<div className="space-y-4">
-			<h2 className="text-lg font-semibold tracking-tight">{title}</h2>
-			<div className="space-y-4">
+			<h2
+				className="text-lg font-semibold tracking-tight"
+				id={`section-${title.toLowerCase().replace(/\s+/g, "-")}`}
+			>
+				{title}
+			</h2>
+			<div className="grid gap-4 md:grid-cols-2">
 				{users.map((user) => (
-					<Card key={user.userId} className="overflow-hidden">
-						<div className="flex items-center justify-between p-4">
-							<ProfileCard
-								key={user.userId}
-								name={""}
-								image={null}
-								diningHall={user.profile.diningHall}
-								year={user.profile.year}
-								vibes={user.profile.vibes}
-								joinedAt={new Date()}
-								isAnonymous={false}
-								onClick={() => {}}
-							/>
-							{showActions && (
-								<div className="flex gap-2">
-									{actionType === "accept" && (
-										<Button size="sm" onClick={() => handleAccept(user.userId)}>
-											<Check className="mr-2 h-4 w-4" />
-											Accept
-										</Button>
-									)}
-									{actionType === "reject" && (
-										<Button
-											variant="outline"
-											size="sm"
-											onClick={() => handleReject(user.userId)}
-										>
-											<X className="mr-2 h-4 w-4" />
-											Decline
-										</Button>
-									)}
+					<Card
+						key={user.userId}
+						className="group relative overflow-hidden transition-all hover:shadow-md"
+					>
+						<CardHeader className="pb-3">
+							<div className="flex items-center justify-between">
+								<div className="space-y-1">
+									<h3 className="text-base font-medium leading-none">
+										Class of {user.profile.year}
+									</h3>
+									<div className="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-sm font-semibold text-secondary-foreground">
+										{user.profile.diningHall}
+									</div>
 								</div>
-							)}
-						</div>
+							</div>
+						</CardHeader>
+						<CardContent className="space-y-3 pb-4">
+							<blockquote className="border-l-2 border-primary/20 pl-3 italic text-muted-foreground">
+								"{user.profile.vibes}"
+							</blockquote>
+							<p className="text-xs text-muted-foreground/60">
+								Joined{" "}
+								{new Date().toLocaleDateString(undefined, {
+									month: "short",
+									day: "numeric",
+									year: "numeric",
+								})}
+							</p>
+						</CardContent>
+						{showActions && (
+							<CardFooter className="border-t px-4 py-3">
+								<div className="flex w-full justify-between gap-3">
+									<Button
+										variant="outline"
+										size="default"
+										className="w-[45%] transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+										onClick={() => handleReject(user.userId)}
+									>
+										<X className="mr-2 h-4 w-4" />
+										Not Today
+									</Button>
+									<Button
+										size="default"
+										className="w-[45%] bg-primary/90 transition-all hover:bg-primary"
+										onClick={() => handleAccept(user.userId)}
+									>
+										<Check className="mr-2 h-4 w-4" />
+										Let's Connect!
+									</Button>
+								</div>
+							</CardFooter>
+						)}
 					</Card>
 				))}
 			</div>
