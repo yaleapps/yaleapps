@@ -1,6 +1,7 @@
 import { useTRPC } from "@/integrations/trpc/react";
 import { authClient } from "@repo/auth/better-auth/client";
 import {
+	type LobbyParticipant,
 	type UserId,
 	type WsMessageIn,
 	wsMessageOutSchema,
@@ -9,7 +10,11 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-export function useLobbyWebSocket() {
+export function useLobbyWebSocket({
+	initialParticipants,
+}: {
+	initialParticipants: LobbyParticipant[];
+}) {
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
 	const { data: session } = authClient.useSession();
@@ -56,5 +61,9 @@ export function useLobbyWebSocket() {
 		session,
 		trpc.lobby.getLobbyParticipants.queryKey,
 	]);
-	return useQuery(trpc.lobby.getLobbyParticipants.queryOptions());
+	return useQuery(
+		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
+			initialData: initialParticipants,
+		}),
+	);
 }
