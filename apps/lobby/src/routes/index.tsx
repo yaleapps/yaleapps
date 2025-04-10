@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { useTRPC } from "@/integrations/trpc/react";
 import { client } from "@/lib/client";
 import { useUpsertLobbyProfile } from "@/lib/mutations";
 import { cn } from "@/lib/utils";
@@ -86,6 +87,7 @@ function usePlaceholderRotation() {
 function LunchLobbyForm() {
 	const navigate = useNavigate();
 	const placeholder = usePlaceholderRotation();
+	const trpc = useTRPC();
 
 	const form = useForm<LobbyProfileForm>({
 		resolver: zodResolver(lobbyProfileFormSchema),
@@ -100,22 +102,18 @@ function LunchLobbyForm() {
 
 	const { data: session } = authClient.useSession();
 
-	const { data: response, isPending: isLobbyProfilePending } = useQuery({
-		enabled: !!session?.user.id,
-		queryKey: ["lobbyProfile", session?.user.id],
-		queryFn: async () => {
-			const res = await client.getLobbyProfileById[":userId"].$get({
-				param: { userId: session?.user.id as UserId },
-			});
-			return res.json();
-		},
-	});
+	const { data: lobbyProfile, isPending: isLobbyProfilePending } = useQuery(
+		trpc.lobby.getLobbyProfileById.queryOptions(
+			{ userId: session?.user.id as UserId },
+			{ enabled: !!session?.user.id },
+		),
+	);
 
 	useEffect(() => {
-		if (response?.lobbyProfile) {
-			form.reset(response.lobbyProfile);
+		if (lobbyProfile) {
+			form.reset(lobbyProfile);
 		}
-	}, [response, form]);
+	}, [lobbyProfile, form]);
 
 	const { mutate: upsertLobbyProfile, isPending } = useUpsertLobbyProfile();
 
@@ -133,18 +131,21 @@ function LunchLobbyForm() {
 
 				<Form {...form}>
 					<form
-						onSubmit={form.handleSubmit(async (values) =>
-							upsertLobbyProfile(values, {
-								onSuccess: () => {
-									navigate({ to: "/lobby" });
+						onSubmit={form.handleSubmit(async (lobbyProfile) =>
+							upsertLobbyProfile(
+								{ lobbyProfile },
+								{
+									onSuccess: () => {
+										navigate({ to: "/lobby" });
+									},
+									onError: () => {
+										form.setError("root", {
+											type: "submit",
+											message: "Failed to join lobby. Please try again.",
+										});
+									},
 								},
-								onError: () => {
-									form.setError("root", {
-										type: "submit",
-										message: "Failed to join lobby. Please try again.",
-									});
-								},
-							}),
+							),
 						)}
 						className="space-y-6"
 					>
