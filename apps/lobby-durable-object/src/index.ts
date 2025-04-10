@@ -46,6 +46,17 @@ export class Lobby extends DurableObject<Bindings> {
 		await this.ctx.storage.put("lobby", this.lobby);
 	}
 
+	private upsertLobbyParticipant(lobbyParticipant: LobbyParticipant) {
+		const existingLobbyParticipantIndex = this.lobby.findIndex(
+			(p) => p.userId === lobbyParticipant.userId,
+		);
+		if (existingLobbyParticipantIndex >= 0) {
+			this.lobby[existingLobbyParticipantIndex] = lobbyParticipant;
+		} else {
+			this.lobby.push(lobbyParticipant);
+		}
+	}
+
 	async fetch(request: Request): Promise<Response> {
 		const webSocketPair = new WebSocketPair();
 		const [client, server] = Object.values(webSocketPair);
@@ -124,17 +135,7 @@ export class Lobby extends DurableObject<Bindings> {
 			preferences: {},
 		} satisfies LobbyParticipant;
 
-		const upsertLobbyParticipant = () => {
-			const existingLobbyParticipantIndex = this.lobby.findIndex(
-				(p) => p.userId === userId,
-			);
-			if (existingLobbyParticipantIndex >= 0) {
-				this.lobby[existingLobbyParticipantIndex] = lobbyParticipant;
-			} else {
-				this.lobby.push(lobbyParticipant);
-			}
-		};
-		upsertLobbyParticipant();
+		this.upsertLobbyParticipant(lobbyParticipant);
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
 	}
@@ -143,10 +144,6 @@ export class Lobby extends DurableObject<Bindings> {
 		this.lobby = this.lobby.filter((p) => p.userId !== userId);
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
-	}
-
-	async getParticipants() {
-		return this.lobby;
 	}
 }
 
