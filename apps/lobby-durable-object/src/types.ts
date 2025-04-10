@@ -13,13 +13,12 @@ export const lobbyParticipantSchema = z.object({
 
 export type LobbyParticipant = z.infer<typeof lobbyParticipantSchema>;
 
-export const incomingClientWsMessageSchema = z.discriminatedUnion("type", [
+export const wsMessageInSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("LEAVE"), userId: userIdSchema }),
 	z.object({ type: z.literal("GET_LOBBY") }),
-	z.object({ type: z.literal("ERROR"), error: z.string() }),
 ]);
 
-export const outgoingClientWsMessageSchema = z.discriminatedUnion("type", [
+export const wsMessageOutSchema = z.discriminatedUnion("type", [
 	z.object({
 		type: z.literal("LOBBY_UPDATE"),
 		lobby: z.array(lobbyParticipantSchema),
@@ -27,10 +26,11 @@ export const outgoingClientWsMessageSchema = z.discriminatedUnion("type", [
 	z.object({ type: z.literal("ERROR"), error: z.string() }),
 ]);
 
-type OutgoingClientWsMessage = z.infer<typeof outgoingClientWsMessageSchema>;
+export type WsMessageIn = z.infer<typeof wsMessageInSchema>;
+export type WsMessageOut = z.infer<typeof wsMessageOutSchema>;
 
 export function createLobbyWsService<T extends WebSocket>(ws: T) {
-	const wsSend = (message: OutgoingClientWsMessage) => {
+	const wsSend = (message: WsMessageOut) => {
 		ws.send(JSON.stringify(message));
 	};
 
