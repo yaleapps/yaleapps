@@ -117,10 +117,7 @@ export class Lobby extends DurableObject<Bindings> {
 
 		this.ctx.acceptWebSocket(server);
 
-		return new Response(null, {
-			status: 101,
-			webSocket: client,
-		});
+		return new Response(null, { status: 101, webSocket: client });
 	}
 
 	/**
