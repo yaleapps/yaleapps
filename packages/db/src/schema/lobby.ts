@@ -8,11 +8,9 @@ import { integer, sqliteTableCreator, text } from "drizzle-orm/sqlite-core";
 import { users } from "./auth";
 
 // Prefix all tables with "lobby_" since they are specific to the lobby project
-const sqliteTableWithLobbyPrefix = sqliteTableCreator(
-	(name) => `lobby_${name}`,
-);
+const lobbyPrefixedSqliteTable = sqliteTableCreator((name) => `lobby_${name}`);
 
-export const lobbyParticipantProfiles = sqliteTableWithLobbyPrefix(
+export const lobbyParticipantProfiles = lobbyPrefixedSqliteTable(
 	"participant_profiles",
 	{
 		userId: text("user_id")
@@ -45,7 +43,7 @@ export const lobbyParticipantProfilesRelations = relations(
 	}),
 );
 
-export const matches = sqliteTableWithLobbyPrefix("matches", {
+export const matches = lobbyPrefixedSqliteTable("matches", {
 	id: integer().primaryKey({ autoIncrement: true }),
 	createdAt: integer("created_at", { mode: "timestamp" })
 		.notNull()
@@ -56,7 +54,7 @@ export const matchesRelations = relations(matches, ({ many }) => ({
 	participants: many(matchParticipants),
 }));
 
-export const matchParticipants = sqliteTableWithLobbyPrefix(
+export const matchParticipants = lobbyPrefixedSqliteTable(
 	"match_participants",
 	{
 		id: integer().primaryKey({ autoIncrement: true }),
