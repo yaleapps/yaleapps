@@ -8,7 +8,7 @@ import {
 	type LobbyParticipant,
 	type UserId,
 	createLobbyWsService,
-	incomingClientWsMessageSchema,
+	wsMessageInSchema,
 } from "./types";
 
 type Bindings = {
@@ -64,8 +64,7 @@ export class Lobby extends DurableObject {
 		const wsService = createLobbyWsService(ws);
 		try {
 			if (typeof message !== "string") return;
-			const data = JSON.parse(message);
-			const validatedMessage = incomingClientWsMessageSchema.parse(data);
+			const validatedMessage = wsMessageInSchema.parse(JSON.parse(message));
 
 			switch (validatedMessage.type) {
 				case "LEAVE":
