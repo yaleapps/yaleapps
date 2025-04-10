@@ -7,7 +7,6 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useTRPC } from "@/integrations/trpc/react";
 import { useLobbyWebSocket } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
