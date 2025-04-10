@@ -4,6 +4,7 @@ import { createCorsMiddleware } from "@repo/auth/middleware/cors";
 import { createDbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
 import * as schema from "@repo/db/schema";
 import { lobbyParticipantProfiles } from "@repo/db/schema";
+import { buildConflictUpdateColumns } from "@repo/db/utils";
 import { TRPCError, type TRPCRouterRecord, initTRPC } from "@trpc/server";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { DurableObject } from "cloudflare:workers";
@@ -18,6 +19,8 @@ import {
 	createLobbyWsService,
 	wsMessageInSchema,
 } from "./types";
+import { z } from "zod";
+import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
 
 type Env = {
 	DB: D1Database;
@@ -171,7 +174,7 @@ export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 	if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
 
 	return next({
-		ctx: { ...ctx, session },
+		ctx: { ...ctx, session: session.session, user: session.user },
 	});
 });
 
@@ -188,6 +191,28 @@ export const trpcRouter = createTRPCRouter({
 				});
 			return lobbyProfile ?? null;
 		}),
+		upsertLobbyProfile: protectedProcedure
+			.input(z.object({ profile: lobbyProfileFormSchema }))
+			.mutation(async ({ ctx, input }) => {
+				const { profile } = input;
+				await ctx.db
+					.insert(lobbyParticipantProfiles)
+					.values({
+						userId: ctx.user.id,
+						...profile,
+						updatedAt: new Date(),
+					})
+					.onConflictDoUpdate({
+						target: [lobbyParticipantProfiles.userId],
+						set: buildConflictUpdateColumns(lobbyParticipantProfiles, [
+							"year",
+							"diningHall",
+							"vibes",
+							"phoneNumber",
+							"updatedAt",
+						]),
+					});
+			}),
 	},
 } satisfies TRPCRouterRecord);
 
