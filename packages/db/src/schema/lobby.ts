@@ -12,39 +12,6 @@ const sqliteTableWithLobbyPrefix = sqliteTableCreator(
 	(name) => `lobby_${name}`,
 );
 
-export const lobbyParticipants = sqliteTableWithLobbyPrefix("participants", {
-	/**
-	 * The id of the user in the lobby.
-	 */
-	id: integer().primaryKey({ autoIncrement: true }),
-	/**
-	 * The id of the user in the auth schema.
-	 */
-	userId: text("user_id")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
-	/**
-	 * The timestamp when the user joined the lobby
-	 */
-	joinedAt: integer("joined_at", { mode: "timestamp" }).default(
-		sql`(unixepoch())`,
-	),
-});
-
-export const lobbyParticipantsRelations = relations(
-	lobbyParticipants,
-	({ one }) => ({
-		user: one(users, {
-			fields: [lobbyParticipants.userId],
-			references: [users.id],
-		}),
-		profile: one(lobbyParticipantProfiles, {
-			fields: [lobbyParticipants.userId],
-			references: [lobbyParticipantProfiles.userId],
-		}),
-	}),
-);
-
 export const lobbyParticipantProfiles = sqliteTableWithLobbyPrefix(
 	"participant_profiles",
 	{
@@ -74,39 +41,6 @@ export const lobbyParticipantProfilesRelations = relations(
 		user: one(users, {
 			fields: [lobbyParticipantProfiles.userId],
 			references: [users.id],
-		}),
-	}),
-);
-
-export const lobbyParticipantPreferences = sqliteTableWithLobbyPrefix(
-	"participant_preferences",
-	{
-		id: integer().primaryKey({ autoIncrement: true }),
-		fromParticipantId: integer("from_participant_id")
-			.notNull()
-			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-		toParticipantId: integer("to_participant_id")
-			.notNull()
-			.references(() => lobbyParticipants.id, { onDelete: "cascade" }),
-		preference: text("preference", {
-			enum: ["interested", "not_interested"],
-		}).notNull(),
-		createdAt: integer("created_at", { mode: "timestamp" })
-			.notNull()
-			.default(sql`(unixepoch())`),
-	},
-);
-
-export const lobbyParticipantPreferencesRelations = relations(
-	lobbyParticipantPreferences,
-	({ one }) => ({
-		fromParticipant: one(lobbyParticipants, {
-			fields: [lobbyParticipantPreferences.fromParticipantId],
-			references: [lobbyParticipants.id],
-		}),
-		toParticipant: one(lobbyParticipants, {
-			fields: [lobbyParticipantPreferences.toParticipantId],
-			references: [lobbyParticipants.id],
 		}),
 	}),
 );
