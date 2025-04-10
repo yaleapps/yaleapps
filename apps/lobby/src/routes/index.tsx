@@ -19,19 +19,22 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { useUpsertLobbyProfile } from "@/lib/mutations";
+import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { authClient } from "@repo/auth/better-auth/client";
 import { DINING_HALL_NAMES } from "@repo/constants";
 import {
 	type LobbyProfileForm,
 	VIBE_MAX_LENGTH,
 	lobbyProfileFormSchema,
 } from "@repo/db/validators/lobby";
+import { useMutation } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",
@@ -58,9 +61,8 @@ export const Route = createFileRoute("/")({
 	},
 });
 
-const GRADUATION_YEARS = Array.from(
-	{ length: 4 },
-	(_, i) => new Date().getFullYear() + i,
+const GRADUATION_YEARS = Array.from({ length: 4 }, (_, i) =>
+	(new Date().getFullYear() + i).toString(),
 );
 
 function usePlaceholderRotation() {
@@ -91,7 +93,7 @@ function LunchLobbyForm() {
 
 	const form = useForm<LobbyProfileForm>({
 		resolver: zodResolver(lobbyProfileFormSchema),
-		defaultValues: {
+		defaultValues: lobbyProfile ?? {
 			diningHall: "Commons",
 			year: undefined,
 			vibes: "",
@@ -100,13 +102,25 @@ function LunchLobbyForm() {
 		mode: "onBlur",
 	});
 
-	useEffect(() => {
-		if (lobbyProfile) {
-			form.reset(lobbyProfile);
-		}
-	}, [lobbyProfile, form]);
-
-	const { mutate: upsertLobbyProfile, isPending } = useUpsertLobbyProfile();
+	const trpc = useTRPC();
+	const { mutate: upsertLobbyProfile, isPending } = useMutation(
+		trpc.lobby.upsertLobbyProfile.mutationOptions({
+			onMutate: async () => {
+				const { data: session, error } = await authClient.getSession();
+				if (error) throw new Error(`${error.status} ${error.statusText}`);
+				if (!session) {
+					const { error } = await authClient.signIn.anonymous();
+					if (error) throw new Error(`${error.status} ${error.statusText}`);
+				}
+			},
+			onSuccess: () => {
+				toast.success("Lobby profile updated");
+			},
+			onError: (e) => {
+				toast.error(`Failed to update lobby profile: ${e.message}`);
+			},
+		}),
+	);
 
 	return (
 		<div className="flex min-h-svh w-full flex-col items-center bg-gradient-to-b from-background to-background/95 p-4 md:p-6 lg:p-8">
@@ -122,7 +136,7 @@ function LunchLobbyForm() {
 
 				<Form {...form}>
 					<form
-						onSubmit={form.handleSubmit(async (lobbyProfile) =>
+						onSubmit={form.handleSubmit(async (lobbyProfile) => {
 							upsertLobbyProfile(
 								{ profile: lobbyProfile },
 								{
@@ -136,8 +150,8 @@ function LunchLobbyForm() {
 										});
 									},
 								},
-							),
-						)}
+							);
+						})}
 						className="space-y-6"
 					>
 						<Card className="p-6">
@@ -150,7 +164,7 @@ function LunchLobbyForm() {
 											<FormLabel>Preferred College/Dining Hall</FormLabel>
 											<Select
 												onValueChange={field.onChange}
-												defaultValue={field.value}
+												value={field.value ?? ""}
 											>
 												<FormControl>
 													<SelectTrigger className="w-full">
@@ -178,7 +192,7 @@ function LunchLobbyForm() {
 											<FormLabel>Year</FormLabel>
 											<Select
 												onValueChange={field.onChange}
-												defaultValue={field.value}
+												value={field.value ?? ""}
 											>
 												<FormControl>
 													<SelectTrigger className="w-full">
@@ -187,7 +201,7 @@ function LunchLobbyForm() {
 												</FormControl>
 												<SelectContent>
 													{GRADUATION_YEARS.map((year) => (
-														<SelectItem key={year} value={year.toString()}>
+														<SelectItem key={year} value={year}>
 															{year}
 														</SelectItem>
 													))}
