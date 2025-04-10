@@ -25,7 +25,6 @@ export function useLobbyWebSocket() {
 					userId: session.user.id as UserId,
 				} satisfies WsMessageIn),
 			);
-			toast.success("Connected to Lobby");
 		};
 
 		ws.onmessage = (event) => {
