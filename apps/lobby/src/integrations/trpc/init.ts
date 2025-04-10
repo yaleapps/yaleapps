@@ -1,9 +1,10 @@
 import type { D1Database } from "@cloudflare/workers-types";
-import { createAuth } from "@repo/auth/createAuth";
+import { createAuth } from "@repo/auth/better-auth/server";
 import * as schema from "@repo/db/schema";
 import { getEvent } from "@tanstack/react-start/server";
 import { initTRPC, TRPCError } from "@trpc/server";
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import superjson from "superjson";
 

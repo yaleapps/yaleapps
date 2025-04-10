@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { dbAuthMiddleware } from "./services";
-import { createCorsMiddleware } from "./services/cors";
+import { dbAuthMiddleware } from "./middleware/dbAuth";
+import { createCorsMiddleware } from "./middleware/cors";
 
 export type Env = {
 	Bindings: { DB: D1Database; YALIES_API_KEY: string };

@@ -19,6 +19,7 @@
     "wrangler": "^4.1.0"
   },
   "exports": {
-    "./createAuth": "./src/services/createAuth.ts"
+    "./better-auth/*": "./src/better-auth/*.ts",
+    "./middleware/*": "./src/middleware/*.ts"
   }
 }

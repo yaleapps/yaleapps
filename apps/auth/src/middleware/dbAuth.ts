@@ -3,7 +3,7 @@ import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
 import type { Env } from "..";
-import { createAuth } from "./createAuth";
+import { createAuth } from "../better-auth/server";
 
 declare module "hono" {
 	interface ContextVariableMap {
