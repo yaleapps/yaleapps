@@ -13,23 +13,15 @@ import {
 } from "./types";
 import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
 import { zValidator } from "@hono/zod-validator";
+import { dbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
+import { createCorsMiddleware } from "@repo/auth/middleware/cors";
 
 type Bindings = {
 	DB: D1Database;
 	LOBBY_DURABLE_OBJECT: DurableObjectNamespace<Lobby>;
 };
 
-export type Env = {
-	Bindings: Bindings;
-	// Variables: {
-	// 	db: DrizzleD1Database<typeof authSchema>;
-	// 	auth: ReturnType<typeof createAuth>;
-	// 	user: ReturnType<typeof createAuth>["$Infer"]["Session"]["user"] | null;
-	// 	session:
-	// 		| ReturnType<typeof createAuth>["$Infer"]["Session"]["session"]
-	// 		| null;
-	// };
-};
+export type Env = { Bindings: Bindings };
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class Lobby extends DurableObject<Bindings> {
@@ -150,6 +142,8 @@ export class Lobby extends DurableObject<Bindings> {
 }
 
 const app = new Hono<Env>()
+	.use("*", createCorsMiddleware())
+	.use(dbAuthMiddleware)
 	.get("/", (c) => c.text("Hello World"))
 	.get("/joinAndGetLobby", async (c) => {
 		const userId = c.req.query("userId");
