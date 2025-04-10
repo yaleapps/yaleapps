@@ -7,6 +7,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTRPC } from "@/integrations/trpc/react";
 import { useLobbyWebSocket } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
@@ -18,12 +19,14 @@ export const Route = createFileRoute("/lobby")({
 });
 
 function LobbyScreen() {
-	const { data: lobby } = useLobbyWebSocket();
+	const { data: lobbyParticipants } = useLobbyWebSocket();
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
 
 	const filteredUsers = selectedCollege
-		? lobby?.filter((user) => user.profile.diningHall === selectedCollege)
-		: lobby;
+		? lobbyParticipants?.filter(
+				(user) => user.profile.diningHall === selectedCollege,
+			)
+		: lobbyParticipants;
 
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
@@ -75,8 +78,6 @@ function LobbyScreen() {
 						</p>
 					</Card>
 				)}
-
-				{JSON.stringify(lobby)}
 
 				{/* User Cards */}
 				{filteredUsers && filteredUsers.length > 0 && (

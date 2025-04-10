@@ -187,13 +187,14 @@ const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 
 export const trpcRouter = createTRPCRouter({
 	lobby: {
-		getLobby: publicProcedure.query(async ({ ctx }) => {
+		getLobbyParticipants: publicProcedure.query(async ({ ctx }) => {
 			const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
 				LOBBY_DURABLE_OBJECT_NAME,
 			);
 			const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 
-			return lobby.getLobby();
+			const lobbyParticipants = await lobby.getLobby();
+			return lobbyParticipants;
 		}),
 		getLobbyProfileById: publicProcedure.query(async ({ ctx }) => {
 			const session = await ctx.auth.api.getSession({
