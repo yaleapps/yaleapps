@@ -20,7 +20,7 @@ import type {
 import { useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Check, Clock, Filter, Phone, Users, X } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/lobby")({
 	component: LobbyScreen,
@@ -40,9 +40,8 @@ function LobbyScreen() {
 
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
 
-	const filteredUsers = useMemo(() => {
+	const filteredUsers = (() => {
 		if (!selectedCollege) return categorizedUsers;
-
 		return {
 			mutual: categorizedUsers.mutual.filter(
 				(user) => user.profile.diningHall === selectedCollege,
@@ -57,7 +56,7 @@ function LobbyScreen() {
 				(user) => user.profile.diningHall === selectedCollege,
 			),
 		};
-	}, [categorizedUsers, selectedCollege]);
+	})();
 
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
