@@ -1,9 +1,13 @@
+import * as schema from "@repo/db/schema";
 import { DurableObject } from "cloudflare:workers";
+import { eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
+import { HTTPException } from "hono/http-exception";
 import {
 	type LobbyParticipant,
 	type UserId,
-	incomingClientWsMessageSchema,
+	incomingClientWsMessageSchema
 } from "./types";
 
 type Bindings = {
@@ -166,10 +170,34 @@ const app = new Hono<Env>();
 
 app.get("/", (c) => c.text("Hello World"));
 
-app.get("/ws", (c) => {
+app.get("/joinAndGetLobby", async (c) => {
+	const userId = c.req.query("userId");
+	if (!userId) throw new HTTPException(400, { message: "User ID is required" });
+
 	const lobbyId = c.env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
 	const lobby = c.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-	return lobby.join({});
+
+	const db = drizzle(c.env.DB, { schema });
+
+	const lobbyParticipantProfile =
+		await db.query.lobbyParticipantProfiles.findFirst({
+			where: eq(schema.lobbyParticipantProfiles.userId, userId),
+		});
+
+	if (!lobbyParticipantProfile) {
+		throw new HTTPException(404, {
+			message:
+				"No user lobby profile found in database. Did they complete the lobby form?",
+		});
+	}
+
+	await lobby.join({
+		userId: userId as UserId,
+		profile: lobbyParticipantProfile,
+		preferences: {},
+	});
+
+	return lobby.fetch(c.req.raw);
 });
 
 export default app;
