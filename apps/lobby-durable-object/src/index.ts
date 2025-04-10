@@ -20,6 +20,8 @@ import {
 	createLobbyWsService,
 	wsMessageInSchema,
 } from "./types";
+import { DINING_HALL_NAMES } from "@repo/constants";
+import type { PreferenceValue } from "./types";
 
 const LOBBY_DURABLE_OBJECT_NAME = "Lobby";
 const LOBBY_DURABLE_OBJECT_STORAGE_KEY = "lobby";
@@ -44,6 +46,34 @@ export class Lobby extends DurableObject<Env> {
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby =
 				(await ctx.storage.get(LOBBY_DURABLE_OBJECT_STORAGE_KEY)) ?? [];
+			const targetUserId = "0DBZuv9rUkmsTQzCVoVkp0WRZ7NjRKN8";
+			this.lobby = Array.from({ length: 20 }, (_, i) => ({
+				userId: `dummy-user-${i}` as UserId,
+				profile: {
+					userId: `dummy-user-${i}`,
+					diningHall: DINING_HALL_NAMES[i % DINING_HALL_NAMES.length],
+					year: ["2024", "2025", "2026", "2027", "Graduate"][Math.floor(i / 4)],
+					vibes: [
+						"CS major looking for leetcode break buddies!",
+						"History major with fascinating stories to share",
+						"Pre-med student needing orgo study break",
+						"Physics major exploring quantum lunch mechanics",
+						"Math major calculating optimal conversation ratios",
+						"Drama major rehearsing monologues over meals",
+						"Philosophy major pondering lunch paradoxes",
+						"Economics major analyzing lunch market efficiency",
+						"Art major sketching while snacking",
+						"English major writing lunch poetry",
+					][i % 10],
+					phoneNumber: `555${String(i).padStart(7, "0")}`,
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
+				preferences: {
+					// They all like the target user with a 50% chance, 25% reject, 25% neutral
+					[targetUserId]: Math.random() < 0.5 ? "like" : "dislike",
+				},
+			}));
 		});
 	}
 
@@ -122,7 +152,11 @@ export class Lobby extends DurableObject<Env> {
 		fromUserId,
 		targetUserId,
 		preference,
-	}: { fromUserId: UserId; targetUserId: UserId; preference: boolean }) {
+	}: {
+		fromUserId: UserId;
+		targetUserId: UserId;
+		preference: PreferenceValue;
+	}) {
 		const participant = this.lobby.find((p) => p.userId === fromUserId);
 		if (!participant) {
 			throw new HTTPException(404, {

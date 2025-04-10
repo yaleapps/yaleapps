@@ -10,8 +10,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-type PreferenceValue = "like" | "dislike" | "neutral";
-
 type CategorizedUsers = {
 	mutual: LobbyParticipant[];
 	incoming: LobbyParticipant[];
@@ -96,10 +94,9 @@ export function useLobbyWebSocket({
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
 				return otherProfiles.reduce(
 					(acc, currUser) => {
-						const doTheyLikeMe = (currUser.preferences[myUserId] ??
-							"neutral") as PreferenceValue;
-						const doILikeThem = (myProfile?.preferences[currUser.userId] ??
-							"neutral") as PreferenceValue;
+						const doTheyLikeMe = currUser.preferences[myUserId] ?? "neutral";
+						const doILikeThem =
+							myProfile?.preferences[currUser.userId] ?? "neutral";
 
 						// Matrix of all possible combinations:
 						// Me | Them | Result

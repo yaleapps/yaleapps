@@ -5,16 +5,19 @@ export const userIdSchema = z.string().brand("UserId");
 
 export type UserId = z.infer<typeof userIdSchema>;
 
+const preferenceSchema = z.enum(["like", "dislike"]);
+export type PreferenceValue = z.infer<typeof preferenceSchema>;
+
 export const lobbyParticipantSchema = z.object({
 	userId: userIdSchema,
 	profile: lobbyProfileFormSchema,
-	preferences: z.record(userIdSchema, z.boolean()),
+	preferences: z.record(userIdSchema, preferenceSchema),
 });
 
 export type LobbyParticipant = z.infer<typeof lobbyParticipantSchema>;
 
 export const wsMessageInSchema = z.discriminatedUnion("type", [
-	z.object({ type: z.literal("JOIN"), participant: lobbyParticipantSchema }),
+	z.object({ type: z.literal("JOIN"), userId: userIdSchema }),
 	z.object({ type: z.literal("LEAVE"), userId: userIdSchema }),
 	z.object({ type: z.literal("GET_LOBBY") }),
 ]);
