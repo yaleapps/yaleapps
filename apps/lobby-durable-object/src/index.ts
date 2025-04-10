@@ -140,7 +140,7 @@ export class Lobby extends DurableObject<Bindings> {
 	}
 
 	async leave(userId: UserId) {
-		this.lobby = this.lobby.filter((m) => m.userId !== userId);
+		this.lobby = this.lobby.filter((p) => p.userId !== userId);
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
 	}
