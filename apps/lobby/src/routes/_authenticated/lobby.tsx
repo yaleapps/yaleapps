@@ -1,10 +1,9 @@
+import { IncomingLobbyCard } from "@/components/cards/incoming-lobby-card";
+import { MutualLobbyCard } from "@/components/cards/mutual-lobby-card";
+import { NeutralLobbyCard } from "@/components/cards/neutral-lobby-card";
+import { OutgoingLobbyCard } from "@/components/cards/outgoing-lobby-card";
 import { Button } from "@/components/ui/button";
-import {
-	Card,
-	CardContent,
-	CardFooter,
-	CardHeader,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -110,26 +109,57 @@ function LobbyScreen() {
 
 				{/* User Sections */}
 				<div className="space-y-8">
-					<RenderUserSection
-						title="Mutual Interest"
-						users={filteredUsers.mutual}
-						type="mutual"
-					/>
-					<RenderUserSection
-						title="Interested in You"
-						users={filteredUsers.incoming}
-						type="incoming"
-					/>
-					<RenderUserSection
-						title="Your Interests"
-						users={filteredUsers.outgoing}
-						type="outgoing"
-					/>
-					<RenderUserSection
-						title="Others in Lobby"
-						users={filteredUsers.neutral}
-						type="neutral"
-					/>
+					{filteredUsers.mutual.length > 0 && (
+						<section className="space-y-4">
+							<h2 className="text-lg font-semibold tracking-tight">
+								Mutual Interest
+							</h2>
+							<div className="grid gap-4 md:grid-cols-2">
+								{filteredUsers.mutual.map((user) => (
+									<MutualLobbyCard key={user.userId} user={user} />
+								))}
+							</div>
+						</section>
+					)}
+
+					{filteredUsers.incoming.length > 0 && (
+						<section className="space-y-4">
+							<h2 className="text-lg font-semibold tracking-tight">
+								Interested in You
+							</h2>
+							<div className="grid gap-4 md:grid-cols-2">
+								{filteredUsers.incoming.map((user) => (
+									<IncomingLobbyCard key={user.userId} user={user} />
+								))}
+							</div>
+						</section>
+					)}
+
+					{filteredUsers.outgoing.length > 0 && (
+						<section className="space-y-4">
+							<h2 className="text-lg font-semibold tracking-tight">
+								Your Interests
+							</h2>
+							<div className="grid gap-4 md:grid-cols-2">
+								{filteredUsers.outgoing.map((user) => (
+									<OutgoingLobbyCard key={user.userId} user={user} />
+								))}
+							</div>
+						</section>
+					)}
+
+					{filteredUsers.neutral.length > 0 && (
+						<section className="space-y-4">
+							<h2 className="text-lg font-semibold tracking-tight">
+								Others in Lobby
+							</h2>
+							<div className="grid gap-4 md:grid-cols-2">
+								{filteredUsers.neutral.map((user) => (
+									<NeutralLobbyCard key={user.userId} user={user} />
+								))}
+							</div>
+						</section>
+					)}
 				</div>
 			</div>
 		</div>
