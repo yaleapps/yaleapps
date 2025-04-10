@@ -20,7 +20,8 @@ export function PhoneInput({
 			inputMode="numeric"
 			value={displayValue}
 			onChange={(e) => {
-				onChange(e.target.value);
+				const strippedValue = e.target.value.replace(/\D/g, "");
+				onChange(strippedValue);
 			}}
 			placeholder="(123) 456-7890"
 			className={cn("font-mono", className)}

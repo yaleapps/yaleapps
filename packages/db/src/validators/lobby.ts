@@ -15,7 +15,7 @@ export const lobbyProfileFormSchema = z.object({
 			VIBE_MAX_LENGTH,
 			`Keep it brief - under ${VIBE_MAX_LENGTH} characters`,
 		),
-	phoneNumber: z.string().min(10, "Please enter a valid phone number"),
+	phoneNumber: z.string().transform((val) => val.replace(/\D/g, "")),
 });
 
 export type LobbyProfileForm = z.infer<typeof lobbyProfileFormSchema>;
