@@ -10,6 +10,9 @@ export const users = sqliteTable("users", {
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 	updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 
+	// Added from the Better Auth anonymous-plugin https://www.better-auth.com/docs/plugins/anonymous#schema
+	isAnonymous: integer("is_anonymous", { mode: "boolean" }).notNull(),
+
 	// Added NetID field for yale-cas-plugin
 	netId: text("net_id"),
 });
