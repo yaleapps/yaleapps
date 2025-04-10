@@ -1,6 +1,6 @@
 import {
-	Outlet,
 	HeadContent,
+	Outlet,
 	Scripts,
 	createRootRouteWithContext,
 } from "@tanstack/react-router";
@@ -16,6 +16,7 @@ import type { QueryClient } from "@tanstack/react-query";
 
 import type { TRPCRouter } from "@/integrations/trpc/router";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { Toaster } from "@/components/ui/sonner";
 
 interface MyRouterContext {
 	queryClient: QueryClient;
@@ -34,7 +35,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 				content: "width=device-width, initial-scale=1",
 			},
 			{
-				title: "TanStack Start Starter",
+				title: "🥘 Lobby | YaleApps",
 			},
 		],
 		links: [
@@ -51,7 +52,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 
 			<Outlet />
 			<TanStackRouterDevtools />
-
+			<Toaster />
 			<TanstackQueryLayout />
 		</RootDocument>
 	),
