@@ -42,8 +42,8 @@ export class Lobby extends DurableObject<Bindings> {
 		});
 	}
 
-	private async persistState() {
-		await this.ctx.storage.put("lobby", this.lobby);
+	private removeLobbyParticipant(userId: UserId) {
+		this.lobby = this.lobby.filter((p) => p.userId !== userId);
 	}
 
 	private upsertLobbyParticipant(lobbyParticipant: LobbyParticipant) {
@@ -55,6 +55,60 @@ export class Lobby extends DurableObject<Bindings> {
 		} else {
 			this.lobby.push(lobbyParticipant);
 		}
+	}
+
+	private async persistState() {
+		await this.ctx.storage.put("lobby", this.lobby);
+	}
+
+	/**
+	 * Broadcasts the current lobby state to all connected clients
+	 */
+	private async broadcastLobbyUpdate() {
+		const connections = this.ctx.getWebSockets();
+
+		for (const ws of connections) {
+			const wsService = createLobbyWsService(ws);
+			try {
+				if (ws.readyState === WebSocket.OPEN) {
+					wsService.sendLobbyUpdate(this.lobby);
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	}
+
+	private async join(userId: UserId) {
+		const db = drizzle(this.env.DB, { schema });
+
+		const savedLobbyParticipantProfile =
+			await db.query.lobbyParticipantProfiles.findFirst({
+				where: eq(schema.lobbyParticipantProfiles.userId, userId),
+			});
+
+		if (!savedLobbyParticipantProfile) {
+			throw new HTTPException(404, {
+				message:
+					"No user lobby profile found in database. Did they complete the lobby form?",
+			});
+		}
+
+		const lobbyParticipant = {
+			userId,
+			profile: savedLobbyParticipantProfile,
+			preferences: {},
+		} satisfies LobbyParticipant;
+
+		this.upsertLobbyParticipant(lobbyParticipant);
+		await this.persistState();
+		await this.broadcastLobbyUpdate();
+	}
+
+	private async leave(userId: UserId) {
+		this.removeLobbyParticipant(userId);
+		await this.persistState();
+		await this.broadcastLobbyUpdate();
 	}
 
 	async fetch(request: Request): Promise<Response> {
@@ -94,56 +148,6 @@ export class Lobby extends DurableObject<Bindings> {
 				`Failed to parse message: ${(error as Error).message}`,
 			);
 		}
-	}
-
-	/**
-	 * Broadcasts the current lobby state to all connected clients
-	 */
-	private async broadcastLobbyUpdate() {
-		const connections = this.ctx.getWebSockets();
-
-		for (const ws of connections) {
-			const wsService = createLobbyWsService(ws);
-			try {
-				if (ws.readyState === WebSocket.OPEN) {
-					wsService.sendLobbyUpdate(this.lobby);
-				}
-			} catch (error) {
-				console.error(error);
-			}
-		}
-	}
-
-	async join(userId: UserId) {
-		const db = drizzle(this.env.DB, { schema });
-
-		const savedLobbyParticipantProfile =
-			await db.query.lobbyParticipantProfiles.findFirst({
-				where: eq(schema.lobbyParticipantProfiles.userId, userId),
-			});
-
-		if (!savedLobbyParticipantProfile) {
-			throw new HTTPException(404, {
-				message:
-					"No user lobby profile found in database. Did they complete the lobby form?",
-			});
-		}
-
-		const lobbyParticipant = {
-			userId,
-			profile: savedLobbyParticipantProfile,
-			preferences: {},
-		} satisfies LobbyParticipant;
-
-		this.upsertLobbyParticipant(lobbyParticipant);
-		await this.persistState();
-		await this.broadcastLobbyUpdate();
-	}
-
-	async leave(userId: UserId) {
-		this.lobby = this.lobby.filter((p) => p.userId !== userId);
-		await this.persistState();
-		await this.broadcastLobbyUpdate();
 	}
 }
 
