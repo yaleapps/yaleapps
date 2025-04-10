@@ -155,6 +155,7 @@ const t = initTRPC
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure.use(async ({ ctx, next }) => {
+	console.log("Cookie", ctx.req.headers);
 	const db = drizzle(ctx.env.DB, { schema, logger: true });
 	const auth = createAuth({ db, yaliesApiKey: ctx.env.YALIES_API_KEY });
 	return next({ ctx: { ...ctx, db, auth } });
@@ -190,7 +191,7 @@ export const trpcRouter = createTRPCRouter({
 	},
 } satisfies TRPCRouterRecord);
 
-export type AppRouter = typeof trpcRouter;
+export type TRPCRouter = typeof trpcRouter;
 
 const app = new Hono<HonoEnv>()
 	.use("*", createCorsMiddleware())

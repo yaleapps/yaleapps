@@ -14,7 +14,7 @@ import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 
-import type { TRPCRouter } from "@/integrations/trpc/router";
+import type { TRPCRouter } from "@repo/lobby-durable-object/app";
 import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { Toaster } from "@/components/ui/sonner";
 

@@ -3,9 +3,16 @@ import { cors } from "hono/cors";
 
 type CORSOptions = Parameters<typeof cors>[0];
 
+/**
+ * All tRPC requests include this header, so we need to allow it.
+ *
+ * @see https://trpc.io/docs/client/links/httpBatchStreamLink#streaming-mode
+ */
+const TRPC_ACCEPT_HEADER = "trpc-accept";
+
 const DEFAULT_CONFIG = {
 	origin: ["http://localhost:3000"],
-	allowHeaders: ["Content-Type", "Authorization"],
+	allowHeaders: ["Content-Type", "Authorization", TRPC_ACCEPT_HEADER],
 	allowMethods: ["POST", "GET", "OPTIONS"],
 	exposeHeaders: ["Content-Length"],
 	maxAge: 600,

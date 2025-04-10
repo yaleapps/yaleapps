@@ -4,15 +4,13 @@
   "projectName": "lobby",
   "mode": "file-router",
   "tailwind": true,
-  "packageManager": "bun",
+  "packageManager": "pnpm",
   "toolchain": "none",
   "variableValues": {},
   "git": true,
   "version": 1,
   "existingAddOns": [
     "shadcn",
-    "start",
-    "tRPC",
     "tanstack-query"
   ]
 }

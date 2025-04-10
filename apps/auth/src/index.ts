@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { dbAuthMiddleware } from "./middleware/dbAuth";
+import { createDbAuthMiddleware } from "./middleware/dbAuth";
 import { createCorsMiddleware } from "./middleware/cors";
 
 export type Env = {
@@ -10,7 +10,7 @@ export const app = new Hono<Env>();
 
 app.use("*", createCorsMiddleware());
 
-app.use(dbAuthMiddleware);
+app.use(createDbAuthMiddleware());
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => {
 	const auth = c.get("auth");
