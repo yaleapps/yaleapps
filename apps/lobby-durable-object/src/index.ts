@@ -2,7 +2,6 @@ import { DurableObject } from "cloudflare:workers";
 import { trpcServer } from "@hono/trpc-server";
 import { createAuth } from "@repo/auth/better-auth/server";
 import { createCorsMiddleware } from "@repo/auth/middleware/cors";
-import { createDbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
 import * as schema from "@repo/db/schema";
 import { lobbyParticipantProfiles } from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
