@@ -14,20 +14,10 @@ import type {
 	LobbyParticipant,
 	UserId,
 } from "@repo/lobby-durable-object/types";
-import {
-	createFileRoute,
-	useNavigate
-} from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, Filter, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-
-type CategorizedUsers = {
-	mutual: LobbyParticipant[];
-	incoming: LobbyParticipant[];
-	outgoing: LobbyParticipant[];
-	neutral: LobbyParticipant[];
-};
 
 export const Route = createFileRoute("/lobby")({
 	component: LobbyScreen,
@@ -42,58 +32,11 @@ export const Route = createFileRoute("/lobby")({
 function LobbyScreen() {
 	const navigate = useNavigate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
-	const { data: lobbyParticipants } = useLobbyWebSocket({
+	const { data: categorizedUsers } = useLobbyWebSocket({
 		initialParticipants,
 	});
 
-	const { data: session } = authClient.useSession();
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
-
-	const categorizedUsers = useMemo(() => {
-		const myProfile = lobbyParticipants.find(
-			(user) => user.userId === session?.user.id,
-		);
-		const otherProfiles = lobbyParticipants.filter(
-			(user) => user.userId !== session?.user.id,
-		);
-
-		const myUserId = session?.user.id as UserId;
-
-		if (!myProfile) {
-			toast.error("Something went wrong: no profile found for current user");
-			throw navigate({ to: "/" });
-		}
-
-		if (!session) {
-			toast.error("Something went wrong: no session found");
-			throw navigate({ to: "/" });
-		}
-
-		return otherProfiles.reduce(
-			(acc, user) => {
-				const theyLikeMe = user.preferences[myUserId] ?? false;
-				const iLikeThem = myProfile.preferences[user.userId] ?? false;
-
-				if (iLikeThem && theyLikeMe) {
-					acc.mutual.push(user);
-				} else if (theyLikeMe) {
-					acc.incoming.push(user);
-				} else if (iLikeThem) {
-					acc.outgoing.push(user);
-				} else {
-					acc.neutral.push(user);
-				}
-
-				return acc;
-			},
-			{
-				mutual: [],
-				incoming: [],
-				outgoing: [],
-				neutral: [],
-			} as CategorizedUsers,
-		);
-	}, [lobbyParticipants, session, navigate]);
 
 	const filteredUsers = useMemo(() => {
 		if (!selectedCollege) return categorizedUsers;

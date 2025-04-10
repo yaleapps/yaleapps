@@ -64,6 +64,59 @@ export function useLobbyWebSocket({
 	return useQuery(
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
+			select: (data) => {
+				if (!session) {
+					return {
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers;
+				}
+
+				const myUserId = session?.user.id as UserId;
+				const myProfile = data.find((user) => user.userId === myUserId);
+				if (!myProfile) {
+					return {
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers;
+				}
+				const otherProfiles = data.filter((user) => user.userId !== myUserId);
+				return otherProfiles.reduce(
+					(acc, currUser) => {
+						const theyLikeMe = currUser.preferences[myUserId] ?? false;
+						const iLikeThem = myProfile?.preferences[currUser.userId] ?? false;
+
+						if (iLikeThem && theyLikeMe) {
+							acc.mutual.push(currUser);
+						} else if (theyLikeMe) {
+							acc.incoming.push(currUser);
+						} else if (iLikeThem) {
+							acc.outgoing.push(currUser);
+						} else {
+							acc.neutral.push(currUser);
+						}
+
+						return acc;
+					},
+					{
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers,
+				);
+			},
 		}),
 	);
 }
+
+type CategorizedUsers = {
+	mutual: LobbyParticipant[];
+	incoming: LobbyParticipant[];
+	outgoing: LobbyParticipant[];
+	neutral: LobbyParticipant[];
+};
