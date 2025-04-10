@@ -1,6 +1,6 @@
 import * as schema from "@repo/db/schema";
 import { buildConflictUpdateColumns } from "@repo/db/utils";
-import { DurableObject } from "cloudflare:workers";
+import { DurableObject, env } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
@@ -144,23 +144,11 @@ export class Lobby extends DurableObject<Bindings> {
 const app = new Hono<Env>()
 	.use("*", createCorsMiddleware())
 	.use(dbAuthMiddleware)
-	.get("/", (c) => c.text("Hello World"))
-	.get("/joinAndGetLobby", async (c) => {
-		const userId = c.req.query("userId");
-		if (!userId)
-			throw new HTTPException(400, { message: "User ID is required" });
-
-		const lobbyId = c.env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
-		const lobby = c.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-
-		return lobby.fetch(c.req.raw);
-	})
 	.post(
 		"/upsertLobbyProfile",
 		zValidator("form", lobbyProfileFormSchema),
 		async (c) => {
 			const profile = c.req.valid("form");
-			console.log("🚀 ~ profile:", profile);
 
 			const db = drizzle(c.env.DB, { schema, logger: true });
 
@@ -186,5 +174,17 @@ const app = new Hono<Env>()
 		},
 	);
 
-export default app;
+export default {
+	async fetch(request: Request, env): Promise<Response> {
+		if (request.url.includes("/ws")) {
+			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+			const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+
+			return lobby.fetch(request);
+		}
+
+		return app.fetch(request);
+	},
+} satisfies ExportedHandler<Env["Bindings"]>;
+
 export type AppType = typeof app;
