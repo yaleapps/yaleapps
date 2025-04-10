@@ -10,6 +10,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
+type PreferenceValue = "like" | "dislike" | "neutral";
+
+type CategorizedUsers = {
+	mutual: LobbyParticipant[];
+	incoming: LobbyParticipant[];
+	outgoing: LobbyParticipant[];
+	neutral: LobbyParticipant[];
+};
+
 export function useLobbyWebSocket({
 	initialParticipants,
 }: {
@@ -87,16 +96,36 @@ export function useLobbyWebSocket({
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
 				return otherProfiles.reduce(
 					(acc, currUser) => {
-						const theyLikeMe = currUser.preferences[myUserId] ?? false;
-						const iLikeThem = myProfile?.preferences[currUser.userId] ?? false;
+						const doTheyLikeMe = (currUser.preferences[myUserId] ??
+							"neutral") as PreferenceValue;
+						const doILikeThem = (myProfile?.preferences[currUser.userId] ??
+							"neutral") as PreferenceValue;
 
-						if (iLikeThem && theyLikeMe) {
+						// Matrix of all possible combinations:
+						// Me | Them | Result
+						// like | like | mutual
+						// like | neutral | outgoing
+						// like | dislike | filtered
+						// neutral | like | incoming
+						// neutral | neutral | neutral
+						// neutral | dislike | filtered
+						// dislike | any | filtered
+
+						// Filter out any case where either party has explicitly disliked
+						if (doTheyLikeMe === "dislike" || doILikeThem === "dislike") {
+							return acc;
+						}
+
+						if (doILikeThem === "like" && doTheyLikeMe === "like") {
 							acc.mutual.push(currUser);
-						} else if (theyLikeMe) {
-							acc.incoming.push(currUser);
-						} else if (iLikeThem) {
+						} else if (doILikeThem === "like" && doTheyLikeMe === "neutral") {
 							acc.outgoing.push(currUser);
-						} else {
+						} else if (doILikeThem === "neutral" && doTheyLikeMe === "like") {
+							acc.incoming.push(currUser);
+						} else if (
+							doILikeThem === "neutral" &&
+							doTheyLikeMe === "neutral"
+						) {
 							acc.neutral.push(currUser);
 						}
 
@@ -113,10 +142,3 @@ export function useLobbyWebSocket({
 		}),
 	);
 }
-
-type CategorizedUsers = {
-	mutual: LobbyParticipant[];
-	incoming: LobbyParticipant[];
-	outgoing: LobbyParticipant[];
-	neutral: LobbyParticipant[];
-};
