@@ -70,7 +70,6 @@ function usePlaceholderRotation() {
 	);
 
 	useEffect(() => {
-		// Only start rotation if the user hasn't started typing
 		const intervalId = setInterval(() => {
 			setCurrentPlaceholder((prev) => {
 				const currentIndex = VIBE_PLACEHOLDERS.indexOf(prev);
@@ -92,7 +91,7 @@ function LunchLobbyForm() {
 
 	const form = useForm<LobbyProfileForm>({
 		resolver: zodResolver(lobbyProfileFormSchema),
-		defaultValues: lobbyProfile ?? {
+		defaultValues: {
 			diningHall: "Commons",
 			year: undefined,
 			vibes: "",
@@ -100,6 +99,12 @@ function LunchLobbyForm() {
 		},
 		mode: "onBlur",
 	});
+
+	useEffect(() => {
+		if (lobbyProfile) {
+			form.reset(lobbyProfile);
+		}
+	}, [lobbyProfile, form]);
 
 	const { mutate: upsertLobbyProfile, isPending } = useUpsertLobbyProfile();
 
@@ -119,7 +124,7 @@ function LunchLobbyForm() {
 					<form
 						onSubmit={form.handleSubmit(async (lobbyProfile) =>
 							upsertLobbyProfile(
-								{ lobbyProfile },
+								{ profile: lobbyProfile },
 								{
 									onSuccess: () => {
 										navigate({ to: "/lobby" });

@@ -158,16 +158,16 @@ const t = initTRPC
 
 export const createTRPCRouter = t.router;
 export const publicProcedure = t.procedure.use(async ({ ctx, next }) => {
-	console.log("Cookie", ctx.req.headers);
 	const db = drizzle(ctx.env.DB, { schema, logger: true });
 	const auth = createAuth({ db, yaliesApiKey: ctx.env.YALIES_API_KEY });
+
 	return next({ ctx: { ...ctx, db, auth } });
 });
 
 /**
  * Protected procedure that checks if the user is logged in.
  */
-export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 	const session = await ctx.auth.api.getSession({
 		headers: ctx.req.headers,
 	});
@@ -197,11 +197,7 @@ export const trpcRouter = createTRPCRouter({
 				const { profile } = input;
 				await ctx.db
 					.insert(lobbyParticipantProfiles)
-					.values({
-						userId: ctx.user.id,
-						...profile,
-						updatedAt: new Date(),
-					})
+					.values({ userId: ctx.user.id, ...profile, updatedAt: new Date() })
 					.onConflictDoUpdate({
 						target: [lobbyParticipantProfiles.userId],
 						set: buildConflictUpdateColumns(lobbyParticipantProfiles, [
@@ -220,11 +216,11 @@ export type TRPCRouter = typeof trpcRouter;
 
 const app = new Hono<HonoEnv>()
 	.use("*", createCorsMiddleware())
-	.use(createDbAuthMiddleware())
 	.use("/trpc/*", trpcServer({ router: trpcRouter, createContext }));
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
+		const clonedRequest = request.clone();
 		if (request.url.includes("/ws")) {
 			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
 			const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
@@ -232,6 +228,6 @@ export default {
 			return lobby.fetch(request);
 		}
 
-		return app.fetch(request, env, ctx);
+		return app.fetch(clonedRequest, env, ctx);
 	},
 } satisfies ExportedHandler<Env>;
