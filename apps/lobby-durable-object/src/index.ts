@@ -1,36 +1,38 @@
-import { zValidator } from "@hono/zod-validator";
+import { trpcServer } from "@hono/trpc-server";
+import { createAuth } from "@repo/auth/better-auth/server";
 import { createCorsMiddleware } from "@repo/auth/middleware/cors";
 import { createDbAuthMiddleware } from "@repo/auth/middleware/dbAuth";
 import * as schema from "@repo/db/schema";
-import { buildConflictUpdateColumns } from "@repo/db/utils";
-import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
+import { lobbyParticipantProfiles } from "@repo/db/schema";
+import { TRPCError, type TRPCRouterRecord, initTRPC } from "@trpc/server";
+import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
 import { DurableObject } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import superjson from "superjson";
 import {
 	type LobbyParticipant,
 	type UserId,
 	createLobbyWsService,
-	userIdSchema,
 	wsMessageInSchema,
 } from "./types";
-import { z } from "zod";
 
-type Bindings = {
+type Env = {
 	DB: D1Database;
 	LOBBY_DURABLE_OBJECT: DurableObjectNamespace<Lobby>;
+	YALIES_API_KEY: string;
 };
 
-export type Env = { Bindings: Bindings };
+type HonoEnv = { Bindings: Env };
 
 /** A Durable Object's behavior is defined in an exported Javascript class */
-export class Lobby extends DurableObject<Bindings> {
+export class Lobby extends DurableObject<Env> {
 	lobby: LobbyParticipant[];
 	db: DrizzleD1Database<typeof schema>;
 
-	constructor(ctx: DurableObjectState, env: Bindings) {
+	constructor(ctx: DurableObjectState, env: Env) {
 		super(ctx, env);
 		this.db = drizzle(env.DB, { schema, logger: true });
 		this.lobby = [];
@@ -141,56 +143,59 @@ export class Lobby extends DurableObject<Bindings> {
 	}
 }
 
-const app = new Hono<Env>()
+function createContext({ req }: FetchCreateContextFnOptions) {
+	return { req };
+}
+
+type Context = ReturnType<typeof createContext>;
+
+const t = initTRPC
+	.context<{ env: Env } & Context>()
+	.create({ transformer: superjson });
+
+export const createTRPCRouter = t.router;
+export const publicProcedure = t.procedure.use(async ({ ctx, next }) => {
+	const db = drizzle(ctx.env.DB, { schema, logger: true });
+	const auth = createAuth({ db, yaliesApiKey: ctx.env.YALIES_API_KEY });
+	return next({ ctx: { ...ctx, db, auth } });
+});
+
+/**
+ * Protected procedure that checks if the user is logged in.
+ */
+export const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
+	const session = await ctx.auth.api.getSession({
+		headers: ctx.req.headers,
+	});
+	if (!session) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+	return next({
+		ctx: { ...ctx, session },
+	});
+});
+
+export const trpcRouter = createTRPCRouter({
+	lobby: {
+		getLobbyProfileById: publicProcedure.query(async ({ ctx }) => {
+			const session = await ctx.auth.api.getSession({
+				headers: ctx.req.headers,
+			});
+			if (!session) return null;
+			const lobbyProfile =
+				await ctx.db.query.lobbyParticipantProfiles.findFirst({
+					where: eq(lobbyParticipantProfiles.userId, session.user.id),
+				});
+			return lobbyProfile ?? null;
+		}),
+	},
+} satisfies TRPCRouterRecord);
+
+export type AppRouter = typeof trpcRouter;
+
+const app = new Hono<HonoEnv>()
 	.use("*", createCorsMiddleware())
 	.use(createDbAuthMiddleware())
-	.get(
-		"/getLobbyProfileById/:userId",
-		zValidator("param", z.object({ userId: userIdSchema })),
-		async (c) => {
-			const { userId } = c.req.valid("param");
-
-			const db = drizzle(c.env.DB, { schema, logger: true });
-
-			const lobbyProfile = await db.query.lobbyParticipantProfiles.findFirst({
-				where: eq(schema.lobbyParticipantProfiles.userId, userId),
-			});
-
-			return c.json({ lobbyProfile });
-		},
-	)
-	.post(
-		"/upsertLobbyProfile",
-		zValidator("form", lobbyProfileFormSchema),
-		async (c) => {
-			const userId = c.get("user")?.id as UserId;
-			if (!userId) throw new HTTPException(401, { message: "Unauthorized" });
-
-			const profile = c.req.valid("form");
-
-			const db = drizzle(c.env.DB, { schema, logger: true });
-
-			await db
-				.insert(schema.lobbyParticipantProfiles)
-				.values({
-					userId,
-					...profile,
-					updatedAt: new Date(),
-				})
-				.onConflictDoUpdate({
-					target: [schema.lobbyParticipantProfiles.userId],
-					set: buildConflictUpdateColumns(schema.lobbyParticipantProfiles, [
-						"diningHall",
-						"year",
-						"vibes",
-						"phoneNumber",
-						"updatedAt",
-					]),
-				});
-
-			return c.json({ success: true });
-		},
-	);
+	.use("/trpc/*", trpcServer({ router: trpcRouter, createContext }));
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
@@ -203,6 +208,4 @@ export default {
 
 		return app.fetch(request, env, ctx);
 	},
-} satisfies ExportedHandler<Env["Bindings"]>;
-
-export type AppType = typeof app;
+} satisfies ExportedHandler<Env>;
