@@ -221,7 +221,7 @@ const app = new Hono<HonoEnv>()
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const clonedRequest = request.clone();
-		if (request.url.includes("/ws")) {
+		if (clonedRequest.url.includes("/ws")) {
 			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
 			const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 
