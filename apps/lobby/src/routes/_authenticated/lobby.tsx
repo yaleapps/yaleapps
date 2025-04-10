@@ -23,7 +23,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Check, Filter, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-export const Route = createFileRoute("/lobby")({
+export const Route = createFileRoute("/_authenticated/lobby")({
 	component: LobbyScreen,
 	loader: async ({ context: { trpc, queryClient } }) => {
 		const lobbyParticipants = await queryClient.ensureQueryData(
