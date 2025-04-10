@@ -15,6 +15,13 @@
       "when": 1742265156987,
       "tag": "0001_short_ender_wiggin",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1744244020324,
+      "tag": "0002_aromatic_beast",
+      "breakpoints": true
     }
   ]
 }
