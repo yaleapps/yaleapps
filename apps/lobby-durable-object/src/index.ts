@@ -1,4 +1,4 @@
-import { DurableObject } from "cloudflare:workers";
+import { DurableObject, env } from "cloudflare:workers";
 import { trpcServer } from "@hono/trpc-server";
 import { createAuth } from "@repo/auth/better-auth/server";
 import { createCorsMiddleware } from "@repo/auth/middleware/cors";
@@ -21,6 +21,9 @@ import {
 	wsMessageInSchema,
 } from "./types";
 
+const LOBBY_DURABLE_OBJECT_NAME = "Lobby";
+const LOBBY_DURABLE_OBJECT_STORAGE_KEY = "lobby";
+
 type Env = {
 	DB: D1Database;
 	LOBBY_DURABLE_OBJECT: DurableObjectNamespace<Lobby>;
@@ -39,12 +42,9 @@ export class Lobby extends DurableObject<Env> {
 		this.db = drizzle(env.DB, { schema, logger: true });
 		this.lobby = [];
 		ctx.blockConcurrencyWhile(async () => {
-			this.lobby = (await ctx.storage.get("lobby")) ?? [];
+			this.lobby =
+				(await ctx.storage.get(LOBBY_DURABLE_OBJECT_STORAGE_KEY)) ?? [];
 		});
-	}
-
-	private removeLobbyParticipant(userId: UserId) {
-		this.lobby = this.lobby.filter((p) => p.userId !== userId);
 	}
 
 	private upsertLobbyParticipant(lobbyParticipant: LobbyParticipant) {
@@ -58,8 +58,16 @@ export class Lobby extends DurableObject<Env> {
 		}
 	}
 
+	private removeLobbyParticipant(userId: UserId) {
+		this.lobby = this.lobby.filter((p) => p.userId !== userId);
+	}
+
+	async getLobby() {
+		return this.lobby;
+	}
+
 	private async persistState() {
-		await this.ctx.storage.put("lobby", this.lobby);
+		await this.ctx.storage.put(LOBBY_DURABLE_OBJECT_STORAGE_KEY, this.lobby);
 	}
 
 	/**
@@ -179,6 +187,14 @@ const protectedProcedure = publicProcedure.use(async ({ ctx, next }) => {
 
 export const trpcRouter = createTRPCRouter({
 	lobby: {
+		getLobby: publicProcedure.query(async ({ ctx }) => {
+			const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
+				LOBBY_DURABLE_OBJECT_NAME,
+			);
+			const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+
+			return lobby.getLobby();
+		}),
 		getLobbyProfileById: publicProcedure.query(async ({ ctx }) => {
 			const session = await ctx.auth.api.getSession({
 				headers: ctx.req.headers,
@@ -221,7 +237,9 @@ export default {
 	async fetch(request, env, ctx): Promise<Response> {
 		const clonedRequest = request.clone();
 		if (clonedRequest.url.includes("/ws")) {
-			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName("Lobby");
+			const lobbyId = env.LOBBY_DURABLE_OBJECT.idFromName(
+				LOBBY_DURABLE_OBJECT_NAME,
+			);
 			const lobby = env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 
 			return lobby.fetch(request);
