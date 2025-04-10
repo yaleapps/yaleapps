@@ -100,21 +100,6 @@ export class Lobby extends DurableObject {
 		}
 	}
 
-	/**
-	 * Called automatically when a WebSocket connection is closed
-	 */
-	webSocketClose(
-		ws: WebSocket,
-		code: number,
-		reason: string,
-		wasClean: boolean,
-	): void | Promise<void> {}
-
-	/**
-	 * Called automatically when a WebSocket connection encounters a non-disconnect error
-	 */
-	webSocketError(ws: WebSocket, error: unknown): void | Promise<void> {}
-
 	async join(participant: LobbyParticipant) {
 		const existingLobbyParticipantIndex = this.lobby.findIndex(
 			(p) => p.userId === participant.userId,
