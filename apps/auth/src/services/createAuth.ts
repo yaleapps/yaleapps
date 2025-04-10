@@ -10,7 +10,7 @@ import type { Env } from "..";
  */
 export function createAuth(env: Env["Bindings"]) {
 	return betterAuth({
-		baseURL: "http://localhost:8787",
+		baseURL: "http://localhost:4343",
 		emailAndPassword: { enabled: true },
 		trustedOrigins: ["http://localhost:3000"],
 		database: drizzleAdapter(env.DB, {
@@ -21,7 +21,7 @@ export function createAuth(env: Env["Bindings"]) {
 		plugins: [
 			yaleCas({
 				yaliesApiKey: env.YALIES_API_KEY,
-				authServerBaseUrl: "http://localhost:8787",
+				authServerBaseUrl: "http://localhost:4343",
 			}),
 			anonymous({
 				onLinkAccount: async ({ anonymousUser, newUser }) => {},
