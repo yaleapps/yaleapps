@@ -1,8 +1,7 @@
 import * as schema from "@repo/db/schema";
-import { createAuth } from "@repo/auth/createAuth";
 import { DurableObject } from "cloudflare:workers";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/d1";
+import { drizzle, type DrizzleD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import {
@@ -32,10 +31,11 @@ export type Env = {
 /** A Durable Object's behavior is defined in an exported Javascript class */
 export class Lobby extends DurableObject<Bindings> {
 	lobby: LobbyParticipant[];
+	db: DrizzleD1Database<typeof schema>;
 
 	constructor(ctx: DurableObjectState, env: Bindings) {
 		super(ctx, env);
-
+		this.db = drizzle(env.DB, { schema });
 		this.lobby = [];
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby = (await ctx.storage.get("lobby")) ?? [];
@@ -80,10 +80,8 @@ export class Lobby extends DurableObject<Bindings> {
 	}
 
 	private async join(userId: UserId) {
-		const db = drizzle(this.env.DB, { schema });
-
 		const savedLobbyParticipantProfile =
-			await db.query.lobbyParticipantProfiles.findFirst({
+			await this.db.query.lobbyParticipantProfiles.findFirst({
 				where: eq(schema.lobbyParticipantProfiles.userId, userId),
 			});
 
