@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 import { dbAuthMiddleware } from "./services";
+import { createCorsMiddleware } from "./services/cors";
 
 export type Env = {
 	Bindings: { DB: D1Database; YALIES_API_KEY: string };
@@ -8,17 +8,7 @@ export type Env = {
 
 export const app = new Hono<Env>();
 
-app.use(
-	"*",
-	cors({
-		origin: ["http://localhost:3000"],
-		allowHeaders: ["Content-Type", "Authorization"],
-		allowMethods: ["POST", "GET", "OPTIONS"],
-		exposeHeaders: ["Content-Length"],
-		maxAge: 600,
-		credentials: true,
-	}),
-);
+app.use("*", createCorsMiddleware());
 
 app.use(dbAuthMiddleware);
 
