@@ -1,7 +1,7 @@
 {
 	"name": "butteurbot",
 	"scripts": {
-		"dev": "wrangler dev",
+		"dev": "wrangler dev --persist-to=../../packages/db/data/state",
 		"deploy": "wrangler deploy --minify"
 	},
 	"dependencies": {

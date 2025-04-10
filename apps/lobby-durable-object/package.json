@@ -3,9 +3,8 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
-		"start": "wrangler dev"
+		"dev": "wrangler dev --persist-to=../../packages/db/data/state",
+		"db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local --persist-to=../../packages/db/data/state",
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20250409.0",

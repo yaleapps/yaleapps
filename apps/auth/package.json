@@ -2,7 +2,7 @@
   "name": "@repo/auth",
   "scripts": {
     "dev": "wrangler dev --port 4343 --persist-to=../../packages/db/data/state",
-    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local",
+    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local --persist-to=../../packages/db/data/state",
     "predev": "pnpm db:migrate:dev",
     "deploy": "wrangler deploy --minify"
   },
