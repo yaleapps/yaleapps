@@ -11,13 +11,17 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useTRPC } from "@/integrations/trpc/react";
 import { useLobbyWebSocket } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
-import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import type {
+	LobbyParticipant,
+	UserId,
+} from "@repo/lobby-durable-object/types";
+import { useMutation } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { Check, Filter, Users, X } from "lucide-react";
 import { useMemo, useState } from "react";
-import { toast } from "sonner";
 
 export const Route = createFileRoute("/lobby")({
 	component: LobbyScreen,
@@ -30,7 +34,6 @@ export const Route = createFileRoute("/lobby")({
 });
 
 function LobbyScreen() {
-	const navigate = useNavigate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
 	const { data: categorizedUsers } = useLobbyWebSocket({
 		initialParticipants,
@@ -115,7 +118,6 @@ function LobbyScreen() {
 						title="Interested in You"
 						users={filteredUsers.incoming}
 						showActions={true}
-						actionType="accept"
 					/>
 					<RenderUserSection
 						title="Your Interests"
@@ -125,7 +127,6 @@ function LobbyScreen() {
 						title="Others in Lobby"
 						users={filteredUsers.neutral}
 						showActions={true}
-						actionType="accept"
 					/>
 				</div>
 			</div>
@@ -137,23 +138,20 @@ function RenderUserSection({
 	title,
 	users,
 	showActions = false,
-	actionType = "none",
 }: {
 	title: string;
 	users: LobbyParticipant[];
 	showActions?: boolean;
-	actionType?: "accept" | "reject" | "none";
 }) {
-	if (users.length === 0) return null;
-	const handleAccept = (userId: string) => {
-		// TODO: Implement accept logic
-		toast.success("Interest shown!");
-	};
+	const trpc = useTRPC();
+	const { mutate: acceptParticipant } = useMutation(
+		trpc.lobby.acceptParticipant.mutationOptions(),
+	);
+	const { mutate: rejectParticipant } = useMutation(
+		trpc.lobby.rejectParticipant.mutationOptions(),
+	);
 
-	const handleReject = (userId: string) => {
-		// TODO: Implement reject logic
-		toast.info("Maybe next time!");
-	};
+	if (users.length === 0) return null;
 
 	return (
 		<div className="space-y-4">
@@ -201,7 +199,9 @@ function RenderUserSection({
 										variant="outline"
 										size="default"
 										className="w-[45%] transition-colors hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
-										onClick={() => handleReject(user.userId)}
+										onClick={() =>
+											rejectParticipant({ id: user.userId as UserId })
+										}
 									>
 										<X className="mr-2 h-4 w-4" />
 										Not Today
@@ -209,7 +209,9 @@ function RenderUserSection({
 									<Button
 										size="default"
 										className="w-[45%] bg-primary/90 transition-all hover:bg-primary"
-										onClick={() => handleAccept(user.userId)}
+										onClick={() =>
+											acceptParticipant({ id: user.userId as UserId })
+										}
 									>
 										<Check className="mr-2 h-4 w-4" />
 										Let's Connect!

@@ -118,6 +118,34 @@ export class Lobby extends DurableObject<Env> {
 		await this.broadcastLobbyUpdate();
 	}
 
+	async setParticipantPreference({
+		fromUserId,
+		targetUserId,
+		preference,
+	}: { fromUserId: UserId; targetUserId: UserId; preference: boolean }) {
+		const participant = this.lobby.find((p) => p.userId === fromUserId);
+		if (!participant) {
+			throw new HTTPException(404, {
+				message: "User not found in lobby",
+			});
+		}
+
+		const targetParticipant = this.lobby.find((p) => p.userId === targetUserId);
+		if (!targetParticipant) {
+			throw new HTTPException(404, {
+				message: "Target participant not found in lobby",
+			});
+		}
+
+		participant.preferences = {
+			...participant.preferences,
+			[targetUserId]: preference,
+		};
+
+		await this.persistState();
+		await this.broadcastLobbyUpdate();
+	}
+
 	async fetch(request: Request): Promise<Response> {
 		const webSocketPair = new WebSocketPair();
 		const [client, server] = Object.values(webSocketPair);
@@ -194,7 +222,7 @@ export const trpcRouter = createTRPCRouter({
 			const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 
 			const lobbyParticipants = await lobby.getLobby();
-			return lobbyParticipants;
+			return lobbyParticipants as LobbyParticipant[];
 		}),
 		getLobbyProfileById: publicProcedure.query(async ({ ctx }) => {
 			const session = await ctx.auth.api.getSession({
@@ -224,6 +252,34 @@ export const trpcRouter = createTRPCRouter({
 							"updatedAt",
 						]),
 					});
+			}),
+		acceptParticipant: protectedProcedure
+			.input(z.object({ id: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				const { id } = input;
+				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
+					LOBBY_DURABLE_OBJECT_NAME,
+				);
+				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+				await lobby.setParticipantPreference({
+					fromUserId: ctx.user.id as UserId,
+					targetUserId: id as UserId,
+					preference: true,
+				});
+			}),
+		rejectParticipant: protectedProcedure
+			.input(z.object({ id: z.string() }))
+			.mutation(async ({ ctx, input }) => {
+				const { id } = input;
+				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
+					LOBBY_DURABLE_OBJECT_NAME,
+				);
+				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+				await lobby.setParticipantPreference({
+					fromUserId: ctx.user.id as UserId,
+					targetUserId: id as UserId,
+					preference: false,
+				});
 			}),
 	},
 } satisfies TRPCRouterRecord);
