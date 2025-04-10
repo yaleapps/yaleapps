@@ -7,9 +7,9 @@
     "build": "vinxi build",
     "serve": "vite preview",
     "test": "vitest run",
-    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local",
+    "db:migrate:dev": "wrangler d1 migrations apply yaleapps_db --local --persist-to=../../packages/db/data/state",
     "predev": "pnpm db:migrate:dev",
-    "dev": "vinxi dev",
+    "dev": "vinxi dev -- --persist-to=../../packages/db/data/state",
     "deploy": "pnpm build && wrangler pages deploy dist --project-name lobby"
   },
   "dependencies": {
@@ -44,7 +44,6 @@
     "date-fns": "^4.1.0",
     "drizzle-orm": "^0.41.0",
     "framer-motion": "^11.0.25",
-    "hono": "^4.7.6",
     "lucide-react": "^0.476.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
