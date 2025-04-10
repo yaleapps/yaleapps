@@ -19,20 +19,15 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { useTRPC } from "@/integrations/trpc/react";
-import { client } from "@/lib/client";
 import { useUpsertLobbyProfile } from "@/lib/mutations";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { authClient } from "@repo/auth/better-auth/client";
 import { DINING_HALL_NAMES } from "@repo/constants";
 import {
 	type LobbyProfileForm,
 	VIBE_MAX_LENGTH,
 	lobbyProfileFormSchema,
 } from "@repo/db/validators/lobby";
-import type { UserId } from "@repo/lobby-durable-object/types";
-import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -40,7 +35,7 @@ import { useForm } from "react-hook-form";
 
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",
-	"CS major seeking break from leetcode and internship talk...",
+	"CS major seeking , getWebRequestbreak from leetcode and internship talk...",
 	"Pre-med needing study break from orgo problem sets...",
 	"Philosophy major pondering: if a sandwich falls in the dining hall...",
 	"History major time-traveling through meals, stories welcome...",
@@ -55,6 +50,12 @@ const PLACEHOLDER_ROTATION_INTERVAL_MS = 2500;
 
 export const Route = createFileRoute("/")({
 	component: LunchLobbyForm,
+	loader: async ({ context: { trpc, queryClient } }) => {
+		const data = await queryClient.ensureQueryData(
+			trpc.lobby.getLobbyProfileById.queryOptions(),
+		);
+		return data;
+	},
 });
 
 const GRADUATION_YEARS = Array.from(
@@ -87,11 +88,11 @@ function usePlaceholderRotation() {
 function LunchLobbyForm() {
 	const navigate = useNavigate();
 	const placeholder = usePlaceholderRotation();
-	const trpc = useTRPC();
+	const lobbyProfile = Route.useLoaderData();
 
 	const form = useForm<LobbyProfileForm>({
 		resolver: zodResolver(lobbyProfileFormSchema),
-		defaultValues: {
+		defaultValues: lobbyProfile ?? {
 			diningHall: "Commons",
 			year: undefined,
 			vibes: "",
@@ -99,21 +100,6 @@ function LunchLobbyForm() {
 		},
 		mode: "onBlur",
 	});
-
-	const { data: session } = authClient.useSession();
-
-	const { data: lobbyProfile, isPending: isLobbyProfilePending } = useQuery(
-		trpc.lobby.getLobbyProfileById.queryOptions(
-			{ userId: session?.user.id as UserId },
-			{ enabled: !!session?.user.id },
-		),
-	);
-
-	useEffect(() => {
-		if (lobbyProfile) {
-			form.reset(lobbyProfile);
-		}
-	}, [lobbyProfile, form]);
 
 	const { mutate: upsertLobbyProfile, isPending } = useUpsertLobbyProfile();
 
