@@ -1,8 +1,20 @@
 import type * as authSchema from "@repo/db/schema";
+import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import { createMiddleware } from "hono/factory";
 import type { Env } from "..";
 import { createAuth } from "./createAuth";
+
+declare module "hono" {
+	interface ContextVariableMap {
+		db: DrizzleD1Database<typeof authSchema>;
+		auth: ReturnType<typeof createAuth>;
+		user: ReturnType<typeof createAuth>["$Infer"]["Session"]["user"] | null;
+		session:
+			| ReturnType<typeof createAuth>["$Infer"]["Session"]["session"]
+			| null;
+	}
+}
 
 export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
 	const db = drizzle<typeof authSchema>(c.env.DB);

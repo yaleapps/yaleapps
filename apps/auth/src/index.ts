@@ -1,20 +1,9 @@
-import type * as authSchema from "@repo/db/schema";
-import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { dbAuthMiddleware } from "./services";
-import type { createAuth } from "./services/createAuth";
 
 export type Env = {
 	Bindings: { DB: D1Database; YALIES_API_KEY: string };
-	Variables: {
-		db: DrizzleD1Database<typeof authSchema>;
-		auth: ReturnType<typeof createAuth>;
-		user: ReturnType<typeof createAuth>["$Infer"]["Session"]["user"] | null;
-		session:
-			| ReturnType<typeof createAuth>["$Infer"]["Session"]["session"]
-			| null;
-	};
 };
 
 export const app = new Hono<Env>();
