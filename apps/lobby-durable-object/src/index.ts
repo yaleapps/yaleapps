@@ -298,7 +298,7 @@ export const trpcRouter = createTRPCRouter({
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
 					targetUserId: id as UserId,
-					preference: true,
+					preference: "like",
 				});
 			}),
 		rejectParticipant: protectedProcedure
@@ -312,7 +312,7 @@ export const trpcRouter = createTRPCRouter({
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
 					targetUserId: id as UserId,
-					preference: false,
+					preference: "dislike",
 				});
 			}),
 	},
