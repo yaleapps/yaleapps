@@ -23,7 +23,7 @@ export function IncomingLobbyCard({ user }: { user: LobbyParticipant }) {
 				className="w-full"
 			>
 				<Check className="mr-2 h-5 w-5" />
-				{isPending ? "Connecting..." : "Let's Connect!"}
+				{isPending ? "Connecting..." : "Let's Meet!"}
 			</Button>
 		</BaseLobbyCard>
 	);
