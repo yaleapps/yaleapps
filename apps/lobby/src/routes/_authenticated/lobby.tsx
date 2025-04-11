@@ -101,7 +101,7 @@ function LobbyScreen() {
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 md:p-6">
 			<div className="mx-auto max-w-5xl space-y-8">
-				<Card className="border-none bg-background/60 shadow-xl backdrop-blur-sm">
+				<Card>
 					<CardHeader className="pb-4">
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 							<div className="space-y-1.5">
