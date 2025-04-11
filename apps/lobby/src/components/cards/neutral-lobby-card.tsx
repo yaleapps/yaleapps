@@ -5,7 +5,7 @@ import type {
 	UserId,
 } from "@repo/lobby-durable-object/types";
 import { useMutation } from "@tanstack/react-query";
-import { Check, X } from "lucide-react";
+import { Clock, Sparkles } from "lucide-react";
 import { BaseLobbyCard } from "./base-lobby-card";
 
 export function NeutralLobbyCard({ user }: { user: LobbyParticipant }) {
@@ -18,28 +18,28 @@ export function NeutralLobbyCard({ user }: { user: LobbyParticipant }) {
 	);
 
 	return (
-		<BaseLobbyCard user={user}>
-			<div className="flex gap-3">
+		<BaseLobbyCard user={user} variant="neutral">
+			<div className="flex gap-4 w-full">
 				<Button
 					variant="outline"
 					size="lg"
-					className="w-1/2 transition-all duration-300 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30
-                   group relative overflow-hidden"
+					className="w-1/2 border-blue-200/50 dark:border-blue-800/50 hover:bg-blue-50/50 dark:hover:bg-blue-950/50 group relative overflow-hidden transition-all duration-300"
 					onClick={() => rejectParticipant({ id: user.userId as UserId })}
 					disabled={isRejecting || isAccepting}
 				>
-					<X className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-					<span className="relative z-10">Not Today</span>
+					<Clock className="mr-2 h-4 w-4 transition-transform group-hover:rotate-12" />
+					<span className="font-medium">Not Now</span>
 				</Button>
 				<Button
 					size="lg"
-					className="w-1/2 bg-primary/90 transition-all duration-300 hover:bg-primary
-                   hover:shadow-lg hover:scale-[1.02] active:scale-100"
+					className="w-1/2 bg-gradient-to-r from-blue-500 to-sky-500 dark:from-blue-600 dark:to-sky-600 hover:from-blue-600 hover:to-sky-600 dark:hover:from-blue-500 dark:hover:to-sky-500 text-white font-medium shadow-lg shadow-blue-500/25 dark:shadow-blue-900/30 transition-all duration-300 hover:shadow-xl hover:shadow-blue-500/30 dark:hover:shadow-blue-900/40 hover:-translate-y-0.5 group"
 					onClick={() => acceptParticipant({ id: user.userId as UserId })}
 					disabled={isRejecting || isAccepting}
 				>
-					<Check className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-					<span>{isAccepting ? "Connecting..." : "Let's Connect!"}</span>
+					<Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
+					<span className="font-medium">
+						{isAccepting ? "Connecting..." : "Let's Connect!"}
+					</span>
 				</Button>
 			</div>
 		</BaseLobbyCard>
