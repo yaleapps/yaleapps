@@ -10,13 +10,11 @@ export function BaseLobbyCard({
 	me: my,
 	them: their,
 	children,
-	className,
 	variant,
 }: {
 	me: LobbyParticipant;
 	them: LobbyParticipant;
 	children: React.ReactNode;
-	className?: string;
 	variant: "mutual" | "incoming" | "outgoing" | "neutral";
 }) {
 	const variantStyles = {
@@ -58,7 +56,6 @@ export function BaseLobbyCard({
 				styles.bg,
 				styles.border,
 				styles.shadow,
-				className,
 			)}
 		>
 			<ExpirationTimer
