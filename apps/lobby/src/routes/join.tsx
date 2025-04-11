@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
 import {
 	Form,
 	FormControl,
@@ -18,6 +25,8 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { ShootingStars } from "@/components/ui/shooting-stars";
+import { StarsBackground } from "@/components/ui/stars-background";
 import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from "@/integrations/trpc/react";
 import { cn } from "@/lib/utils";
@@ -123,38 +132,35 @@ function LunchLobbyForm() {
 	);
 
 	return (
-		<div className="flex min-h-svh w-full flex-col items-center bg-gradient-to-b from-background to-background/95 p-4 md:p-6 lg:p-8">
-			<div className="w-full max-w-md space-y-6">
-				<div className="space-y-2 text-center">
-					<h1 className="text-2xl font-semibold tracking-tight md:text-3xl">
-						Join the Lunch Lobby
-					</h1>
-					<p className="text-sm text-muted-foreground">
+		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-neutral-900 relative">
+			<Card className="w-full max-w-md px-1 border-none shadow-2xl z-10">
+				<CardHeader className="w-full">
+					<CardTitle className="text-3xl">Join the Lunch Lobby</CardTitle>
+					<CardDescription>
 						Find lunch partners in your college's dining hall
-					</p>
-				</div>
-
-				<Form {...form}>
-					<form
-						onSubmit={form.handleSubmit(async (lobbyProfile) => {
-							upsertLobbyProfile(
-								{ profile: lobbyProfile },
-								{
-									onSuccess: () => {
-										navigate({ to: "/lobby" });
+					</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<Form {...form}>
+						<form
+							onSubmit={form.handleSubmit(async (lobbyProfile) => {
+								upsertLobbyProfile(
+									{ profile: lobbyProfile },
+									{
+										onSuccess: () => {
+											navigate({ to: "/lobby" });
+										},
+										onError: () => {
+											form.setError("root", {
+												type: "submit",
+												message: "Failed to join lobby. Please try again.",
+											});
+										},
 									},
-									onError: () => {
-										form.setError("root", {
-											type: "submit",
-											message: "Failed to join lobby. Please try again.",
-										});
-									},
-								},
-							);
-						})}
-						className="space-y-6"
-					>
-						<Card className="p-6">
+								);
+							})}
+							className="space-y-6"
+						>
 							<div className="space-y-4">
 								<FormField
 									control={form.control}
@@ -271,23 +277,25 @@ function LunchLobbyForm() {
 									)}
 								/>
 							</div>
-						</Card>
-
-						<Separator className="my-6" />
-						<Button
-							type="submit"
-							className="w-full"
-							size="lg"
-							disabled={isPending}
-						>
-							{isPending ? (
-								<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-							) : null}
-							Join Lobby
-						</Button>
-					</form>
-				</Form>
-			</div>
+						</form>
+					</Form>
+				</CardContent>
+				<CardFooter>
+					<Button
+						type="submit"
+						className="w-full"
+						size="lg"
+						disabled={isPending}
+					>
+						{isPending ? (
+							<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+						) : null}
+						Join Lobby
+					</Button>
+				</CardFooter>
+			</Card>
+			<ShootingStars />
+			<StarsBackground />
 		</div>
 	);
 }
