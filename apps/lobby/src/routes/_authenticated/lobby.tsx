@@ -20,7 +20,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLobbyWebSocket } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
-import { Filter, Users } from "lucide-react";
+import { Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/lobby")({
@@ -40,6 +40,7 @@ function LobbyScreen() {
 	});
 
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
+	const [viewMode, setViewMode] = useState<"feed" | "tabs">("feed");
 
 	const filteredUsers = (() => {
 		if (!selectedCollege) return categorizedUsers;
@@ -63,6 +64,37 @@ function LobbyScreen() {
 		(users) => users.length > 0,
 	);
 
+	// Combine and sort non-mutual users for the feed view
+	const sortedNonMutualUsers = [
+		...filteredUsers.incoming,
+		...filteredUsers.outgoing,
+		...filteredUsers.neutral,
+	].sort((a, b) => {
+		// Prioritize incoming connections
+		if (
+			filteredUsers.incoming.includes(a) &&
+			!filteredUsers.incoming.includes(b)
+		)
+			return -1;
+		if (
+			!filteredUsers.incoming.includes(a) &&
+			filteredUsers.incoming.includes(b)
+		)
+			return 1;
+		// Then prioritize outgoing connections
+		if (
+			filteredUsers.outgoing.includes(a) &&
+			!filteredUsers.outgoing.includes(b)
+		)
+			return -1;
+		if (
+			!filteredUsers.outgoing.includes(a) &&
+			filteredUsers.outgoing.includes(b)
+		)
+			return 1;
+		return 0;
+	});
+
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
 			<div className="mx-auto max-w-4xl space-y-6">
@@ -76,6 +108,25 @@ function LobbyScreen() {
 								</CardDescription>
 							</div>
 							<div className="flex items-center gap-2">
+								<Button
+									variant="outline"
+									size="sm"
+									onClick={() =>
+										setViewMode(viewMode === "feed" ? "tabs" : "feed")
+									}
+								>
+									{viewMode === "feed" ? (
+										<>
+											<LayoutGrid className="mr-2 h-4 w-4" />
+											<span>Grid View</span>
+										</>
+									) : (
+										<>
+											<ListFilter className="mr-2 h-4 w-4" />
+											<span>Feed View</span>
+										</>
+									)}
+								</Button>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
 										<Button variant="outline" size="sm">
@@ -116,6 +167,58 @@ function LobbyScreen() {
 									Check back soon or invite friends to join!
 								</p>
 							</Card>
+						) : viewMode === "feed" ? (
+							<div className="space-y-8">
+								{filteredUsers.mutual.length > 0 && (
+									<section className="space-y-4">
+										<div className="space-y-1.5">
+											<h2 className="text-xl font-semibold text-primary">
+												Your Matches
+											</h2>
+											<p className="text-sm text-muted-foreground">
+												You have {filteredUsers.mutual.length} match
+												{filteredUsers.mutual.length === 1 ? "" : "es"}! Message
+												them now to coordinate lunch.
+											</p>
+										</div>
+										<div className="grid gap-4 md:grid-cols-2">
+											{filteredUsers.mutual.map((user) => (
+												<MutualLobbyCard key={user.userId} user={user} />
+											))}
+										</div>
+									</section>
+								)}
+
+								{sortedNonMutualUsers.length > 0 && (
+									<section className="space-y-4">
+										<div className="space-y-1.5">
+											<h2 className="text-xl font-semibold">
+												Discover Lunch Partners
+											</h2>
+											<p className="text-sm text-muted-foreground">
+												Connect with others looking for lunch companions
+											</p>
+										</div>
+										<div className="grid gap-4 md:grid-cols-2">
+											{sortedNonMutualUsers.map((user) => {
+												if (filteredUsers.incoming.includes(user)) {
+													return (
+														<IncomingLobbyCard key={user.userId} user={user} />
+													);
+												}
+												if (filteredUsers.outgoing.includes(user)) {
+													return (
+														<OutgoingLobbyCard key={user.userId} user={user} />
+													);
+												}
+												return (
+													<NeutralLobbyCard key={user.userId} user={user} />
+												);
+											})}
+										</div>
+									</section>
+								)}
+							</div>
 						) : (
 							<Tabs defaultValue="mutual" className="w-full">
 								<TabsList className="grid w-full grid-cols-4">
