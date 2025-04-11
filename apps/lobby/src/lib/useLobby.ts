@@ -44,10 +44,9 @@ export function useLobbyWebSocket({
 			const message = wsMessageOutSchema.parse(data);
 			switch (message.type) {
 				case "LOBBY_UPDATE":
-					queryClient.setQueryData(
-						trpc.lobby.getLobbyParticipants.queryKey(),
-						message.lobby,
-					);
+					queryClient.invalidateQueries({
+						queryKey: trpc.lobby.getLobbyParticipants.queryKey(),
+					});
 					break;
 				case "ERROR":
 					toast.error(message.error);
@@ -63,14 +62,11 @@ export function useLobbyWebSocket({
 		return () => {
 			ws.close();
 		};
-	}, [
-		queryClient.setQueryData,
-		session,
-		trpc.lobby.getLobbyParticipants.queryKey,
-	]);
+	}, [queryClient, session, trpc]);
 	return useQuery(
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
+			staleTime: Number.POSITIVE_INFINITY,
 			select: (data) => {
 				if (!session) {
 					return {
@@ -98,11 +94,12 @@ export function useLobbyWebSocket({
 						const myPreference = myProfile?.preferences[currUser.userId];
 
 						const doTheyLikeMe =
-							theirPreference && theirPreference.expiresAt > new Date()
+							theirPreference &&
+							theirPreference.expiresAt > new Date().getTime()
 								? theirPreference.value
 								: "neutral";
 						const doILikeThem =
-							myPreference && myPreference.expiresAt > new Date()
+							myPreference && myPreference.expiresAt > new Date().getTime()
 								? myPreference.value
 								: "neutral";
 

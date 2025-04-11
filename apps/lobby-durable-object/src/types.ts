@@ -7,7 +7,7 @@ export type UserId = z.infer<typeof userIdSchema>;
 
 const preferenceSchema = z.object({
 	value: z.enum(["like", "dislike"]),
-	expiresAt: z.date(),
+	expiresAt: z.number(),
 });
 export type PreferenceValue = z.infer<typeof preferenceSchema>;
 

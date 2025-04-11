@@ -113,7 +113,7 @@ export class Lobby extends DurableObject<Env> {
 			for (const [targetUserId, preference] of Object.entries(
 				participant.preferences,
 			)) {
-				if (preference && preference.expiresAt > new Date()) {
+				if (preference && preference.expiresAt > new Date().getTime()) {
 					updatedPreferences[targetUserId as UserId] = preference;
 				} else {
 					hasChanges = true;
@@ -197,7 +197,7 @@ export class Lobby extends DurableObject<Env> {
 			...participant.preferences,
 			[targetUserId]: {
 				value: preference,
-				expiresAt: new Date(Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000),
+				expiresAt: Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
 			},
 		};
 
