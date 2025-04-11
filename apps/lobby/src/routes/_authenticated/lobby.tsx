@@ -23,6 +23,7 @@ import {
 	useMeFromLobbyParticipants,
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
 } from "@/lib/useLobby";
+import { getCurrentMealType } from "@/lib/utils";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
 import { Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
@@ -86,10 +87,10 @@ function LobbyScreen() {
 						<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
 							<div className="space-y-1.5">
 								<CardTitle className="bg-gradient-to-br from-foreground to-foreground/80 bg-clip-text text-4xl font-bold text-transparent">
-									Lunch Lobby
+									{getCurrentMealType()} Lobby
 								</CardTitle>
 								<CardDescription className="text-base">
-									Find lunch partners in your college's dining hall
+									Find last-minute meal plans in your college's dining hall.
 								</CardDescription>
 							</div>
 							<div className="flex items-center gap-2">
@@ -164,7 +165,7 @@ function LobbyScreen() {
 											<p className="text-sm text-muted-foreground">
 												You have {filteredUsers.mutual.length} match
 												{filteredUsers.mutual.length === 1 ? "" : "es"}! Message
-												them now to coordinate lunch.
+												them now to coordinate your meal.
 											</p>
 										</div>
 										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
@@ -183,10 +184,10 @@ function LobbyScreen() {
 									<section className="space-y-6">
 										<div className="space-y-1.5">
 											<h2 className="text-2xl font-semibold tracking-tight">
-												Discover Lunch Partners
+												Discover Dining Partners
 											</h2>
 											<p className="text-sm text-muted-foreground">
-												Connect with others looking for lunch companions
+												Connect with others looking for dining companions
 											</p>
 										</div>
 										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">

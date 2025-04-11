@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTRPC } from "@/integrations/trpc/react";
+import { getCurrentMealType } from "@/lib/utils";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { Check, X } from "lucide-react";
@@ -66,7 +67,7 @@ function MatchQueue() {
 						Do you want to match?
 					</h1>
 					<p className="text-sm text-muted-foreground">
-						We found someone who might be a great lunch partner
+						We found someone who might be a great {getCurrentMealType()} partner
 					</p>
 				</div>
 

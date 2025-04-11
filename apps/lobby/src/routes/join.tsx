@@ -29,7 +29,7 @@ import { ShootingStars } from "@/components/ui/shooting-stars";
 import { StarsBackground } from "@/components/ui/stars-background";
 import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from "@/integrations/trpc/react";
-import { cn } from "@/lib/utils";
+import { cn, getCurrentMealType } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@repo/auth/better-auth/client";
 import { DINING_HALL_NAMES } from "@repo/constants";
@@ -135,9 +135,9 @@ function LunchLobbyForm() {
 		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-background">
 			<Card className="w-full max-w-md px-1 z-10">
 				<CardHeader className="w-full">
-					<CardTitle className="text-3xl">Join the Lunch Lobby</CardTitle>
+					<CardTitle className="text-3xl">Join the Lobby</CardTitle>
 					<CardDescription>
-						Find lunch partners in your college's dining hall
+						Find last-minute meal plans in your college's dining hall
 					</CardDescription>
 				</CardHeader>
 				<Form {...form}>
