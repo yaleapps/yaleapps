@@ -1,9 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useTRPC } from "@/integrations/trpc/react";
-import type {
-	LobbyParticipant,
-	UserId,
-} from "@repo/lobby-durable-object/types";
+import type { LobbyParticipant, UserId } from "@repo/lobby-server/types";
 import { useMutation } from "@tanstack/react-query";
 import { Clock, Sparkles } from "lucide-react";
 import { BaseLobbyCard } from "./base-lobby-card";

@@ -1,5 +1,5 @@
 {
-	"name": "@repo/lobby-durable-object",
+	"name": "@repo/lobby-server",
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {

@@ -1,15 +1,13 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { PREFERENCE_EXPIRATION_SECONDS } from "@repo/lobby-durable-object/types";
-import type { PreferenceValue } from "@repo/lobby-durable-object/types";
+import { cn } from "@/lib/utils";
+import { PREFERENCE_EXPIRATION_SECONDS } from "@repo/lobby-server/types";
+import type { PreferenceValue } from "@repo/lobby-server/types";
+import { useEffect, useState } from "react";
 
 const variantColors = {
 	mutual: "from-purple-500 to-fuchsia-500",

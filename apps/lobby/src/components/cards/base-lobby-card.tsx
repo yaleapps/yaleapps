@@ -1,11 +1,10 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { authClient } from "@repo/auth/better-auth/client";
-import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
-import { Clock, MapPin, User } from "lucide-react";
+import type { LobbyParticipant } from "@repo/lobby-server/types";
+import { MapPin, User } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { ExpirationTimer } from "./expiration-timer";
 import { Separator } from "../ui/separator";
+import { ExpirationTimer } from "./expiration-timer";
 
 export function BaseLobbyCard({
 	me: my,

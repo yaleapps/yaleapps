@@ -5,7 +5,7 @@ import superjson from "superjson";
 
 import { TRPCProvider } from "@/integrations/trpc/react";
 
-import type { TRPCRouter } from "@repo/lobby-durable-object/app";
+import type { TRPCRouter } from "@repo/lobby-server/app";
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [

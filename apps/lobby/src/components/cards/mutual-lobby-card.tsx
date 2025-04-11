@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
+import type { LobbyParticipant } from "@repo/lobby-server/types";
 import { MessageCircle } from "lucide-react";
 import { BaseLobbyCard } from "./base-lobby-card";
 

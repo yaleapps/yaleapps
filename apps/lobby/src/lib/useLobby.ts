@@ -5,7 +5,7 @@ import {
 	type UserId,
 	type WsMessageIn,
 	wsMessageOutSchema,
-} from "@repo/lobby-durable-object/types";
+} from "@repo/lobby-server/types";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";

@@ -1,8 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type {
-	LobbyParticipant,
-	UserId,
-} from "@repo/lobby-durable-object/types";
+import type { LobbyParticipant, UserId } from "@repo/lobby-server/types";
 import { Clock } from "lucide-react";
 import { BaseLobbyCard } from "./base-lobby-card";
 import { useTRPC } from "@/integrations/trpc/react";
