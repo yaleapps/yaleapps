@@ -21,14 +21,25 @@ const variantColors = {
 
 export function ExpirationTimer({
 	preference,
+	otherPreference,
 	variant = "default",
 }: {
-	preference?: PreferenceValue;
+	preference: PreferenceValue | undefined;
+	otherPreference: PreferenceValue | undefined;
 	variant?: keyof typeof variantColors;
 }) {
 	const [timeLeft, setTimeLeft] = useState(() => {
-		if (!preference?.expiresAt) return 0;
-		return Math.max(0, (preference.expiresAt - Date.now()) / 1000);
+		if (!preference?.expiresAt && !otherPreference?.expiresAt) return 0;
+
+		const preferenceTime = preference?.expiresAt
+			? Math.max(0, (preference.expiresAt - Date.now()) / 1000)
+			: 0;
+
+		const otherPreferenceTime = otherPreference?.expiresAt
+			? Math.max(0, (otherPreference.expiresAt - Date.now()) / 1000)
+			: 0;
+
+		return Math.max(preferenceTime, otherPreferenceTime);
 	});
 
 	const progress = Math.max(
@@ -57,8 +68,7 @@ export function ExpirationTimer({
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	};
 
-	// Don't render anything if there's no preference
-	if (!preference?.expiresAt) return null;
+	if (!preference?.expiresAt && !otherPreference?.expiresAt) return null;
 
 	return (
 		<TooltipProvider>
