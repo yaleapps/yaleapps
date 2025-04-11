@@ -21,7 +21,7 @@ export function BaseLobbyCard({
 				<span>{user.profile.diningHall}</span>
 			</CardHeader>
 			<CardContent className="space-y-8">
-				<blockquote className="text-xl text-muted-foreground">
+				<blockquote className="text-xl text-muted-foreground italic">
 					"{user.profile.vibes}"
 				</blockquote>
 
