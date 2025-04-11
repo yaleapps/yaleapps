@@ -74,17 +74,6 @@ export class Lobby extends DurableObject<Env> {
 		});
 	}
 
-	private upsertLobbyParticipant(lobbyParticipant: LobbyParticipant) {
-		const existingLobbyParticipantIndex = this.lobby.findIndex(
-			(p) => p.userId === lobbyParticipant.userId,
-		);
-		if (existingLobbyParticipantIndex >= 0) {
-			this.lobby[existingLobbyParticipantIndex] = lobbyParticipant;
-		} else {
-			this.lobby.push(lobbyParticipant);
-		}
-	}
-
 	private removeLobbyParticipant(userId: UserId) {
 		this.lobby = this.lobby.filter((p) => p.userId !== userId);
 	}
@@ -116,25 +105,35 @@ export class Lobby extends DurableObject<Env> {
 	}
 
 	private async join(userId: UserId) {
-		const savedLobbyParticipantProfile =
+		const participantProfileFromDb =
 			await this.db.query.lobbyParticipantProfiles.findFirst({
 				where: eq(schema.lobbyParticipantProfiles.userId, userId),
 			});
 
-		if (!savedLobbyParticipantProfile) {
+		if (!participantProfileFromDb) {
 			throw new HTTPException(404, {
 				message:
 					"No user lobby profile found in database. Did they complete the lobby form?",
 			});
 		}
 
-		const lobbyParticipant = {
-			userId,
-			profile: savedLobbyParticipantProfile,
-			preferences: {},
-		} satisfies LobbyParticipant;
+		const existingLobbyParticipantIndex = this.lobby.findIndex(
+			(p) => p.userId === userId,
+		);
+		if (existingLobbyParticipantIndex < 0) {
+			this.lobby.push({
+				userId,
+				profile: participantProfileFromDb,
+				preferences: {},
+			});
+		} else {
+			this.lobby[existingLobbyParticipantIndex] = {
+				userId,
+				profile: participantProfileFromDb,
+				preferences: this.lobby[existingLobbyParticipantIndex].preferences,
+			};
+		}
 
-		this.upsertLobbyParticipant(lobbyParticipant);
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
 	}
