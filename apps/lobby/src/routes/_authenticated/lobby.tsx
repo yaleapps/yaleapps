@@ -28,7 +28,7 @@ import {
 import { getCurrentMealType } from "@/lib/utils";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
-import { Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
+import { Ellipsis, Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/lobby")({
@@ -145,21 +145,46 @@ function LobbyScreen() {
 					<CardContent className="px-4 pb-6 pt-2 sm:px-6">
 						{/* Empty State */}
 						{!hasAnyUsers ? (
-							<Card className="border-none bg-background/20 p-8 text-center shadow-none">
-								<div className="mx-auto mb-6 flex flex-col items-center gap-4">
-									<div className="relative flex h-12 w-12 items-center justify-center">
-										<Skeleton className="absolute inset-0 rounded-full" />
-										<Users className="h-6 w-6 text-muted-foreground animate-pulse" />
-									</div>
-									<Skeleton className="h-4 w-32" />
+							<div className="relative">
+								<Card className="p-4 grid gap-4 md:grid-cols-2 bg-background/20 shadow-none backdrop-blur-sm">
+									{[1, 2].map((i) => (
+										<Card key={i} className="shadow-none">
+											<CardHeader className="gap-2 pb-4">
+												<div className="flex items-center gap-4">
+													<Skeleton className="h-12 w-12 rounded-full" />
+													<div className="flex-1 space-y-2">
+														<Skeleton className="h-4 w-[160px]" />
+														<Skeleton className="h-3 w-[140px]" />
+													</div>
+												</div>
+											</CardHeader>
+											<CardContent className="space-y-4 pb-6">
+												<div className="space-y-2">
+													<Skeleton className="h-3 w-full" />
+													<Skeleton className="h-3 w-[80%]" />
+												</div>
+												<div className="flex gap-2">
+													<Skeleton className="h-8 w-24" />
+													<Skeleton className="h-8 w-24" />
+												</div>
+											</CardContent>
+										</Card>
+									))}
+								</Card>
+								<div className="absolute inset-0 flex items-center justify-center backdrop-blur-[2px]">
+									<Card className="relative max-w-sm w-full overflow-hidden">
+										<Skeleton className="bg-primary absolute bottom-0 w-full h-1 rounded-none" />
+										<CardHeader>
+											<CardTitle className="text-xl">
+												Scanning for dining companions...
+											</CardTitle>
+											<CardDescription>
+												Stay tuned as more students join...
+											</CardDescription>
+										</CardHeader>
+									</Card>
 								</div>
-								<h2 className="mb-2 text-xl font-semibold">
-									Scanning for dining companions...
-								</h2>
-								<p className="text-sm text-muted-foreground">
-									Stay tuned as more students join...
-								</p>
-							</Card>
+							</div>
 						) : viewMode === "feed" ? (
 							<div className="space-y-10">
 								{filteredUsers.mutual.length > 0 && (
