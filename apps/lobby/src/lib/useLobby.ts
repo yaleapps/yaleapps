@@ -68,7 +68,12 @@ export function useLobbyWebSocket({
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
 			staleTime: Number.POSITIVE_INFINITY,
-			select: (data) => {
+			select: (
+				data,
+			): {
+				me: LobbyParticipant | undefined;
+				categorizedUsers: CategorizedUsers;
+			} => {
 				if (!session) {
 					return {
 						me: undefined,
@@ -77,7 +82,7 @@ export function useLobbyWebSocket({
 							incoming: [],
 							outgoing: [],
 							neutral: [],
-						} satisfies CategorizedUsers,
+						} as CategorizedUsers,
 					};
 				}
 
@@ -91,7 +96,7 @@ export function useLobbyWebSocket({
 							incoming: [],
 							outgoing: [],
 							neutral: [],
-						} satisfies CategorizedUsers,
+						} as CategorizedUsers,
 					};
 				}
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
@@ -126,16 +131,16 @@ export function useLobbyWebSocket({
 						}
 
 						if (doILikeThem === "accept" && doTheyLikeMe === "accept") {
-							acc.mutual.push(currUser);
+							acc.categorizedUsers.mutual.push(currUser);
 						} else if (doILikeThem === "accept" && doTheyLikeMe === "neutral") {
-							acc.outgoing.push(currUser);
+							acc.categorizedUsers.outgoing.push(currUser);
 						} else if (doILikeThem === "neutral" && doTheyLikeMe === "accept") {
-							acc.incoming.push(currUser);
+							acc.categorizedUsers.incoming.push(currUser);
 						} else if (
 							doILikeThem === "neutral" &&
 							doTheyLikeMe === "neutral"
 						) {
-							acc.neutral.push(currUser);
+							acc.categorizedUsers.neutral.push(currUser);
 						}
 
 						return acc;
@@ -147,7 +152,7 @@ export function useLobbyWebSocket({
 							incoming: [],
 							outgoing: [],
 							neutral: [],
-						} satisfies CategorizedUsers,
+						} as CategorizedUsers,
 					},
 				);
 			},
