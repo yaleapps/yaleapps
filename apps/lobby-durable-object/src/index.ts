@@ -26,6 +26,7 @@ import type { PreferenceValue } from "./types";
 
 const LOBBY_DURABLE_OBJECT_NAME = "Lobby";
 const LOBBY_DURABLE_OBJECT_STORAGE_KEY = "lobby";
+const PREFERENCE_EXPIRATION_SECONDS = 300; // 5 minutes
 
 type Env = {
 	DB: D1Database;
@@ -104,7 +105,31 @@ export class Lobby extends DurableObject<Env> {
 		}
 	}
 
+	private async cleanupExpiredPreferences() {
+		let hasChanges = false;
+
+		for (const participant of this.lobby) {
+			const updatedPreferences: typeof participant.preferences = {};
+			for (const [targetUserId, preference] of Object.entries(
+				participant.preferences,
+			)) {
+				if (preference && preference.expiresAt > new Date()) {
+					updatedPreferences[targetUserId as UserId] = preference;
+				} else {
+					hasChanges = true;
+				}
+			}
+			participant.preferences = updatedPreferences;
+		}
+
+		if (hasChanges) {
+			await this.persistState();
+			await this.broadcastLobbyUpdate();
+		}
+	}
+
 	private async join(userId: UserId) {
+		await this.cleanupExpiredPreferences();
 		const participantProfileFromDb =
 			await this.db.query.lobbyParticipantProfiles.findFirst({
 				where: eq(schema.lobbyParticipantProfiles.userId, userId),
@@ -139,6 +164,7 @@ export class Lobby extends DurableObject<Env> {
 	}
 
 	private async leave(userId: UserId) {
+		await this.cleanupExpiredPreferences();
 		this.removeLobbyParticipant(userId);
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
@@ -151,7 +177,7 @@ export class Lobby extends DurableObject<Env> {
 	}: {
 		fromUserId: UserId;
 		targetUserId: UserId;
-		preference: PreferenceValue;
+		preference: PreferenceValue["value"];
 	}) {
 		const participant = this.lobby.find((p) => p.userId === fromUserId);
 		if (!participant) {
@@ -169,7 +195,10 @@ export class Lobby extends DurableObject<Env> {
 
 		participant.preferences = {
 			...participant.preferences,
-			[targetUserId]: preference,
+			[targetUserId]: {
+				value: preference,
+				expiresAt: new Date(Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000),
+			},
 		};
 
 		await this.persistState();
@@ -189,6 +218,7 @@ export class Lobby extends DurableObject<Env> {
 	 * Called automatically when a WebSocket receives a message from the client
 	 */
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
+		await this.cleanupExpiredPreferences();
 		const wsService = createLobbyWsService(ws);
 		try {
 			if (typeof message !== "string") return;

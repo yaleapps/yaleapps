@@ -5,7 +5,10 @@ export const userIdSchema = z.string().brand("UserId");
 
 export type UserId = z.infer<typeof userIdSchema>;
 
-const preferenceSchema = z.enum(["like", "dislike"]);
+const preferenceSchema = z.object({
+	value: z.enum(["like", "dislike"]),
+	expiresAt: z.date(),
+});
 export type PreferenceValue = z.infer<typeof preferenceSchema>;
 
 export const lobbyParticipantSchema = z.object({

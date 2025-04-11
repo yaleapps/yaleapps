@@ -94,9 +94,17 @@ export function useLobbyWebSocket({
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
 				return otherProfiles.reduce(
 					(acc, currUser) => {
-						const doTheyLikeMe = currUser.preferences[myUserId] ?? "neutral";
+						const theirPreference = currUser.preferences[myUserId];
+						const myPreference = myProfile?.preferences[currUser.userId];
+
+						const doTheyLikeMe =
+							theirPreference && theirPreference.expiresAt > new Date()
+								? theirPreference.value
+								: "neutral";
 						const doILikeThem =
-							myProfile?.preferences[currUser.userId] ?? "neutral";
+							myPreference && myPreference.expiresAt > new Date()
+								? myPreference.value
+								: "neutral";
 
 						// Matrix of all possible combinations:
 						// Me | Them | Result
