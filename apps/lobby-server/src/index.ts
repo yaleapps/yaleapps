@@ -157,7 +157,7 @@ export class Lobby extends DurableObject<Env> {
 		}
 	}
 
-	private async join(userId: UserId) {
+	async join(userId: UserId) {
 		await this.cleanupExpiredPreferences();
 		const participantProfileFromDb =
 			await this.db.query.lobbyParticipantProfiles.findFirst({
@@ -171,21 +171,20 @@ export class Lobby extends DurableObject<Env> {
 			});
 		}
 
+		const freshLobbyParticipant: LobbyParticipant = {
+			userId,
+			profile: participantProfileFromDb,
+			// Preferences are cleared when a user joins or rejoins the lobby
+			preferences: {},
+		};
+
 		const existingLobbyParticipantIndex = this.lobby.findIndex(
 			(p) => p.userId === userId,
 		);
 		if (existingLobbyParticipantIndex < 0) {
-			this.lobby.push({
-				userId,
-				profile: participantProfileFromDb,
-				preferences: {},
-			});
+			this.lobby.push(freshLobbyParticipant);
 		} else {
-			this.lobby[existingLobbyParticipantIndex] = {
-				userId,
-				profile: participantProfileFromDb,
-				preferences: this.lobby[existingLobbyParticipantIndex].preferences,
-			};
+			this.lobby[existingLobbyParticipantIndex] = freshLobbyParticipant;
 		}
 
 		await this.persistState();
@@ -254,12 +253,6 @@ export class Lobby extends DurableObject<Env> {
 			const validatedMessage = wsMessageInSchema.parse(JSON.parse(message));
 
 			switch (validatedMessage.type) {
-				case "JOIN":
-					await this.join(validatedMessage.userId);
-					break;
-				case "LEAVE":
-					await this.leave(validatedMessage.userId);
-					break;
 				case "GET_LOBBY":
 					wsService.sendLobbyUpdate(this.lobby);
 					break;
@@ -324,7 +317,7 @@ export const trpcRouter = createTRPCRouter({
 				});
 			return lobbyProfile ?? null;
 		}),
-		upsertLobbyProfile: protectedProcedure
+		joinLobby: protectedProcedure
 			.input(z.object({ profile: lobbyProfileFormSchema }))
 			.mutation(async ({ ctx, input }) => {
 				const { profile } = input;
@@ -341,6 +334,11 @@ export const trpcRouter = createTRPCRouter({
 							"updatedAt",
 						]),
 					});
+				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
+					LOBBY_DURABLE_OBJECT_NAME,
+				);
+				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+				await lobby.join(ctx.user.id as UserId);
 			}),
 		acceptParticipant: protectedProcedure
 			.input(z.object({ id: userIdSchema }))
