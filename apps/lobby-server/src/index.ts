@@ -370,7 +370,7 @@ export const trpcRouter = createTRPCRouter({
 					preference: "reject",
 				});
 			}),
-		cancelParticipant: protectedProcedure
+		cancelAcceptParticipant: protectedProcedure
 			.input(z.object({ id: userIdSchema }))
 			.mutation(async ({ ctx, input }) => {
 				const { id } = input;

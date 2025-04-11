@@ -14,7 +14,7 @@ export function OutgoingLobbyCard({
 }) {
 	const trpc = useTRPC();
 	const { mutate: cancelParticipant, isPending: isCancelling } = useMutation(
-		trpc.lobby.cancelParticipant.mutationOptions(),
+		trpc.lobby.cancelAcceptParticipant.mutationOptions(),
 	);
 
 	return (
