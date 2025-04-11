@@ -49,11 +49,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	component: () => (
 		<RootDocument>
 			<Header />
-
-			<Outlet />
-			<TanStackRouterDevtools />
-			<Toaster />
-			<TanstackQueryLayout />
+			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+				<Outlet />
+				<TanStackRouterDevtools />
+				<Toaster />
+				<TanstackQueryLayout />
+				<ModeToggle className="absolute top-2 right-2" />
+			</ThemeProvider>
 		</RootDocument>
 	),
 });
