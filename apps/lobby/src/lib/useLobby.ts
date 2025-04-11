@@ -41,6 +41,7 @@ export function useLobbyWebSocket({
 
 		ws.onmessage = (event) => {
 			const data = JSON.parse(event.data);
+			console.log("🚀 ~ useEffect ~ data:", data);
 			const message = wsMessageOutSchema.parse(data);
 			switch (message.type) {
 				case "LOBBY_UPDATE":
@@ -70,28 +71,34 @@ export function useLobbyWebSocket({
 			select: (data) => {
 				if (!session) {
 					return {
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers;
+						me: undefined,
+						categorizedUsers: {
+							mutual: [],
+							incoming: [],
+							outgoing: [],
+							neutral: [],
+						} satisfies CategorizedUsers,
+					};
 				}
 
 				const myUserId = session?.user.id as UserId;
-				const myProfile = data.find((user) => user.userId === myUserId);
-				if (!myProfile) {
+				const me = data.find((user) => user.userId === myUserId);
+				if (!me) {
 					return {
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers;
+						me: undefined,
+						categorizedUsers: {
+							mutual: [],
+							incoming: [],
+							outgoing: [],
+							neutral: [],
+						} satisfies CategorizedUsers,
+					};
 				}
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
 				return otherProfiles.reduce(
 					(acc, currUser) => {
 						const theirPreference = currUser.preferences[myUserId];
-						const myPreference = myProfile?.preferences[currUser.userId];
+						const myPreference = me?.preferences[currUser.userId];
 
 						const doTheyLikeMe =
 							theirPreference &&
@@ -114,15 +121,15 @@ export function useLobbyWebSocket({
 						// dislike | any | filtered
 
 						// Filter out any case where either party has explicitly disliked
-						if (doTheyLikeMe === "dislike" || doILikeThem === "dislike") {
+						if (doTheyLikeMe === "reject" || doILikeThem === "reject") {
 							return acc;
 						}
 
-						if (doILikeThem === "like" && doTheyLikeMe === "like") {
+						if (doILikeThem === "accept" && doTheyLikeMe === "accept") {
 							acc.mutual.push(currUser);
-						} else if (doILikeThem === "like" && doTheyLikeMe === "neutral") {
+						} else if (doILikeThem === "accept" && doTheyLikeMe === "neutral") {
 							acc.outgoing.push(currUser);
-						} else if (doILikeThem === "neutral" && doTheyLikeMe === "like") {
+						} else if (doILikeThem === "neutral" && doTheyLikeMe === "accept") {
 							acc.incoming.push(currUser);
 						} else if (
 							doILikeThem === "neutral" &&
@@ -134,11 +141,14 @@ export function useLobbyWebSocket({
 						return acc;
 					},
 					{
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers,
+						me: me,
+						categorizedUsers: {
+							mutual: [],
+							incoming: [],
+							outgoing: [],
+							neutral: [],
+						} satisfies CategorizedUsers,
+					},
 				);
 			},
 		}),

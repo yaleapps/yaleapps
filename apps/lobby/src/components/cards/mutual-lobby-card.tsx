@@ -3,13 +3,19 @@ import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
 import { MessageCircle } from "lucide-react";
 import { BaseLobbyCard } from "./base-lobby-card";
 
-export function MutualLobbyCard({ user }: { user: LobbyParticipant }) {
+export function MutualLobbyCard({
+	me,
+	them,
+}: {
+	me: LobbyParticipant;
+	them: LobbyParticipant;
+}) {
 	const handleMessage = () => {
-		window.location.href = `sms:${user.profile.phoneNumber}`;
+		window.location.href = `sms:${them.profile.phoneNumber}`;
 	};
 
 	return (
-		<BaseLobbyCard user={user} variant="mutual">
+		<BaseLobbyCard me={me} them={them} variant="mutual">
 			<Button
 				size="lg"
 				onClick={handleMessage}

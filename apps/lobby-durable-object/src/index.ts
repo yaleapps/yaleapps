@@ -16,6 +16,7 @@ import superjson from "superjson";
 import { z } from "zod";
 import {
 	type LobbyParticipant,
+	PREFERENCE_EXPIRATION_SECONDS,
 	type UserId,
 	createLobbyWsService,
 	userIdSchema,
@@ -26,7 +27,6 @@ import type { PreferenceValue } from "./types";
 
 const LOBBY_DURABLE_OBJECT_NAME = "Lobby";
 const LOBBY_DURABLE_OBJECT_STORAGE_KEY = "lobby";
-const PREFERENCE_EXPIRATION_SECONDS = 300; // 5 minutes
 
 type Env = {
 	DB: D1Database;
@@ -48,30 +48,56 @@ export class Lobby extends DurableObject<Env> {
 		ctx.blockConcurrencyWhile(async () => {
 			this.lobby =
 				(await ctx.storage.get(LOBBY_DURABLE_OBJECT_STORAGE_KEY)) ?? [];
-			const targetUserId = "0DBZuv9rUkmsTQzCVoVkp0WRZ7NjRKN8";
-			this.lobby = Array.from({ length: 20 }, (_, i) => ({
-				userId: `dummy-user-${i}` as UserId,
-				profile: {
-					diningHall: DINING_HALL_NAMES[i % DINING_HALL_NAMES.length],
-					year: ["2024", "2025", "2026", "2027", "Graduate"][Math.floor(i / 4)],
-					vibes: [
-						"CS major looking for leetcode break buddies!",
-						"History major with fascinating stories to share",
-						"Pre-med student needing orgo study break",
-						"Physics major exploring quantum lunch mechanics",
-						"Math major calculating optimal conversation ratios",
-						"Drama major rehearsing monologues over meals",
-						"Philosophy major pondering lunch paradoxes",
-						"Economics major analyzing lunch market efficiency",
-						"Art major sketching while snacking",
-						"English major writing lunch poetry",
-					][i % 10],
-					phoneNumber: `555${String(i).padStart(7, "0")}`,
-				},
-				preferences: {
-					[targetUserId]: Math.random() < 0.5 ? "like" : undefined,
-				},
-			}));
+
+			const targetUserId = "0DBZuv9rUkmsTQzCVoVkp0WRZ7NjRKN8" as UserId;
+			this.lobby = Array.from(
+				{ length: 20 },
+				(_, i) =>
+					({
+						userId: `dummy-user-${i}` as UserId,
+						profile: {
+							diningHall: DINING_HALL_NAMES[i % DINING_HALL_NAMES.length],
+							year: ["2024", "2025", "2026", "2027", "Graduate"][
+								Math.floor(i / 4)
+							],
+							vibes: [
+								"CS major looking for leetcode break buddies!",
+								"History major with fascinating stories to share",
+								"Pre-med student needing orgo study break",
+								"Physics major exploring quantum lunch mechanics",
+								"Math major calculating optimal conversation ratios",
+								"Drama major rehearsing monologues over meals",
+								"Philosophy major pondering lunch paradoxes",
+								"Economics major analyzing lunch market efficiency",
+								"Art major sketching while snacking",
+								"English major writing lunch poetry",
+							][i % 10],
+							phoneNumber: `555${String(i).padStart(7, "0")}`,
+						},
+						preferences: {
+							[targetUserId]: (() => {
+								// Assign preferences in a deterministic pattern
+								// Every third user "likes", every fourth "dislikes", rest have no preference
+								if (i % 3 === 0) {
+									return {
+										value: "accept",
+										expiresAt:
+											Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
+									};
+								}
+								if (i % 4 === 0) {
+									return {
+										value: "reject",
+										expiresAt:
+											Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
+									};
+								}
+								return {};
+							})(),
+						},
+					}) satisfies LobbyParticipant,
+			);
+			await this.persistState();
 		});
 	}
 
@@ -324,7 +350,7 @@ export const trpcRouter = createTRPCRouter({
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
 					targetUserId: id,
-					preference: "like",
+					preference: "accept",
 				});
 			}),
 		rejectParticipant: protectedProcedure
@@ -338,7 +364,21 @@ export const trpcRouter = createTRPCRouter({
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
 					targetUserId: id,
-					preference: "dislike",
+					preference: "reject",
+				});
+			}),
+		cancelParticipant: protectedProcedure
+			.input(z.object({ id: userIdSchema }))
+			.mutation(async ({ ctx, input }) => {
+				const { id } = input;
+				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
+					LOBBY_DURABLE_OBJECT_NAME,
+				);
+				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
+				await lobby.setParticipantPreference({
+					fromUserId: ctx.user.id as UserId,
+					targetUserId: id,
+					preference: undefined,
 				});
 			}),
 	},

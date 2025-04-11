@@ -1,12 +1,14 @@
 import { z } from "zod";
 import { lobbyProfileFormSchema } from "@repo/db/validators/lobby";
 
+export const PREFERENCE_EXPIRATION_SECONDS = 30;
+
 export const userIdSchema = z.string().brand("UserId");
 
 export type UserId = z.infer<typeof userIdSchema>;
 
 const preferenceSchema = z.object({
-	value: z.enum(["like", "dislike"]),
+	value: z.enum(["accept", "reject", "neutral"]),
 	expiresAt: z.number(),
 });
 export type PreferenceValue = z.infer<typeof preferenceSchema>;
