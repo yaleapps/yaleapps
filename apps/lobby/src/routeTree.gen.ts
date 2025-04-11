@@ -11,17 +11,18 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as LobbyImport } from './routes/lobby'
+import { Route as MatchImport } from './routes/match'
 import { Route as LandingImport } from './routes/landing'
+import { Route as JoinImport } from './routes/join'
+import { Route as AuthenticatedImport } from './routes/_authenticated'
 import { Route as IndexImport } from './routes/index'
-import { Route as DemoTanstackQueryImport } from './routes/demo.tanstack-query'
-import { Route as DemoStartApiRequestImport } from './routes/demo.start.api-request'
+import { Route as AuthenticatedLobbyImport } from './routes/_authenticated/lobby'
 
 // Create/Update Routes
 
-const LobbyRoute = LobbyImport.update({
-  id: '/lobby',
-  path: '/lobby',
+const MatchRoute = MatchImport.update({
+  id: '/match',
+  path: '/match',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -31,22 +32,27 @@ const LandingRoute = LandingImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const JoinRoute = JoinImport.update({
+  id: '/join',
+  path: '/join',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const AuthenticatedRoute = AuthenticatedImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRoute,
 } as any)
 
-const DemoTanstackQueryRoute = DemoTanstackQueryImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRoute,
-} as any)
-
-const DemoStartApiRequestRoute = DemoStartApiRequestImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRoute,
+const AuthenticatedLobbyRoute = AuthenticatedLobbyImport.update({
+  id: '/lobby',
+  path: '/lobby',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -60,6 +66,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedImport
+      parentRoute: typeof rootRoute
+    }
+    '/join': {
+      id: '/join'
+      path: '/join'
+      fullPath: '/join'
+      preLoaderRoute: typeof JoinImport
+      parentRoute: typeof rootRoute
+    }
     '/landing': {
       id: '/landing'
       path: '/landing'
@@ -67,96 +87,95 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandingImport
       parentRoute: typeof rootRoute
     }
-    '/lobby': {
-      id: '/lobby'
+    '/match': {
+      id: '/match'
+      path: '/match'
+      fullPath: '/match'
+      preLoaderRoute: typeof MatchImport
+      parentRoute: typeof rootRoute
+    }
+    '/_authenticated/lobby': {
+      id: '/_authenticated/lobby'
       path: '/lobby'
       fullPath: '/lobby'
-      preLoaderRoute: typeof LobbyImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryImport
-      parentRoute: typeof rootRoute
-    }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestImport
-      parentRoute: typeof rootRoute
+      preLoaderRoute: typeof AuthenticatedLobbyImport
+      parentRoute: typeof AuthenticatedImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedLobbyRoute: typeof AuthenticatedLobbyRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedLobbyRoute: AuthenticatedLobbyRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/lobby': typeof LobbyRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/match': typeof MatchRoute
+  '/lobby': typeof AuthenticatedLobbyRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '': typeof AuthenticatedRouteWithChildren
+  '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/lobby': typeof LobbyRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/match': typeof MatchRoute
+  '/lobby': typeof AuthenticatedLobbyRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/lobby': typeof LobbyRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
+  '/match': typeof MatchRoute
+  '/_authenticated/lobby': typeof AuthenticatedLobbyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths:
-    | '/'
-    | '/landing'
-    | '/lobby'
-    | '/demo/tanstack-query'
-    | '/demo/start/api-request'
+  fullPaths: '/' | '' | '/join' | '/landing' | '/match' | '/lobby'
   fileRoutesByTo: FileRoutesByTo
-  to:
-    | '/'
-    | '/landing'
-    | '/lobby'
-    | '/demo/tanstack-query'
-    | '/demo/start/api-request'
+  to: '/' | '' | '/join' | '/landing' | '/match' | '/lobby'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
+    | '/join'
     | '/landing'
-    | '/lobby'
-    | '/demo/tanstack-query'
-    | '/demo/start/api-request'
+    | '/match'
+    | '/_authenticated/lobby'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  JoinRoute: typeof JoinRoute
   LandingRoute: typeof LandingRoute
-  LobbyRoute: typeof LobbyRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
+  MatchRoute: typeof MatchRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  JoinRoute: JoinRoute,
   LandingRoute: LandingRoute,
-  LobbyRoute: LobbyRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
+  MatchRoute: MatchRoute,
 }
 
 export const routeTree = rootRoute
@@ -170,26 +189,33 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/_authenticated",
+        "/join",
         "/landing",
-        "/lobby",
-        "/demo/tanstack-query",
-        "/demo/start/api-request"
+        "/match"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
+    "/_authenticated": {
+      "filePath": "_authenticated.tsx",
+      "children": [
+        "/_authenticated/lobby"
+      ]
+    },
+    "/join": {
+      "filePath": "join.tsx"
+    },
     "/landing": {
       "filePath": "landing.tsx"
     },
-    "/lobby": {
-      "filePath": "lobby.tsx"
+    "/match": {
+      "filePath": "match.tsx"
     },
-    "/demo/tanstack-query": {
-      "filePath": "demo.tanstack-query.tsx"
-    },
-    "/demo/start/api-request": {
-      "filePath": "demo.start.api-request.tsx"
+    "/_authenticated/lobby": {
+      "filePath": "_authenticated/lobby.tsx",
+      "parent": "/_authenticated"
     }
   }
 }
