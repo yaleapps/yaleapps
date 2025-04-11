@@ -18,6 +18,7 @@ import {
 	type LobbyParticipant,
 	type UserId,
 	createLobbyWsService,
+	userIdSchema,
 	wsMessageInSchema,
 } from "./types";
 import { DINING_HALL_NAMES } from "@repo/constants";
@@ -50,7 +51,6 @@ export class Lobby extends DurableObject<Env> {
 			this.lobby = Array.from({ length: 20 }, (_, i) => ({
 				userId: `dummy-user-${i}` as UserId,
 				profile: {
-					userId: `dummy-user-${i}`,
 					diningHall: DINING_HALL_NAMES[i % DINING_HALL_NAMES.length],
 					year: ["2024", "2025", "2026", "2027", "Graduate"][Math.floor(i / 4)],
 					vibes: [
@@ -66,12 +66,9 @@ export class Lobby extends DurableObject<Env> {
 						"English major writing lunch poetry",
 					][i % 10],
 					phoneNumber: `555${String(i).padStart(7, "0")}`,
-					createdAt: new Date(),
-					updatedAt: new Date(),
 				},
 				preferences: {
-					// They all like the target user with a 50% chance, 25% reject, 25% neutral
-					[targetUserId]: Math.random() < 0.5 ? "like" : "dislike",
+					[targetUserId]: Math.random() < 0.5 ? "like" : undefined,
 				},
 			}));
 		});
@@ -288,7 +285,7 @@ export const trpcRouter = createTRPCRouter({
 					});
 			}),
 		acceptParticipant: protectedProcedure
-			.input(z.object({ id: z.string() }))
+			.input(z.object({ id: userIdSchema }))
 			.mutation(async ({ ctx, input }) => {
 				const { id } = input;
 				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
@@ -297,12 +294,12 @@ export const trpcRouter = createTRPCRouter({
 				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
-					targetUserId: id as UserId,
+					targetUserId: id,
 					preference: "like",
 				});
 			}),
 		rejectParticipant: protectedProcedure
-			.input(z.object({ id: z.string() }))
+			.input(z.object({ id: userIdSchema }))
 			.mutation(async ({ ctx, input }) => {
 				const { id } = input;
 				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
@@ -311,7 +308,7 @@ export const trpcRouter = createTRPCRouter({
 				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
-					targetUserId: id as UserId,
+					targetUserId: id,
 					preference: "dislike",
 				});
 			}),
