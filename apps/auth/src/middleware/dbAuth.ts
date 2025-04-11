@@ -1,7 +1,7 @@
 import type * as authSchema from "@repo/db/schema";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
-import { createMiddleware } from "hono/factory";
+import type { MiddlewareHandler } from "hono";
 import type { Env } from "..";
 import { createAuth } from "../better-auth/server";
 
@@ -16,20 +16,22 @@ declare module "hono" {
 	}
 }
 
-export const dbAuthMiddleware = createMiddleware<Env>(async (c, next) => {
-	const db = drizzle<typeof authSchema>(c.env.DB);
-	c.set("db", db);
-	const auth = createAuth({ db, yaliesApiKey: c.env.YALIES_API_KEY });
-	c.set("auth", auth);
-	const session = await auth.api.getSession({ headers: c.req.raw.headers });
+export function createDbAuthMiddleware<T extends Env>(): MiddlewareHandler<T> {
+	return async (c, next) => {
+		const db = drizzle<typeof authSchema>(c.env.DB);
+		c.set("db", db);
+		const auth = createAuth({ db, yaliesApiKey: c.env.YALIES_API_KEY });
+		c.set("auth", auth);
+		const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
-	if (!session) {
-		c.set("user", null);
-		c.set("session", null);
+		if (!session) {
+			c.set("user", null);
+			c.set("session", null);
+			return next();
+		}
+
+		c.set("user", session.user);
+		c.set("session", session.session);
 		return next();
-	}
-
-	c.set("user", session.user);
-	c.set("session", session.session);
-	return next();
-});
+	};
+}
