@@ -1,21 +1,19 @@
 import { Button } from "@/components/ui/button";
-import { useTRPC } from "@/integrations/trpc/react";
-import { authClient } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
+import { authClient } from "@repo/auth/better-auth/client";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/landing")({
 	component: LandingPage,
 	loader: async ({ context: { trpc, queryClient } }) => {
-		await queryClient.ensureQueryData(trpc.people.list.queryOptions());
+		await queryClient.ensureQueryData(
+			trpc.lobby.getLobbyParticipants.queryOptions(),
+		);
 		return;
 	},
 });
 
 function LandingPage() {
-	const trpc = useTRPC();
-	const { data: people } = useQuery(trpc.people.list.queryOptions());
 	const { data: session, isPending, error } = authClient.useSession();
 
 	const signUpViaCas = async () => {
@@ -41,7 +39,6 @@ function LandingPage() {
 				<p>Session: {JSON.stringify(session)}</p>
 				<p>Is Pending: {isPending.toString()}</p>
 				<p>Error: {error?.message}</p>
-				<p>People: {JSON.stringify(people)}</p>
 			</div>
 			{/* Decorative background elements */}
 			<div className="absolute inset-0 z-0">
