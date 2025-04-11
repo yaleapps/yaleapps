@@ -18,7 +18,10 @@ import {
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLobbyWebSocket } from "@/lib/useLobby";
+import {
+	useLobbyCategories,
+	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
+} from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
 import { Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
@@ -35,12 +38,11 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 });
 
 function LobbyScreen() {
+	useRegisterLobbyWebSocketAndInvalidateOnUpdate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
 	const {
 		data: { categorizedUsers, me },
-	} = useLobbyWebSocket({
-		initialParticipants,
-	});
+	} = useLobbyCategories({ initialParticipants });
 
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
 	const [viewMode, setViewMode] = useState<"feed" | "tabs">("feed");
@@ -114,40 +116,32 @@ function LobbyScreen() {
 							</div>
 							<div className="flex items-center gap-2">
 								<Button
-									variant="outline"
+									variant="secondary"
 									size="sm"
 									onClick={() =>
 										setViewMode(viewMode === "feed" ? "tabs" : "feed")
 									}
-									className="group relative overflow-hidden transition-all duration-300 hover:border-primary/50"
 								>
 									{viewMode === "feed" ? (
 										<>
-											<LayoutGrid className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+											<LayoutGrid className="mr-2 h-4 w-4" />
 											<span>Grid View</span>
 										</>
 									) : (
 										<>
-											<ListFilter className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+											<ListFilter className="mr-2 h-4 w-4" />
 											<span>Feed View</span>
 										</>
 									)}
 								</Button>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
-										<Button
-											variant="outline"
-											size="sm"
-											className="group relative overflow-hidden transition-all duration-300 hover:border-primary/50"
-										>
-											<Filter className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
+										<Button variant="secondary" size="sm">
+											<Filter className="mr-2 h-4 w-4" />
 											{selectedCollege || "Filter by College"}
 										</Button>
 									</DropdownMenuTrigger>
-									<DropdownMenuContent
-										align="end"
-										className="w-56 backdrop-blur-sm"
-									>
+									<DropdownMenuContent align="end" className="w-56">
 										{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
 											<DropdownMenuCheckboxItem
 												key={college}

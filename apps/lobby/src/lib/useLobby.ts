@@ -17,11 +17,7 @@ type CategorizedUsers = {
 	neutral: LobbyParticipant[];
 };
 
-export function useLobbyWebSocket({
-	initialParticipants,
-}: {
-	initialParticipants: LobbyParticipant[];
-}) {
+export function useRegisterLobbyWebSocketAndInvalidateOnUpdate() {
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
 	const { data: session } = authClient.useSession();
@@ -41,7 +37,6 @@ export function useLobbyWebSocket({
 
 		ws.onmessage = (event) => {
 			const data = JSON.parse(event.data);
-			console.log("🚀 ~ useEffect ~ data:", data);
 			const message = wsMessageOutSchema.parse(data);
 			switch (message.type) {
 				case "LOBBY_UPDATE":
@@ -64,6 +59,16 @@ export function useLobbyWebSocket({
 			ws.close();
 		};
 	}, [queryClient, session, trpc]);
+}
+
+export function useLobbyCategories({
+	initialParticipants,
+}: {
+	initialParticipants: LobbyParticipant[];
+}) {
+	const trpc = useTRPC();
+	const { data: session } = authClient.useSession();
+
 	return useQuery(
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
