@@ -17,6 +17,8 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	useLobbyParticipantsCategorizedByStatus,
@@ -143,15 +145,19 @@ function LobbyScreen() {
 					<CardContent className="px-4 pb-6 pt-2 sm:px-6">
 						{/* Empty State */}
 						{!hasAnyUsers ? (
-							<Card className="border-none bg-muted/50 p-8 text-center shadow-none">
-								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-background/50 p-3 shadow-inner">
-									<Users className="h-6 w-6 text-muted-foreground" />
+							<Card className="border-none bg-background/20 p-8 text-center shadow-none">
+								<div className="mx-auto mb-6 flex flex-col items-center gap-4">
+									<div className="relative flex h-12 w-12 items-center justify-center">
+										<Skeleton className="absolute inset-0 rounded-full" />
+										<Users className="h-6 w-6 text-muted-foreground animate-pulse" />
+									</div>
+									<Skeleton className="h-4 w-32" />
 								</div>
 								<h2 className="mb-2 text-xl font-semibold">
-									The lobby is quiet right now...
+									Scanning for dining companions...
 								</h2>
 								<p className="text-sm text-muted-foreground">
-									Check back soon or invite friends to join!
+									Stay tuned as more students join...
 								</p>
 							</Card>
 						) : viewMode === "feed" ? (
