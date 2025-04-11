@@ -139,47 +139,45 @@ export function ExpirationTimer({
 	otherPreference: PreferenceValue | undefined;
 	variant?: keyof typeof variantColors;
 }) {
-	const [timeLeft, setTimeLeft] = useState(() => {
-		if (!preference?.expiresAt && !otherPreference?.expiresAt) return 0;
+	const [now, setNow] = useState(() => Date.now());
 
-		const preferenceTime = preference?.expiresAt
-			? Math.max(0, (preference.expiresAt - Date.now()) / 1000)
-			: 0;
-
-		const otherPreferenceTime = otherPreference?.expiresAt
-			? Math.max(0, (otherPreference.expiresAt - Date.now()) / 1000)
-			: 0;
-
-		return Math.max(preferenceTime, otherPreferenceTime);
-	});
-
-	const progress = Math.max(
-		0,
-		Math.min(1, timeLeft / PREFERENCE_EXPIRATION_SECONDS),
+	// Calculate expiration once during render
+	const expiresAt = Math.max(
+		preference?.expiresAt ?? 0,
+		otherPreference?.expiresAt ?? 0,
 	);
-	const isExpired = timeLeft === 0;
+
+	const isExpired = expiresAt <= now;
+	const timeLeftMs = Math.max(0, expiresAt - now);
+	const progress = expiresAt
+		? timeLeftMs / (PREFERENCE_EXPIRATION_SECONDS * 1000)
+		: 0;
 
 	useEffect(() => {
 		if (isExpired) return;
 
+		// Update every second
 		const interval = setInterval(() => {
-			setTimeLeft((current) => {
-				const newTime = Math.max(0, current - 1);
-				if (newTime === 0) clearInterval(interval);
-				return newTime;
-			});
+			const currentTime = Date.now();
+			if (currentTime >= expiresAt) {
+				setNow(currentTime);
+				clearInterval(interval);
+			} else {
+				setNow(currentTime);
+			}
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [isExpired]);
+	}, [isExpired, expiresAt]);
 
 	const formatTimeLeft = () => {
-		const minutes = Math.floor(timeLeft / 60);
-		const seconds = Math.floor(timeLeft % 60);
+		const totalSeconds = Math.ceil(timeLeftMs / 1000);
+		const minutes = Math.floor(totalSeconds / 60);
+		const seconds = totalSeconds % 60;
 		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 	};
 
-	if (!preference?.expiresAt && !otherPreference?.expiresAt) return null;
+	if (!expiresAt) return null;
 
 	return (
 		<TooltipProvider>
@@ -193,7 +191,7 @@ export function ExpirationTimer({
 								variantColors[variant],
 								isExpired && "animate-pulse opacity-50",
 							)}
-							style={{ width: `${progress * 100}%` }}
+							style={{ width: `${Math.max(0, Math.min(1, progress)) * 100}%` }}
 						/>
 					</div>
 				</TooltipTrigger>
