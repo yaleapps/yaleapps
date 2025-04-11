@@ -19,10 +19,10 @@ export function MutualLobbyCard({
 			<Button
 				size="lg"
 				onClick={handleMessage}
-				className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 dark:from-purple-600 dark:to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-600 dark:hover:from-purple-500 dark:hover:to-fuchsia-500 text-white font-medium shadow-lg shadow-purple-500/25 dark:shadow-purple-900/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 dark:hover:shadow-purple-900/40 hover:-translate-y-0.5"
+				className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 dark:from-purple-600 dark:to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-600 dark:hover:from-purple-500 dark:hover:to-fuchsia-500 text-white font-medium shadow-lg shadow-purple-500/25 dark:shadow-purple-900/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 dark:hover:shadow-purple-900/40 hover:-translate-y-0.5 active:translate-y-0"
 			>
 				<MessageCircle className="mr-2 h-5 w-5" />
-				Start Chatting
+				Message
 			</Button>
 		</BaseLobbyCard>
 	);

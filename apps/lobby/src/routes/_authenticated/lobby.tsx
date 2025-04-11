@@ -2,6 +2,7 @@ import { IncomingLobbyCard } from "@/components/cards/incoming-lobby-card";
 import { MutualLobbyCard } from "@/components/cards/mutual-lobby-card";
 import { NeutralLobbyCard } from "@/components/cards/neutral-lobby-card";
 import { OutgoingLobbyCard } from "@/components/cards/outgoing-lobby-card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -98,14 +99,16 @@ function LobbyScreen() {
 	});
 
 	return (
-		<div className="min-h-screen bg-background p-4 md:p-6">
-			<div className="mx-auto max-w-4xl space-y-6">
-				<Card>
-					<CardHeader>
-						<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-							<div>
-								<CardTitle className="text-3xl">Lunch Lobby</CardTitle>
-								<CardDescription>
+		<div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 md:p-6">
+			<div className="mx-auto max-w-5xl space-y-8">
+				<Card className="border-none bg-background/60 shadow-xl backdrop-blur-sm">
+					<CardHeader className="pb-4">
+						<div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+							<div className="space-y-1.5">
+								<CardTitle className="bg-gradient-to-br from-foreground to-foreground/80 bg-clip-text text-4xl font-bold text-transparent">
+									Lunch Lobby
+								</CardTitle>
+								<CardDescription className="text-base">
 									Find lunch partners in your college's dining hall
 								</CardDescription>
 							</div>
@@ -116,27 +119,35 @@ function LobbyScreen() {
 									onClick={() =>
 										setViewMode(viewMode === "feed" ? "tabs" : "feed")
 									}
+									className="group relative overflow-hidden transition-all duration-300 hover:border-primary/50"
 								>
 									{viewMode === "feed" ? (
 										<>
-											<LayoutGrid className="mr-2 h-4 w-4" />
+											<LayoutGrid className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
 											<span>Grid View</span>
 										</>
 									) : (
 										<>
-											<ListFilter className="mr-2 h-4 w-4" />
+											<ListFilter className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
 											<span>Feed View</span>
 										</>
 									)}
 								</Button>
 								<DropdownMenu>
 									<DropdownMenuTrigger asChild>
-										<Button variant="outline" size="sm">
-											<Filter className="mr-2 h-4 w-4" />
+										<Button
+											variant="outline"
+											size="sm"
+											className="group relative overflow-hidden transition-all duration-300 hover:border-primary/50"
+										>
+											<Filter className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:scale-110" />
 											{selectedCollege || "Filter by College"}
 										</Button>
 									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end" className="w-48">
+									<DropdownMenuContent
+										align="end"
+										className="w-56 backdrop-blur-sm"
+									>
 										{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
 											<DropdownMenuCheckboxItem
 												key={college}
@@ -146,6 +157,7 @@ function LobbyScreen() {
 														selectedCollege === college ? null : college,
 													)
 												}
+												className="transition-colors hover:bg-primary/10"
 											>
 												{college}
 											</DropdownMenuCheckboxItem>
@@ -155,11 +167,11 @@ function LobbyScreen() {
 							</div>
 						</div>
 					</CardHeader>
-					<CardContent>
+					<CardContent className="px-4 pb-6 pt-2 sm:px-6">
 						{/* Empty State */}
 						{!hasAnyUsers ? (
-							<Card className="p-8 text-center">
-								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
+							<Card className="border-none bg-muted/50 p-8 text-center shadow-none">
+								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-background/50 p-3 shadow-inner">
 									<Users className="h-6 w-6 text-muted-foreground" />
 								</div>
 								<h2 className="mb-2 text-xl font-semibold">
@@ -170,10 +182,10 @@ function LobbyScreen() {
 								</p>
 							</Card>
 						) : viewMode === "feed" ? (
-							<div className="space-y-8">
+							<div className="space-y-10">
 								{filteredUsers.mutual.length > 0 && (
-									<section className="space-y-4">
-										<div className="space-y-2">
+									<section className="space-y-6">
+										<div className="space-y-1.5">
 											<h2 className="text-2xl font-semibold tracking-tight text-primary">
 												Your Matches
 											</h2>
@@ -183,7 +195,7 @@ function LobbyScreen() {
 												them now to coordinate lunch.
 											</p>
 										</div>
-										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
 											{filteredUsers.mutual.map((user) => (
 												<MutualLobbyCard
 													key={user.userId}
@@ -196,8 +208,8 @@ function LobbyScreen() {
 								)}
 
 								{sortedNonMutualUsers.length > 0 && (
-									<section className="space-y-4">
-										<div className="space-y-2">
+									<section className="space-y-6">
+										<div className="space-y-1.5">
 											<h2 className="text-2xl font-semibold tracking-tight">
 												Discover Lunch Partners
 											</h2>
@@ -205,7 +217,7 @@ function LobbyScreen() {
 												Connect with others looking for lunch companions
 											</p>
 										</div>
-										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
 											{sortedNonMutualUsers.map((user) => {
 												if (filteredUsers.incoming.includes(user)) {
 													return (
@@ -239,39 +251,43 @@ function LobbyScreen() {
 							</div>
 						) : (
 							<Tabs defaultValue="mutual" className="w-full">
-								<TabsList className="grid w-full grid-cols-4">
-									<TabsTrigger value="mutual">
-										Matches
-										{filteredUsers.mutual.length > 0 && (
-											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+								<TabsList className="w-full">
+									{filteredUsers.mutual.length > 0 && (
+										<TabsTrigger value="mutual">
+											Matches
+											<Badge variant="default">
 												{filteredUsers.mutual.length}
-											</span>
-										)}
-									</TabsTrigger>
-									<TabsTrigger value="incoming">
-										Incoming
-										{filteredUsers.incoming.length > 0 && (
-											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-												{filteredUsers.incoming.length}
-											</span>
-										)}
-									</TabsTrigger>
-									<TabsTrigger value="outgoing">
-										Outgoing
-										{filteredUsers.outgoing.length > 0 && (
-											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-												{filteredUsers.outgoing.length}
-											</span>
-										)}
-									</TabsTrigger>
-									<TabsTrigger value="neutral">
-										Browse
-										{filteredUsers.neutral.length > 0 && (
-											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+											</Badge>
+										</TabsTrigger>
+									)}
+									{filteredUsers.incoming.length > 0 && (
+										<TabsTrigger value="incoming">
+											Incoming
+											{filteredUsers.incoming.length > 0 && (
+												<Badge variant="default">
+													{filteredUsers.incoming.length}
+												</Badge>
+											)}
+										</TabsTrigger>
+									)}
+									{filteredUsers.outgoing.length > 0 && (
+										<TabsTrigger value="outgoing">
+											Outgoing
+											{filteredUsers.outgoing.length > 0 && (
+												<Badge variant="default">
+													{filteredUsers.outgoing.length}
+												</Badge>
+											)}
+										</TabsTrigger>
+									)}
+									{filteredUsers.neutral.length > 0 && (
+										<TabsTrigger value="neutral">
+											Browse
+											<Badge variant="default">
 												{filteredUsers.neutral.length}
-											</span>
-										)}
-									</TabsTrigger>
+											</Badge>
+										</TabsTrigger>
+									)}
 								</TabsList>
 
 								<TabsContent value="mutual" className="mt-6">
