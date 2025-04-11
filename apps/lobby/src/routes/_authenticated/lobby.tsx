@@ -35,7 +35,9 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 
 function LobbyScreen() {
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
-	const { data: categorizedUsers } = useLobbyWebSocket({
+	const {
+		data: { categorizedUsers, me },
+	} = useLobbyWebSocket({
 		initialParticipants,
 	});
 
@@ -171,8 +173,8 @@ function LobbyScreen() {
 							<div className="space-y-8">
 								{filteredUsers.mutual.length > 0 && (
 									<section className="space-y-4">
-										<div className="space-y-1.5">
-											<h2 className="text-xl font-semibold text-primary">
+										<div className="space-y-2">
+											<h2 className="text-2xl font-semibold tracking-tight text-primary">
 												Your Matches
 											</h2>
 											<p className="text-sm text-muted-foreground">
@@ -181,9 +183,13 @@ function LobbyScreen() {
 												them now to coordinate lunch.
 											</p>
 										</div>
-										<div className="grid gap-4 md:grid-cols-2">
+										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
 											{filteredUsers.mutual.map((user) => (
-												<MutualLobbyCard key={user.userId} user={user} />
+												<MutualLobbyCard
+													key={user.userId}
+													me={me}
+													them={user}
+												/>
 											))}
 										</div>
 									</section>
@@ -191,28 +197,40 @@ function LobbyScreen() {
 
 								{sortedNonMutualUsers.length > 0 && (
 									<section className="space-y-4">
-										<div className="space-y-1.5">
-											<h2 className="text-xl font-semibold">
+										<div className="space-y-2">
+											<h2 className="text-2xl font-semibold tracking-tight">
 												Discover Lunch Partners
 											</h2>
 											<p className="text-sm text-muted-foreground">
 												Connect with others looking for lunch companions
 											</p>
 										</div>
-										<div className="grid gap-4 md:grid-cols-2">
+										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
 											{sortedNonMutualUsers.map((user) => {
 												if (filteredUsers.incoming.includes(user)) {
 													return (
-														<IncomingLobbyCard key={user.userId} user={user} />
+														<IncomingLobbyCard
+															key={user.userId}
+															me={me}
+															them={user}
+														/>
 													);
 												}
 												if (filteredUsers.outgoing.includes(user)) {
 													return (
-														<OutgoingLobbyCard key={user.userId} user={user} />
+														<OutgoingLobbyCard
+															key={user.userId}
+															me={me}
+															them={user}
+														/>
 													);
 												}
 												return (
-													<NeutralLobbyCard key={user.userId} user={user} />
+													<NeutralLobbyCard
+														key={user.userId}
+														me={me}
+														them={user}
+													/>
 												);
 											})}
 										</div>
@@ -231,7 +249,7 @@ function LobbyScreen() {
 										)}
 									</TabsTrigger>
 									<TabsTrigger value="incoming">
-										Interested
+										Incoming
 										{filteredUsers.incoming.length > 0 && (
 											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
 												{filteredUsers.incoming.length}
@@ -239,7 +257,7 @@ function LobbyScreen() {
 										)}
 									</TabsTrigger>
 									<TabsTrigger value="outgoing">
-										Your Picks
+										Outgoing
 										{filteredUsers.outgoing.length > 0 && (
 											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
 												{filteredUsers.outgoing.length}
@@ -259,7 +277,7 @@ function LobbyScreen() {
 								<TabsContent value="mutual" className="mt-6">
 									<div className="grid gap-4 md:grid-cols-2">
 										{filteredUsers.mutual.map((user) => (
-											<MutualLobbyCard key={user.userId} user={user} />
+											<MutualLobbyCard key={user.userId} me={me} them={user} />
 										))}
 									</div>
 								</TabsContent>
@@ -267,7 +285,11 @@ function LobbyScreen() {
 								<TabsContent value="incoming" className="mt-6">
 									<div className="grid gap-4 md:grid-cols-2">
 										{filteredUsers.incoming.map((user) => (
-											<IncomingLobbyCard key={user.userId} user={user} />
+											<IncomingLobbyCard
+												key={user.userId}
+												me={me}
+												them={user}
+											/>
 										))}
 									</div>
 								</TabsContent>
@@ -275,7 +297,11 @@ function LobbyScreen() {
 								<TabsContent value="outgoing" className="mt-6">
 									<div className="grid gap-4 md:grid-cols-2">
 										{filteredUsers.outgoing.map((user) => (
-											<OutgoingLobbyCard key={user.userId} user={user} />
+											<OutgoingLobbyCard
+												key={user.userId}
+												me={me}
+												them={user}
+											/>
 										))}
 									</div>
 								</TabsContent>
@@ -283,7 +309,7 @@ function LobbyScreen() {
 								<TabsContent value="neutral" className="mt-6">
 									<div className="grid gap-4 md:grid-cols-2">
 										{filteredUsers.neutral.map((user) => (
-											<NeutralLobbyCard key={user.userId} user={user} />
+											<NeutralLobbyCard key={user.userId} me={me} them={user} />
 										))}
 									</div>
 								</TabsContent>
