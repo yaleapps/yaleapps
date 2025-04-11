@@ -1,10 +1,20 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { LobbyParticipant } from "@repo/lobby-server/types";
+import type {
+	LobbyParticipant,
+	PreferenceValue,
+} from "@repo/lobby-server/types";
+import { PREFERENCE_EXPIRATION_SECONDS } from "@repo/lobby-server/types";
 import { MapPin, User } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Badge } from "../ui/badge";
 import { Separator } from "../ui/separator";
-import { ExpirationTimer } from "./expiration-timer";
 
 export function BaseLobbyCard({
 	me: my,
@@ -50,7 +60,7 @@ export function BaseLobbyCard({
 	return (
 		<Card
 			className={cn(
-				"group relative transition-all duration-300",
+				"group relative overflow-hidden transition-all duration-300",
 				"hover:shadow-lg hover:scale-[1.01]",
 				"border shadow-md",
 				styles.bg,
@@ -64,7 +74,7 @@ export function BaseLobbyCard({
 				variant={variant}
 			/>
 
-			<CardContent className="space-y-6 pt-6">
+			<CardContent className="space-y-6 p-6">
 				<blockquote className="text-xl text-card-foreground/80 italic leading-relaxed">
 					"{their.profile.vibes}"
 				</blockquote>
@@ -85,5 +95,92 @@ export function BaseLobbyCard({
 
 			<CardFooter>{children}</CardFooter>
 		</Card>
+	);
+}
+
+const variantColors = {
+	mutual: "from-purple-500 to-fuchsia-500",
+	incoming: "from-emerald-500 to-teal-500",
+	outgoing: "from-amber-500 to-orange-500",
+	neutral: "from-blue-500 to-sky-500",
+	default: "from-gray-500 to-slate-500",
+} as const;
+
+export function ExpirationTimer({
+	preference,
+	otherPreference,
+	variant = "default",
+}: {
+	preference: PreferenceValue | undefined;
+	otherPreference: PreferenceValue | undefined;
+	variant?: keyof typeof variantColors;
+}) {
+	const [timeLeft, setTimeLeft] = useState(() => {
+		if (!preference?.expiresAt && !otherPreference?.expiresAt) return 0;
+
+		const preferenceTime = preference?.expiresAt
+			? Math.max(0, (preference.expiresAt - Date.now()) / 1000)
+			: 0;
+
+		const otherPreferenceTime = otherPreference?.expiresAt
+			? Math.max(0, (otherPreference.expiresAt - Date.now()) / 1000)
+			: 0;
+
+		return Math.max(preferenceTime, otherPreferenceTime);
+	});
+
+	const progress = Math.max(
+		0,
+		Math.min(1, timeLeft / PREFERENCE_EXPIRATION_SECONDS),
+	);
+	const isExpired = timeLeft === 0;
+
+	useEffect(() => {
+		if (isExpired) return;
+
+		const interval = setInterval(() => {
+			setTimeLeft((current) => {
+				const newTime = Math.max(0, current - 1);
+				if (newTime === 0) clearInterval(interval);
+				return newTime;
+			});
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [isExpired]);
+
+	const formatTimeLeft = () => {
+		const minutes = Math.floor(timeLeft / 60);
+		const seconds = Math.floor(timeLeft % 60);
+		return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+	};
+
+	if (!preference?.expiresAt && !otherPreference?.expiresAt) return null;
+
+	return (
+		<TooltipProvider>
+			<Tooltip>
+				<TooltipTrigger asChild>
+					<div className="absolute inset-x-0 top-0 h-0.5">
+						<div className="absolute inset-0 bg-muted/10" />
+						<div
+							className={cn(
+								"absolute inset-y-0 left-0 bg-gradient-to-r transition-all duration-1000",
+								variantColors[variant],
+								isExpired && "animate-pulse opacity-50",
+							)}
+							style={{ width: `${progress * 100}%` }}
+						/>
+					</div>
+				</TooltipTrigger>
+				<TooltipContent>
+					<p className="text-sm font-medium">
+						{isExpired
+							? "Connection Expired"
+							: `Time remaining: ${formatTimeLeft()}`}
+					</p>
+				</TooltipContent>
+			</Tooltip>
+		</TooltipProvider>
 	);
 }
