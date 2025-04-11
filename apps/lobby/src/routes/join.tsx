@@ -112,8 +112,8 @@ function LunchLobbyForm() {
 	});
 
 	const trpc = useTRPC();
-	const { mutate: upsertLobbyProfile, isPending } = useMutation(
-		trpc.lobby.upsertLobbyProfile.mutationOptions({
+	const { mutate: joinLobby, isPending } = useMutation(
+		trpc.lobby.joinLobby.mutationOptions({
 			onMutate: async () => {
 				const { data: session, error } = await authClient.getSession();
 				if (error) throw new Error(`${error.status} ${error.statusText}`);
@@ -132,8 +132,8 @@ function LunchLobbyForm() {
 	);
 
 	return (
-		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-neutral-900 relative">
-			<Card className="w-full max-w-md px-1 border-none shadow-2xl z-10">
+		<div className="flex min-h-svh w-full items-center justify-center p-6 md:p-10 bg-background">
+			<Card className="w-full max-w-md px-1 z-10">
 				<CardHeader className="w-full">
 					<CardTitle className="text-3xl">Join the Lunch Lobby</CardTitle>
 					<CardDescription>
@@ -143,7 +143,7 @@ function LunchLobbyForm() {
 				<Form {...form}>
 					<form
 						onSubmit={form.handleSubmit(async (lobbyProfile) => {
-							upsertLobbyProfile(
+							joinLobby(
 								{ profile: lobbyProfile },
 								{
 									onSuccess: () => {
@@ -293,7 +293,7 @@ function LunchLobbyForm() {
 				</Form>
 			</Card>
 			<ShootingStars />
-			<StarsBackground />
+			{/* <StarsBackground /> */}
 		</div>
 	);
 }

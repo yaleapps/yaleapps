@@ -27,12 +27,7 @@ export function useRegisterLobbyWebSocketAndInvalidateOnUpdate() {
 		const ws = new WebSocket("ws://localhost:8787/ws");
 
 		ws.onopen = () => {
-			ws.send(
-				JSON.stringify({
-					type: "JOIN",
-					userId: session.user.id as UserId,
-				} satisfies WsMessageIn),
-			);
+			ws.send(JSON.stringify({ type: "GET_LOBBY" } satisfies WsMessageIn));
 		};
 
 		ws.onmessage = (event) => {
