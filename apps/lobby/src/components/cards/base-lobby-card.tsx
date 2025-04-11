@@ -16,11 +16,9 @@ export function BaseLobbyCard({
 }) {
 	return (
 		<Card className="group transition hover:shadow-md">
-			<CardHeader>
-				<div className="flex items-center gap-1.5 text-sm text-primary">
-					<MapPin className="h-4 w-4" />
-					<span>{user.profile.diningHall}</span>
-				</div>
+			<CardHeader className="flex items-center gap-1.5 text-sm text-primary">
+				<MapPin className="h-4 w-4" />
+				<span>{user.profile.diningHall}</span>
 			</CardHeader>
 			<CardContent className="space-y-8">
 				<blockquote className="text-xl text-muted-foreground">
