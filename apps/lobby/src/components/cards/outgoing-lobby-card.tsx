@@ -22,7 +22,7 @@ export function OutgoingLobbyCard({
 			<Button
 				size="lg"
 				variant="outline"
-				className="w-full border-amber-200/50 dark:border-amber-800/50 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/50 dark:to-orange-950/50 hover:from-amber-100/50 hover:to-orange-100/50 dark:hover:from-amber-900/50 dark:hover:to-orange-900/50 text-amber-700 dark:text-amber-300 cursor-wait group"
+				className="w-full border-amber-200/50 dark:border-amber-800/50 bg-gradient-to-r from-amber-50/50 to-orange-50/50 dark:from-amber-950/50 dark:to-orange-950/50 hover:from-amber-100/50 hover:to-orange-100/50 dark:hover:from-amber-900/50 dark:hover:to-orange-900/50 text-amber-700 dark:text-amber-300 group"
 				onClick={() => cancelParticipant({ id: them.userId as UserId })}
 				disabled={isCancelling}
 			>
