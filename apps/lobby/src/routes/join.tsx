@@ -47,7 +47,7 @@ import { toast } from "sonner";
 
 const VIBE_PLACEHOLDERS = [
 	"Econ major slithering around, looking for quick lunch chat...",
-	"CS major seeking , getWebRequestbreak from leetcode and internship talk...",
+	"CS major seeking break from leetcode and internship talk...",
 	"Pre-med needing study break from orgo problem sets...",
 	"Philosophy major pondering: if a sandwich falls in the dining hall...",
 	"History major time-traveling through meals, stories welcome...",
