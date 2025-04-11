@@ -6,18 +6,18 @@ import {
 } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import Header from "../components/Header";
-
 import TanstackQueryLayout from "../integrations/tanstack-query/layout";
 
 import appCss from "../styles.css?url";
 
 import type { QueryClient } from "@tanstack/react-query";
 
-import type { TRPCRouter } from "@repo/lobby-durable-object/app";
-import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
+import type { TRPCRouter } from "@repo/lobby-server/app";
+import type { TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 
+import { ModeToggle } from "@/components/ui/mode-toggle";
 interface MyRouterContext {
 	queryClient: QueryClient;
 
@@ -47,16 +47,13 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 	}),
 
 	component: () => (
-		<RootDocument>
-			<Header />
-			<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-				<Outlet />
-				<TanStackRouterDevtools />
-				<Toaster />
-				<TanstackQueryLayout />
-				<ModeToggle className="absolute top-2 right-2" />
-			</ThemeProvider>
-		</RootDocument>
+		<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+			<Outlet />
+			<TanStackRouterDevtools />
+			<Toaster />
+			<TanstackQueryLayout />
+			<ModeToggle className="absolute top-2 right-2" />
+		</ThemeProvider>
 	),
 });
 
