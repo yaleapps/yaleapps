@@ -3,7 +3,13 @@ import { MutualLobbyCard } from "@/components/cards/mutual-lobby-card";
 import { NeutralLobbyCard } from "@/components/cards/neutral-lobby-card";
 import { OutgoingLobbyCard } from "@/components/cards/outgoing-lobby-card";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import {
+	Card,
+	CardHeader,
+	CardTitle,
+	CardDescription,
+	CardContent,
+} from "@/components/ui/card";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -60,119 +66,128 @@ function LobbyScreen() {
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
 			<div className="mx-auto max-w-4xl space-y-6">
-				{/* Header Section */}
-				<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-					<h1 className="text-2xl font-semibold tracking-tight">Lunch Lobby</h1>
-					<div className="flex items-center gap-2">
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="sm">
-									<Filter className="mr-2 h-4 w-4" />
-									{selectedCollege || "Filter by College"}
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-48">
-								{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
-									<DropdownMenuCheckboxItem
-										key={college}
-										checked={selectedCollege === college}
-										onCheckedChange={() =>
-											setSelectedCollege(
-												selectedCollege === college ? null : college,
-											)
-										}
-									>
-										{college}
-									</DropdownMenuCheckboxItem>
-								))}
-							</DropdownMenuContent>
-						</DropdownMenu>
-					</div>
-				</div>
-
-				{/* Empty State */}
-				{!hasAnyUsers ? (
-					<Card className="p-8 text-center">
-						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
-							<Users className="h-6 w-6 text-muted-foreground" />
+				<Card>
+					<CardHeader>
+						<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+							<div>
+								<CardTitle className="text-3xl">Lunch Lobby</CardTitle>
+								<CardDescription>
+									Find lunch partners in your college's dining hall
+								</CardDescription>
+							</div>
+							<div className="flex items-center gap-2">
+								<DropdownMenu>
+									<DropdownMenuTrigger asChild>
+										<Button variant="outline" size="sm">
+											<Filter className="mr-2 h-4 w-4" />
+											{selectedCollege || "Filter by College"}
+										</Button>
+									</DropdownMenuTrigger>
+									<DropdownMenuContent align="end" className="w-48">
+										{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
+											<DropdownMenuCheckboxItem
+												key={college}
+												checked={selectedCollege === college}
+												onCheckedChange={() =>
+													setSelectedCollege(
+														selectedCollege === college ? null : college,
+													)
+												}
+											>
+												{college}
+											</DropdownMenuCheckboxItem>
+										))}
+									</DropdownMenuContent>
+								</DropdownMenu>
+							</div>
 						</div>
-						<h2 className="mb-2 text-xl font-semibold">
-							The lobby is quiet right now...
-						</h2>
-						<p className="text-sm text-muted-foreground">
-							Check back soon or invite friends to join!
-						</p>
-					</Card>
-				) : (
-					<Tabs defaultValue="mutual" className="w-full">
-						<TabsList className="grid w-full grid-cols-4">
-							<TabsTrigger value="mutual">
-								Matches
-								{filteredUsers.mutual.length > 0 && (
-									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-										{filteredUsers.mutual.length}
-									</span>
-								)}
-							</TabsTrigger>
-							<TabsTrigger value="incoming">
-								Interested
-								{filteredUsers.incoming.length > 0 && (
-									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-										{filteredUsers.incoming.length}
-									</span>
-								)}
-							</TabsTrigger>
-							<TabsTrigger value="outgoing">
-								Your Picks
-								{filteredUsers.outgoing.length > 0 && (
-									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-										{filteredUsers.outgoing.length}
-									</span>
-								)}
-							</TabsTrigger>
-							<TabsTrigger value="neutral">
-								Browse
-								{filteredUsers.neutral.length > 0 && (
-									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
-										{filteredUsers.neutral.length}
-									</span>
-								)}
-							</TabsTrigger>
-						</TabsList>
+					</CardHeader>
+					<CardContent>
+						{/* Empty State */}
+						{!hasAnyUsers ? (
+							<Card className="p-8 text-center">
+								<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
+									<Users className="h-6 w-6 text-muted-foreground" />
+								</div>
+								<h2 className="mb-2 text-xl font-semibold">
+									The lobby is quiet right now...
+								</h2>
+								<p className="text-sm text-muted-foreground">
+									Check back soon or invite friends to join!
+								</p>
+							</Card>
+						) : (
+							<Tabs defaultValue="mutual" className="w-full">
+								<TabsList className="grid w-full grid-cols-4">
+									<TabsTrigger value="mutual">
+										Matches
+										{filteredUsers.mutual.length > 0 && (
+											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+												{filteredUsers.mutual.length}
+											</span>
+										)}
+									</TabsTrigger>
+									<TabsTrigger value="incoming">
+										Interested
+										{filteredUsers.incoming.length > 0 && (
+											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+												{filteredUsers.incoming.length}
+											</span>
+										)}
+									</TabsTrigger>
+									<TabsTrigger value="outgoing">
+										Your Picks
+										{filteredUsers.outgoing.length > 0 && (
+											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+												{filteredUsers.outgoing.length}
+											</span>
+										)}
+									</TabsTrigger>
+									<TabsTrigger value="neutral">
+										Browse
+										{filteredUsers.neutral.length > 0 && (
+											<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+												{filteredUsers.neutral.length}
+											</span>
+										)}
+									</TabsTrigger>
+								</TabsList>
 
-						<TabsContent value="mutual" className="mt-6">
-							<div className="grid gap-4 md:grid-cols-2">
-								{filteredUsers.mutual.map((user) => (
-									<MutualLobbyCard key={user.userId} user={user} />
-								))}
-							</div>
-						</TabsContent>
+								<TabsContent value="mutual" className="mt-6">
+									<div className="grid gap-4 md:grid-cols-2">
+										{filteredUsers.mutual.map((user) => (
+											<MutualLobbyCard key={user.userId} user={user} />
+										))}
+									</div>
+								</TabsContent>
 
-						<TabsContent value="incoming" className="mt-6">
-							<div className="grid gap-4 md:grid-cols-2">
-								{filteredUsers.incoming.map((user) => (
-									<IncomingLobbyCard key={user.userId} user={user} />
-								))}
-							</div>
-						</TabsContent>
+								<TabsContent value="incoming" className="mt-6">
+									<div className="grid gap-4 md:grid-cols-2">
+										{filteredUsers.incoming.map((user) => (
+											<IncomingLobbyCard key={user.userId} user={user} />
+										))}
+									</div>
+								</TabsContent>
 
-						<TabsContent value="outgoing" className="mt-6">
-							<div className="grid gap-4 md:grid-cols-2">
-								{filteredUsers.outgoing.map((user) => (
-									<OutgoingLobbyCard key={user.userId} user={user} />
-								))}
-							</div>
-						</TabsContent>
+								<TabsContent value="outgoing" className="mt-6">
+									<div className="grid gap-4 md:grid-cols-2">
+										{filteredUsers.outgoing.map((user) => (
+											<OutgoingLobbyCard key={user.userId} user={user} />
+										))}
+									</div>
+								</TabsContent>
 
-						<TabsContent value="neutral" className="mt-6">
-							<div className="grid gap-4 md:grid-cols-2">
-								{filteredUsers.neutral.map((user) => (
-									<NeutralLobbyCard key={user.userId} user={user} />
-								))}
-							</div>
-						</TabsContent>
-					</Tabs>
-				)}
+								<TabsContent value="neutral" className="mt-6">
+									<div className="grid gap-4 md:grid-cols-2">
+										{filteredUsers.neutral.map((user) => (
+											<NeutralLobbyCard key={user.userId} user={user} />
+										))}
+									</div>
+								</TabsContent>
+							</Tabs>
+						)}
+					</CardContent>
+				</Card>
 			</div>
 		</div>
 	);
