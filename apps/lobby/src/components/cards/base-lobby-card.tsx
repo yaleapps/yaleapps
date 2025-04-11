@@ -69,6 +69,12 @@ export function BaseLobbyCard({
 			/>
 
 			<CardContent className="space-y-6 pt-6">
+				<blockquote className="text-xl text-card-foreground/80 italic leading-relaxed">
+					"{their.profile.vibes}"
+				</blockquote>
+
+				<Separator className="my-4" />
+
 				<div className="flex items-start justify-between">
 					<Badge className="gap-1.5 text-sm font-medium" variant="secondary">
 						<MapPin className="h-4 w-4" aria-hidden="true" />
@@ -79,12 +85,6 @@ export function BaseLobbyCard({
 						<span>{their.profile.year}</span>
 					</Badge>
 				</div>
-
-				<Separator className="my-4" />
-
-				<blockquote className="text-xl text-card-foreground/80 italic leading-relaxed">
-					"{their.profile.vibes}"
-				</blockquote>
 			</CardContent>
 
 			<CardFooter>{children}</CardFooter>
