@@ -140,159 +140,157 @@ function LunchLobbyForm() {
 						Find lunch partners in your college's dining hall
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(async (lobbyProfile) => {
-								upsertLobbyProfile(
-									{ profile: lobbyProfile },
-									{
-										onSuccess: () => {
-											navigate({ to: "/lobby" });
-										},
-										onError: () => {
-											form.setError("root", {
-												type: "submit",
-												message: "Failed to join lobby. Please try again.",
-											});
-										},
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(async (lobbyProfile) => {
+							upsertLobbyProfile(
+								{ profile: lobbyProfile },
+								{
+									onSuccess: () => {
+										navigate({ to: "/lobby" });
 									},
-								);
-							})}
-							className="space-y-6"
-						>
-							<div className="space-y-4">
-								<FormField
-									control={form.control}
-									name="diningHall"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Preferred College/Dining Hall</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value ?? ""}
-											>
-												<FormControl>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Select a dining hall" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{DINING_HALL_NAMES.map((diningHall) => (
-														<SelectItem key={diningHall} value={diningHall}>
-															{diningHall}
-														</SelectItem>
-													))}
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="year"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Year</FormLabel>
-											<Select
-												onValueChange={field.onChange}
-												value={field.value ?? ""}
-											>
-												<FormControl>
-													<SelectTrigger className="w-full">
-														<SelectValue placeholder="Select your year" />
-													</SelectTrigger>
-												</FormControl>
-												<SelectContent>
-													{GRADUATION_YEARS.map((year) => (
-														<SelectItem key={year} value={year}>
-															{year}
-														</SelectItem>
-													))}
-													<SelectItem value="Graduate">Graduate</SelectItem>
-												</SelectContent>
-											</Select>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="vibes"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>What's your lunch vibe?</FormLabel>
-											<FormControl>
-												<Textarea
-													placeholder={placeholder}
-													className="resize-none h-20"
-													{...field}
-												/>
-											</FormControl>
-											<FormDescription className="text-xs flex justify-between items-center">
-												<span>
-													Express yourself! Share your major, interests, or
-													mood...
-												</span>
-												<span
-													className={cn(
-														"transition-colors text-muted-foreground",
-														field.value.length > VIBE_MAX_LENGTH / 5
-															? "text-yellow-500"
-															: "",
-														field.value.length > VIBE_MAX_LENGTH / 2
-															? "text-orange-500"
-															: "",
-														field.value.length > VIBE_MAX_LENGTH
-															? "text-destructive"
-															: "",
-													)}
-												>
-													{field.value.length}/{VIBE_MAX_LENGTH}
-												</span>
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-
-								<FormField
-									control={form.control}
-									name="phoneNumber"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Phone Number</FormLabel>
-											<FormControl>
-												<PhoneInput {...field} />
-											</FormControl>
-											<FormDescription className="text-xs">
-												Your number remains private until both parties accept
-												the match
-											</FormDescription>
-											<FormMessage />
-										</FormItem>
-									)}
-								/>
-							</div>
-						</form>
-					</Form>
-				</CardContent>
-				<CardFooter>
-					<Button
-						type="submit"
-						className="w-full"
-						size="lg"
-						disabled={isPending}
+									onError: () => {
+										form.setError("root", {
+											type: "submit",
+											message: "Failed to join lobby. Please try again.",
+										});
+									},
+								},
+							);
+						})}
+						className="space-y-6"
 					>
-						{isPending ? (
-							<Loader2 className="w-4 h-4 mr-2 animate-spin" />
-						) : null}
-						Join Lobby
-					</Button>
-				</CardFooter>
+						<CardContent className="space-y-4">
+							<FormField
+								control={form.control}
+								name="diningHall"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Preferred College/Dining Hall</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value ?? ""}
+										>
+											<FormControl>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Select a dining hall" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{DINING_HALL_NAMES.map((diningHall) => (
+													<SelectItem key={diningHall} value={diningHall}>
+														{diningHall}
+													</SelectItem>
+												))}
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="year"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Year</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											value={field.value ?? ""}
+										>
+											<FormControl>
+												<SelectTrigger className="w-full">
+													<SelectValue placeholder="Select your year" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{GRADUATION_YEARS.map((year) => (
+													<SelectItem key={year} value={year}>
+														{year}
+													</SelectItem>
+												))}
+												<SelectItem value="Graduate">Graduate</SelectItem>
+											</SelectContent>
+										</Select>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="vibes"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>What's your lunch vibe?</FormLabel>
+										<FormControl>
+											<Textarea
+												placeholder={placeholder}
+												className="resize-none h-20"
+												{...field}
+											/>
+										</FormControl>
+										<FormDescription className="text-xs flex justify-between items-center">
+											<span>
+												Express yourself! Share your major, interests, or
+												mood...
+											</span>
+											<span
+												className={cn(
+													"transition-colors text-muted-foreground",
+													field.value.length > VIBE_MAX_LENGTH / 5
+														? "text-yellow-500"
+														: "",
+													field.value.length > VIBE_MAX_LENGTH / 2
+														? "text-orange-500"
+														: "",
+													field.value.length > VIBE_MAX_LENGTH
+														? "text-destructive"
+														: "",
+												)}
+											>
+												{field.value.length}/{VIBE_MAX_LENGTH}
+											</span>
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="phoneNumber"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Phone Number</FormLabel>
+										<FormControl>
+											<PhoneInput {...field} />
+										</FormControl>
+										<FormDescription className="text-xs">
+											Your number remains private until both parties accept the
+											match
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</CardContent>
+						<CardFooter>
+							<Button
+								type="submit"
+								className="w-full"
+								size="lg"
+								disabled={isPending}
+							>
+								{isPending ? (
+									<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+								) : null}
+								Join Lobby
+							</Button>
+						</CardFooter>
+					</form>
+				</Form>
 			</Card>
 			<ShootingStars />
 			<StarsBackground />
