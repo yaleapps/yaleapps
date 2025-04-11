@@ -81,7 +81,7 @@ export function useMeFromLobbyParticipants({
 	);
 }
 
-export function useLobbyCategories({
+export function useLobbyParticipantsCategorizedByStatus({
 	initialParticipants,
 }: {
 	initialParticipants: LobbyParticipant[];

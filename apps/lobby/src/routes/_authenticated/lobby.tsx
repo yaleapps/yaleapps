@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	useLobbyCategories,
+	useLobbyParticipantsCategorizedByStatus,
 	useMeFromLobbyParticipants,
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
 } from "@/lib/useLobby";
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 function LobbyScreen() {
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
-	const { data: categorizedUsers } = useLobbyCategories({
+	const { data: categorizedUsers } = useLobbyParticipantsCategorizedByStatus({
 		initialParticipants,
 	});
 	const { data: me } = useMeFromLobbyParticipants({ initialParticipants });
@@ -76,31 +76,7 @@ function LobbyScreen() {
 		...filteredUsers.incoming,
 		...filteredUsers.outgoing,
 		...filteredUsers.neutral,
-	].sort((a, b) => {
-		// Prioritize incoming connections
-		if (
-			filteredUsers.incoming.includes(a) &&
-			!filteredUsers.incoming.includes(b)
-		)
-			return -1;
-		if (
-			!filteredUsers.incoming.includes(a) &&
-			filteredUsers.incoming.includes(b)
-		)
-			return 1;
-		// Then prioritize outgoing connections
-		if (
-			filteredUsers.outgoing.includes(a) &&
-			!filteredUsers.outgoing.includes(b)
-		)
-			return -1;
-		if (
-			!filteredUsers.outgoing.includes(a) &&
-			filteredUsers.outgoing.includes(b)
-		)
-			return 1;
-		return 0;
-	});
+	];
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 md:p-6">
