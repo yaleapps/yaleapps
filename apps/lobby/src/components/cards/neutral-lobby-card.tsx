@@ -10,10 +10,10 @@ import { BaseLobbyCard } from "./base-lobby-card";
 
 export function NeutralLobbyCard({ user }: { user: LobbyParticipant }) {
 	const trpc = useTRPC();
-	const { mutate: acceptParticipant, isLoading: isAccepting } = useMutation(
+	const { mutate: acceptParticipant, isPending: isAccepting } = useMutation(
 		trpc.lobby.acceptParticipant.mutationOptions(),
 	);
-	const { mutate: rejectParticipant, isLoading: isRejecting } = useMutation(
+	const { mutate: rejectParticipant, isPending: isRejecting } = useMutation(
 		trpc.lobby.rejectParticipant.mutationOptions(),
 	);
 

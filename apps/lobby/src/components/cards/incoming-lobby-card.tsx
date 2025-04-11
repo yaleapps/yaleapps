@@ -10,24 +10,20 @@ import { BaseLobbyCard } from "./base-lobby-card";
 
 export function IncomingLobbyCard({ user }: { user: LobbyParticipant }) {
 	const trpc = useTRPC();
-	const { mutate: acceptParticipant, isLoading } = useMutation(
+	const { mutate: acceptParticipant, isPending } = useMutation(
 		trpc.lobby.acceptParticipant.mutationOptions(),
 	);
-
-	const handleConnect = () => {
-		acceptParticipant({ id: user.userId as UserId });
-	};
 
 	return (
 		<BaseLobbyCard user={user}>
 			<Button
 				size="lg"
-				onClick={handleConnect}
-				disabled={isLoading}
-				className="w-full bg-primary/90 hover:bg-primary transition-all"
+				onClick={() => acceptParticipant({ id: user.userId as UserId })}
+				disabled={isPending}
+				className="w-full"
 			>
 				<Check className="mr-2 h-5 w-5" />
-				{isLoading ? "Connecting..." : "Let's Connect!"}
+				{isPending ? "Connecting..." : "Let's Connect!"}
 			</Button>
 		</BaseLobbyCard>
 	);
