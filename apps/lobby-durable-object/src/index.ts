@@ -92,7 +92,10 @@ export class Lobby extends DurableObject<Env> {
 											Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
 									};
 								}
-								return {};
+								return {
+									value: "neutral",
+									expiresAt: Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
+								};
 							})(),
 						},
 					}) satisfies LobbyParticipant,
@@ -378,7 +381,7 @@ export const trpcRouter = createTRPCRouter({
 				await lobby.setParticipantPreference({
 					fromUserId: ctx.user.id as UserId,
 					targetUserId: id,
-					preference: undefined,
+					preference: "neutral",
 				});
 			}),
 	},
