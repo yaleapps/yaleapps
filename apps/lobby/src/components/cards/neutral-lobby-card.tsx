@@ -30,7 +30,7 @@ export function NeutralLobbyCard({
 				disabled={isRejecting || isAccepting}
 			>
 				<Clock className="mr-2 h-4 w-4" />
-				{isRejecting ? "Declining..." : "Decline"}
+				{isRejecting ? "Declining..." : "I'll pass"}
 			</Button>
 			<Button
 				size="lg"
@@ -39,7 +39,7 @@ export function NeutralLobbyCard({
 				disabled={isRejecting || isAccepting}
 			>
 				<Sparkles className="mr-2 h-4 w-4 transition-transform group-hover:scale-110" />
-				{isAccepting ? "Accepting..." : "Accept"}
+				{isAccepting ? "Accepting..." : "I'm down"}
 			</Button>
 		</BaseLobbyCard>
 	);
