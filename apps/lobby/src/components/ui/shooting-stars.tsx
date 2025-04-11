@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import type React from "react";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface ShootingStar {
 	id: number;
@@ -118,8 +118,6 @@ export const ShootingStars: React.FC<ShootingStarsProps> = ({
 		<svg
 			ref={svgRef}
 			className={cn("w-full h-full absolute inset-0", className)}
-			aria-label="Shooting stars"
-			role="img"
 		>
 			{star && (
 				<rect

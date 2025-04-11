@@ -24,12 +24,10 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { ShootingStars } from "@/components/ui/shooting-stars";
-import { StarsBackground } from "@/components/ui/stars-background";
 import { Textarea } from "@/components/ui/textarea";
 import { useTRPC } from "@/integrations/trpc/react";
-import { cn, getCurrentMealType } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { authClient } from "@repo/auth/better-auth/client";
 import { DINING_HALL_NAMES } from "@repo/constants";
@@ -293,7 +291,6 @@ function LunchLobbyForm() {
 				</Form>
 			</Card>
 			<ShootingStars />
-			{/* <StarsBackground /> */}
 		</div>
 	);
 }
