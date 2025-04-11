@@ -250,7 +250,18 @@ function LobbyScreen() {
 								)}
 							</div>
 						) : (
-							<Tabs defaultValue="mutual" className="w-full">
+							<Tabs
+								defaultValue={
+									filteredUsers.mutual.length > 0
+										? "mutual"
+										: filteredUsers.incoming.length > 0
+											? "incoming"
+											: filteredUsers.outgoing.length > 0
+												? "outgoing"
+												: "neutral"
+								}
+								className="w-full"
+							>
 								<TabsList className="w-full">
 									{filteredUsers.mutual.length > 0 && (
 										<TabsTrigger value="mutual">
