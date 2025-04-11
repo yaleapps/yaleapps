@@ -11,7 +11,6 @@
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
-import { Route as MatchImport } from './routes/match'
 import { Route as LandingImport } from './routes/landing'
 import { Route as JoinImport } from './routes/join'
 import { Route as AuthenticatedImport } from './routes/_authenticated'
@@ -19,12 +18,6 @@ import { Route as IndexImport } from './routes/index'
 import { Route as AuthenticatedLobbyImport } from './routes/_authenticated/lobby'
 
 // Create/Update Routes
-
-const MatchRoute = MatchImport.update({
-  id: '/match',
-  path: '/match',
-  getParentRoute: () => rootRoute,
-} as any)
 
 const LandingRoute = LandingImport.update({
   id: '/landing',
@@ -87,13 +80,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LandingImport
       parentRoute: typeof rootRoute
     }
-    '/match': {
-      id: '/match'
-      path: '/match'
-      fullPath: '/match'
-      preLoaderRoute: typeof MatchImport
-      parentRoute: typeof rootRoute
-    }
     '/_authenticated/lobby': {
       id: '/_authenticated/lobby'
       path: '/lobby'
@@ -123,7 +109,6 @@ export interface FileRoutesByFullPath {
   '': typeof AuthenticatedRouteWithChildren
   '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/match': typeof MatchRoute
   '/lobby': typeof AuthenticatedLobbyRoute
 }
 
@@ -132,7 +117,6 @@ export interface FileRoutesByTo {
   '': typeof AuthenticatedRouteWithChildren
   '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/match': typeof MatchRoute
   '/lobby': typeof AuthenticatedLobbyRoute
 }
 
@@ -142,22 +126,20 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/join': typeof JoinRoute
   '/landing': typeof LandingRoute
-  '/match': typeof MatchRoute
   '/_authenticated/lobby': typeof AuthenticatedLobbyRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '' | '/join' | '/landing' | '/match' | '/lobby'
+  fullPaths: '/' | '' | '/join' | '/landing' | '/lobby'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '' | '/join' | '/landing' | '/match' | '/lobby'
+  to: '/' | '' | '/join' | '/landing' | '/lobby'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/join'
     | '/landing'
-    | '/match'
     | '/_authenticated/lobby'
   fileRoutesById: FileRoutesById
 }
@@ -167,7 +149,6 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   JoinRoute: typeof JoinRoute
   LandingRoute: typeof LandingRoute
-  MatchRoute: typeof MatchRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -175,7 +156,6 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   JoinRoute: JoinRoute,
   LandingRoute: LandingRoute,
-  MatchRoute: MatchRoute,
 }
 
 export const routeTree = rootRoute
@@ -191,8 +171,7 @@ export const routeTree = rootRoute
         "/",
         "/_authenticated",
         "/join",
-        "/landing",
-        "/match"
+        "/landing"
       ]
     },
     "/": {
@@ -209,9 +188,6 @@ export const routeTree = rootRoute
     },
     "/landing": {
       "filePath": "landing.tsx"
-    },
-    "/match": {
-      "filePath": "match.tsx"
     },
     "/_authenticated/lobby": {
       "filePath": "_authenticated/lobby.tsx",
