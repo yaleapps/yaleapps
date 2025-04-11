@@ -61,6 +61,26 @@ export function useRegisterLobbyWebSocketAndInvalidateOnUpdate() {
 	}, [queryClient, session, trpc]);
 }
 
+export function useMeFromLobbyParticipants({
+	initialParticipants,
+}: {
+	initialParticipants: LobbyParticipant[];
+}) {
+	const trpc = useTRPC();
+	const { data: session } = authClient.useSession();
+
+	return useQuery(
+		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
+			initialData: initialParticipants,
+			staleTime: Number.POSITIVE_INFINITY,
+			select: (data) => {
+				const myUserId = session?.user.id as UserId;
+				return data.find((user) => user.userId === myUserId);
+			},
+		}),
+	);
+}
+
 export function useLobbyCategories({
 	initialParticipants,
 }: {
@@ -73,36 +93,25 @@ export function useLobbyCategories({
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
 			staleTime: Number.POSITIVE_INFINITY,
-			select: (
-				data,
-			): {
-				me: LobbyParticipant | undefined;
-				categorizedUsers: CategorizedUsers;
-			} => {
+			select: (data): CategorizedUsers => {
 				if (!session) {
 					return {
-						me: undefined,
-						categorizedUsers: {
-							mutual: [],
-							incoming: [],
-							outgoing: [],
-							neutral: [],
-						} as CategorizedUsers,
-					};
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers;
 				}
 
 				const myUserId = session?.user.id as UserId;
 				const me = data.find((user) => user.userId === myUserId);
 				if (!me) {
 					return {
-						me: undefined,
-						categorizedUsers: {
-							mutual: [],
-							incoming: [],
-							outgoing: [],
-							neutral: [],
-						} as CategorizedUsers,
-					};
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers;
 				}
 				const otherProfiles = data.filter((user) => user.userId !== myUserId);
 				return otherProfiles.reduce(
@@ -136,29 +145,26 @@ export function useLobbyCategories({
 						}
 
 						if (doILikeThem === "accept" && doTheyLikeMe === "accept") {
-							acc.categorizedUsers.mutual.push(currUser);
+							acc.mutual.push(currUser);
 						} else if (doILikeThem === "accept" && doTheyLikeMe === "neutral") {
-							acc.categorizedUsers.outgoing.push(currUser);
+							acc.outgoing.push(currUser);
 						} else if (doILikeThem === "neutral" && doTheyLikeMe === "accept") {
-							acc.categorizedUsers.incoming.push(currUser);
+							acc.incoming.push(currUser);
 						} else if (
 							doILikeThem === "neutral" &&
 							doTheyLikeMe === "neutral"
 						) {
-							acc.categorizedUsers.neutral.push(currUser);
+							acc.neutral.push(currUser);
 						}
 
 						return acc;
 					},
 					{
-						me: me,
-						categorizedUsers: {
-							mutual: [],
-							incoming: [],
-							outgoing: [],
-							neutral: [],
-						} as CategorizedUsers,
-					},
+						mutual: [],
+						incoming: [],
+						outgoing: [],
+						neutral: [],
+					} as CategorizedUsers,
 				);
 			},
 		}),

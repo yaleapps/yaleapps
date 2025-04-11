@@ -20,6 +20,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
 	useLobbyCategories,
+	useMeFromLobbyParticipants,
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
 } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
@@ -40,9 +41,10 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 function LobbyScreen() {
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
-	const {
-		data: { categorizedUsers, me },
-	} = useLobbyCategories({ initialParticipants });
+	const { data: categorizedUsers } = useLobbyCategories({
+		initialParticipants,
+	});
+	const { data: me } = useMeFromLobbyParticipants({ initialParticipants });
 
 	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
 	const [viewMode, setViewMode] = useState<"feed" | "tabs">("feed");
