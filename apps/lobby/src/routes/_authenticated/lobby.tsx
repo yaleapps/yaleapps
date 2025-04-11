@@ -10,6 +10,7 @@ import {
 	DropdownMenuContent,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLobbyWebSocket } from "@/lib/useLobby";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import { createFileRoute } from "@tanstack/react-router";
@@ -52,6 +53,10 @@ function LobbyScreen() {
 		};
 	})();
 
+	const hasAnyUsers = Object.values(filteredUsers).some(
+		(users) => users.length > 0,
+	);
+
 	return (
 		<div className="min-h-screen bg-background p-4 md:p-6">
 			<div className="mx-auto max-w-4xl space-y-6">
@@ -86,7 +91,7 @@ function LobbyScreen() {
 				</div>
 
 				{/* Empty State */}
-				{Object.values(filteredUsers).every((users) => users.length === 0) && (
+				{!hasAnyUsers ? (
 					<Card className="p-8 text-center">
 						<div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted p-3">
 							<Users className="h-6 w-6 text-muted-foreground" />
@@ -98,62 +103,76 @@ function LobbyScreen() {
 							Check back soon or invite friends to join!
 						</p>
 					</Card>
-				)}
+				) : (
+					<Tabs defaultValue="mutual" className="w-full">
+						<TabsList className="grid w-full grid-cols-4">
+							<TabsTrigger value="mutual">
+								Matches
+								{filteredUsers.mutual.length > 0 && (
+									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+										{filteredUsers.mutual.length}
+									</span>
+								)}
+							</TabsTrigger>
+							<TabsTrigger value="incoming">
+								Interested
+								{filteredUsers.incoming.length > 0 && (
+									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+										{filteredUsers.incoming.length}
+									</span>
+								)}
+							</TabsTrigger>
+							<TabsTrigger value="outgoing">
+								Your Picks
+								{filteredUsers.outgoing.length > 0 && (
+									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+										{filteredUsers.outgoing.length}
+									</span>
+								)}
+							</TabsTrigger>
+							<TabsTrigger value="neutral">
+								Browse
+								{filteredUsers.neutral.length > 0 && (
+									<span className="rounded-full bg-primary px-2 py-0.5 text-xs text-primary-foreground">
+										{filteredUsers.neutral.length}
+									</span>
+								)}
+							</TabsTrigger>
+						</TabsList>
 
-				{/* User Sections */}
-				<div className="space-y-8">
-					{filteredUsers.mutual.length > 0 && (
-						<section className="space-y-4">
-							<h2 className="text-lg font-semibold tracking-tight">
-								Mutual Interest
-							</h2>
+						<TabsContent value="mutual" className="mt-6">
 							<div className="grid gap-4 md:grid-cols-2">
 								{filteredUsers.mutual.map((user) => (
 									<MutualLobbyCard key={user.userId} user={user} />
 								))}
 							</div>
-						</section>
-					)}
+						</TabsContent>
 
-					{filteredUsers.incoming.length > 0 && (
-						<section className="space-y-4">
-							<h2 className="text-lg font-semibold tracking-tight">
-								Interested in You
-							</h2>
+						<TabsContent value="incoming" className="mt-6">
 							<div className="grid gap-4 md:grid-cols-2">
 								{filteredUsers.incoming.map((user) => (
 									<IncomingLobbyCard key={user.userId} user={user} />
 								))}
 							</div>
-						</section>
-					)}
+						</TabsContent>
 
-					{filteredUsers.outgoing.length > 0 && (
-						<section className="space-y-4">
-							<h2 className="text-lg font-semibold tracking-tight">
-								Your Interests
-							</h2>
+						<TabsContent value="outgoing" className="mt-6">
 							<div className="grid gap-4 md:grid-cols-2">
 								{filteredUsers.outgoing.map((user) => (
 									<OutgoingLobbyCard key={user.userId} user={user} />
 								))}
 							</div>
-						</section>
-					)}
+						</TabsContent>
 
-					{filteredUsers.neutral.length > 0 && (
-						<section className="space-y-4">
-							<h2 className="text-lg font-semibold tracking-tight">
-								Others in Lobby
-							</h2>
+						<TabsContent value="neutral" className="mt-6">
 							<div className="grid gap-4 md:grid-cols-2">
 								{filteredUsers.neutral.map((user) => (
 									<NeutralLobbyCard key={user.userId} user={user} />
 								))}
 							</div>
-						</section>
-					)}
-				</div>
+						</TabsContent>
+					</Tabs>
+				)}
 			</div>
 		</div>
 	);
