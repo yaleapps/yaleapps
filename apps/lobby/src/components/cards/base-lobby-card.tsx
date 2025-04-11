@@ -1,30 +1,32 @@
 import { Card } from "@/components/ui/card";
 import type { LobbyParticipant } from "@repo/lobby-durable-object/types";
+import { MapPin } from "lucide-react";
 
-interface BaseLobbyCardProps {
+export function BaseLobbyCard({
+	user,
+	children,
+}: {
 	user: LobbyParticipant;
-	children?: React.ReactNode;
-}
-
-export function BaseLobbyCard({ user, children }: BaseLobbyCardProps) {
+	children: React.ReactNode;
+}) {
 	return (
 		<Card className="group relative overflow-hidden transition-all hover:shadow-md">
-			<div className="p-4 space-y-3">
-				<div className="flex items-center justify-between">
-					<div className="space-y-1.5">
-						<h3 className="text-base font-medium leading-none">
-							Class of {user.profile.year}
-						</h3>
-						<div className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-sm font-semibold text-secondary-foreground">
-							{user.profile.diningHall}
-						</div>
-					</div>
+			<div className="p-6 space-y-4">
+				<div className="flex items-center gap-1.5 text-sm text-primary">
+					<MapPin className="h-4 w-4" />
+					<span>{user.profile.diningHall}</span>
 				</div>
-				<blockquote className="border-l-2 border-primary/20 pl-3 italic text-muted-foreground text-sm">
+
+				<blockquote className="text-xl text-muted-foreground">
 					"{user.profile.vibes}"
 				</blockquote>
+
+				<h3 className="font-medium leading-none text-muted-foreground text-right">
+					— Anonymous {user.profile.year}
+				</h3>
 			</div>
-			{children && <div className="border-t px-4 py-3">{children}</div>}
+
+			<div className="border-t px-6 py-4 bg-muted/30">{children}</div>
 		</Card>
 	);
 }
