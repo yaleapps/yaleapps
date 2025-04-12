@@ -22,8 +22,6 @@ export const lobbyParticipantSchema = z.object({
 export type LobbyParticipant = z.infer<typeof lobbyParticipantSchema>;
 
 export const wsMessageInSchema = z.discriminatedUnion("type", [
-	z.object({ type: z.literal("JOIN"), userId: userIdSchema }),
-	z.object({ type: z.literal("LEAVE"), userId: userIdSchema }),
 	z.object({ type: z.literal("GET_LOBBY") }),
 ]);
 
