@@ -1,5 +1,6 @@
 import { useTRPC } from "@/integrations/trpc/react";
 import { authClient } from "@repo/auth/better-auth/client";
+import { DOMAINS } from "@repo/constants/urls";
 import {
 	type LobbyParticipant,
 	type UserId,
@@ -17,7 +18,7 @@ export function useRegisterLobbyWebSocketAndInvalidateOnUpdate() {
 
 	useEffect(() => {
 		if (!session) return;
-		const ws = new WebSocket("ws://localhost:8787/ws");
+		const ws = new WebSocket(`${DOMAINS.LOBBY_SERVER_WS}/ws`);
 
 		ws.onopen = () => {
 			ws.send(JSON.stringify({ type: "GET_LOBBY" } satisfies WsMessageIn));

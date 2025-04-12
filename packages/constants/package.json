@@ -3,5 +3,12 @@
 	"exports": {
 		".": "./constants.ts",
 		"./urls": "./urls.ts"
+	},
+	"dependencies": {
+		"arktype": "^2.1.9"
+	},
+	"devDependencies": {
+		"@types/node": "^22.14.1",
+		"vite": "^6.1.0"
 	}
 }
