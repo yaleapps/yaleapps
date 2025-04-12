@@ -1,4 +1,4 @@
-import { fetchCourseTable } from '../fetchCourseTable.js';
+import { fetchCourseTable } from "../fetchCourseTable.js";
 
 const evaluationNarrativesCount = `query EvaluationNarrativesCount {
 	evaluation_narratives_aggregate {
@@ -22,12 +22,13 @@ export async function getEvaluationNarrativesCount() {
 		const {
 			data: {
 				evaluation_narratives_aggregate: {
-					aggregate: { count }
-				}
-			}
+					aggregate: { count },
+				},
+			},
 		} = await fetchCourseTable(evaluationNarrativesCount);
 		return count;
-	} catch (err) {
+	}
+	catch (err) {
 		console.error(err);
 	}
 }
@@ -38,13 +39,14 @@ export async function getEvaluationNarratives() {
 	const limit = Math.ceil(count / parallelRequests);
 
 	try {
-		const requests = Array.from({ length: parallelRequests }, (_, i) => i * limit).map((offset) =>
-			fetchCourseTable(evaluationNarratives, { limit, offset })
+		const requests = Array.from({ length: parallelRequests }, (_, i) => i * limit).map(offset =>
+			fetchCourseTable(evaluationNarratives, { limit, offset }),
 		);
 		const results = await Promise.all(requests);
-		const courses = results.flatMap((result) => result.data.evaluation_narratives);
+		const courses = results.flatMap(result => result.data.evaluation_narratives);
 		return courses;
-	} catch (err) {
+	}
+	catch (err) {
 		console.error(err);
 	}
 }
