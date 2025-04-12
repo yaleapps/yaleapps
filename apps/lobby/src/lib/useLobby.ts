@@ -10,13 +10,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-type CategorizedUsers = {
-	mutual: LobbyParticipant[];
-	incoming: LobbyParticipant[];
-	outgoing: LobbyParticipant[];
-	neutral: LobbyParticipant[];
-};
-
 export function useRegisterLobbyWebSocketAndInvalidateOnUpdate() {
 	const queryClient = useQueryClient();
 	const trpc = useTRPC();
@@ -76,7 +69,7 @@ export function useMeFromLobbyParticipants({
 	);
 }
 
-export function useLobbyParticipantsCategorizedByStatus({
+export function useLobbyParticipants({
 	initialParticipants,
 }: {
 	initialParticipants: LobbyParticipant[];
@@ -88,79 +81,10 @@ export function useLobbyParticipantsCategorizedByStatus({
 		trpc.lobby.getLobbyParticipants.queryOptions(undefined, {
 			initialData: initialParticipants,
 			staleTime: Number.POSITIVE_INFINITY,
-			select: (data): CategorizedUsers => {
-				if (!session) {
-					return {
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers;
-				}
-
-				const myUserId = session?.user.id as UserId;
-				const me = data.find((user) => user.userId === myUserId);
-				if (!me) {
-					return {
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers;
-				}
-				const otherProfiles = data.filter((user) => user.userId !== myUserId);
-				return otherProfiles.reduce(
-					(acc, currUser) => {
-						const theirPreference = currUser.preferences[myUserId];
-						const myPreference = me?.preferences[currUser.userId];
-
-						const doTheyLikeMe =
-							theirPreference &&
-							theirPreference.expiresAt > new Date().getTime()
-								? theirPreference.value
-								: "neutral";
-						const doILikeThem =
-							myPreference && myPreference.expiresAt > new Date().getTime()
-								? myPreference.value
-								: "neutral";
-
-						// Matrix of all possible combinations:
-						// Me | Them | Result
-						// like | like | mutual
-						// like | neutral | outgoing
-						// like | dislike | filtered
-						// neutral | like | incoming
-						// neutral | neutral | neutral
-						// neutral | dislike | filtered
-						// dislike | any | filtered
-
-						// Filter out any case where either party has explicitly disliked
-						if (doTheyLikeMe === "reject" || doILikeThem === "reject") {
-							return acc;
-						}
-
-						if (doILikeThem === "accept" && doTheyLikeMe === "accept") {
-							acc.mutual.push(currUser);
-						} else if (doILikeThem === "accept" && doTheyLikeMe === "neutral") {
-							acc.outgoing.push(currUser);
-						} else if (doILikeThem === "neutral" && doTheyLikeMe === "accept") {
-							acc.incoming.push(currUser);
-						} else if (
-							doILikeThem === "neutral" &&
-							doTheyLikeMe === "neutral"
-						) {
-							acc.neutral.push(currUser);
-						}
-
-						return acc;
-					},
-					{
-						mutual: [],
-						incoming: [],
-						outgoing: [],
-						neutral: [],
-					} as CategorizedUsers,
-				);
+			select: (data) => {
+				if (!session) return [];
+				const myUserId = session.user.id as UserId;
+				return data.filter((user) => user.userId !== myUserId);
 			},
 		}),
 	);
