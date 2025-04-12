@@ -20,6 +20,9 @@ importers:
       '@better-fetch/fetch':
         specifier: ^1.1.15
         version: 1.1.18
+      '@repo/constants':
+        specifier: workspace:*
+        version: link:../../packages/constants
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -122,7 +125,7 @@ importers:
         version: link:../../packages/db
       '@repo/lobby-server':
         specifier: workspace:*
-        version: link:../lobby-durable-object
+        version: link:../lobby-server
       '@tailwindcss/vite':
         specifier: ^4.0.6
         version: 4.1.1(vite@6.2.3(@types/node@20.12.4)(jiti@2.4.2)(lightningcss@1.29.2)(terser@5.39.0)(tsx@4.19.3))
@@ -233,7 +236,7 @@ importers:
         specifier: ^4.9.1
         version: 4.9.1(@cloudflare/workers-types@4.20250409.0)
 
-  apps/lobby-durable-object:
+  apps/lobby-server:
     dependencies:
       '@hono/trpc-server':
         specifier: ^0.3.4

@@ -1,3 +1,4 @@
+import { DOMAINS } from "@repo/constants/urls";
 import * as authSchema from "@repo/db/schema";
 import { yaleCas } from "@yaleapps/better-auth-yale-cas";
 import { betterAuth } from "better-auth";
@@ -16,9 +17,9 @@ export function createAuth({
 	yaliesApiKey: string;
 }) {
 	return betterAuth({
-		baseURL: "http://localhost:4343",
+		baseURL: DOMAINS.AUTH,
 		emailAndPassword: { enabled: true },
-		trustedOrigins: ["http://localhost:3000"],
+		trustedOrigins: [DOMAINS.LOBBY],
 		database: drizzleAdapter(db, {
 			provider: "sqlite",
 			schema: authSchema,
@@ -27,7 +28,7 @@ export function createAuth({
 		plugins: [
 			yaleCas({
 				yaliesApiKey,
-				authServerBaseUrl: "http://localhost:4343",
+				authServerBaseUrl: DOMAINS.AUTH,
 			}),
 			anonymous({
 				onLinkAccount: async ({ anonymousUser, newUser }) => {},

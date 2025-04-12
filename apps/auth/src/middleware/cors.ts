@@ -1,3 +1,4 @@
+import { DOMAINS } from "@repo/constants/urls";
 import type { MiddlewareHandler } from "hono";
 import { cors } from "hono/cors";
 
@@ -11,7 +12,7 @@ type CORSOptions = Parameters<typeof cors>[0];
 const TRPC_ACCEPT_HEADER = "trpc-accept";
 
 const DEFAULT_CONFIG = {
-	origin: ["http://localhost:3000"],
+	origin: [DOMAINS.LOBBY],
 	allowHeaders: ["Content-Type", "Authorization", TRPC_ACCEPT_HEADER],
 	allowMethods: ["POST", "GET", "OPTIONS"],
 	exposeHeaders: ["Content-Length"],

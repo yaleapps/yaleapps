@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { authClient } from "@repo/auth/better-auth/client";
+import { DOMAINS } from "@repo/constants/urls";
 import { createFileRoute } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 
@@ -19,9 +20,9 @@ function LandingPage() {
 	const signUpViaCas = async () => {
 		const { data, error } = await authClient.signIn.yaleCas(
 			{
-				callbackURL: "http://localhost:3000",
-				errorCallbackURL: "http://localhost:3000",
-				newUserCallbackURL: "http://localhost:3000",
+				callbackURL: DOMAINS.LOBBY,
+				errorCallbackURL: DOMAINS.LOBBY,
+				newUserCallbackURL: DOMAINS.LOBBY,
 			},
 			{
 				onRequest: (ctx) => {},
