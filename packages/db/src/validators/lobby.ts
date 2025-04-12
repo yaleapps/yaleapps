@@ -10,7 +10,7 @@ export const lobbyProfileFormSchema = z.object({
 	year: z.string().min(1, "Please select your year"),
 	vibes: z
 		.string()
-		.min(1, "Tell us about your lunch vibe")
+		.min(1, "Tell us about your vibe")
 		.max(
 			VIBE_MAX_LENGTH,
 			`Keep it brief - under ${VIBE_MAX_LENGTH} characters`,
