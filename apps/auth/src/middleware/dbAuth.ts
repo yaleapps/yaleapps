@@ -1,4 +1,4 @@
-import type * as authSchema from "@repo/db/schema";
+import * as authSchema from "@repo/db/schema";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 import { drizzle } from "drizzle-orm/d1";
 import type { MiddlewareHandler } from "hono";
@@ -18,7 +18,7 @@ declare module "hono" {
 
 export function createDbAuthMiddleware<T extends Env>(): MiddlewareHandler<T> {
 	return async (c, next) => {
-		const db = drizzle<typeof authSchema>(c.env.DB);
+		const db = drizzle(c.env.DB, { schema: authSchema, logger: true });
 		c.set("db", db);
 		const auth = createAuth({ db, yaliesApiKey: c.env.YALIES_API_KEY });
 		c.set("auth", auth);

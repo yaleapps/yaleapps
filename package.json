@@ -4,6 +4,7 @@
 	"scripts": {
 		"build": "turbo build",
 		"dev": "turbo dev",
+		"deploy": "turbo deploy --filter=@repo/lobby --filter=@repo/lobby-server --filter=@repo/auth",
 		"format": "biome format --write .",
 		"lint": "biome lint --write --unsafe .",
 		"format-and-lint": "biome check --write --unsafe ."
