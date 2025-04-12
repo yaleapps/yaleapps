@@ -1,0 +1,23 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "lobby-server",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-04-09",
+	"compatibility_flags": ["nodejs_compat"],
+	"migrations": [{ "new_sqlite_classes": ["Lobby"], "tag": "v1" }],
+	"durable_objects": {
+		"bindings": [{ "class_name": "Lobby", "name": "LOBBY_DURABLE_OBJECT" }]
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "yaleapps_db",
+			"database_id": "be3bf0a6-4908-45cb-9205-b09336ad4fd9",
+			"migrations_dir": "../../packages/db/drizzle"
+		}
+	],
+	"observability": {
+		"enabled": true
+	},
+	"routes": [{ "pattern": "api.lobby.yaleapps.com", "custom_domain": true }]
+}

@@ -1,0 +1,6 @@
+{
+	"name": "@repo/constants",
+	"exports": {
+		".": "./constants.ts"
+	}
+}

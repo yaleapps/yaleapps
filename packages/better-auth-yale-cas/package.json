@@ -1,0 +1,11 @@
+{
+	"name": "@yaleapps/better-auth-yale-cas",
+	"dependencies": {
+		"@better-fetch/fetch": "^1.1.15",
+		"arktype": "^2.1.9",
+		"better-auth": "^1.2.4"
+	},
+	"exports": {
+		".": "./src/index.ts"
+	}
+}

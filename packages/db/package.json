@@ -1,21 +1,21 @@
 {
 	"name": "@repo/db",
-	"version": "0.0.1",
+	"scripts": {
+		"db:generate": "drizzle-kit generate",
+		"db:migrate": "drizzle-kit migrate",
+		"db:studio": "drizzle-kit studio"
+	},
 	"dependencies": {
-		"@repo/env": "workspace:*",
-		"@libsql/client": "^0.6.0",
-		"@urql/core": "^5.0.0",
-		"drizzle-orm": "^0.30.7",
-		"drizzle-zod": "^0.5.1",
-		"gql.tada": "^1.4.3",
-		"typescript": "latest"
+		"@repo/constants": "workspace:*",
+		"drizzle-orm": "^0.41.0",
+		"zod": "^3.24.2"
 	},
 	"devDependencies": {
-		"@0no-co/graphqlsp": "^1.8.0",
-		"drizzle-kit": "^0.20.14"
+		"drizzle-kit": "^0.30.6"
 	},
 	"exports": {
-		".": "./index.ts",
-		"./courses": "./courses/index.ts"
+		"./schema": "./src/schema/index.ts",
+		"./validators/*": "./src/validators/*.ts",
+		"./utils": "./src/utils.ts"
 	}
 }

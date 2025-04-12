@@ -1,0 +1,21 @@
+{
+	"name": "@repo/courses-db",
+	"version": "0.0.1",
+	"dependencies": {
+		"@libsql/client": "^0.6.0",
+		"@repo/env": "workspace:*",
+		"@urql/core": "^5.0.0",
+		"drizzle-orm": "^0.41.0",
+		"drizzle-zod": "^0.5.1",
+		"gql.tada": "^1.4.3",
+		"typescript": "latest"
+	},
+	"devDependencies": {
+		"@0no-co/graphqlsp": "^1.8.0",
+		"drizzle-kit": "^0.30.6"
+	},
+	"exports": {
+		".": "./index.ts",
+		"./courses": "./courses/index.ts"
+	}
+}

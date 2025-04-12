@@ -15,65 +15,74 @@ app.post(
 		const { text, sender_type } = groupMeWebhookPayload;
 		const { groupMeBots, butterySchedules } = c.var.services;
 
-		const ghManagerCommands = {
-			"!open": async () => {
-				try {
-					const updatedNextShift =
-						await butterySchedules.gh.markNextShiftAs("OPEN");
+		const ghManagerCommands = [
+			{
+				aliases: ["!open"],
+				handler: async () => {
+					try {
+						const updatedNextShift =
+							await butterySchedules.gh.markNextShiftAs("OPEN");
 
-					await groupMeBots["gh.students"].sendGroupMeMessage(
-						"The buttery was just confirmed as open for today by the buttery team!",
-					);
+						await groupMeBots["gh.students"].sendGroupMeMessage(
+							"The buttery was just confirmed as open for today by the buttery team!",
+						);
 
-					if (!updatedNextShift?.start?.dateTime) {
-						return "Marked next shift as open! (Date information unavailable)";
-					}
+						if (!updatedNextShift?.start?.dateTime) {
+							return "Marked next shift as open! (Date information unavailable)";
+						}
 
-					const formattedDateTime = format(
-						new Date(updatedNextShift.start.dateTime),
-						"MMMM d 'at' p",
-						{ in: tz("America/New_York") },
-					);
+						const formattedDateTime = format(
+							new Date(updatedNextShift.start.dateTime),
+							"MMMM d 'at' p",
+							{ in: tz("America/New_York") },
+						);
 
-					return `Marked next shift on ${formattedDateTime} as open!
-
-See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
-				} catch (error) {
-					console.error("Error updating event status:", error);
-					return "Error marking next shift as open. Please try again.";
-				}
-			},
-			"!closed": async () => {
-				try {
-					const updatedNextShift =
-						await butterySchedules.gh.markNextShiftAs("CLOSED");
-
-					await groupMeBots["gh.students"].sendGroupMeMessage(
-						"The buttery was just confirmed as closed for today by the buttery team!",
-					);
-
-					if (!updatedNextShift?.start?.dateTime) {
-						return "Marked next shift as closed! (Date information unavailable)";
-					}
-
-					const formattedDateTime = format(
-						new Date(updatedNextShift.start.dateTime),
-						"MMMM d 'at' p",
-						{ in: tz("America/New_York") },
-					);
-
-					return `Marked next shift on ${formattedDateTime} as closed!
+						return `Marked next shift on ${formattedDateTime} as open!
 
 See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
-				} catch (error) {
-					console.error("Error updating event status:", error);
-					return "Error marking next shift as closed. Please try again.";
-				}
+					} catch (error) {
+						console.error("Error updating event status:", error);
+						return "Error marking next shift as open. Please try again.";
+					}
+				},
 			},
-			"!help": async () => {
-				return "Available commands:\n!open (mark next shift as confirmed open)\n!closed (mark next shift as confirmed closed)";
+			{
+				aliases: ["!closed", "!close"],
+				handler: async () => {
+					try {
+						const updatedNextShift =
+							await butterySchedules.gh.markNextShiftAs("CLOSED");
+
+						await groupMeBots["gh.students"].sendGroupMeMessage(
+							"The buttery was just confirmed as closed for today by the buttery team!",
+						);
+
+						if (!updatedNextShift?.start?.dateTime) {
+							return "Marked next shift as closed! (Date information unavailable)";
+						}
+
+						const formattedDateTime = format(
+							new Date(updatedNextShift.start.dateTime),
+							"MMMM d 'at' p",
+							{ in: tz("America/New_York") },
+						);
+
+						return `Marked next shift on ${formattedDateTime} as closed!
+
+See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
+					} catch (error) {
+						console.error("Error updating event status:", error);
+						return "Error marking next shift as closed. Please try again.";
+					}
+				},
 			},
-		};
+			{
+				aliases: ["!help"],
+				handler: async () => {
+					return "Available commands:\n!open (mark next shift as confirmed open)\n!close / !closed (mark next shift as confirmed closed)";
+				},
+			},
+		];
 
 		try {
 			const isMessageFromBot = sender_type === "bot";
@@ -82,9 +91,10 @@ See the updated shift on calendar: ${updatedNextShift.htmlLink}`;
 
 			if (shouldSkip) return c.body(null, 200);
 
-			for (const [command, handler] of Object.entries(ghManagerCommands)) {
-				if (text.toLowerCase().startsWith(command)) {
-					const msg = await handler();
+			const lowerCaseText = text.toLowerCase();
+			for (const command of ghManagerCommands) {
+				if (command.aliases.some((alias) => lowerCaseText.startsWith(alias))) {
+					const msg = await command.handler();
 					await groupMeBots["gh.managers"].sendGroupMeMessage(msg);
 					return c.body(null, 200);
 				}
