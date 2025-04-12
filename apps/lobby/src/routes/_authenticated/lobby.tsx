@@ -1,33 +1,33 @@
-import { IncomingLobbyCard } from "@/components/cards/incoming-lobby-card";
-import { MutualLobbyCard } from "@/components/cards/mutual-lobby-card";
-import { NeutralLobbyCard } from "@/components/cards/neutral-lobby-card";
-import { OutgoingLobbyCard } from "@/components/cards/outgoing-lobby-card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
+	CardContent,
+	CardDescription,
 	CardHeader,
 	CardTitle,
-	CardDescription,
-	CardContent,
 } from "@/components/ui/card";
+import { Command, CommandInput } from "@/components/ui/command";
 import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-	useLobbyParticipantsCategorizedByStatus,
+	useLobbyParticipants,
 	useMeFromLobbyParticipants,
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
 } from "@/lib/useLobby";
-import { getCurrentMealType } from "@/lib/utils";
+import { cn, getCurrentMealType } from "@/lib/utils";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
+import type { LobbyParticipant } from "@repo/lobby-server/types";
 import { createFileRoute } from "@tanstack/react-router";
-import { Ellipsis, Filter, LayoutGrid, ListFilter, Users } from "lucide-react";
+import { Clock, MapPin, MessageCircle, User } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/lobby")({
@@ -43,42 +43,31 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 function LobbyScreen() {
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate();
 	const { lobbyParticipants: initialParticipants } = Route.useLoaderData();
-	const { data: categorizedUsers } = useLobbyParticipantsCategorizedByStatus({
+	const { data: participants } = useLobbyParticipants({
 		initialParticipants,
 	});
 	const { data: me } = useMeFromLobbyParticipants({ initialParticipants });
 
-	const [selectedCollege, setSelectedCollege] = useState<string | null>(null);
-	const [viewMode, setViewMode] = useState<"feed" | "tabs">("feed");
-
-	const filteredUsers = (() => {
-		if (!selectedCollege) return categorizedUsers;
-		return {
-			mutual: categorizedUsers.mutual.filter(
-				(user) => user.profile.diningHall === selectedCollege,
-			),
-			incoming: categorizedUsers.incoming.filter(
-				(user) => user.profile.diningHall === selectedCollege,
-			),
-			outgoing: categorizedUsers.outgoing.filter(
-				(user) => user.profile.diningHall === selectedCollege,
-			),
-			neutral: categorizedUsers.neutral.filter(
-				(user) => user.profile.diningHall === selectedCollege,
-			),
-		};
-	})();
-
-	const hasAnyUsers = Object.values(filteredUsers).some(
-		(users) => users.length > 0,
+	const [searchQuery, setSearchQuery] = useState("");
+	const [selectedLocation, setSelectedLocation] = useState<string | undefined>(
+		undefined,
 	);
 
-	// Combine and sort non-mutual users for the feed view
-	const sortedNonMutualUsers = [
-		...filteredUsers.incoming,
-		...filteredUsers.outgoing,
-		...filteredUsers.neutral,
-	];
+	const filteredParticipants = participants?.filter((participant) => {
+		const matchesSearch =
+			searchQuery === "" ||
+			participant.profile.vibes
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase()) ||
+			participant.profile.year
+				.toLowerCase()
+				.includes(searchQuery.toLowerCase());
+
+		const matchesLocation =
+			!selectedLocation || participant.profile.diningHall === selectedLocation;
+
+		return matchesSearch && matchesLocation;
+	});
 
 	return (
 		<div className="min-h-screen bg-gradient-to-b from-background to-muted/20 p-4 md:p-6">
@@ -94,56 +83,39 @@ function LobbyScreen() {
 									Find last-minute meal plans in your college's dining hall.
 								</CardDescription>
 							</div>
-							<div className="flex items-center gap-2">
-								<Button
-									variant="secondary"
-									size="sm"
-									onClick={() =>
-										setViewMode(viewMode === "feed" ? "tabs" : "feed")
-									}
-								>
-									{viewMode === "feed" ? (
-										<>
-											<LayoutGrid className="mr-2 h-4 w-4" />
-											<span>Grid View</span>
-										</>
-									) : (
-										<>
-											<ListFilter className="mr-2 h-4 w-4" />
-											<span>Feed View</span>
-										</>
-									)}
-								</Button>
-								<DropdownMenu>
-									<DropdownMenuTrigger asChild>
-										<Button variant="secondary" size="sm">
-											<Filter className="mr-2 h-4 w-4" />
-											{selectedCollege || "Filter by College"}
-										</Button>
-									</DropdownMenuTrigger>
-									<DropdownMenuContent align="end" className="w-56">
-										{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
-											<DropdownMenuCheckboxItem
-												key={college}
-												checked={selectedCollege === college}
-												onCheckedChange={() =>
-													setSelectedCollege(
-														selectedCollege === college ? null : college,
-													)
-												}
-												className="transition-colors hover:bg-primary/10"
-											>
-												{college}
-											</DropdownMenuCheckboxItem>
-										))}
-									</DropdownMenuContent>
-								</DropdownMenu>
-							</div>
 						</div>
 					</CardHeader>
-					<CardContent className="px-4 pb-6 pt-2 sm:px-6">
-						{/* Empty State */}
-						{!hasAnyUsers ? (
+					<CardContent className="space-y-6 px-4 pb-6 pt-2 sm:px-6">
+						<div className="flex flex-col gap-4 sm:flex-row">
+							<div className="relative flex-1">
+								<Command className="overflow-visible border-0 p-0">
+									<CommandInput
+										value={searchQuery}
+										onValueChange={setSearchQuery}
+										placeholder="Search by vibes or year..."
+										className="border-input"
+									/>
+								</Command>
+							</div>
+							<Select
+								value={selectedLocation}
+								onValueChange={setSelectedLocation}
+							>
+								<SelectTrigger className="w-full sm:w-[200px]">
+									<SelectValue placeholder="Filter by location" />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="all">All Dining Halls</SelectItem>
+									{RESIDENTIAL_COLLEGE_NAMES.map((college) => (
+										<SelectItem key={college} value={college}>
+											{college}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+
+						{!filteredParticipants?.length ? (
 							<div className="relative">
 								<Card className="p-4 grid gap-4 md:grid-cols-2 bg-background/20 shadow-none backdrop-blur-sm">
 									{[1, 2].map((i) => (
@@ -175,179 +147,107 @@ function LobbyScreen() {
 										<Skeleton className="bg-primary absolute bottom-0 w-full h-1 rounded-none" />
 										<CardHeader>
 											<CardTitle className="text-xl">
-												Scanning for dining companions...
+												{searchQuery || selectedLocation
+													? "No matching dining companions found"
+													: "Scanning for dining companions..."}
 											</CardTitle>
 											<CardDescription>
-												Stay tuned as more students join...
+												{searchQuery || selectedLocation
+													? "Try adjusting your filters"
+													: "Stay tuned as more students join..."}
 											</CardDescription>
 										</CardHeader>
 									</Card>
 								</div>
 							</div>
-						) : viewMode === "feed" ? (
-							<div className="space-y-10">
-								{filteredUsers.mutual.length > 0 && (
-									<section className="space-y-6">
-										<div className="space-y-1.5">
-											<h2 className="text-2xl font-semibold tracking-tight text-primary">
-												Your Matches
-											</h2>
-											<p className="text-sm text-muted-foreground">
-												You have {filteredUsers.mutual.length} match
-												{filteredUsers.mutual.length === 1 ? "" : "es"}! Message
-												them now to coordinate your meal.
-											</p>
-										</div>
-										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
-											{filteredUsers.mutual.map((user) => (
-												<MutualLobbyCard
-													key={user.userId}
-													me={me}
-													them={user}
-												/>
-											))}
-										</div>
-									</section>
-								)}
-
-								{sortedNonMutualUsers.length > 0 && (
-									<section className="space-y-6">
-										<div className="space-y-1.5">
-											<h2 className="text-2xl font-semibold tracking-tight">
-												Discover Dining Partners
-											</h2>
-											<p className="text-sm text-muted-foreground">
-												Connect with others looking for dining companions
-											</p>
-										</div>
-										<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
-											{sortedNonMutualUsers.map((user) => {
-												if (filteredUsers.incoming.includes(user)) {
-													return (
-														<IncomingLobbyCard
-															key={user.userId}
-															me={me}
-															them={user}
-														/>
-													);
-												}
-												if (filteredUsers.outgoing.includes(user)) {
-													return (
-														<OutgoingLobbyCard
-															key={user.userId}
-															me={me}
-															them={user}
-														/>
-													);
-												}
-												return (
-													<NeutralLobbyCard
-														key={user.userId}
-														me={me}
-														them={user}
-													/>
-												);
-											})}
-										</div>
-									</section>
-								)}
-							</div>
 						) : (
-							<Tabs
-								defaultValue={
-									filteredUsers.mutual.length > 0
-										? "mutual"
-										: filteredUsers.incoming.length > 0
-											? "incoming"
-											: filteredUsers.outgoing.length > 0
-												? "outgoing"
-												: "neutral"
-								}
-								className="w-full"
-							>
-								<TabsList className="w-full">
-									{filteredUsers.mutual.length > 0 && (
-										<TabsTrigger value="mutual">
-											Matches
-											<Badge variant="default">
-												{filteredUsers.mutual.length}
-											</Badge>
-										</TabsTrigger>
-									)}
-									{filteredUsers.incoming.length > 0 && (
-										<TabsTrigger value="incoming">
-											Incoming
-											{filteredUsers.incoming.length > 0 && (
-												<Badge variant="default">
-													{filteredUsers.incoming.length}
-												</Badge>
-											)}
-										</TabsTrigger>
-									)}
-									{filteredUsers.outgoing.length > 0 && (
-										<TabsTrigger value="outgoing">
-											Outgoing
-											{filteredUsers.outgoing.length > 0 && (
-												<Badge variant="default">
-													{filteredUsers.outgoing.length}
-												</Badge>
-											)}
-										</TabsTrigger>
-									)}
-									{filteredUsers.neutral.length > 0 && (
-										<TabsTrigger value="neutral">
-											Browse
-											<Badge variant="default">
-												{filteredUsers.neutral.length}
-											</Badge>
-										</TabsTrigger>
-									)}
-								</TabsList>
-
-								<TabsContent value="mutual" className="mt-6">
-									<div className="grid gap-4 md:grid-cols-2">
-										{filteredUsers.mutual.map((user) => (
-											<MutualLobbyCard key={user.userId} me={me} them={user} />
-										))}
-									</div>
-								</TabsContent>
-
-								<TabsContent value="incoming" className="mt-6">
-									<div className="grid gap-4 md:grid-cols-2">
-										{filteredUsers.incoming.map((user) => (
-											<IncomingLobbyCard
-												key={user.userId}
-												me={me}
-												them={user}
-											/>
-										))}
-									</div>
-								</TabsContent>
-
-								<TabsContent value="outgoing" className="mt-6">
-									<div className="grid gap-4 md:grid-cols-2">
-										{filteredUsers.outgoing.map((user) => (
-											<OutgoingLobbyCard
-												key={user.userId}
-												me={me}
-												them={user}
-											/>
-										))}
-									</div>
-								</TabsContent>
-
-								<TabsContent value="neutral" className="mt-6">
-									<div className="grid gap-4 md:grid-cols-2">
-										{filteredUsers.neutral.map((user) => (
-											<NeutralLobbyCard key={user.userId} me={me} them={user} />
-										))}
-									</div>
-								</TabsContent>
-							</Tabs>
+							<div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2">
+								{filteredParticipants.map((participant) => (
+									<LobbyCard
+										key={participant.userId}
+										me={me}
+										them={participant}
+									/>
+								))}
+							</div>
 						)}
 					</CardContent>
 				</Card>
 			</div>
 		</div>
+	);
+}
+
+function LobbyCard({
+	me,
+	them,
+}: {
+	me: LobbyParticipant | undefined;
+	them: LobbyParticipant;
+}) {
+	const handleMessage = () => {
+		window.location.href = `sms:${them.profile.phoneNumber}`;
+	};
+
+	const initials = them.profile.vibes
+		.split(" ")
+		.map((word) => word[0])
+		.slice(0, 2)
+		.join("")
+		.toUpperCase();
+
+	return (
+		<Card
+			className={cn(
+				"group relative overflow-hidden backdrop-blur-[2px] transition-all duration-300",
+				"hover:shadow-lg hover:scale-[1.01] hover:-translate-y-0.5",
+				"border shadow-md will-change-transform",
+				"bg-gradient-to-br from-purple-50/80 to-fuchsia-50/80 dark:from-purple-950/40 dark:to-fuchsia-950/40",
+				"border-purple-200/50 dark:border-purple-800/50",
+				"shadow-purple-100/50 dark:shadow-purple-900/20",
+				"hover:border-purple-300 dark:hover:border-purple-700",
+			)}
+		>
+			<CardContent className="space-y-6 p-6">
+				<div className="flex items-start gap-4">
+					<blockquote className="flex-1 text-xl text-muted-foreground italic leading-relaxed">
+						"{them.profile.vibes}"
+					</blockquote>
+					<Avatar className="h-12 w-12 border-2 border-background shadow-md">
+						<AvatarFallback className="bg-muted text-muted-foreground">
+							{initials}
+						</AvatarFallback>
+					</Avatar>
+				</div>
+
+				<Separator className="my-4" />
+
+				<div className="flex flex-wrap items-center gap-3">
+					<Badge variant="secondary">
+						<MapPin className="h-4 w-4" aria-hidden="true" />
+						<span>{them.profile.diningHall}</span>
+					</Badge>
+					<Badge variant="secondary">
+						<User className="h-4 w-4" aria-hidden="true" />
+						<span>{them.profile.year}</span>
+					</Badge>
+					<Badge variant="outline">
+						<Clock className="h-4 w-4" aria-hidden="true" />
+						<span>Available Now</span>
+					</Badge>
+				</div>
+			</CardContent>
+
+			<div className="px-6 pb-6">
+				<Button
+					size="lg"
+					onClick={handleMessage}
+					className="w-full bg-gradient-to-r from-purple-500 to-fuchsia-500 dark:from-purple-600 dark:to-fuchsia-600 hover:from-purple-600 hover:to-fuchsia-600 dark:hover:from-purple-500 dark:hover:to-fuchsia-500 text-white font-medium shadow-lg shadow-purple-500/25 dark:shadow-purple-900/30 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/30 dark:hover:shadow-purple-900/40 hover:-translate-y-0.5 active:translate-y-0"
+				>
+					<MessageCircle className="mr-2 h-5 w-5" />
+					Message
+				</Button>
+			</div>
+		</Card>
 	);
 }

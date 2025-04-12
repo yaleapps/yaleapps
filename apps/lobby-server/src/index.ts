@@ -16,14 +16,12 @@ import superjson from "superjson";
 import { z } from "zod";
 import {
 	type LobbyParticipant,
-	PREFERENCE_EXPIRATION_SECONDS,
 	type UserId,
 	createLobbyWsService,
 	userIdSchema,
 	wsMessageInSchema,
 } from "./types";
 import { DINING_HALL_NAMES } from "@repo/constants";
-import type { PreferenceValue } from "./types";
 
 const LOBBY_DURABLE_OBJECT_NAME = "Lobby";
 const LOBBY_DURABLE_OBJECT_STORAGE_KEY = "lobby";
@@ -49,57 +47,6 @@ export class Lobby extends DurableObject<Env> {
 			this.lobby =
 				(await ctx.storage.get(LOBBY_DURABLE_OBJECT_STORAGE_KEY)) ?? [];
 
-			const targetUserId = "0DBZuv9rUkmsTQzCVoVkp0WRZ7NjRKN8" as UserId;
-			this.lobby = Array.from(
-				{ length: 20 },
-				(_, i) =>
-					({
-						userId: `dummy-user-${i}` as UserId,
-						profile: {
-							diningHall: DINING_HALL_NAMES[i % DINING_HALL_NAMES.length],
-							year: ["2024", "2025", "2026", "2027", "Graduate"][
-								Math.floor(i / 4)
-							],
-							vibes: [
-								"CS major looking for leetcode break buddies!",
-								"History major with fascinating stories to share",
-								"Pre-med student needing orgo study break",
-								"Physics major exploring quantum lunch mechanics",
-								"Math major calculating optimal conversation ratios",
-								"Drama major rehearsing monologues over meals",
-								"Philosophy major pondering lunch paradoxes",
-								"Economics major analyzing lunch market efficiency",
-								"Art major sketching while snacking",
-								"English major writing lunch poetry",
-							][i % 10],
-							phoneNumber: `555${String(i).padStart(7, "0")}`,
-						},
-						preferences: {
-							[targetUserId]: (() => {
-								// Assign preferences in a deterministic pattern
-								// Every third user "likes", every fourth "dislikes", rest have no preference
-								if (i % 3 === 0) {
-									return {
-										value: "accept",
-										expiresAt:
-											Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
-									};
-								}
-								if (i % 4 === 0) {
-									return {
-										value: "reject",
-										expiresAt:
-											Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
-									};
-								}
-								return {
-									value: "neutral",
-									expiresAt: Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
-								};
-							})(),
-						},
-					}) satisfies LobbyParticipant,
-			);
 			await this.persistState();
 		});
 	}
@@ -134,31 +81,7 @@ export class Lobby extends DurableObject<Env> {
 		}
 	}
 
-	private async cleanupExpiredPreferences() {
-		let hasChanges = false;
-
-		for (const participant of this.lobby) {
-			const updatedPreferences: typeof participant.preferences = {};
-			for (const [targetUserId, preference] of Object.entries(
-				participant.preferences,
-			)) {
-				if (preference && preference.expiresAt > new Date().getTime()) {
-					updatedPreferences[targetUserId as UserId] = preference;
-				} else {
-					hasChanges = true;
-				}
-			}
-			participant.preferences = updatedPreferences;
-		}
-
-		if (hasChanges) {
-			await this.persistState();
-			await this.broadcastLobbyUpdate();
-		}
-	}
-
 	async join(userId: UserId) {
-		await this.cleanupExpiredPreferences();
 		const participantProfileFromDb =
 			await this.db.query.lobbyParticipantProfiles.findFirst({
 				where: eq(schema.lobbyParticipantProfiles.userId, userId),
@@ -174,8 +97,7 @@ export class Lobby extends DurableObject<Env> {
 		const freshLobbyParticipant: LobbyParticipant = {
 			userId,
 			profile: participantProfileFromDb,
-			// Preferences are cleared when a user joins or rejoins the lobby
-			preferences: {},
+			joinedAt: Date.now(),
 		};
 
 		const existingLobbyParticipantIndex = this.lobby.findIndex(
@@ -192,43 +114,7 @@ export class Lobby extends DurableObject<Env> {
 	}
 
 	private async leave(userId: UserId) {
-		await this.cleanupExpiredPreferences();
 		this.removeLobbyParticipant(userId);
-		await this.persistState();
-		await this.broadcastLobbyUpdate();
-	}
-
-	async setParticipantPreference({
-		fromUserId,
-		targetUserId,
-		preference,
-	}: {
-		fromUserId: UserId;
-		targetUserId: UserId;
-		preference: PreferenceValue["value"];
-	}) {
-		const participant = this.lobby.find((p) => p.userId === fromUserId);
-		if (!participant) {
-			throw new HTTPException(404, {
-				message: "User not found in lobby",
-			});
-		}
-
-		const targetParticipant = this.lobby.find((p) => p.userId === targetUserId);
-		if (!targetParticipant) {
-			throw new HTTPException(404, {
-				message: "Target participant not found in lobby",
-			});
-		}
-
-		participant.preferences = {
-			...participant.preferences,
-			[targetUserId]: {
-				value: preference,
-				expiresAt: Date.now() + PREFERENCE_EXPIRATION_SECONDS * 1000,
-			},
-		};
-
 		await this.persistState();
 		await this.broadcastLobbyUpdate();
 	}
@@ -246,7 +132,6 @@ export class Lobby extends DurableObject<Env> {
 	 * Called automatically when a WebSocket receives a message from the client
 	 */
 	async webSocketMessage(ws: WebSocket, message: ArrayBuffer | string) {
-		await this.cleanupExpiredPreferences();
 		const wsService = createLobbyWsService(ws);
 		try {
 			if (typeof message !== "string") return;
@@ -339,48 +224,6 @@ export const trpcRouter = createTRPCRouter({
 				);
 				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
 				await lobby.join(ctx.user.id as UserId);
-			}),
-		acceptParticipant: protectedProcedure
-			.input(z.object({ id: userIdSchema }))
-			.mutation(async ({ ctx, input }) => {
-				const { id } = input;
-				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
-					LOBBY_DURABLE_OBJECT_NAME,
-				);
-				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-				await lobby.setParticipantPreference({
-					fromUserId: ctx.user.id as UserId,
-					targetUserId: id,
-					preference: "accept",
-				});
-			}),
-		rejectParticipant: protectedProcedure
-			.input(z.object({ id: userIdSchema }))
-			.mutation(async ({ ctx, input }) => {
-				const { id } = input;
-				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
-					LOBBY_DURABLE_OBJECT_NAME,
-				);
-				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-				await lobby.setParticipantPreference({
-					fromUserId: ctx.user.id as UserId,
-					targetUserId: id,
-					preference: "reject",
-				});
-			}),
-		cancelAcceptParticipant: protectedProcedure
-			.input(z.object({ id: userIdSchema }))
-			.mutation(async ({ ctx, input }) => {
-				const { id } = input;
-				const lobbyId = ctx.env.LOBBY_DURABLE_OBJECT.idFromName(
-					LOBBY_DURABLE_OBJECT_NAME,
-				);
-				const lobby = ctx.env.LOBBY_DURABLE_OBJECT.get(lobbyId);
-				await lobby.setParticipantPreference({
-					fromUserId: ctx.user.id as UserId,
-					targetUserId: id,
-					preference: "neutral",
-				});
 			}),
 	},
 } satisfies TRPCRouterRecord);
