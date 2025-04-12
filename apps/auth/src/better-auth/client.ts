@@ -1,9 +1,10 @@
 import { createAuthClient } from "better-auth/react";
 import { yaleCasClient } from "@yaleapps/better-auth-yale-cas";
 import { anonymousClient } from "better-auth/client/plugins";
+import { DOMAINS } from "@repo/constants/urls";
 
 export const authClient = createAuthClient({
-	baseURL: "http://localhost:4343",
+	baseURL: DOMAINS.AUTH,
 	plugins: [yaleCasClient(), anonymousClient()],
 	advanced: {
 		crossSubDomainCookies: {

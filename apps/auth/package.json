@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.15",
+    "@repo/constants": "workspace:*",
     "@repo/db": "workspace:*",
     "@yaleapps/better-auth-yale-cas": "workspace:*",
     "better-auth": "^1.2.4",

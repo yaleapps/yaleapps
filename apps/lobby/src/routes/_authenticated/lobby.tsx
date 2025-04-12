@@ -24,9 +24,10 @@ import {
 	useRegisterLobbyWebSocketAndInvalidateOnUpdate,
 } from "@/lib/useLobby";
 import { cn, getCurrentMealType } from "@/lib/utils";
+import { authClient } from "@repo/auth/better-auth/client";
 import { RESIDENTIAL_COLLEGE_NAMES } from "@repo/constants";
 import type { LobbyParticipant } from "@repo/lobby-server/types";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { Clock, MapPin, MessageCircle, User } from "lucide-react";
 import { useState } from "react";
 
@@ -36,7 +37,13 @@ export const Route = createFileRoute("/_authenticated/lobby")({
 		const lobbyParticipants = await queryClient.ensureQueryData(
 			trpc.lobby.getLobbyParticipants.queryOptions(),
 		);
-		return { lobbyParticipants };
+		const { data: session } = await authClient.getSession();
+		if (!session) throw redirect({ to: "/join" });
+		const amIInLobby = lobbyParticipants.some(
+			(participant) => participant.userId === session.user.id,
+		);
+		if (!amIInLobby) throw redirect({ to: "/join" });
+		return { lobbyParticipants, amIInLobby };
 	},
 });
 
