@@ -1,19 +1,3 @@
-<template>
-  <q-select
-    v-model="favoritesStore[keyOfFavoritesStore]"
-    :label="label"
-    :options="displayedProfessors"
-    multiple
-    use-input
-    use-chips
-    filled
-    menu-self="top middle"
-    menu-anchor="bottom middle"
-    @filter="filterFn"
-  >
-  </q-select>
-</template>
-
 <script setup lang="ts">
 import type { QSelectProps } from 'quasar';
 import { useFavoritesStore } from 'src/stores/favorites';
@@ -51,3 +35,19 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
   );
 };
 </script>
+
+<template>
+  <q-select
+    v-model="favoritesStore[keyOfFavoritesStore]"
+    :label="label"
+    :options="displayedProfessors"
+    multiple
+    use-input
+    use-chips
+    filled
+    menu-self="top middle"
+    menu-anchor="bottom middle"
+    @filter="filterFn"
+  >
+  </q-select>
+</template>
