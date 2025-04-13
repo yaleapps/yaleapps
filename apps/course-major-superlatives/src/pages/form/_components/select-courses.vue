@@ -13,7 +13,7 @@ const query = ref('');
 
 // Create Fuse instance once and reuse it
 const fuse = computed(() => new Fuse(coursesStore.courses, {
-	keys: ["course_codes", "title"] satisfies (keyof CourseSummary)[],
+	keys: ["course_codes", "title", "course_professors.name"] satisfies (keyof CourseSummary | `${(keyof CourseSummary)}.${string}`)[],
 	threshold: 0.4,
 }));
 
@@ -63,7 +63,7 @@ function getQuasarIcon(course: CourseSummary) {
 					ref.moveOptionSelection(1, true);
 				}
 			);
-		}">
+		}" input-debounce="0">
 		<template #option="scope">
 			<q-item v-bind="scope.itemProps">
 				<q-item-section avatar>
