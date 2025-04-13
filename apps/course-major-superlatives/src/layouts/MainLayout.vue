@@ -3,7 +3,7 @@
 <template>
 	<q-layout view="lHh Lpr lFf">
 		<q-header>
-			<q-toolbar>
+			<q-toolbar class="tw:mx-auto tw:max-w-4xl">
 				<q-avatar color="white" text-color="amber" icon="emoji_events" />
 				<q-btn class=" text-h6" stretch no-caps flat to="/" label="Course Superlatives" />
 				<q-space />
