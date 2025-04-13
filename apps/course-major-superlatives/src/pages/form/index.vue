@@ -11,8 +11,12 @@ import { useProfessorsStore } from 'src/stores/data/professors';
 import { type } from 'arktype';
 
 const formStore = useFormStore();
-const activeStep = ref(0);
+const router = useRouter();
 
+const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
+	mutationFn: () => formStore.submitForm(),
+	onSuccess: () => router.push('/success'),
+});
 
 function isValidEmail(email: string) {
 	const Email = type("string.email")
@@ -20,11 +24,7 @@ function isValidEmail(email: string) {
 	return !(result instanceof type.errors)
 }
 
-const router = useRouter();
-const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
-	mutationFn: () => formStore.submitForm(),
-	onSuccess: () => router.push('/success'),
-});
+const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
 	return isValidEmail(formStore.email) && formStore.major.length > 0;
