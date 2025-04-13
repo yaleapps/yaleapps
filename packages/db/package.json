@@ -1,6 +1,7 @@
 {
 	"name": "@repo/db",
 	"scripts": {
+		"course-db:generate": "gql.tada generate-schema 'https://api.coursetable.com/ferry/v1/graphql' --header 'Cookie: $COURSETABLE_COOKIE'",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio"
@@ -8,9 +9,11 @@
 	"dependencies": {
 		"@repo/constants": "workspace:*",
 		"drizzle-orm": "^0.41.0",
+		"gql.tada": "^1.4.3",
 		"zod": "^3.24.2"
 	},
 	"devDependencies": {
+		"@0no-co/graphqlsp": "^1.8.0",
 		"drizzle-kit": "^0.30.6"
 	},
 	"exports": {

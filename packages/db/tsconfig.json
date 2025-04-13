@@ -1,0 +1,12 @@
+{
+	"compilerOptions": {
+		"strict": true,
+		"plugins": [
+			{
+				"name": "@0no-co/graphqlsp",
+				"schema": "./schema.graphql",
+				"tadaOutputLocation": "./scripts/graphql-env.d.ts"
+			}
+		]
+	}
+}
