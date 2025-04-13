@@ -268,6 +268,35 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
+							Most <span class="text-weight-bold">overrated</span> courses at Yale?
+						</div>
+						<SelectCourses v-model="formStore.selectedOverratedCourses"
+							label="The courses that didn't live up to the hype." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							What time do you usually go to bed during the semester?
+						</div>
+						<q-select
+							v-model="formStore.bedtime"
+							:options="[
+								'8:00 PM',
+								'9:00 PM',
+								'10:00 PM',
+								'11:00 PM',
+								'12:00 AM',
+								'1:00 AM',
+								'2:00 AM',
+								'3:00 AM'
+							]"
+							filled
+							label="Typical bedtime"
+						/>
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
 							How satisfied are you with your major?
 							<span class="text-red">*</span>
 						</div>
