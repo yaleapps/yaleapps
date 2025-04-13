@@ -73,10 +73,10 @@ defineOptions({
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 text-weight-light q-mb-lg">
+							<div class="text-h4 q-mb-lg">
 								What are your favorite courses and professors at Yale?
 							</div>
-							<p class="text-subtitle1 text-weight-light">
+							<p class="text-subtitle1">
 								As we wrap up the school year, let's reflect on the courses and professors that
 								defined our college experiences. You must participate to see results.
 							</p>
@@ -84,7 +84,7 @@ defineOptions({
 					</q-card>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							What is your email address? <span class="text-red">*</span>
 						</div>
 						<q-input v-model="formStore.email" filled label="Email"
@@ -92,7 +92,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							What is your major? <span class="text-red">*</span>
 						</div>
 						<SelectMajor />
@@ -108,8 +108,8 @@ defineOptions({
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 text-weight-light q-mb-md">Overall Favorites</div>
-							<div class="text-subtitle1 text-weight-light">
+							<div class="text-h4 q-mb-md">Overall Favorites</div>
+							<div class="text-subtitle1">
 								Please answer the required questions regarding your overall favorite professors and
 								courses. To access your past courses, you can click "Course History" on
 								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
@@ -118,7 +118,7 @@ defineOptions({
 					</q-card>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Favorite <span class="text-weight-bold">professors</span> at Yale?
 							<span class="text-red">*</span>
 						</div>
@@ -127,7 +127,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold"> overall </span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
@@ -136,7 +136,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							<span class="text-weight-bold">Chillest</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
@@ -145,7 +145,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Any remarks or words to defend your choices?
 						</div>
 						<q-input v-model="formStore.remarks" filled label="Your remarks." />
@@ -162,8 +162,8 @@ defineOptions({
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 text-weight-light q-mb-md">Category Favorites</div>
-							<div class="text-subtitle1 text-weight-light">
+							<div class="text-h4 q-mb-md">Category Favorites</div>
+							<div class="text-subtitle1">
 								Please answer the following questions regarding domain-specific courses. To access
 								your past courses, you can click "Course History" on
 								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
@@ -172,7 +172,7 @@ defineOptions({
 					</q-card>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Best courses in your major(s):
 							<span class="text-weight-bold">{{ formStore.major.join(', ') }}</span>
 							<span class="text-red">*</span>
@@ -182,7 +182,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Best
 							<span class="text-weight-bold">
 								writing, science, QR, social science, or humanities
@@ -195,7 +195,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">lecture</span> courses?
 						</div>
 						<SelectCourses key-of-favorites-store="selectedFavoriteLectureCourses"
@@ -203,7 +203,7 @@ defineOptions({
 					</q-card-section>
 
 					<q-card-section>
-						<div class="text-h6 text-weight-light q-mb-md">
+						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">seminar</span> courses?
 						</div>
 						<SelectCourses key-of-favorites-store="selectedFavoriteSeminarCourses"
