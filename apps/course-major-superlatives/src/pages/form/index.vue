@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import SelectCourses from 'src/components/SelectCourses.vue';
-import SelectProfessors from 'src/components/SelectProfessors.vue';
 import { useFormStore } from 'src/stores/form';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
+import SelectProfessors from './_components/select-professors.vue';
 
 const formStore = useFormStore();
 const activeStep = ref(0);
