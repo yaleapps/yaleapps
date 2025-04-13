@@ -1,4 +1,4 @@
-import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+import type { CourseSummary } from "src/types/types";
 
 export function getDisplayText(course: CourseSummary) {
 	return `${course.course_codes.join(" | ")} | ${course.title}`;

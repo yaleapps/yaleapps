@@ -1,5 +1,5 @@
-import { getProfessorsMap } from "app/static/generate-map-of-professors-and-courses-from-season-codes/map-persisters/professors";
-import type { Professor } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+import { getProfessorsMap } from "app/static/data-loaders/professors";
+import type { Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 

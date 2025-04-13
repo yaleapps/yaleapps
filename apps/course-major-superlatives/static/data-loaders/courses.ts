@@ -1,4 +1,7 @@
-import type { CourseSummary, SameCourseAndProfessorsId } from "../schema";
+import type {
+	CourseSummary,
+	SameCourseAndProfessorsId,
+} from "../../src/types/types";
 
 export async function saveCoursesMap(
 	coursesMap: Map<SameCourseAndProfessorsId, CourseSummary>,

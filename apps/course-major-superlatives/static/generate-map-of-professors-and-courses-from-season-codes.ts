@@ -4,10 +4,10 @@ import {
 	type CourseSummary,
 	type Professor,
 	type SameCourseAndProfessorsId,
-} from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+} from "src/types/types";
 import { type } from "arktype";
-import { saveCoursesMap } from "./map-persisters/courses";
-import { saveProfessorsMap } from "./map-persisters/professors";
+import { saveCoursesMap } from "./data-loaders/courses";
+import { saveProfessorsMap } from "./data-loaders/professors";
 
 function getSeasonCodesBetweenDates(
 	startDate: Date,

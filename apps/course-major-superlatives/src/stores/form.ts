@@ -1,4 +1,4 @@
-import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+import type { CourseSummary } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { computed, ref } from "vue";

@@ -1,5 +1,5 @@
-import { getCoursesMap } from "app/static/generate-map-of-professors-and-courses-from-season-codes/map-persisters/courses";
-import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+import { getCoursesMap } from "app/static/data-loaders/courses";
+import type { CourseSummary } from "src/types/types";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 

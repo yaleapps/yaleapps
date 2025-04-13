@@ -1,4 +1,4 @@
-import type { Professor } from "../schema";
+import type { Professor } from "../../src/types/types";
 
 export async function saveProfessorsMap(
 	professorsMap: Map<number, Professor>,

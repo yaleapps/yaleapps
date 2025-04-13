@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
+import type { CourseSummary } from "src/types/types";
 import Fuse from "fuse.js";
 import type { QSelectProps } from "quasar";
 import { useCoursesStore } from "src/stores/data/courses";
