@@ -1,7 +1,8 @@
 import type { CourseFromSupabase } from "src/types/courseFromSupabase";
+
 import { defineStore } from "pinia";
-import { ref, computed } from "vue";
 import { supabase } from "src/supabase";
+import { computed, ref } from "vue";
 
 export type CourseAbbreviated = Pick<
 	CourseFromSupabase,
@@ -29,13 +30,13 @@ export const useFavoritesStore = defineStore("favorites", () => {
 
 	const isFormValid = computed(() => {
 		return (
-			email.value &&
-			major.value.length > 0 &&
-			selectedFavoriteProfessors.value.length > 0 &&
-			selectedFavoriteCourses.value.length > 0 &&
-			selectedGuttiestCourses.value.length > 0 &&
-			selectedFavoriteMajorCourses.value.length > 0 &&
-			selectedFavoriteDistributionalCourses.value.length > 0
+			email.value
+			&& major.value.length > 0
+			&& selectedFavoriteProfessors.value.length > 0
+			&& selectedFavoriteCourses.value.length > 0
+			&& selectedGuttiestCourses.value.length > 0
+			&& selectedFavoriteMajorCourses.value.length > 0
+			&& selectedFavoriteDistributionalCourses.value.length > 0
 		);
 	});
 
@@ -52,7 +53,8 @@ export const useFavoritesStore = defineStore("favorites", () => {
 			);
 			const data = await response.json();
 			courses.value = data;
-		} catch (error) {
+		}
+		catch (error) {
 			console.error("Error fetching catalog:", error);
 			throw error;
 		}
@@ -74,8 +76,10 @@ export const useFavoritesStore = defineStore("favorites", () => {
 				remarks: remarks.value,
 			});
 
-			if (error) throw error;
-		} catch (error) {
+			if (error)
+				throw error;
+		}
+		catch (error) {
 			console.error("Error submitting form:", error);
 			throw error;
 		}
