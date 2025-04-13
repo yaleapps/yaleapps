@@ -13,10 +13,9 @@
  * Gets the current Yale season code based on the month
  * @returns string in format YYYY0S (e.g. "202501" for Spring 2025)
  */
-export function getCurrentSeasonCode(): string {
-	const now = new Date();
-	const month = now.getMonth();
-	const year = now.getFullYear();
+export function getSeasonCodeForDate(date: Date): string {
+	const month = date.getMonth();
+	const year = date.getFullYear();
 
 	// Determine season number (1=Spring, 2=Summer, 3=Fall)
 	let seasonNumber: number;
