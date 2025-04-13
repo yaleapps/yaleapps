@@ -24,7 +24,7 @@ watch(
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {
 	const fuse = new Fuse(formStore.courses, {
-		keys: ["course_codes", "title"],
+		keys: ["course_codes", "title"] satisfies (keyof CourseSummary)[],
 		threshold: 0.4,
 	});
 
