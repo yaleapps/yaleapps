@@ -1,8 +1,9 @@
 import { type SeasonCode, getSeasonCodeForDate } from "@repo/db/utils";
-import type {
-	CourseSummary,
-	Professor,
-	SameCourseAndProfessorsId,
+import {
+	CourseFromCourseTableApi,
+	type CourseSummary,
+	type Professor,
+	type SameCourseAndProfessorsId,
 } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
 import { type } from "arktype";
 import * as coursesMapPersister from "./map-persisters/courses";

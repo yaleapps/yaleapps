@@ -16,7 +16,7 @@ const Professor = type({
 	name: "string",
 });
 
-const CourseFromCourseTableApi = type({
+export const CourseFromCourseTableApi = type({
 	areas: "('Hu' | 'So' | 'Sc')[]",
 	colsem: "boolean",
 	course_id: "number",
