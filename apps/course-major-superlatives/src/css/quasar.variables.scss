@@ -24,6 +24,11 @@ $elevation-umbra: rgba($shadow-color, .07) !default;
 $elevation-penumbra: rgba($shadow-color, .05) !default;
 $elevation-ambient: rgba($shadow-color, .03) !default;
 
+$dark-shadow-color: #fff !default;
+$dark-elevation-umbra: rgba($dark-shadow-color, .07) !default;
+$dark-elevation-penumbra: rgba($dark-shadow-color, .05) !default;
+$dark-elevation-ambient: rgba($dark-shadow-color, .03) !default;
+
 $text-weights: (thin: 100, light: 200, regular: 300, medium: 400, bold: 500, bolder: 800) !default;
 
 // Typography with updated weights
@@ -39,5 +44,3 @@ $body1:     (size: 1rem,     line-height: 1.5rem,   letter-spacing: .03125em,  w
 $body2:     (size: .875rem,  line-height: 1.25rem,  letter-spacing: .01786em,  weight: 300) !default;
 $overline:  (size: .75rem,   line-height: 2rem,     letter-spacing: .16667em,  weight: 400) !default;
 $caption:   (size: .75rem,   line-height: 1.25rem,  letter-spacing: .03333em,  weight: 300) !default;
-
-
