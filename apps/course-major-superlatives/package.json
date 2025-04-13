@@ -23,6 +23,7 @@
 		"deploy": "wrangler pages deploy"
 	},
 	"dependencies": {
+		"@repo/constants": "workspace:*",
 		"@quasar/extras": "^1.16.4",
 		"@supabase/supabase-js": "^2.49.4",
 		"@tailwindcss/postcss": "^4.1.3",
