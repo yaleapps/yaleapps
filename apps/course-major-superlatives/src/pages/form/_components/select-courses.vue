@@ -2,6 +2,7 @@
 import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
 import Fuse from "fuse.js";
 import type { QSelectProps } from "quasar";
+import { useCoursesStore } from "src/stores/data/courses";
 import { useFormStore } from "src/stores/form";
 import { getDisplayText } from "src/utils/getDisplayText";
 import { ref, watch } from "vue";
@@ -12,10 +13,11 @@ const props = defineProps<{
 }>();
 
 const formStore = useFormStore();
+const coursesStore = useCoursesStore();
 const displayedCourseOptions = ref<CourseSummary[]>([]);
 
 watch(
-	() => formStore.courses,
+	() => coursesStore.courses,
 	(newCourses) => {
 		displayedCourseOptions.value = newCourses;
 	},
@@ -23,14 +25,14 @@ watch(
 );
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {
-	const fuse = new Fuse(formStore.courses, {
+	const fuse = new Fuse(coursesStore.courses, {
 		keys: ["course_codes", "title"] satisfies (keyof CourseSummary)[],
 		threshold: 0.4,
 	});
 
 	if (val === "") {
 		update(() => {
-			displayedCourseOptions.value = formStore.courses;
+			displayedCourseOptions.value = coursesStore.courses;
 		});
 		return;
 	}

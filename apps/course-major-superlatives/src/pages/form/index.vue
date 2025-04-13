@@ -6,6 +6,8 @@ import { useRouter } from 'vue-router';
 import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
+import { useCoursesStore } from 'src/stores/data/courses';
+import { useProfessorsStore } from 'src/stores/data/professors';
 
 const formStore = useFormStore();
 const activeStep = ref(0);
@@ -56,8 +58,10 @@ async function handleFormSubmission() {
 
 defineOptions({
 	preFetch({ store }) {
-		const formStore = useFormStore(store);
-		formStore.fetchAbbreviatedCatalog();
+		const professorsStore = useProfessorsStore(store);
+		const coursesStore = useCoursesStore(store);
+		professorsStore.fetchProfessors();
+		coursesStore.fetchAbbreviatedCatalog();
 	},
 })
 </script>
