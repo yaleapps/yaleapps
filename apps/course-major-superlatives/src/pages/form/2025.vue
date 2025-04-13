@@ -80,6 +80,16 @@ defineOptions({
 								As we wrap up the school year, let's reflect on the courses and professors that
 								defined our college experiences. You must participate to see results.
 							</p>
+							<div class="text-subtitle1 q-mt-md">
+								To access your past courses, you can click:
+								<div class="q-mt-sm q-gutter-x-sm">
+									<q-btn flat dense color="primary" label="Unofficial Transcript" icon-right="open_in_new" type="a"
+										href="https://studentsystems.yale.edu/StudentSelfService/ssb/academicTranscript#!/UG/WEBY/maintenance"
+										target="_blank" rel="noopener noreferrer" />
+									<q-btn flat dense color="primary" label="Yale Degree Audit" icon-right="open_in_new" type="a"
+										href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
+								</div>
+							</div>
 						</q-card-section>
 					</q-card>
 
@@ -124,9 +134,11 @@ defineOptions({
 					<q-card flat>
 						<q-card-section>
 							<div class="text-h4 q-mb-md">Overall Favorites</div>
+							<div class="text-subtitle1">
+								Please share your overall favorite professors and courses at Yale.
+							</div>
 							<div class="text-subtitle1 q-mt-md">
-								Please share your overall favorite professors and courses at Yale. To access your past courses, you can
-								click:
+								To access your past courses, you can click:
 								<div class="q-mt-sm q-gutter-x-sm">
 									<q-btn flat dense color="primary" label="Unofficial Transcript" icon-right="open_in_new" type="a"
 										href="https://studentsystems.yale.edu/StudentSelfService/ssb/academicTranscript#!/UG/WEBY/maintenance"
@@ -135,7 +147,6 @@ defineOptions({
 										href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
 								</div>
 							</div>
-
 						</q-card-section>
 					</q-card>
 
