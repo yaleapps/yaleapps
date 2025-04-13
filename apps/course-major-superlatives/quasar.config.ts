@@ -84,9 +84,9 @@ export default defineConfig((/* ctx */) => {
 			config: {
 				dark: false,
 				brand: {
-					"primary": "#00356b",
-					"secondary": "#BEB7A4",
-					"accent": "#5f712d",
+					primary: "#00356b",
+					secondary: "#BEB7A4",
+					accent: "#5f712d",
 					"yale-blue-1": "#00356b",
 					"yale-blue-2": "#286dc0",
 					"yale-blue-3": "#63aaff",
