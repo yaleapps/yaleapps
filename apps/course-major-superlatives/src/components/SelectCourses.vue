@@ -5,7 +5,7 @@ import type { CourseAbbreviated } from "src/stores/form";
 import Fuse from "fuse.js";
 import { useFormStore } from "src/stores/form";
 import { getDisplayText } from "src/utils/getDisplayText";
-import { defineProps, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
 const props = defineProps<{
 	keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;

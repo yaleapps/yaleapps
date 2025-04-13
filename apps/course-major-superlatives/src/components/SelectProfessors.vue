@@ -2,7 +2,7 @@
 import type { QSelectProps } from 'quasar';
 import { useFormStore } from 'src/stores/form';
 import { professors } from 'src/stores/professors';
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{
   keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
