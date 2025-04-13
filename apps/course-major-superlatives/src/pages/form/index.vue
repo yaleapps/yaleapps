@@ -50,12 +50,6 @@ function previousStep() {
 	activeStep.value--;
 }
 
-async function handleFormSubmission() {
-	if (formStore.isFormValid) {
-		submitUserCourseMutation();
-	}
-}
-
 defineOptions({
 	preFetch({ store }) {
 		const professorsStore = useProfessorsStore(store);
@@ -212,8 +206,11 @@ defineOptions({
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Submit" :disable="!isStep3Valid" :loading="isSubmitLoading"
-							@click="handleFormSubmission" />
+						<q-btn color="primary" label="Submit" :disable="!isStep3Valid" :loading="isSubmitLoading" @click="() => {
+							if (formStore.isFormValid) {
+								submitUserCourseMutation();
+							}
+						}" />
 					</div>
 				</q-step-content>
 			</q-step>
