@@ -31,6 +31,7 @@
 		"arktype": "^2.1.9",
 		"fuse.js": "^7.1.0",
 		"pinia": "^3.0.1",
+		"pinia-plugin-persistedstate": "^4.2.0",
 		"quasar": "^2.16.0",
 		"tailwindcss": "^4.0.6",
 		"vue": "^3.4.18",
