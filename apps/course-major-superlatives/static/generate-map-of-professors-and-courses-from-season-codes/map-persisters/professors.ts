@@ -13,7 +13,7 @@ export async function saveProfessorsMap(
 
 export async function getProfessorsMap(): Promise<Map<number, Professor>> {
 	const res = await fetch(
-		"https://github.com/yaleapps/yaleapps/blob/main/apps/course-major-superlatives/static/professors.json",
+		"https://raw.githubusercontent.com/yaleapps/yaleapps/refs/heads/main/apps/course-major-superlatives/static/professors.json",
 	);
 	const professors = await res.json();
 	return new Map(professors) as Map<number, Professor>;
