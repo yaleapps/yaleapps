@@ -19,7 +19,7 @@ const filteredProfessors = computed(() => {
 </script>
 
 <template>
-  <q-select v-model="modelValue" :label="label" :options="filteredProfessors" multiple use-input use-chips
+  <q-select v-model="modelValue" :label="label" :options="filteredProfessors" multiple use-input use-chips flat
     menu-self="top middle" menu-anchor="bottom middle" @add="() => query = ''" @filter="(q, update) => {
       update(
         () => query = q,

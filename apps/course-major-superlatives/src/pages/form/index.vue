@@ -95,7 +95,7 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							What is your major? <span class="text-red">*</span>
 						</div>
-						<SelectMajor />
+						<SelectMajor v-model="formStore.major" />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -131,7 +131,7 @@ defineOptions({
 							Best <span class="text-weight-bold"> overall </span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteCourses"
 							label="Your favorite courses ever. The ones that made you think, laugh, and cry." />
 					</q-card-section>
 

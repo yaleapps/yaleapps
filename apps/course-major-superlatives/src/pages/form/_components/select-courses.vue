@@ -1,17 +1,13 @@
 <script setup lang="ts">
 import Fuse from "fuse.js";
 import { useCoursesStore } from "src/stores/data/courses";
-import { useFormStore } from "src/stores/form";
 import type { CourseSummary } from "src/types/types";
 import { getDisplayText } from "src/utils/getDisplayText";
 import { computed, ref } from "vue";
 
-const props = defineProps<{
-	keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
-	label: string;
-}>();
+const modelValue = defineModel<CourseSummary[]>({ required: true });
+defineProps<{ label: string; }>();
 
-const formStore = useFormStore();
 const coursesStore = useCoursesStore();
 const query = ref('');
 
@@ -57,8 +53,8 @@ function getQuasarIcon(course: CourseSummary) {
 </script>
 
 <template>
-	<q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="filteredCourses"
-		option-value="course_id" :option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
+	<q-select v-model="modelValue" :label="label" :options="filteredCourses" option-value="course_id"
+		:option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
 		menu-anchor="bottom middle" @filter="(val, update) => {
 			update(
 				() => query = val,
