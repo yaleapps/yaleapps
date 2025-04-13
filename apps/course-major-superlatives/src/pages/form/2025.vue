@@ -251,16 +251,31 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="3" title="Yale Life & Wellness">
+			<q-step :name="3" title="Final Reflections">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 q-mb-md">Yale Life & Wellness</div>
+							<div class="text-h4 q-mb-md">Final Reflections</div>
 							<div class="text-subtitle1">
-								Let's explore how different aspects of Yale life intersect with academics and well-being.
+								Let's reflect on your overall Yale experience and daily student life.
 							</div>
 						</q-card-section>
 					</q-card>
+
+					<template v-for="majorName in formStore.major" :key="majorName">
+						<q-card-section>
+							<div class="text-h6 q-mb-md">
+								How satisfied are you with {{ majorName }}?
+								<span class="text-red">*</span>
+							</div>
+							<q-rating :model-value="formStore.selectedMajorSatisfaction[majorName] ?? 5" @update:model-value="(val) => {
+								formStore.selectedMajorSatisfaction[majorName] = val;
+							}" size="2em" :max="10" icon="star_border" icon-selected="star" color="primary" />
+							<div class="text-caption q-mt-sm">
+								1 = Very Dissatisfied, 10 = Very Satisfied
+							</div>
+						</q-card-section>
+					</template>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
@@ -331,44 +346,12 @@ defineOptions({
 						]" filled label="Office hours frequency" />
 					</q-card-section>
 
-					<div class="q-mt-md">
-						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Next" @click="nextStep" />
-					</div>
-				</q-step-content>
-			</q-step>
-
-			<q-step :name="4" title="Major Reflection">
-				<q-step-content>
-					<q-card flat>
-						<q-card-section>
-							<div class="text-h4 q-mb-md">Major Reflection</div>
-							<div class="text-subtitle1">
-								Let's reflect on your experience with your major(s).
-							</div>
-						</q-card-section>
-					</q-card>
-
-					<template v-for="majorName in formStore.major" :key="majorName">
-						<q-card-section>
-							<div class="text-subtitle1 q-mb-md">
-								How satisfied are you with {{ majorName }}?
-								<span class="text-red">*</span>
-							</div>
-							<q-rating :model-value="formStore.selectedMajorSatisfaction[majorName] ?? 5" @update:model-value="(val) => {
-								formStore.selectedMajorSatisfaction[majorName] = val;
-							}" size="2em" :max="10" icon="star_border" icon-selected="star" color="primary" />
-							<div class="text-caption q-mt-sm">
-								1 = Very Dissatisfied, 10 = Very Satisfied
-							</div>
-						</q-card-section>
-					</template>
-
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Any remarks or words to defend your choices?
+							Any final thoughts or reflections on your Yale experience?
 						</div>
-						<q-input v-model="formStore.remarks" filled type="textarea" label="Your remarks." />
+						<q-input v-model="formStore.remarks" filled type="textarea" 
+							label="Share any additional thoughts about your courses, professors, or overall Yale experience." />
 					</q-card-section>
 
 					<div class="q-mt-md">
