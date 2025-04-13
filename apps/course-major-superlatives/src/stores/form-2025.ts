@@ -24,25 +24,35 @@ export const use2025FormStore = defineStore(
 		const bedtime = ref<string>("10:00 PM");
 		const remarks = ref("");
 
-		// Map of major name to favorite courses and satisfaction for that major
-		const selectedFavoriteMajorCoursesMap = ref<
-			Record<string, { courses: CourseSummary[]; satisfaction: number }>
-		>({});
+		// New Yale Life & Wellness fields
+		const studySpot = ref<string[]>([]);
+		const extracurricularCount = ref<string | null>(null);
+		const diningTime = ref<string | null>(null);
+		const officeHoursFrequency = ref<string | null>(null);
 
-		// Initialize empty arrays for each major when major changes
+		const selectedFavoriteMajorCourses = ref<Record<string, CourseSummary[]>>(
+			{},
+		);
+		const selectedMajorSatisfaction = ref<Record<string, number>>({});
+
+		// Initialize empty arrays and default satisfaction for each major when major changes
 		watch(major, (newMajors) => {
-			const newMap: Record<
-				string,
-				{ courses: CourseSummary[]; satisfaction: number }
-			> = {
-				...selectedFavoriteMajorCoursesMap.value,
+			const newCoursesMap: Record<string, CourseSummary[]> = {
+				...selectedFavoriteMajorCourses.value,
+			};
+			const newSatisfactionMap: Record<string, number> = {
+				...selectedMajorSatisfaction.value,
 			};
 			for (const m of newMajors) {
-				if (!newMap[m]) {
-					newMap[m] = { courses: [], satisfaction: 5 };
+				if (!newCoursesMap[m]) {
+					newCoursesMap[m] = [];
+				}
+				if (!newSatisfactionMap[m]) {
+					newSatisfactionMap[m] = 5;
 				}
 			}
-			selectedFavoriteMajorCoursesMap.value = newMap;
+			selectedFavoriteMajorCourses.value = newCoursesMap;
+			selectedMajorSatisfaction.value = newSatisfactionMap;
 		});
 
 		return {
@@ -58,9 +68,15 @@ export const use2025FormStore = defineStore(
 			selectedOverratedCourses,
 			selectedBestLectureCourses,
 			selectedBestSeminarCourses,
-			selectedFavoriteMajorCoursesMap,
+			selectedFavoriteMajorCourses,
+			selectedMajorSatisfaction,
 			bedtime,
 			remarks,
+			// New Yale Life & Wellness fields
+			studySpot,
+			extracurricularCount,
+			diningTime,
+			officeHoursFrequency,
 			isFormValid: computed(() => {
 				return (
 					email.value &&
@@ -73,9 +89,7 @@ export const use2025FormStore = defineStore(
 					selectedQuintessentiallyYaleCourse.value.length > 0 &&
 					// Check if we have favorite courses for each major
 					major.value.every(
-						(m) =>
-							(selectedFavoriteMajorCoursesMap.value[m]?.courses || []).length >
-							0,
+						(m) => (selectedFavoriteMajorCourses.value[m] || []).length > 0,
 					)
 				);
 			}),
@@ -95,10 +109,15 @@ export const use2025FormStore = defineStore(
 						selected_overrated_courses: selectedOverratedCourses.value,
 						selected_best_lecture_courses: selectedBestLectureCourses.value,
 						selected_best_seminar_courses: selectedBestSeminarCourses.value,
-						selected_favorite_major_courses_map:
-							selectedFavoriteMajorCoursesMap.value,
+						selected_favorite_major_courses: selectedFavoriteMajorCourses.value,
+						selected_major_satisfaction: selectedMajorSatisfaction.value,
 						bedtime: bedtime.value,
 						remarks: remarks.value,
+						// New Yale Life & Wellness fields
+						study_spot: studySpot.value,
+						extracurricular_count: extracurricularCount.value,
+						dining_time: diningTime.value,
+						office_hours_frequency: officeHoursFrequency.value,
 					});
 
 					if (error) throw error;
@@ -120,9 +139,15 @@ export const use2025FormStore = defineStore(
 				selectedOverratedCourses.value = [];
 				selectedBestLectureCourses.value = [];
 				selectedBestSeminarCourses.value = [];
-				selectedFavoriteMajorCoursesMap.value = {};
+				selectedFavoriteMajorCourses.value = {};
+				selectedMajorSatisfaction.value = {};
 				bedtime.value = "10:00 PM";
 				remarks.value = "";
+				// Reset new Yale Life & Wellness fields
+				studySpot.value = [];
+				extracurricularCount.value = null;
+				diningTime.value = null;
+				officeHoursFrequency.value = null;
 			},
 		};
 	},

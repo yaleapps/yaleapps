@@ -32,23 +32,21 @@ const isStep1Valid = computed(() => {
 });
 
 const isStep2Valid = computed(() => {
-	return (
-		formStore.selectedFavoriteProfessors.length > 0 &&
+	return formStore.selectedFavoriteProfessors.length > 0 &&
 		formStore.selectedFavoriteCourses.length > 0 &&
 		formStore.selectedGuttiestCourses.length > 0 &&
-		formStore.selectedQuintessentiallyYaleCourse.length > 0
-	);
+		formStore.selectedQuintessentiallyYaleCourse.length > 0;
 });
 
 const isStep3Valid = computed(() => {
-	return (
-		formStore.selectedUnderratedCourses.length > 0 &&
-		formStore.selectedOverratedCourses.length > 0 &&
-		formStore.selectedBestLectureCourses.length > 0 &&
-		formStore.selectedBestSeminarCourses.length > 0
-	);
+	return formStore.selectedBestLectureCourses.length > 0 &&
+		formStore.selectedBestSeminarCourses.length > 0;
 });
 
+const isStep4Valid = computed(() => {
+	return Object.keys(formStore.selectedFavoriteMajorCourses).length === formStore.major.length &&
+		Object.keys(formStore.selectedMajorSatisfaction).length === formStore.major.length;
+});
 
 function nextStep() {
 	activeStep.value++;
@@ -163,34 +161,7 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Most <span class="text-weight-bold">quintessentially Yale</span> course?
-							<span class="text-red">*</span>
-						</div>
-						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
-							label="The course that embodied the Yale experience for you." />
-					</q-card-section>
-
-					<div class="q-mt-md">
-						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Next" :disable="!isStep2Valid" @click="nextStep" />
-					</div>
-				</q-step-content>
-			</q-step>
-
-			<q-step :name="2" title="Course Superlatives">
-				<q-step-content>
-					<q-card flat>
-						<q-card-section>
-							<div class="text-h4 q-mb-md">Course Superlatives</div>
-							<div class="text-subtitle1">
-								Time for the fun part! Let's talk about the courses that stood out in different ways.
-							</div>
-						</q-card-section>
-					</q-card>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							<span class="text-weight-bold">Chillest</span> courses at Yale?
+							Most <span class="text-weight-bold">chillest</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedGuttiestCourses"
@@ -199,23 +170,50 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Most <span class="text-weight-bold">underrated</span> courses at Yale?
+							Most <span class="text-weight-bold">quintessentially Yale</span> course?
+							<span class="text-red">*</span>
 						</div>
-						<SelectCourses v-model="formStore.selectedUnderratedCourses"
-							label="The hidden gems that deserve more recognition." />
+						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
+							label="The course that embodied the Yale experience for you." />
 					</q-card-section>
 
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							Most <span class="text-weight-bold">overrated</span> courses at Yale?
-						</div>
-						<SelectCourses v-model="formStore.selectedOverratedCourses"
-							label="The courses that didn't live up to the hype." />
-					</q-card-section>
+					<template v-for="majorName in formStore.major" :key="majorName">
+						<q-card-section>
+							<div class="text-h6 q-mb-md">
+								Best courses in your major: <span class="text-weight-bold">{{ majorName }}</span>
+								<span class="text-red">*</span>
+							</div>
+							<SelectCourses :model-value="formStore.selectedFavoriteMajorCourses[majorName] ?? []" @update:model-value="(val) => {
+								if (!formStore.selectedFavoriteMajorCourses[majorName]) {
+									formStore.selectedFavoriteMajorCourses[majorName] = [];
+								}
+								formStore.selectedFavoriteMajorCourses[majorName] = val;
+							}" :label="`The course(s) that made you fall in love with ${majorName}.`" />
+						</q-card-section>
+					</template>
+
+					<div class="q-mt-md">
+						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
+						<q-btn color="primary" label="Next" :disable="!isStep2Valid" @click="nextStep" />
+					</div>
+				</q-step-content>
+			</q-step>
+
+			<q-step :name="2" title="Course Categories">
+				<q-step-content>
+					<q-card flat>
+						<q-card-section>
+							<div class="text-h4 q-mb-md">Course Categories</div>
+							<div class="text-subtitle1">
+								Let's dive into specific types of courses that stood out during your time at Yale.
+							</div>
+						</q-card-section>
+					</q-card>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">lecture</span> courses?
+							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedBestLectureCourses"
 							label="The most engaging and well-taught lectures." />
@@ -224,9 +222,26 @@ defineOptions({
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">seminar</span> courses?
+							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedBestSeminarCourses"
 							label="The most engaging and discussion-rich seminars." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Most <span class="text-weight-bold">overrated</span> courses?
+						</div>
+						<SelectCourses v-model="formStore.selectedOverratedCourses"
+							label="The courses that didn't live up to the expectations or hype." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Most <span class="text-weight-bold">underrated</span> courses?
+						</div>
+						<SelectCourses v-model="formStore.selectedUnderratedCourses"
+							label="The hidden gems that deserve more recognition." />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -236,47 +251,32 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="3" title="Major Deep Dive">
+			<q-step :name="3" title="Yale Life & Wellness">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 q-mb-md">Your Major Journey</div>
+							<div class="text-h4 q-mb-md">Yale Life & Wellness</div>
 							<div class="text-subtitle1">
-								Let's dive deep into your major experience at Yale.
+								Let's explore how different aspects of Yale life intersect with academics and well-being.
 							</div>
 						</q-card-section>
 					</q-card>
 
-					<template v-for="majorName in formStore.major" :key="majorName">
-						<q-card-section>
-							<div class="text-h6 q-mb-md">
-								Best courses in your major: <span class="text-weight-bold">{{ majorName }}</span>
-								<span class="text-red">*</span>
-							</div>
-							<SelectCourses :model-value="formStore.selectedFavoriteMajorCoursesMap[majorName]?.courses ?? []"
-								@update:model-value="(val) => {
-									if (!formStore.selectedFavoriteMajorCoursesMap[majorName]) {
-										formStore.selectedFavoriteMajorCoursesMap[majorName] = { courses: [], satisfaction: 5 };
-									}
-									formStore.selectedFavoriteMajorCoursesMap[majorName].courses = val;
-								}" :label="`The course(s) that made you fall in love with ${majorName}.`" />
-
-							<div class="text-subtitle1 q-mt-md">
-								How satisfied are you with {{ majorName }}?
-							</div>
-							<q-rating :model-value="formStore.selectedFavoriteMajorCoursesMap[majorName]?.satisfaction ?? 5"
-								@update:model-value="(val) => {
-									if (!formStore.selectedFavoriteMajorCoursesMap[majorName]) {
-										formStore.selectedFavoriteMajorCoursesMap[majorName] = { courses: [], satisfaction: val };
-									} else {
-										formStore.selectedFavoriteMajorCoursesMap[majorName].satisfaction = val;
-									}
-								}" size="2em" :max="10" icon="star_border" icon-selected="star" color="primary" />
-							<div class="text-caption q-mt-sm">
-								1 = Very Dissatisfied, 10 = Very Satisfied
-							</div>
-						</q-card-section>
-					</template>
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Where do you usually study?
+						</div>
+						<q-select v-model="formStore.studySpot" :options="[
+							'Sterling Memorial Library',
+							'Bass Library',
+							'Residential College Library',
+							'Common Room',
+							'Your Room',
+							'Cross Campus',
+							'Coffee Shop',
+							'Other'
+						]" filled label="Favorite study spot" multiple />
+					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
@@ -293,6 +293,76 @@ defineOptions({
 							'3:00 AM'
 						]" filled label="Typical bedtime" />
 					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							How many extracurriculars are you involved in?
+						</div>
+						<q-select v-model="formStore.extracurricularCount" :options="[
+							'0',
+							'1-2',
+							'3-4',
+							'5+'
+						]" filled label="Number of extracurriculars" />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							What's your preferred meal time at the dining hall?
+						</div>
+						<q-select v-model="formStore.diningTime" :options="[
+							'As soon as it opens',
+							'Middle of service',
+							'Right before closing',
+							'Varies widely'
+						]" filled label="Typical dining time" />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							How often do you attend office hours?
+						</div>
+						<q-select v-model="formStore.officeHoursFrequency" :options="[
+							'Never',
+							'Only before exams',
+							'Monthly',
+							'Weekly',
+							'Multiple times per week'
+						]" filled label="Office hours frequency" />
+					</q-card-section>
+
+					<div class="q-mt-md">
+						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
+						<q-btn color="primary" label="Next" @click="nextStep" />
+					</div>
+				</q-step-content>
+			</q-step>
+
+			<q-step :name="4" title="Major Reflection">
+				<q-step-content>
+					<q-card flat>
+						<q-card-section>
+							<div class="text-h4 q-mb-md">Major Reflection</div>
+							<div class="text-subtitle1">
+								Let's reflect on your experience with your major(s).
+							</div>
+						</q-card-section>
+					</q-card>
+
+					<template v-for="majorName in formStore.major" :key="majorName">
+						<q-card-section>
+							<div class="text-subtitle1 q-mb-md">
+								How satisfied are you with {{ majorName }}?
+								<span class="text-red">*</span>
+							</div>
+							<q-rating :model-value="formStore.selectedMajorSatisfaction[majorName] ?? 5" @update:model-value="(val) => {
+								formStore.selectedMajorSatisfaction[majorName] = val;
+							}" size="2em" :max="10" icon="star_border" icon-selected="star" color="primary" />
+							<div class="text-caption q-mt-sm">
+								1 = Very Dissatisfied, 10 = Very Satisfied
+							</div>
+						</q-card-section>
+					</template>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
