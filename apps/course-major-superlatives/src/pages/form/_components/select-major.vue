@@ -23,5 +23,5 @@ const filteredMajors = computed(() => {
 					ref.moveOptionSelection(1, true);
 				}
 			);
-		}" />
+		}" input-debounce="0" />
 </template>
