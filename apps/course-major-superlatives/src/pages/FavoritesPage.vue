@@ -64,7 +64,7 @@ defineOptions({
 
 <template>
 	<q-page padding>
-		<q-stepper v-model="activeStep" class="max-width-card q-mx-auto" flat :vertical="$q.screen.width < 600">
+		<q-stepper v-model="activeStep" class="tw:max-w-4xl q-mx-auto" bordered :vertical="$q.screen.width < 600">
 			<q-step :name="0" title="Introduction">
 				<q-step-content>
 					<q-card flat>
@@ -216,16 +216,3 @@ defineOptions({
 		</q-stepper>
 	</q-page>
 </template>
-
-<style>
-.max-width-card {
-	width: 100%;
-	border-radius: 8px;
-}
-
-@media (min-width: 640px) {
-	.max-width-card {
-		max-width: 48rem;
-	}
-}
-</style>

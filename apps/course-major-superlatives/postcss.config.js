@@ -1,7 +1,8 @@
 // https://github.com/michael-ciniawsky/postcss-load-config
 
 import autoprefixer from "autoprefixer";
-// import rtlcss from 'postcss-rtlcss'
+import tailwindcss from "@tailwindcss/postcss";
+// import rtlcss from "postcss-rtlcss"
 
 export default {
 	plugins: [
@@ -18,6 +19,7 @@ export default {
 				"last 4 iOS versions",
 			],
 		}),
+		tailwindcss(),
 
 		// https://github.com/elchininet/postcss-rtlcss
 		// If you want to support RTL css, then
