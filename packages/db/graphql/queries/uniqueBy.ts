@@ -1,5 +1,5 @@
 import { graphql } from "gql.tada";
-import { client } from "./urql";
+import { client } from "../client/urql";
 
 const GetAllUniqueConceptualCourses = graphql(`
   query GetAllUniqueConceptualCourses {
