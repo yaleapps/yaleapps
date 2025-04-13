@@ -1,3 +1,8 @@
+import { type } from "arktype";
+
+const SeasonCode = type("/^d{4}0[1-3]$/#SeasonCode");
+export type SeasonCode = typeof SeasonCode.infer;
+
 /**
  * Yale season codes are constructed as YYYY0S where:
  * YYYY = Academic year
@@ -13,7 +18,7 @@
  * Gets the current Yale season code based on the month
  * @returns string in format YYYY0S (e.g. "202501" for Spring 2025)
  */
-export function getSeasonCodeForDate(date: Date): string {
+export function getSeasonCodeForDate(date: Date) {
 	const month = date.getMonth();
 	const year = date.getFullYear();
 
@@ -31,5 +36,5 @@ export function getSeasonCodeForDate(date: Date): string {
 		seasonNumber = 3; // Fall
 	}
 
-	return `${year}0${seasonNumber}` as const;
+	return `${year}0${seasonNumber}` as SeasonCode;
 }
