@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { computed, ref } from "vue";
 
-export const useFormStore = defineStore("favorites", () => {
+export const use2023FormStore = defineStore("2023-form", () => {
 	const email = ref("");
 	const major = ref<string[]>([]);
 	const selectedFavoriteProfessors = ref<string[]>([]);

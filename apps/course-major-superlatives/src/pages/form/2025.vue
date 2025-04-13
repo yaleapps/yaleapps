@@ -1,16 +1,17 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { useFormStore } from 'src/stores/form';
+import { use2025FormStore } from 'src/stores/form-2025';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
+import SelectResidentialCollege from './_components/select-residential-college.vue';
 import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
 import { type } from 'arktype';
 
-const formStore = useFormStore();
+const formStore = use2025FormStore();
 const router = useRouter();
 
 const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
@@ -27,7 +28,7 @@ function isValidEmail(email: string) {
 const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(formStore.email) && formStore.major.length > 0;
+	return isValidEmail(formStore.email) && formStore.major.length > 0 && formStore.residentialCollege;
 });
 
 const isStep2Valid = computed(() => {
@@ -41,8 +42,12 @@ const isStep2Valid = computed(() => {
 const isStep3Valid = computed(() => {
 	return (
 		formStore.selectedFavoriteMajorCourses.length > 0 &&
-		formStore.selectedFavoriteDistributionalCourses.length > 0
+		formStore.selectedQuintessentiallyYaleCourse.length > 0
 	);
+});
+
+const isStep4Valid = computed(() => {
+	return true; // Optional fields
 });
 
 function nextStep() {
@@ -90,6 +95,21 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
+							What is your class year? <span class="text-red">*</span>
+						</div>
+						<q-select v-model="formStore.classYear" :options="['2024', '2025', '2026', '2027', '2028']" filled
+							label="Class Year" />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							What is your residential college? <span class="text-red">*</span>
+						</div>
+						<SelectResidentialCollege v-model="formStore.residentialCollege" />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
 							What is your major? <span class="text-red">*</span>
 						</div>
 						<SelectMajor v-model="formStore.major" />
@@ -112,7 +132,6 @@ defineOptions({
 								<q-btn flat dense color="primary" label="Yale Degree Audit" icon-right="open_in_new" type="a"
 									href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
 								or
-
 								<q-btn flat dense color="primary" label="Your Unofficial Transcript" icon-right="open_in_new" type="a"
 									href="https://studentsystems.yale.edu/StudentSelfService/ssb/academicTranscript#!/UG/WEBY/maintenance"
 									target="_blank" rel="noopener noreferrer" />
@@ -131,7 +150,7 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best <span class="text-weight-bold"> overall </span> courses at Yale?
+							Best <span class="text-weight-bold">overall</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedFavoriteCourses"
@@ -147,13 +166,6 @@ defineOptions({
 							label="The guttiest courses you've ever taken. No stress, no worries." />
 					</q-card-section>
 
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							Any remarks or words to defend your choices?
-						</div>
-						<q-input v-model="formStore.remarks" filled label="Your remarks." />
-					</q-card-section>
-
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
 						<q-btn color="primary" label="Next" :disable="!isStep2Valid" @click="nextStep" />
@@ -161,16 +173,13 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="2" title="Category Favorites">
+			<q-step :name="2" title="Major & Yale Experience">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 q-mb-md">Category Favorites</div>
+							<div class="text-h4 q-mb-md">Major & Yale Experience</div>
 							<div class="text-subtitle1">
-								Please answer the following questions regarding domain-specific courses. To access
-								your past courses, you can click "Course History" on
-								<q-btn flat dense color="primary" label="Yale Degree Audit" icon-right="open_in_new" type="a"
-									href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
+								Please share your thoughts about your major and quintessential Yale experiences.
 							</div>
 						</q-card-section>
 					</q-card>
@@ -187,15 +196,68 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best
-							<span class="text-weight-bold">
-								writing, science, QR, social science, or humanities
-							</span>
-							credits?
+							Course that felt most <span class="text-weight-bold">quintessentially Yale</span>?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses v-model="formStore.selectedFavoriteDistributionalCourses"
-							label="The distributional classes that you loved outside of your major." />
+						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
+							label="The course that embodied the Yale experience for you." />
+					</q-card-section>
+
+					<div class="q-mt-md">
+						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
+						<q-btn color="primary" label="Next" :disable="!isStep3Valid" @click="nextStep" />
+					</div>
+				</q-step-content>
+			</q-step>
+
+			<q-step :name="3" title="Distributional Requirements">
+				<q-step-content>
+					<q-card flat>
+						<q-card-section>
+							<div class="text-h4 q-mb-md">Distributional Requirements</div>
+							<div class="text-subtitle1">
+								Please share your favorite courses from each distributional requirement category.
+							</div>
+						</q-card-section>
+					</q-card>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold">Writing (WR)</span> credit course?
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteWritingCourses"
+							label="Your favorite writing intensive course." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold">Science (SC)</span> credit course?
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteScienceCourses" label="Your favorite science course." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold">Quantitative Reasoning (QR)</span> credit course?
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteQRCourses"
+							label="Your favorite quantitative reasoning course." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold">Humanities (HU)</span> credit course?
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteHumanitiesCourses"
+							label="Your favorite humanities course." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold">Social Sciences (SO)</span> credit course?
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteSocialScienceCourses"
+							label="Your favorite social sciences course." />
 					</q-card-section>
 
 					<q-card-section>
@@ -216,7 +278,44 @@ defineOptions({
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Submit" :disable="!isStep3Valid" :loading="isSubmitLoading" @click="() => {
+						<q-btn color="primary" label="Next" :disable="!isStep4Valid" @click="nextStep" />
+					</div>
+				</q-step-content>
+			</q-step>
+
+			<q-step :name="4" title="Reflections">
+				<q-step-content>
+					<q-card flat>
+						<q-card-section>
+							<div class="text-h4 q-mb-md">Reflections on Yale Life</div>
+							<div class="text-subtitle1">
+								Please share your overall satisfaction with your Yale experience.
+							</div>
+						</q-card-section>
+					</q-card>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							How satisfied are you with your major?
+							<span class="text-red">*</span>
+						</div>
+						<q-rating v-model="formStore.majorSatisfactionOutOf10" size="2em" :max="10" icon="star_border"
+							icon-selected="star" color="primary" />
+						<div class="text-caption q-mt-sm">
+							1 = Very Dissatisfied, 10 = Very Satisfied
+						</div>
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Any remarks or words to defend your choices?
+						</div>
+						<q-input v-model="formStore.remarks" filled type="textarea" label="Your remarks." />
+					</q-card-section>
+
+					<div class="q-mt-md">
+						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
+						<q-btn color="primary" label="Submit" :loading="isSubmitLoading" @click="() => {
 							if (formStore.isFormValid) {
 								submitUserCourseMutation();
 							}
