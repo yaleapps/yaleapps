@@ -1,32 +1,15 @@
-<template>
-  <q-select
-    v-model="favoritesStore[keyOfFavoritesStore]"
-    :label="label"
-    :options="displayedProfessors"
-    multiple
-    use-input
-    use-chips
-    filled
-    menu-self="top middle"
-    menu-anchor="bottom middle"
-    @filter="filterFn"
-  >
-  </q-select>
-</template>
-
 <script setup lang="ts">
 import type { QSelectProps } from 'quasar';
-import { useFavoritesStore } from 'src/stores/favorites';
+import { useFormStore } from 'src/stores/form';
 import { professors } from 'src/stores/professors';
-import { defineProps, ref } from 'vue';
+import { ref } from 'vue';
 
 const props = defineProps<{
-  keyOfFavoritesStore: keyof typeof favoritesStore.$state;
+  keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
   label: string;
 }>();
 
-const favoritesStore = useFavoritesStore();
-
+const formStore = useFormStore();
 const displayedProfessors = ref(professors);
 
 const filterFn: QSelectProps['onFilter'] = (val, update) => {
@@ -51,3 +34,8 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
   );
 };
 </script>
+
+<template>
+  <q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="displayedProfessors" multiple
+    use-input use-chips filled menu-self="top middle" menu-anchor="bottom middle" @filter="filterFn" />
+</template>

@@ -1,8 +1,9 @@
-import supabase from '../supabaseClient.js';
+import supabase from "../supabaseClient.js";
 
 async function upsertEvaluationNarrativeBatch(evaluationNarrativesBatch) {
-	const { error } = await supabase.from('EvaluationNarratives').upsert(evaluationNarrativesBatch);
-	if (error) throw error;
+	const { error } = await supabase.from("EvaluationNarratives").upsert(evaluationNarrativesBatch);
+	if (error)
+		throw error;
 }
 
 export async function upsertEvaluationNarrativesInBatches(evaluationNarratives) {
@@ -19,7 +20,8 @@ export async function upsertEvaluationNarrativesInBatches(evaluationNarratives) 
 		});
 		for (const evaluationNarrativesBatch of evaluationNarrativesBatches)
 			await upsertEvaluationNarrativeBatch(evaluationNarrativesBatch);
-	} catch (err) {
+	}
+	catch (err) {
 		console.error(err);
 	}
 }
