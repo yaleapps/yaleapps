@@ -64,7 +64,7 @@ defineOptions({
 
 <template>
 	<q-page padding>
-		<q-stepper v-model="activeStep" class="tw:max-w-4xl q-mx-auto" bordered :vertical="$q.screen.width < 600">
+		<q-stepper v-model="activeStep" class="tw:max-w-4xl q-mx-auto" bordered :vertical="$q.screen.width < 600" animated>
 			<q-step :name="0" title="Introduction">
 				<q-step-content>
 					<q-card flat>
