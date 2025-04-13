@@ -3,7 +3,7 @@
 
 <script setup lang="ts">
 import { storeToRefs } from "pinia";
-import { useCoursesStore } from "src/stores/courses";
+import { useCoursesStore } from "src/stores/old-courses-table";
 import { ref } from "vue";
 
 export default {

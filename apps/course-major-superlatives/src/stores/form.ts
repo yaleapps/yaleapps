@@ -1,32 +1,19 @@
-import type { CourseFromSupabase } from "src/types/courseFromSupabase";
-
+import type { CourseSummary } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { computed, ref } from "vue";
-
-export type CourseAbbreviated = Pick<
-	CourseFromSupabase,
-	"same_course_id" | "all_course_codes" | "title"
->;
-
-const selectedColumns: (keyof CourseAbbreviated)[] = [
-	"same_course_id",
-	"all_course_codes",
-	"title",
-];
 
 export const useFormStore = defineStore("favorites", () => {
 	const email = ref("");
 	const major = ref<string[]>([]);
 	const selectedFavoriteProfessors = ref<string[]>([]);
-	const selectedFavoriteCourses = ref<CourseAbbreviated[]>([]);
-	const selectedGuttiestCourses = ref<CourseAbbreviated[]>([]);
-	const selectedFavoriteMajorCourses = ref<CourseAbbreviated[]>([]);
-	const selectedFavoriteDistributionalCourses = ref<CourseAbbreviated[]>([]);
-	const selectedFavoriteLectureCourses = ref<CourseAbbreviated[]>([]);
-	const selectedFavoriteSeminarCourses = ref<CourseAbbreviated[]>([]);
+	const selectedFavoriteCourses = ref<CourseSummary[]>([]);
+	const selectedGuttiestCourses = ref<CourseSummary[]>([]);
+	const selectedFavoriteMajorCourses = ref<CourseSummary[]>([]);
+	const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
+	const selectedFavoriteLectureCourses = ref<CourseSummary[]>([]);
+	const selectedFavoriteSeminarCourses = ref<CourseSummary[]>([]);
 	const remarks = ref("");
-	const courses = ref<CourseAbbreviated[]>([]);
 
 	return {
 		email,
@@ -39,7 +26,6 @@ export const useFormStore = defineStore("favorites", () => {
 		selectedFavoriteLectureCourses,
 		selectedFavoriteSeminarCourses,
 		remarks,
-		courses,
 		isFormValid: computed(() => {
 			return (
 				email.value &&
@@ -51,23 +37,6 @@ export const useFormStore = defineStore("favorites", () => {
 				selectedFavoriteDistributionalCourses.value.length > 0
 			);
 		}),
-		fetchAbbreviatedCatalog: async () => {
-			// const { data, error } = await supabase
-			//   .from('Courses')
-			//   .select(selectedColumns.join(','))
-			//   .gt('season_code', '202003');
-			// Fetch json from 'https://qgwabimelbyerzbvkngr.supabase.co/storage/v1/object/public/json_views/CoursesDisplayDropdown.json'
-			try {
-				const response = await fetch(
-					"https://qgwabimelbyerzbvkngr.supabase.co/storage/v1/object/public/json_views/CoursesDisplayDropdown.json",
-				);
-				const data = await response.json();
-				courses.value = data;
-			} catch (error) {
-				console.error("Error fetching catalog:", error);
-				throw error;
-			}
-		},
 		submitForm: async () => {
 			try {
 				const { error } = await supabase.from("UserCourse").insert({

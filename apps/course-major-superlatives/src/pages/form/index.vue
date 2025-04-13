@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import SelectCourses from 'src/components/SelectCourses.vue';
-import SelectProfessors from 'src/components/SelectProfessors.vue';
 import { useFormStore } from 'src/stores/form';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import SelectMajor from './SelectMajor.vue';
+import SelectCourses from './_components/select-courses.vue';
+import SelectMajor from './_components/select-major.vue';
+import SelectProfessors from './_components/select-professors.vue';
+import { useCoursesStore } from 'src/stores/data/courses';
+import { useProfessorsStore } from 'src/stores/data/professors';
 
 const formStore = useFormStore();
 const activeStep = ref(0);
@@ -55,9 +57,11 @@ async function handleFormSubmission() {
 }
 
 defineOptions({
-	async preFetch({ store }) {
-		const favoritesStore = useFormStore(store);
-		favoritesStore.fetchAbbreviatedCatalog();
+	preFetch({ store }) {
+		const professorsStore = useProfessorsStore(store);
+		const coursesStore = useCoursesStore(store);
+		professorsStore.fetchProfessors();
+		coursesStore.fetchAbbreviatedCatalog();
 	},
 })
 </script>

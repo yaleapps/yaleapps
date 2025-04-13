@@ -1,5 +1,5 @@
 import { graphql } from "gql.tada";
-import type { SeasonCode } from "../../utils/getSeasonCodeForDate";
+import type { SeasonCode } from "../../src/utils/get-season-code-for-date";
 import { client } from "../client/urql";
 
 const GetDistinctCoursesBySeasonRange = graphql(`

@@ -40,7 +40,7 @@ const defaultToggledColumns: (keyof CourseFromSupabase)[] = [
 	"times_summary",
 ];
 
-export const useCoursesStore = defineStore("courses", {
+export const useOldCoursesStore = defineStore("old-courses", {
 	state: () => ({
 		courses: [],
 		toggledColumns: defaultToggledColumns,
@@ -48,7 +48,7 @@ export const useCoursesStore = defineStore("courses", {
 		pagination: { rowsPerPage: 0 },
 	}),
 	getters: {
-		columns: state =>
+		columns: (state) =>
 			state.toggledColumns.map(
 				(key): Column => ({
 					name: key,
@@ -75,6 +75,6 @@ export const useCoursesStore = defineStore("courses", {
 function keyToLabel(label: string) {
 	return label
 		.split("_")
-		.map(word => word[0].toUpperCase() + word.slice(1))
+		.map((word) => word[0].toUpperCase() + word.slice(1))
 		.join(" ");
 }

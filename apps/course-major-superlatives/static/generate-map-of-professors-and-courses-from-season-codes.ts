@@ -1,63 +1,13 @@
-import { type } from "arktype";
-import { promises as fs } from "node:fs";
+import { type SeasonCode, getSeasonCodeForDate } from "@repo/db/utils";
 import {
-	type SeasonCode,
-	getSeasonCodeForDate,
-} from "../../utils/getSeasonCodeForDate";
-
-const SameCourseId = type("number#SameCourseId");
-const SameCourseAndProfessorsId = type("number#SameCourseAndProfessorsId");
-
-type CourseSummary = {
-	same_course_and_profs_id: SameCourseAndProfessorsId;
-	course_codes: string[];
-	title: string;
-	description: string;
-	course_professors: Professor[];
-};
-
-const Professor = type({
-	professor_id: "number",
-	name: "string",
-});
-
-const CourseFromCourseTableApi = type({
-	areas: "('Hu' | 'So' | 'Sc')[]",
-	colsem: "boolean",
-	course_id: "number",
-	course_professors: type({
-		professor: Professor,
-	}).array(),
-	credits: "number",
-	description: "string",
-	extra_info:
-		"'ACTIVE' | 'CANCELLED' | 'CLOSED' | 'MOVED_TO_FALL_TERM' | 'MOVED_TO_SPRING_TERM'",
-	final_exam: "string | null",
-	fysem: "boolean",
-	last_offered_course_id: "number | null",
-	listings: type({
-		course_code: "string",
-		crn: "number",
-		number: "string",
-		school: "string",
-		subject: "string",
-	}).array(),
-	primary_crn: "number | null",
-	requirements: "string",
-	same_course_and_profs_id: SameCourseAndProfessorsId,
-	same_course_id: SameCourseId,
-	season_code: "string",
-	section: "string",
-	skills: "('WR' | 'QR' | 'L1' | 'L2' | 'L3' | 'L4' | 'L5')[]",
-	title: "string",
-	time_added: "string | null",
-	last_updated: "string | null",
-});
-
-type SameCourseId = typeof SameCourseId.infer;
-type SameCourseAndProfessorsId = typeof SameCourseAndProfessorsId.infer;
-type CourseFromCourseTableApi = typeof CourseFromCourseTableApi.infer;
-type Professor = typeof Professor.infer;
+	CourseFromCourseTableApi,
+	type CourseSummary,
+	type Professor,
+	type SameCourseAndProfessorsId,
+} from "src/types/types";
+import { type } from "arktype";
+import { saveCoursesMap } from "./data-loaders/courses";
+import { saveProfessorsMap } from "./data-loaders/professors";
 
 function getSeasonCodesBetweenDates(
 	startDate: Date,
@@ -159,8 +109,5 @@ const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
 const { professorsMap, coursesMap } =
 	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
 
-const professors = Array.from(professorsMap.entries());
-const courses = Array.from(coursesMap.entries());
-
-await fs.writeFile("static/professors.json", JSON.stringify(professors));
-await fs.writeFile("static/courses.json", JSON.stringify(courses));
+await saveProfessorsMap(professorsMap);
+await saveCoursesMap(coursesMap);

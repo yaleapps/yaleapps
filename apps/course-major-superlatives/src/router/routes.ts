@@ -4,17 +4,17 @@ const routes: RouteRecordRaw[] = [
 	{
 		path: "/",
 		component: () => import("layouts/MainLayout.vue"),
-		children: [{ path: "", component: () => import("pages/FavoritesPage.vue") }],
+		children: [{ path: "", component: () => import("pages/form/index.vue") }],
 	},
 	{
 		path: "/favorites",
 		component: () => import("layouts/MainLayout.vue"),
-		children: [{ path: "", component: () => import("pages/FavoritesPage.vue") }],
+		children: [{ path: "", component: () => import("pages/form/index.vue") }],
 	},
 	{
 		path: "/success",
 		component: () => import("layouts/MainLayout.vue"),
-		children: [{ path: "", component: () => import("pages/SuccessPage.vue") }],
+		children: [{ path: "", component: () => import("pages/success.vue") }],
 	},
 
 	// Always leave this as last one,

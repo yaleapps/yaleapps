@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { QSelectProps } from 'quasar';
 import { useFormStore } from 'src/stores/form';
-import { professors } from 'src/stores/professors';
+import { useProfessorsStore } from 'src/stores/data/professors';
 import { ref } from 'vue';
 
 const props = defineProps<{
@@ -9,13 +9,14 @@ const props = defineProps<{
   label: string;
 }>();
 
+const professorsStore = useProfessorsStore();
 const formStore = useFormStore();
-const displayedProfessors = ref(professors);
+const displayedProfessors = ref(professorsStore.professors);
 
 const filterFn: QSelectProps['onFilter'] = (val, update) => {
   if (val === '') {
     update(() => {
-      displayedProfessors.value = professors;
+      displayedProfessors.value = professorsStore.professors;
     });
     return;
   }
@@ -23,8 +24,8 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
   update(
     () => {
       const needle = val.toLowerCase();
-      displayedProfessors.value = professors.filter(
-        (professor) => professor.toLowerCase().indexOf(needle) > -1,
+      displayedProfessors.value = professorsStore.professors.filter(
+        (professor) => professor.name.toLowerCase().indexOf(needle) > -1,
       );
     },
     (ref) => {
