@@ -55,9 +55,9 @@ async function handleFormSubmission() {
 }
 
 defineOptions({
-	async preFetch({ store }) {
-		const favoritesStore = useFormStore(store);
-		favoritesStore.fetchAbbreviatedCatalog();
+	preFetch({ store }) {
+		const formStore = useFormStore(store);
+		formStore.fetchAbbreviatedCatalog();
 	},
 })
 </script>
