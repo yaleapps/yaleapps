@@ -42,12 +42,12 @@ type Course = z.infer<typeof courseSchema>;
 export const userSuperlatives = superlatives20232024PrefixedSqliteTable(
 	"user_superlatives",
 	{
-		id: integer("id").primaryKey({ autoIncrement: true }),
+		id: integer().primaryKey({ autoIncrement: true }),
 		createdAt: integer("created_at", { mode: "timestamp" })
 			.notNull()
 			.default(sql`(unixepoch())`),
-		email: text("email").notNull(),
-		major: text("major", { mode: "json" }).$type<string[]>().notNull(),
+		email: text().notNull(),
+		major: text({ mode: "json" }).$type<string[]>().notNull(),
 		selectedFavoriteProfessors: text("selected_favorite_professors", {
 			mode: "json",
 		})
@@ -80,7 +80,7 @@ export const userSuperlatives = superlatives20232024PrefixedSqliteTable(
 		})
 			.$type<Course[]>()
 			.notNull(),
-		remarks: text("remarks"),
+		remarks: text(),
 	},
 );
 
