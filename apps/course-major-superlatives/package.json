@@ -20,7 +20,7 @@
 		"dev": "quasar dev",
 		"build": "quasar build",
 		"postinstall": "quasar prepare",
-		"deploy": "vercel"
+		"deploy": "wrangler pages deploy"
 	},
 	"dependencies": {
 		"@quasar/extras": "^1.16.4",
