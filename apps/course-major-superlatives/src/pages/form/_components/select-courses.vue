@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import type { CourseSummary } from "src/types/types";
 import Fuse from "fuse.js";
-import type { QSelectProps } from "quasar";
 import { useCoursesStore } from "src/stores/data/courses";
 import { useFormStore } from "src/stores/form";
+import type { CourseSummary } from "src/types/types";
 import { getDisplayText } from "src/utils/getDisplayText";
-import { ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 const props = defineProps<{
 	keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
@@ -14,40 +13,18 @@ const props = defineProps<{
 
 const formStore = useFormStore();
 const coursesStore = useCoursesStore();
-const displayedCourseOptions = ref<CourseSummary[]>([]);
+const query = ref('');
 
-watch(
-	() => coursesStore.courses,
-	(newCourses) => {
-		displayedCourseOptions.value = newCourses;
-	},
-	{ immediate: true },
-);
+// Create Fuse instance once and reuse it
+const fuse = computed(() => new Fuse(coursesStore.courses, {
+	keys: ["course_codes", "title"] satisfies (keyof CourseSummary)[],
+	threshold: 0.4,
+}));
 
-const filterFn: QSelectProps["onFilter"] = (val, update) => {
-	const fuse = new Fuse(coursesStore.courses, {
-		keys: ["course_codes", "title"] satisfies (keyof CourseSummary)[],
-		threshold: 0.4,
-	});
-
-	if (val === "") {
-		update(() => {
-			displayedCourseOptions.value = coursesStore.courses;
-		});
-		return;
-	}
-
-	update(
-		() => {
-			const needle = val.toLowerCase();
-			displayedCourseOptions.value = fuse.search(needle).map(result => result.item);
-		},
-		(ref) => {
-			ref.setOptionIndex(-1);
-			ref.moveOptionSelection(1, true);
-		},
-	);
-};
+const filteredCourses = computed(() => {
+	if (query.value === '') return coursesStore.courses;
+	return fuse.value.search(query.value).map(result => result.item);
+});
 
 function getQuasarIcon(course: CourseSummary) {
 	const quasarIcons = {
@@ -80,9 +57,17 @@ function getQuasarIcon(course: CourseSummary) {
 </script>
 
 <template>
-	<q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="displayedCourseOptions"
+	<q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="filteredCourses"
 		option-value="course_id" :option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
-		menu-anchor="bottom middle" @filter="filterFn">
+		menu-anchor="bottom middle" @filter="(val, update) => {
+			update(
+				() => query = val,
+				(ref) => {
+					ref.setOptionIndex(-1);
+					ref.moveOptionSelection(1, true);
+				}
+			);
+		}">
 		<template #option="scope">
 			<q-item v-bind="scope.itemProps">
 				<q-item-section avatar>
