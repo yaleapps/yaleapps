@@ -70,9 +70,10 @@ function getQuasarIcon(course: CourseSummary) {
 					<q-icon :name="getQuasarIcon(scope.opt)" />
 				</q-item-section>
 				<q-item-section>
-					<q-item-label>{{ scope.opt.title }}</q-item-label>
+					<q-item-label>{{ (scope.opt as CourseSummary).title }}</q-item-label>
 					<q-item-label caption>
-						{{ scope.opt.course_codes.join(', ') }}
+						{{(scope.opt as CourseSummary).course_professors.map((p) => p.name).join(', ')}} |
+						{{ (scope.opt as CourseSummary).course_codes.join(', ') }}
 					</q-item-label>
 				</q-item-section>
 			</q-item>
