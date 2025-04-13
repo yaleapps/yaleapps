@@ -5,7 +5,7 @@ import { promises as fs } from "node:fs";
 const SameCourseId = type("number#SameCourseId");
 const SameCourseAndProfessorsId = type("number#SameCourseAndProfessorsId");
 
-type CourseSummary = {
+export type CourseSummary = {
 	same_course_and_profs_id: SameCourseAndProfessorsId;
 	course_codes: string[];
 	title: string;

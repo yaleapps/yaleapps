@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { QSelectProps } from "quasar";
-import type { CourseAbbreviated } from "src/stores/form";
-
+import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes";
 import Fuse from "fuse.js";
 import { useFormStore } from "src/stores/form";
 import { getDisplayText } from "src/utils/getDisplayText";
@@ -13,7 +12,7 @@ const props = defineProps<{
 }>();
 
 const formStore = useFormStore();
-const displayedCourseOptions = ref<CourseAbbreviated[]>([]);
+const displayedCourseOptions = ref<CourseSummary[]>([]);
 
 watch(
 	() => formStore.courses,
@@ -25,7 +24,7 @@ watch(
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {
 	const fuse = new Fuse(formStore.courses, {
-		keys: ["all_course_codes", "title"],
+		keys: ["course_codes", "title"],
 		threshold: 0.4,
 	});
 
@@ -48,7 +47,7 @@ const filterFn: QSelectProps["onFilter"] = (val, update) => {
 	);
 };
 
-function getQuasarIcon(course: CourseAbbreviated) {
+function getQuasarIcon(course: CourseSummary) {
 	const quasarIcons = {
 		auto_stories: ["lit", "lang", "read", "writ", "novel", "poet", "engl", "phil", "hist"],
 		movie: ["film", "cinema", "movie", "theater", "theatre", "drama"],
@@ -68,7 +67,7 @@ function getQuasarIcon(course: CourseAbbreviated) {
 		for (const keyword of keywords) {
 			if (
 				course.title?.toLowerCase().includes(keyword)
-				|| course.all_course_codes.some(code => code.toLowerCase().includes(keyword))
+				|| course.course_codes.some(code => code.toLowerCase().includes(keyword))
 			) {
 				return icon;
 			}
@@ -90,7 +89,7 @@ function getQuasarIcon(course: CourseAbbreviated) {
 				<q-item-section>
 					<q-item-label>{{ scope.opt.title }}</q-item-label>
 					<q-item-label caption>
-						{{ scope.opt.all_course_codes.join(', ') }}
+						{{ scope.opt.course_codes.join(', ') }}
 					</q-item-label>
 				</q-item-section>
 			</q-item>
