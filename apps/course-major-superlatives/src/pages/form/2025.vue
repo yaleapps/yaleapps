@@ -108,8 +108,14 @@ defineOptions({
 							<div class="text-h4 q-mb-md">Overall Favorites</div>
 							<div class="text-subtitle1">
 								Please answer the required questions regarding your overall favorite professors and
-								courses. To access your past courses, you can click "Course History" on
-								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
+								courses. To access your past courses, you can click "Class History" on
+								<q-btn flat dense color="primary" label="Yale Degree Audit" icon-right="open_in_new" type="a"
+									href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
+								or
+
+								<q-btn flat dense color="primary" label="Your Unofficial Transcript" icon-right="open_in_new" type="a"
+									href="https://studentsystems.yale.edu/StudentSelfService/ssb/academicTranscript#!/UG/WEBY/maintenance"
+									target="_blank" rel="noopener noreferrer" />
 							</div>
 						</q-card-section>
 					</q-card>
@@ -163,7 +169,8 @@ defineOptions({
 							<div class="text-subtitle1">
 								Please answer the following questions regarding domain-specific courses. To access
 								your past courses, you can click "Course History" on
-								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
+								<q-btn flat dense color="primary" label="Yale Degree Audit" icon-right="open_in_new" type="a"
+									href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer" />
 							</div>
 						</q-card-section>
 					</q-card>
