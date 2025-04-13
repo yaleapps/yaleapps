@@ -8,13 +8,16 @@ import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
 import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
+import { type } from 'arktype';
 
 const formStore = useFormStore();
 const activeStep = ref(0);
 
+
 function isValidEmail(email: string) {
-	const re = /\S[^\s@]*@\S+\.\S+/;
-	return re.test(email);
+	const Email = type("string.email")
+	const result = Email(email);
+	return !(result instanceof type.errors)
 }
 
 const router = useRouter();
