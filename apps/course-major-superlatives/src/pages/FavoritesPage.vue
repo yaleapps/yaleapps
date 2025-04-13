@@ -2,12 +2,12 @@
 import { useMutation } from '@tanstack/vue-query';
 import SelectCourses from 'src/components/SelectCourses.vue';
 import SelectProfessors from 'src/components/SelectProfessors.vue';
-import { useFavoritesStore } from 'src/stores/favorites';
+import { useFormStore } from 'src/stores/form';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectMajor from './SelectMajor.vue';
 
-const store = useFavoritesStore();
+const store = useFormStore();
 const activeStep = ref(0);
 
 function isValidEmail(email: string) {
@@ -56,7 +56,7 @@ async function handleFormSubmission() {
 
 export default {
 	async preFetch({ store }) {
-		const favoritesStore = useFavoritesStore(store);
+		const favoritesStore = useFormStore(store);
 		favoritesStore.fetchAbbreviatedCatalog();
 	},
 };

@@ -2,7 +2,7 @@
 <script lang="ts" setup>
 import type { QSelectProps } from "quasar";
 
-import { useFavoritesStore } from "src/stores/favorites";
+import { useFormStore } from "src/stores/form";
 import { ref } from "vue";
 
 const majors = [
@@ -91,7 +91,7 @@ const majors = [
 	"Other",
 ] as const;
 
-const store = useFavoritesStore();
+const store = useFormStore();
 const options = ref(majors);
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {

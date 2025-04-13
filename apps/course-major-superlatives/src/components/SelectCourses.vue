@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import type { QSelectProps } from "quasar";
-import type { CourseAbbreviated } from "src/stores/favorites";
+import type { CourseAbbreviated } from "src/stores/form";
 
 import Fuse from "fuse.js";
-import { useFavoritesStore } from "src/stores/favorites";
+import { useFormStore } from "src/stores/form";
 import { getDisplayText } from "src/utils/getDisplayText";
 import { defineProps, ref, watch } from "vue";
 
 const props = defineProps<{
-	keyOfFavoritesStore: keyof ReturnType<typeof useFavoritesStore>;
+	keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
 	label: string;
 }>();
 
-const store = useFavoritesStore();
+const store = useFormStore();
 const displayedCourseOptions = ref<CourseAbbreviated[]>([]);
 
 watch(
@@ -79,20 +79,9 @@ function getQuasarIcon(course: CourseAbbreviated) {
 </script>
 
 <template>
-	<q-select
-		v-model="store[props.keyOfFavoritesStore]"
-		:label="props.label"
-		:options="displayedCourseOptions"
-		option-value="course_id"
-		:option-label="getDisplayText"
-		multiple
-		use-input
-		use-chips
-		filled
-		menu-self="top middle"
-		menu-anchor="bottom middle"
-		@filter="filterFn"
-	>
+	<q-select v-model="store[props.keyOfFavoritesStore]" :label="props.label" :options="displayedCourseOptions"
+		option-value="course_id" :option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
+		menu-anchor="bottom middle" @filter="filterFn">
 		<template #option="scope">
 			<q-item v-bind="scope.itemProps">
 				<q-item-section avatar>

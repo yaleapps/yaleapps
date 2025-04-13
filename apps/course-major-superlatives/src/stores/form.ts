@@ -15,7 +15,7 @@ const selectedColumns: (keyof CourseAbbreviated)[] = [
 	"title",
 ];
 
-export const useFavoritesStore = defineStore("favorites", () => {
+export const useFormStore = defineStore("favorites", () => {
 	const email = ref("");
 	const major = ref<string[]>([]);
 	const selectedFavoriteProfessors = ref<string[]>([]);
@@ -30,13 +30,13 @@ export const useFavoritesStore = defineStore("favorites", () => {
 
 	const isFormValid = computed(() => {
 		return (
-			email.value
-			&& major.value.length > 0
-			&& selectedFavoriteProfessors.value.length > 0
-			&& selectedFavoriteCourses.value.length > 0
-			&& selectedGuttiestCourses.value.length > 0
-			&& selectedFavoriteMajorCourses.value.length > 0
-			&& selectedFavoriteDistributionalCourses.value.length > 0
+			email.value &&
+			major.value.length > 0 &&
+			selectedFavoriteProfessors.value.length > 0 &&
+			selectedFavoriteCourses.value.length > 0 &&
+			selectedGuttiestCourses.value.length > 0 &&
+			selectedFavoriteMajorCourses.value.length > 0 &&
+			selectedFavoriteDistributionalCourses.value.length > 0
 		);
 	});
 
@@ -53,8 +53,7 @@ export const useFavoritesStore = defineStore("favorites", () => {
 			);
 			const data = await response.json();
 			courses.value = data;
-		}
-		catch (error) {
+		} catch (error) {
 			console.error("Error fetching catalog:", error);
 			throw error;
 		}
@@ -76,10 +75,8 @@ export const useFavoritesStore = defineStore("favorites", () => {
 				remarks: remarks.value,
 			});
 
-			if (error)
-				throw error;
-		}
-		catch (error) {
+			if (error) throw error;
+		} catch (error) {
 			console.error("Error submitting form:", error);
 			throw error;
 		}
