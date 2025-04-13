@@ -5,7 +5,7 @@ import SelectProfessors from 'src/components/SelectProfessors.vue';
 import { useFormStore } from 'src/stores/form';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import SelectMajor from './SelectMajor.vue';
+import SelectMajor from './_components/select-major.vue';
 
 const formStore = useFormStore();
 const activeStep = ref(0);
