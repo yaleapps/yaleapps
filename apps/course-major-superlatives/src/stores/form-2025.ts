@@ -17,31 +17,33 @@ export const use2025FormStore = defineStore(
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
 		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
-		// Map of major name to favorite courses for that major
+		const selectedUnderratedCourses = ref<CourseSummary[]>([]);
+		const selectedOverratedCourses = ref<CourseSummary[]>([]);
+		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
+		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
+		const bedtime = ref<string>("10:00 PM");
+		const remarks = ref("");
+
+		// Map of major name to favorite courses and satisfaction for that major
 		const selectedFavoriteMajorCoursesMap = ref<
-			Record<string, CourseSummary[]>
+			Record<string, { courses: CourseSummary[]; satisfaction: number }>
 		>({});
 
 		// Initialize empty arrays for each major when major changes
 		watch(major, (newMajors) => {
-			const newMap: Record<string, CourseSummary[]> = {
+			const newMap: Record<
+				string,
+				{ courses: CourseSummary[]; satisfaction: number }
+			> = {
 				...selectedFavoriteMajorCoursesMap.value,
 			};
 			for (const m of newMajors) {
 				if (!newMap[m]) {
-					newMap[m] = [];
+					newMap[m] = { courses: [], satisfaction: 5 };
 				}
 			}
 			selectedFavoriteMajorCoursesMap.value = newMap;
 		});
-
-		// Simplified distributional requirements
-		const selectedEasiestScienceCourses = ref<CourseSummary[]>([]);
-		const selectedEasiestWritingCourses = ref<CourseSummary[]>([]);
-		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
-		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
-		const majorSatisfactionOutOf10 = ref<number>(5);
-		const remarks = ref("");
 
 		return {
 			email,
@@ -52,12 +54,12 @@ export const use2025FormStore = defineStore(
 			selectedFavoriteCourses,
 			selectedGuttiestCourses,
 			selectedQuintessentiallyYaleCourse,
-			selectedFavoriteMajorCoursesMap,
-			selectedEasiestScienceCourses,
-			selectedEasiestWritingCourses,
+			selectedUnderratedCourses,
+			selectedOverratedCourses,
 			selectedBestLectureCourses,
 			selectedBestSeminarCourses,
-			majorSatisfactionOutOf10,
+			selectedFavoriteMajorCoursesMap,
+			bedtime,
 			remarks,
 			isFormValid: computed(() => {
 				return (
@@ -71,7 +73,9 @@ export const use2025FormStore = defineStore(
 					selectedQuintessentiallyYaleCourse.value.length > 0 &&
 					// Check if we have favorite courses for each major
 					major.value.every(
-						(m) => (selectedFavoriteMajorCoursesMap.value[m] || []).length > 0,
+						(m) =>
+							(selectedFavoriteMajorCoursesMap.value[m]?.courses || []).length >
+							0,
 					)
 				);
 			}),
@@ -87,15 +91,13 @@ export const use2025FormStore = defineStore(
 						selected_guttiest_courses: selectedGuttiestCourses.value,
 						selected_quintessentially_yale_course:
 							selectedQuintessentiallyYaleCourse.value,
-						selected_favorite_major_courses_map:
-							selectedFavoriteMajorCoursesMap.value,
-						selected_easiest_science_courses:
-							selectedEasiestScienceCourses.value,
-						selected_easiest_writing_courses:
-							selectedEasiestWritingCourses.value,
+						selected_underrated_courses: selectedUnderratedCourses.value,
+						selected_overrated_courses: selectedOverratedCourses.value,
 						selected_best_lecture_courses: selectedBestLectureCourses.value,
 						selected_best_seminar_courses: selectedBestSeminarCourses.value,
-						major_satisfaction: majorSatisfactionOutOf10.value,
+						selected_favorite_major_courses_map:
+							selectedFavoriteMajorCoursesMap.value,
+						bedtime: bedtime.value,
 						remarks: remarks.value,
 					});
 
@@ -114,12 +116,12 @@ export const use2025FormStore = defineStore(
 				selectedFavoriteCourses.value = [];
 				selectedGuttiestCourses.value = [];
 				selectedQuintessentiallyYaleCourse.value = [];
-				selectedFavoriteMajorCoursesMap.value = {};
-				selectedEasiestScienceCourses.value = [];
-				selectedEasiestWritingCourses.value = [];
+				selectedUnderratedCourses.value = [];
+				selectedOverratedCourses.value = [];
 				selectedBestLectureCourses.value = [];
 				selectedBestSeminarCourses.value = [];
-				majorSatisfactionOutOf10.value = 5;
+				selectedFavoriteMajorCoursesMap.value = {};
+				bedtime.value = "10:00 PM";
 				remarks.value = "";
 			},
 		};
