@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { QSelectProps } from "quasar";
-import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes";
+import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
 import Fuse from "fuse.js";
+import type { QSelectProps } from "quasar";
 import { useFormStore } from "src/stores/form";
 import { getDisplayText } from "src/utils/getDisplayText";
 import { ref, watch } from "vue";
