@@ -1,42 +1,33 @@
 <script setup lang="ts">
-import type { QSelectProps } from 'quasar';
-import { useFormStore } from 'src/stores/form';
 import { useProfessorsStore } from 'src/stores/data/professors';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
-const props = defineProps<{
-  keyOfFavoritesStore: keyof ReturnType<typeof useFormStore>;
-  label: string;
-}>();
+const modelValue = defineModel<string[]>({ required: true });
+defineProps<{ label: string; }>();
 
 const professorsStore = useProfessorsStore();
-const formStore = useFormStore();
-const displayedProfessors = ref(professorsStore.professors);
 
-const filterFn: QSelectProps['onFilter'] = (val, update) => {
-  if (val === '') {
-    update(() => {
-      displayedProfessors.value = professorsStore.professors;
-    });
-    return;
-  }
+const query = ref('');
 
-  update(
-    () => {
-      const needle = val.toLowerCase();
-      displayedProfessors.value = professorsStore.professors.filter(
-        (professor) => professor.name.toLowerCase().indexOf(needle) > -1,
-      );
-    },
-    (ref) => {
-      ref.setOptionIndex(-1);
-      ref.moveOptionSelection(1, true);
-    },
-  );
-};
+const filteredProfessors = computed(() => {
+  if (query.value === '') return professorsStore.professors.map((p) => p.name);
+  return professorsStore.professors.filter(
+    (professor) => professor.name.toLowerCase().indexOf(query.value.toLowerCase()) > -1,
+  ).map((p) => p.name);
+});
+
 </script>
 
 <template>
-  <q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="displayedProfessors" multiple
-    use-input use-chips filled menu-self="top middle" menu-anchor="bottom middle" @filter="filterFn" />
+  <q-select v-model="modelValue" :label="label" :options="filteredProfessors" multiple use-input use-chips flat
+    menu-self="top middle" menu-anchor="bottom middle" @add="() => query = ''" @filter="(q, update) => {
+      update(
+        () => query = q,
+        (ref) => {
+          ref.setOptionIndex(-1);
+          ref.moveOptionSelection(1, true);
+        },
+      );
+    }" />
+
 </template>

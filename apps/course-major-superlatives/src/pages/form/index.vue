@@ -68,7 +68,7 @@ defineOptions({
 
 <template>
 	<q-page padding>
-		<q-stepper v-model="activeStep" class="tw:max-w-4xl q-mx-auto" bordered :vertical="$q.screen.width < 600" animated>
+		<q-stepper v-model="activeStep" class="shadow-0 tw:max-w-4xl q-mx-auto" :vertical="$q.screen.width < 600" animated>
 			<q-step :name="0" title="Introduction">
 				<q-step-content>
 					<q-card flat>
@@ -95,7 +95,7 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							What is your major? <span class="text-red">*</span>
 						</div>
-						<SelectMajor />
+						<SelectMajor v-model="formStore.major" />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -122,7 +122,7 @@ defineOptions({
 							Favorite <span class="text-weight-bold">professors</span> at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectProfessors key-of-favorites-store="selectedFavoriteProfessors"
+						<SelectProfessors v-model="formStore.selectedFavoriteProfessors"
 							label="Your favorite professors ever. Brilliant, quirky, quintessentially Yale, or all of the above." />
 					</q-card-section>
 
@@ -131,7 +131,7 @@ defineOptions({
 							Best <span class="text-weight-bold"> overall </span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteCourses"
 							label="Your favorite courses ever. The ones that made you think, laugh, and cry." />
 					</q-card-section>
 
