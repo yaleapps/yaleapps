@@ -1,15 +1,17 @@
 import type { RouteRecordRaw } from "vue-router";
 
+const CURRENT_YEAR = "2025";
+
 const routes: RouteRecordRaw[] = [
 	{
 		path: "/",
-		redirect: "/form/2025",
+		redirect: `/form/${CURRENT_YEAR}`,
 	},
 	{
 		path: "/form",
 		component: () => import("layouts/MainLayout.vue"),
 		children: [
-			{ path: "", redirect: "/form/2025" },
+			{ path: "", redirect: `/form/${CURRENT_YEAR}` },
 			{ path: "2023", component: () => import("pages/form/2023.vue") },
 			{ path: "2025", component: () => import("pages/form/2025.vue") },
 		],
