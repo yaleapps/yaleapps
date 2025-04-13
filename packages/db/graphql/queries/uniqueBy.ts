@@ -128,28 +128,31 @@ async function fetchDistinctCoursesBySeasonCode(seasonCode: string) {
 	return result.data?.courses;
 }
 
-function getAllSeasonsFromFiveYearsAgoToNow() {
-	const currentSeasonCode = getSeasonCodeForDate(new Date());
+function getSeasonCodesBetweenDates(
+	startDate: Date,
+	endDate: Date,
+): SeasonCode[] {
+	const startSeasonCode = getSeasonCodeForDate(startDate);
+	const endSeasonCode = getSeasonCodeForDate(endDate);
 
-	const currentYear = Number.parseInt(currentSeasonCode.slice(0, 4));
-	const currentSeason = currentSeasonCode.slice(4);
+	const startYear = Number.parseInt(startSeasonCode.slice(0, 4));
+	const endYear = Number.parseInt(endSeasonCode.slice(0, 4));
+	const startSeason = startSeasonCode.slice(4);
+	const endSeason = endSeasonCode.slice(4);
 
-	const fiveYearsAgoYear = currentYear - 5;
-
-	// Generate all season codes from 5 years ago up to now
-	const seasonCodes: string[] = [];
+	const seasonCodes: SeasonCode[] = [];
 	const seasons = ["01", "02", "03"] as const; // spring, summer, fall
 
-	for (let year = fiveYearsAgoYear; year <= currentYear; year++) {
+	for (let year = startYear; year <= endYear; year++) {
 		for (const season of seasons) {
-			const seasonCode = `${year}${season}`;
-			// Only include seasons up to current season in current year
-			if (year === currentYear && season > currentSeason) {
-				break;
-			}
-			// Only include seasons from first season in start year
-			if (year === fiveYearsAgoYear && season < seasons[0]) {
+			const seasonCode = `${year}${season}` as SeasonCode;
+			// Skip seasons before start season in start year
+			if (year === startYear && season < startSeason) {
 				continue;
+			}
+			// Skip seasons after end season in end year
+			if (year === endYear && season > endSeason) {
+				break;
 			}
 			seasonCodes.push(seasonCode);
 		}
@@ -158,8 +161,9 @@ function getAllSeasonsFromFiveYearsAgoToNow() {
 	return seasonCodes;
 }
 
-const fiveYearSeasonCodes = getAllSeasonsFromFiveYearsAgoToNow();
-async function getMapOfProfessorsAndCourses(seasonCodes: string[]) {
+async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
+	seasonCodes: string[],
+) {
 	const professorsMap = new Map<number, Professor>();
 	const coursesMap = new Map<SameCourseAndProfessorsId, CourseSummary>();
 	await Promise.all(
@@ -213,8 +217,16 @@ async function getMapOfProfessorsAndCourses(seasonCodes: string[]) {
 	return { professorsMap, coursesMap };
 }
 
+const currentDate = new Date();
+const fiveYearsAgo = new Date();
+fiveYearsAgo.setFullYear(currentDate.getFullYear() - 5);
+const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
+	fiveYearsAgo,
+	currentDate,
+);
+
 const { professorsMap, coursesMap } =
-	await getMapOfProfessorsAndCourses(fiveYearSeasonCodes);
+	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
 
 const professors = Array.from(professorsMap.values());
 console.log("🚀 ~ professors:", professors);
