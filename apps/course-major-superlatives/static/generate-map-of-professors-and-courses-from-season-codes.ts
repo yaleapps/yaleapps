@@ -156,14 +156,42 @@ const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
 const { professorsMap, coursesMap } =
 	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
 
-const professors = Array.from(professorsMap.entries());
-const courses = Array.from(coursesMap.entries());
+async function saveProfessorMap(professorsMap: Map<number, Professor>) {
+	const professors = Array.from(professorsMap.entries());
+	await fs.writeFile(
+		"apps/course-major-superlatives/static/professors.json",
+		JSON.stringify(professors),
+	);
+}
 
-await fs.writeFile(
-	"apps/course-major-superlatives/static/professors.json",
-	JSON.stringify(professors),
-);
-await fs.writeFile(
-	"apps/course-major-superlatives/static/courses.json",
-	JSON.stringify(courses),
-);
+export async function getProfessorMap() {
+	const professors = await fs.readFile(
+		"https://github.com/yaleapps/yaleapps/blob/main/apps/course-major-superlatives/static/professors.json",
+		"utf-8",
+	);
+	return new Map(JSON.parse(professors)) as Map<number, Professor>;
+}
+
+async function saveCoursesMap(
+	coursesMap: Map<SameCourseAndProfessorsId, CourseSummary>,
+) {
+	const courses = Array.from(coursesMap.entries());
+	await fs.writeFile(
+		"apps/course-major-superlatives/static/courses.json",
+		JSON.stringify(courses),
+	);
+}
+
+export async function getCoursesMap() {
+	const courses = await fs.readFile(
+		"https://github.com/yaleapps/yaleapps/blob/main/apps/course-major-superlatives/static/professors.json",
+		"utf-8",
+	);
+	return new Map(JSON.parse(courses)) as Map<
+		SameCourseAndProfessorsId,
+		CourseSummary
+	>;
+}
+
+await saveProfessorMap(professorsMap);
+await saveCoursesMap(coursesMap);
