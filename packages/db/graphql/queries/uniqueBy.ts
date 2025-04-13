@@ -3,7 +3,7 @@ import { client } from "../client/urql";
 import { promises as fs } from "node:fs";
 import {
 	getSeasonCodeForDate,
-	SeasonCode,
+	type SeasonCode,
 } from "../../utils/getSeasonCodeForDate";
 import { type } from "arktype";
 
@@ -228,7 +228,8 @@ const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
 const { professorsMap, coursesMap } =
 	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
 
-const professors = Array.from(professorsMap.values());
-console.log("🚀 ~ professors:", professors);
-const courses = Array.from(coursesMap.values());
-console.log("🚀 ~ courses:", courses);
+const professors = Array.from(professorsMap.entries());
+const courses = Array.from(coursesMap.entries());
+
+await fs.writeFile("static/professors.json", JSON.stringify(professors));
+await fs.writeFile("static/courses.json", JSON.stringify(courses));
