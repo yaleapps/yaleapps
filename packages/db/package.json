@@ -21,6 +21,6 @@
 	"exports": {
 		"./schema": "./src/schema/index.ts",
 		"./validators/*": "./src/validators/*.ts",
-		"./utils": "./src/utils.ts"
+		"./utils": "./src/utils/index.ts"
 	}
 }
