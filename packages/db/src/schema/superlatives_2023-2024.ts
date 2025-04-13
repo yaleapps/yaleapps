@@ -45,7 +45,7 @@ export const userSuperlatives = superlatives20232024PrefixedSqliteTable(
 		id: integer("id").primaryKey({ autoIncrement: true }),
 		createdAt: integer("created_at", { mode: "timestamp" })
 			.notNull()
-			.default(sql`CURRENT_TIMESTAMP`),
+			.default(sql`(unixepoch())`),
 		email: text("email").notNull(),
 		major: text("major", { mode: "json" }).$type<string[]>().notNull(),
 		selectedFavoriteProfessors: text("selected_favorite_professors", {
