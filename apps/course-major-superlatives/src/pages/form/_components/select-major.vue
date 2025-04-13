@@ -1,28 +1,28 @@
 <script lang="ts" setup>
-import type { QSelectProps } from "quasar";
 import { MAJORS } from "@repo/constants";
 import { useFormStore } from "src/stores/form";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 const formStore = useFormStore();
-const options = ref([...MAJORS]);
+const query = ref('');
 
-const filterFn: QSelectProps["onFilter"] = (val, update) => {
-	update(
-		() => {
-			options.value = MAJORS.filter((i) => {
-				return i.toLowerCase().includes(val.toLowerCase());
-			});
-		},
-		(ref) => {
-			ref.setOptionIndex(-1);
-			ref.moveOptionSelection(1, true);
-		},
+const filteredMajors = computed(() => {
+	if (query.value === '') return MAJORS;
+	return MAJORS.filter(
+		(major) => major.toLowerCase().includes(query.value.toLowerCase())
 	);
-};
+});
 </script>
 
 <template>
-	<q-select v-model="formStore.major" label="Major(s)" :options="options" multiple use-input use-chips filled
-		menu-self="top middle" menu-anchor="bottom middle" @filter="filterFn" />
+	<q-select v-model="formStore.major" label="Major(s)" :options="filteredMajors" multiple use-input use-chips filled
+		menu-self="top middle" menu-anchor="bottom middle" @filter="(val, update) => {
+			update(
+				() => query = val,
+				(ref) => {
+					ref.setOptionIndex(-1);
+					ref.moveOptionSelection(1, true);
+				}
+			);
+		}" />
 </template>
