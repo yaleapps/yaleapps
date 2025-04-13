@@ -26,8 +26,8 @@ import { z } from "zod";
  * // Result: Creates a table named "lobby_users"
  * ```
  */
-const superlatives20232024PrefixedSqliteTable = sqliteTableCreator(
-	(name) => `superlatives_2023-2024_${name}`,
+const superlativesPrefixedSqliteTable = sqliteTableCreator(
+	(name) => `superlatives_${name}`,
 );
 
 // Course type for JSON validation
@@ -39,8 +39,8 @@ const courseSchema = z.object({
 
 type Course = z.infer<typeof courseSchema>;
 
-export const userSuperlatives = superlatives20232024PrefixedSqliteTable(
-	"user_superlatives",
+export const userSuperlatives = superlativesPrefixedSqliteTable(
+	"results_2023-2024",
 	{
 		id: integer().primaryKey({ autoIncrement: true }),
 		createdAt: integer("created_at", { mode: "timestamp" })
