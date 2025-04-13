@@ -7,8 +7,8 @@ query GetAllUniqueConceptualCourses($season_code_start: String!, $season_code_en
   courses(
     where: {
       _and: [
-        { season_code: { _gte: $season_code_start } }
-        { season_code: { _lte: $season_code_end } }
+        { season_code: { _gt: $season_code_start } }
+        { season_code: { _lt: $season_code_end } }
       ]
     }
     distinct_on: [same_course_id]
