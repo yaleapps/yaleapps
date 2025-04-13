@@ -4,7 +4,8 @@
 	<q-layout view="lHh Lpr lFf">
 		<q-header>
 			<q-toolbar>
-				<q-btn class="text-h6" stretch no-caps flat to="/" icon="emoji_events" label="Course Superlatives" />
+				<q-avatar color="white" text-color="amber" icon="emoji_events" />
+				<q-btn class=" text-h6" stretch no-caps flat to="/" label="Course Superlatives" />
 				<q-space />
 				<q-btn round flat icon="mdi-github" href="https://github.com/braden-w/coursetable-labs" target="_blank" />
 				<!-- <q-btn round flat icon="info" to="/about" /> -->
