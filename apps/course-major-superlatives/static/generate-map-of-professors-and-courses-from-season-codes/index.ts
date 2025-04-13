@@ -6,8 +6,8 @@ import {
 	type SameCourseAndProfessorsId,
 } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
 import { type } from "arktype";
-import * as coursesMapPersister from "./map-persisters/courses";
-import * as professorsMapPersister from "./map-persisters/professors";
+import { saveCoursesMap } from "./map-persisters/courses";
+import { saveProfessorsMap } from "./map-persisters/professors";
 
 function getSeasonCodesBetweenDates(
 	startDate: Date,
@@ -109,5 +109,5 @@ const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
 const { professorsMap, coursesMap } =
 	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
 
-await professorsMapPersister.save(professorsMap);
-await coursesMapPersister.save(coursesMap);
+await saveProfessorsMap(professorsMap);
+await saveCoursesMap(coursesMap);

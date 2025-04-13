@@ -1,4 +1,4 @@
-import * as coursesMapPersister from "app/static/generate-map-of-professors-and-courses-from-season-codes/map-persisters/courses";
+import { getCoursesMap } from "app/static/generate-map-of-professors-and-courses-from-season-codes/map-persisters/courses";
 import type { CourseSummary } from "app/static/generate-map-of-professors-and-courses-from-season-codes/schema";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
@@ -42,7 +42,7 @@ export const useFormStore = defineStore("favorites", () => {
 		}),
 		fetchAbbreviatedCatalog: async () => {
 			try {
-				const coursesMap = await coursesMapPersister.get();
+				const coursesMap = await getCoursesMap();
 				const courseSummaries = Array.from(coursesMap.values());
 				courses.value = courseSummaries;
 			} catch (error) {
