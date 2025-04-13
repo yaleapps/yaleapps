@@ -91,7 +91,7 @@ const majors = [
 	"Other",
 ] as const;
 
-const store = useFormStore();
+const formStore = useFormStore();
 const options = ref(majors);
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {
@@ -110,6 +110,6 @@ const filterFn: QSelectProps["onFilter"] = (val, update) => {
 </script>
 
 <template>
-	<q-select v-model="store.major" label="Major(s)" :options="options" multiple use-input use-chips filled
+	<q-select v-model="formStore.major" label="Major(s)" :options="options" multiple use-input use-chips filled
 		menu-self="top middle" menu-anchor="bottom middle" @filter="filterFn" />
 </template>

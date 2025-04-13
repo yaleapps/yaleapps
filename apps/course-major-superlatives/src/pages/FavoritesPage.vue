@@ -7,7 +7,7 @@ import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectMajor from './SelectMajor.vue';
 
-const store = useFormStore();
+const formStore = useFormStore();
 const activeStep = ref(0);
 
 function isValidEmail(email: string) {
@@ -17,26 +17,26 @@ function isValidEmail(email: string) {
 
 const router = useRouter();
 const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
-	mutationFn: () => store.submitForm(),
+	mutationFn: () => formStore.submitForm(),
 	onSuccess: () => router.push('/success'),
 });
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(store.email) && store.major.length > 0;
+	return isValidEmail(formStore.email) && formStore.major.length > 0;
 });
 
 const isStep2Valid = computed(() => {
 	return (
-		store.selectedFavoriteProfessors.length > 0 &&
-		store.selectedFavoriteCourses.length > 0 &&
-		store.selectedGuttiestCourses.length > 0
+		formStore.selectedFavoriteProfessors.length > 0 &&
+		formStore.selectedFavoriteCourses.length > 0 &&
+		formStore.selectedGuttiestCourses.length > 0
 	);
 });
 
 const isStep3Valid = computed(() => {
 	return (
-		store.selectedFavoriteMajorCourses.length > 0 &&
-		store.selectedFavoriteDistributionalCourses.length > 0
+		formStore.selectedFavoriteMajorCourses.length > 0 &&
+		formStore.selectedFavoriteDistributionalCourses.length > 0
 	);
 });
 
@@ -49,7 +49,7 @@ function previousStep() {
 }
 
 async function handleFormSubmission() {
-	if (store.isFormValid) {
+	if (formStore.isFormValid) {
 		submitUserCourseMutation();
 	}
 }
@@ -83,7 +83,7 @@ export default {
 						<div class="text-h6 text-weight-light q-mb-md">
 							What is your email address? <span class="text-red">*</span>
 						</div>
-						<q-input v-model="store.email" filled label="Email"
+						<q-input v-model="formStore.email" filled label="Email"
 							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']" />
 					</q-card-section>
 
@@ -144,7 +144,7 @@ export default {
 						<div class="text-h6 text-weight-light q-mb-md">
 							Any remarks or words to defend your choices?
 						</div>
-						<q-input v-model="store.remarks" filled label="Your remarks." />
+						<q-input v-model="formStore.remarks" filled label="Your remarks." />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -170,7 +170,7 @@ export default {
 					<q-card-section>
 						<div class="text-h6 text-weight-light q-mb-md">
 							Best courses in your major(s):
-							<span class="text-weight-bold">{{ store.major.join(', ') }}</span>
+							<span class="text-weight-bold">{{ formStore.major.join(', ') }}</span>
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses key-of-favorites-store="selectedFavoriteMajorCourses"

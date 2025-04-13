@@ -12,11 +12,11 @@ const props = defineProps<{
 	label: string;
 }>();
 
-const store = useFormStore();
+const formStore = useFormStore();
 const displayedCourseOptions = ref<CourseAbbreviated[]>([]);
 
 watch(
-	() => store.courses,
+	() => formStore.courses,
 	(newCourses) => {
 		displayedCourseOptions.value = newCourses;
 	},
@@ -24,14 +24,14 @@ watch(
 );
 
 const filterFn: QSelectProps["onFilter"] = (val, update) => {
-	const fuse = new Fuse(store.courses, {
+	const fuse = new Fuse(formStore.courses, {
 		keys: ["all_course_codes", "title"],
 		threshold: 0.4,
 	});
 
 	if (val === "") {
 		update(() => {
-			displayedCourseOptions.value = store.courses;
+			displayedCourseOptions.value = formStore.courses;
 		});
 		return;
 	}
@@ -79,7 +79,7 @@ function getQuasarIcon(course: CourseAbbreviated) {
 </script>
 
 <template>
-	<q-select v-model="store[props.keyOfFavoritesStore]" :label="props.label" :options="displayedCourseOptions"
+	<q-select v-model="formStore[props.keyOfFavoritesStore]" :label="props.label" :options="displayedCourseOptions"
 		option-value="course_id" :option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
 		menu-anchor="bottom middle" @filter="filterFn">
 		<template #option="scope">
