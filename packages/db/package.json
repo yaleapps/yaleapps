@@ -1,7 +1,7 @@
 {
 	"name": "@repo/db",
 	"scripts": {
-		"course-db:generate": "gql.tada generate-schema 'https://api.coursetable.com/ferry/v1/graphql' --output './schema.graphql' --header 'Cookie: $COURSETABLE_COOKIE' && gql.tada generate-output",
+		"course-db:generate": "gql.tada generate-schema 'https://api.coursetable.com/ferry/v1/graphql' --output './graphql/generated/schema.graphql' --header 'Cookie: $COURSETABLE_COOKIE' && gql.tada generate-output",
 		"db:generate": "drizzle-kit generate",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio"
