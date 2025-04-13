@@ -1,38 +1,13 @@
-<script lang="ts">
-</script>
-
 <script setup lang="ts">
-import { useMutation } from "@tanstack/vue-query";
-import { storeToRefs } from "pinia";
-import SelectCourses from "src/components/SelectCourses.vue";
-import SelectProfessors from "src/components/SelectProfessors.vue";
-import { useFavoritesStore } from "src/stores/favorites";
-import { computed, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useMutation } from '@tanstack/vue-query';
+import SelectCourses from 'src/components/SelectCourses.vue';
+import SelectProfessors from 'src/components/SelectProfessors.vue';
+import { useFavoritesStore } from 'src/stores/favorites';
+import { computed, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import SelectMajor from './SelectMajor.vue';
 
-import SelectMajor from "./SelectMajor.vue";
-
-export default {
-	async preFetch({ store }) {
-		const favoritesStore = useFavoritesStore(store);
-		favoritesStore.fetchAbbreviatedCatalog();
-	},
-};
-
-const favoritesStore = useFavoritesStore();
-const {
-	email,
-	major,
-	selectedFavoriteCourses,
-	selectedFavoriteProfessors,
-	selectedGuttiestCourses,
-	selectedFavoriteMajorCourses,
-	selectedFavoriteDistributionalCourses,
-	selectedFavoriteLectureCourses,
-	selectedFavoriteSeminarCourses,
-	remarks,
-} = storeToRefs(favoritesStore);
-
+const store = useFavoritesStore();
 const activeStep = ref(0);
 
 function isValidEmail(email: string) {
@@ -40,32 +15,28 @@ function isValidEmail(email: string) {
 	return re.test(email);
 }
 
-async function handleFormSubmission() {
-	submitUserCourseMutation();
-}
-
 const router = useRouter();
 const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
-	mutationFn: () => favoritesStore.submitForm(),
-	onSuccess: () => router.push("/success"),
+	mutationFn: () => store.submitForm(),
+	onSuccess: () => router.push('/success'),
 });
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(email.value) && major.value.length > 0;
+	return isValidEmail(store.email) && store.major.length > 0;
 });
 
 const isStep2Valid = computed(() => {
 	return (
-		selectedFavoriteProfessors.value.length > 0
-		&& selectedFavoriteCourses.value.length > 0
-		&& selectedGuttiestCourses.value.length > 0
+		store.selectedFavoriteProfessors.length > 0 &&
+		store.selectedFavoriteCourses.length > 0 &&
+		store.selectedGuttiestCourses.length > 0
 	);
 });
 
 const isStep3Valid = computed(() => {
 	return (
-		selectedFavoriteMajorCourses.value.length > 0
-		&& selectedFavoriteDistributionalCourses.value.length > 0
+		store.selectedFavoriteMajorCourses.length > 0 &&
+		store.selectedFavoriteDistributionalCourses.length > 0
 	);
 });
 
@@ -76,16 +47,24 @@ function nextStep() {
 function previousStep() {
 	activeStep.value--;
 }
+
+async function handleFormSubmission() {
+	if (store.isFormValid) {
+		submitUserCourseMutation();
+	}
+}
+
+export default {
+	async preFetch({ store }) {
+		const favoritesStore = useFavoritesStore(store);
+		favoritesStore.fetchAbbreviatedCatalog();
+	},
+};
 </script>
 
 <template>
 	<q-page padding>
-		<q-stepper
-			v-model="activeStep"
-			class="max-width-card q-mx-auto"
-			flat
-			:vertical="$q.screen.width < 600"
-		>
+		<q-stepper v-model="activeStep" class="max-width-card q-mx-auto" flat :vertical="$q.screen.width < 600">
 			<q-step :name="0" title="Introduction">
 				<q-step-content>
 					<q-card flat>
@@ -104,12 +83,8 @@ function previousStep() {
 						<div class="text-h6 text-weight-light q-mb-md">
 							What is your email address? <span class="text-red">*</span>
 						</div>
-						<q-input
-							v-model="email"
-							filled
-							label="Email"
-							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']"
-						/>
+						<q-input v-model="store.email" filled label="Email"
+							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']" />
 					</q-card-section>
 
 					<q-card-section>
@@ -129,9 +104,7 @@ function previousStep() {
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 text-weight-light q-mb-md">
-								Overall Favorites
-							</div>
+							<div class="text-h4 text-weight-light q-mb-md">Overall Favorites</div>
 							<div class="text-subtitle1 text-weight-light">
 								Please answer the required questions regarding your overall favorite professors and
 								courses. To access your past courses, you can click "Course History" on
@@ -145,10 +118,8 @@ function previousStep() {
 							Favorite <span class="text-weight-bold">professors</span> at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectProfessors
-							key-of-favorites-store="selectedFavoriteProfessors"
-							label="Your favorite professors ever. Brilliant, quirky, quintessentially Yale, or all of the above."
-						/>
+						<SelectProfessors key-of-favorites-store="selectedFavoriteProfessors"
+							label="Your favorite professors ever. Brilliant, quirky, quintessentially Yale, or all of the above." />
 					</q-card-section>
 
 					<q-card-section>
@@ -156,10 +127,8 @@ function previousStep() {
 							Best <span class="text-weight-bold"> overall </span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedFavoriteCourses"
-							label="Your favorite courses ever. The ones that made you think, laugh, and cry."
-						/>
+						<SelectCourses key-of-favorites-store="selectedFavoriteCourses"
+							label="Your favorite courses ever. The ones that made you think, laugh, and cry." />
 					</q-card-section>
 
 					<q-card-section>
@@ -167,17 +136,15 @@ function previousStep() {
 							<span class="text-weight-bold">Chillest</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedGuttiestCourses"
-							label="The guttiest courses you've ever taken. No stress, no worries."
-						/>
+						<SelectCourses key-of-favorites-store="selectedGuttiestCourses"
+							label="The guttiest courses you've ever taken. No stress, no worries." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 text-weight-light q-mb-md">
 							Any remarks or words to defend your choices?
 						</div>
-						<q-input v-model="remarks" filled label="Your remarks." />
+						<q-input v-model="store.remarks" filled label="Your remarks." />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -191,9 +158,7 @@ function previousStep() {
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 text-weight-light q-mb-md">
-								Category Favorites
-							</div>
+							<div class="text-h4 text-weight-light q-mb-md">Category Favorites</div>
 							<div class="text-subtitle1 text-weight-light">
 								Please answer the following questions regarding domain-specific courses. To access
 								your past courses, you can click "Course History" on
@@ -205,13 +170,11 @@ function previousStep() {
 					<q-card-section>
 						<div class="text-h6 text-weight-light q-mb-md">
 							Best courses in your major(s):
-							<span class="text-weight-bold">{{ major.join(', ') }}</span>
+							<span class="text-weight-bold">{{ store.major.join(', ') }}</span>
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedFavoriteMajorCourses"
-							label="The course(s) that made you fall in love with your major."
-						/>
+						<SelectCourses key-of-favorites-store="selectedFavoriteMajorCourses"
+							label="The course(s) that made you fall in love with your major." />
 					</q-card-section>
 
 					<q-card-section>
@@ -223,41 +186,30 @@ function previousStep() {
 							credits?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedFavoriteDistributionalCourses"
-							label="The distributional classes that you loved outside of your major."
-						/>
+						<SelectCourses key-of-favorites-store="selectedFavoriteDistributionalCourses"
+							label="The distributional classes that you loved outside of your major." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 text-weight-light q-mb-md">
 							Best <span class="text-weight-bold">lecture</span> courses?
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedFavoriteLectureCourses"
-							label="Your favorite lecture courses of all time at Yale."
-						/>
+						<SelectCourses key-of-favorites-store="selectedFavoriteLectureCourses"
+							label="Your favorite lecture courses of all time at Yale." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 text-weight-light q-mb-md">
 							Best <span class="text-weight-bold">seminar</span> courses?
 						</div>
-						<SelectCourses
-							key-of-favorites-store="selectedFavoriteSeminarCourses"
-							label="Your favorite seminars of all time at Yale."
-						/>
+						<SelectCourses key-of-favorites-store="selectedFavoriteSeminarCourses"
+							label="Your favorite seminars of all time at Yale." />
 					</q-card-section>
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn
-							color="primary"
-							label="Submit"
-							:disable="!isStep3Valid"
-							:loading="isSubmitLoading"
-							@click="handleFormSubmission"
-						/>
+						<q-btn color="primary" label="Submit" :disable="!isStep3Valid" :loading="isSubmitLoading"
+							@click="handleFormSubmission" />
 					</div>
 				</q-step-content>
 			</q-step>
@@ -270,6 +222,7 @@ function previousStep() {
 	width: 100%;
 	border-radius: 8px;
 }
+
 @media (min-width: 640px) {
 	.max-width-card {
 		max-width: 48rem;

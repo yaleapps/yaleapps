@@ -1,16 +1,15 @@
-<script setup lang="ts">
+# <script setup lang="ts">
 import type { QSelectProps } from 'quasar';
 import { useFavoritesStore } from 'src/stores/favorites';
 import { professors } from 'src/stores/professors';
 import { defineProps, ref } from 'vue';
 
 const props = defineProps<{
-  keyOfFavoritesStore: keyof typeof favoritesStore.$state;
+  keyOfFavoritesStore: keyof ReturnType<typeof useFavoritesStore>;
   label: string;
 }>();
 
-const favoritesStore = useFavoritesStore();
-
+const store = useFavoritesStore();
 const displayedProfessors = ref(professors);
 
 const filterFn: QSelectProps['onFilter'] = (val, update) => {
@@ -38,8 +37,8 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
 
 <template>
   <q-select
-    v-model="favoritesStore[keyOfFavoritesStore]"
-    :label="label"
+    v-model="store[props.keyOfFavoritesStore]"
+    :label="props.label"
     :options="displayedProfessors"
     multiple
     use-input
@@ -48,6 +47,5 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
     menu-self="top middle"
     menu-anchor="bottom middle"
     @filter="filterFn"
-  >
-  </q-select>
+  />
 </template>

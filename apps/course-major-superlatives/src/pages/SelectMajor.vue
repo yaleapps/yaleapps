@@ -1,7 +1,6 @@
+#
 <script lang="ts" setup>
 import type { QSelectProps } from 'quasar';
-
-import { storeToRefs } from 'pinia';
 import { useFavoritesStore } from 'src/stores/favorites';
 import { ref } from 'vue';
 
@@ -87,14 +86,13 @@ const majors = [
   'Statistics and Data Science (B.A. or B.S.)',
   'Theater and Performance Studies (B.A.)',
   'Urban Studies (B.A.)',
-  'Women’s, Gender, and Sexuality Studies (B.A.)',
+  "Women's, Gender, and Sexuality Studies (B.A.)",
   'Other',
-];
+] as const;
 
-const favoritesStore = useFavoritesStore();
-const { major } = storeToRefs(favoritesStore);
-
+const store = useFavoritesStore();
 const options = ref(majors);
+
 const filterFn: QSelectProps['onFilter'] = (val, update) => {
   update(
     () => {
@@ -112,7 +110,7 @@ const filterFn: QSelectProps['onFilter'] = (val, update) => {
 
 <template>
   <q-select
-    v-model="major"
+    v-model="store.major"
     label="Major(s)"
     :options="options"
     multiple
