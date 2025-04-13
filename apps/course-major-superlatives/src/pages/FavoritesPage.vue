@@ -54,12 +54,12 @@ async function handleFormSubmission() {
 	}
 }
 
-export default {
+defineOptions({
 	async preFetch({ store }) {
 		const favoritesStore = useFormStore(store);
 		favoritesStore.fetchAbbreviatedCatalog();
 	},
-};
+})
 </script>
 
 <template>
