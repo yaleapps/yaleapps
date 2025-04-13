@@ -140,7 +140,7 @@ defineOptions({
 							<span class="text-weight-bold">Chillest</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses key-of-favorites-store="selectedGuttiestCourses"
+						<SelectCourses v-model="formStore.selectedGuttiestCourses"
 							label="The guttiest courses you've ever taken. No stress, no worries." />
 					</q-card-section>
 
@@ -177,7 +177,7 @@ defineOptions({
 							<span class="text-weight-bold">{{ formStore.major.join(', ') }}</span>
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteMajorCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteMajorCourses"
 							label="The course(s) that made you fall in love with your major." />
 					</q-card-section>
 
@@ -190,7 +190,7 @@ defineOptions({
 							credits?
 							<span class="text-red">*</span>
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteDistributionalCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteDistributionalCourses"
 							label="The distributional classes that you loved outside of your major." />
 					</q-card-section>
 
@@ -198,7 +198,7 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">lecture</span> courses?
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteLectureCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteLectureCourses"
 							label="Your favorite lecture courses of all time at Yale." />
 					</q-card-section>
 
@@ -206,7 +206,7 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							Best <span class="text-weight-bold">seminar</span> courses?
 						</div>
-						<SelectCourses key-of-favorites-store="selectedFavoriteSeminarCourses"
+						<SelectCourses v-model="formStore.selectedFavoriteSeminarCourses"
 							label="Your favorite seminars of all time at Yale." />
 					</q-card-section>
 
