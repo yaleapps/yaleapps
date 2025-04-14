@@ -45,7 +45,7 @@ function processRow(row) {
  *
  * @returns {void}
  */
-function writeSupabaseTableToSheet() {
+function mainFunction() {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(GOOGLE_SHEET_NAME);
   sheet.clear();
   const data = fetchDataFromSupabase(SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_TABLE_NAME);
