@@ -1,3 +1,5 @@
+import type { CourseSummary } from "src/types/types";
+
 export type Json =
 	| string
 	| number
@@ -133,15 +135,15 @@ export type Database = {
 					created_at: string | null;
 					email: string | null;
 					id: number;
-					major: Json | null;
+					major: string[] | null;
 					remarks: string | null;
-					selected_favorite_courses: Json | null;
-					selected_favorite_distributional_courses: Json | null;
-					selected_favorite_lecture_courses: Json | null;
-					selected_favorite_major_courses: Json | null;
-					selected_favorite_professors: Json | null;
-					selected_favorite_seminar_courses: Json | null;
-					selected_guttiest_courses: Json | null;
+					selected_favorite_courses: CourseSummary[] | null;
+					selected_favorite_distributional_courses: CourseSummary[] | null;
+					selected_favorite_lecture_courses: CourseSummary[] | null;
+					selected_favorite_major_courses: CourseSummary[] | null;
+					selected_favorite_professors: string[] | null;
+					selected_favorite_seminar_courses: CourseSummary[] | null;
+					selected_guttiest_courses: CourseSummary[] | null;
 				};
 				Insert: {
 					created_at?: string | null;
