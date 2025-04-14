@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { CURRENT_YEAR } from 'src/router/routes';
+</script>
 
 <template>
 	<q-page padding>
@@ -15,6 +17,7 @@
 					<a href="sms:&body=superlatives.yaleapps.com"> share this form with a friend </a>
 					and spread the word!
 				</div>
+				<q-btn color="primary" :to="`/results/${CURRENT_YEAR}`" label="View Results" class="q-mt-md" />
 			</q-card-section>
 		</q-card>
 	</q-page>

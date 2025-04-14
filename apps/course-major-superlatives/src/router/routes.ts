@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 
-const CURRENT_YEAR = "2025";
+export const CURRENT_YEAR = "2025";
 
 const routes: RouteRecordRaw[] = [
 	{
@@ -20,6 +20,13 @@ const routes: RouteRecordRaw[] = [
 		path: "/success",
 		component: () => import("layouts/MainLayout.vue"),
 		children: [{ path: "", component: () => import("pages/success.vue") }],
+	},
+	{
+		path: "/results",
+		component: () => import("layouts/MainLayout.vue"),
+		children: [
+			{ path: "2025", component: () => import("pages/results/2025.vue") },
+		],
 	},
 
 	// Always leave this as last one,
