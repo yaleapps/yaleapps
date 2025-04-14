@@ -14,9 +14,12 @@ import { type } from 'arktype';
 const formStore = use2025FormStore();
 const router = useRouter();
 
-const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
+const { mutate: submitUserCourseMutation, isPending: isSubmitPending } = useMutation({
 	mutationFn: () => formStore.submitForm(),
 	onSuccess: () => router.push('/success'),
+	onError: () => {
+		alert('An error occurred. Please try again.');
+	}
 });
 
 function isValidEmail(email: string) {
@@ -253,7 +256,7 @@ defineOptions({
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Submit" :loading="isSubmitLoading" :disable="!isStep3Valid" @click="() => {
+						<q-btn color="primary" label="Submit" :loading="isSubmitPending" :disable="!isStep3Valid" @click="() => {
 							if (isStep3Valid) {
 								submitUserCourseMutation();
 							}
