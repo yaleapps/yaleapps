@@ -68,9 +68,6 @@ async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
 				course_professors,
 				extra_info,
 			} of out) {
-				const isYaleCollegeCourse = listings.find((l) => l.school === "YC");
-				if (!isYaleCollegeCourse) continue;
-
 				const hasNoProfessors = course_professors.length === 0;
 				if (hasNoProfessors) continue;
 
