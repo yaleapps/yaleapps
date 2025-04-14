@@ -2,7 +2,7 @@ import type { CourseSummary, Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { ref, watch } from "vue";
-import type { ResidentialCollege } from "@repo/constants";
+import type { ResidentialCollegeName } from "@repo/constants";
 
 export const use2025FormStore = defineStore(
 	"2025-form",
@@ -12,7 +12,7 @@ export const use2025FormStore = defineStore(
 		const classYear = ref<"2024" | "2025" | "2026" | "2027" | "2028" | null>(
 			null,
 		);
-		const residentialCollege = ref<ResidentialCollege | null>(null);
+		const residentialCollege = ref<ResidentialCollegeName | null>(null);
 
 		// Section 2: The Hall of Fame
 		const selectedFavoriteProfessors = ref<Professor[]>([]);
@@ -72,19 +72,25 @@ export const use2025FormStore = defineStore(
 
 			submitForm: async () => {
 				try {
-					const { error } = await supabase.from("superlatives_2025").insert({
-						// Section 1: Your Yale Identity
+					if (!email.value) {
+						throw new Error("Email is required");
+					}
+					if (!classYear.value) {
+						throw new Error("Class year is required");
+					}
+					if (!residentialCollege.value) {
+						throw new Error("Residential college is required");
+					}
+					const { error } = await supabase.from("superlatives_2025").upsert({
 						email: email.value,
 						class_year: classYear.value,
-						residential_college: residentialCollege.value,
+						residential_college: residentialCollege.value as string,
 
-						// Section 2: The Hall of Fame
 						selected_favorite_professors: selectedFavoriteProfessors.value,
 						selected_favorite_courses: selectedFavoriteCourses.value,
 						selected_guttiest_courses: selectedGuttiestCourses.value,
 						remarks: remarks.value,
 
-						// Section 3: Academic Superlatives
 						selected_quintessentially_yale_course:
 							selectedQuintessentiallyYaleCourse.value,
 						selected_regretted_courses: selectedRegrettedCourses.value,
