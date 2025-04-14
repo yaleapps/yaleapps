@@ -28,7 +28,9 @@ function isValidEmail(email: string) {
 const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(formStore.email) && formStore.classYear && formStore.residentialCollege;
+	return isValidEmail(formStore.email) &&
+		formStore.classYear &&
+		formStore.residentialCollege;
 });
 
 const isStep2Valid = computed(() => {
@@ -38,17 +40,17 @@ const isStep2Valid = computed(() => {
 });
 
 const isStep3Valid = computed(() => {
-	const isEveryMajorHasSelectedFavoriteMajorCourses = formStore.major.every((major) => (formStore.selectedFavoriteMajorCourses[major]?.length ?? 0) > 0);
-	const isEveryMajorHasSelectedMajorSatisfaction = formStore.major.every((major) => formStore.selectedMajorSatisfaction[major] !== undefined);
-	return formStore.major.length > 0 &&
-		isEveryMajorHasSelectedFavoriteMajorCourses &&
-		isEveryMajorHasSelectedMajorSatisfaction
-});
-
-const isStep4Valid = computed(() => {
+	const isEveryMajorHasSelectedFavoriteMajorCourses = formStore.major.every((major) =>
+		(formStore.selectedFavoriteMajorCourses[major]?.length ?? 0) > 0
+	);
+	const isEveryMajorHasSelectedMajorSatisfaction = formStore.major.every((major) =>
+		formStore.selectedMajorSatisfaction[major] !== undefined
+	);
 	return formStore.selectedFavoriteDistributionalCourses.length > 0 &&
 		formStore.selectedQuintessentiallyYaleCourse.length > 0 &&
-		formStore.selectedRegrettedCourses.length > 0
+		formStore.selectedRegrettedCourses.length > 0 && formStore.major.length > 0 &&
+		isEveryMajorHasSelectedFavoriteMajorCourses &&
+		isEveryMajorHasSelectedMajorSatisfaction
 });
 
 function nextStep() {
@@ -175,17 +177,17 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="2" :title="$q.screen.width < 600 ? '' : 'Major Information'">
+			<q-step :name="2" :title="$q.screen.width < 600 ? '' : 'Academic Superlatives'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 q-mb-md">Major Information</div>
+							<div class="text-h4 q-mb-md">Academic Superlatives</div>
 							<div class="text-subtitle1">
-								Please tell us about your major(s) and your experiences in them.
+								Vote for your standout courses across different categories - from your major to distribution
+								requirements.
 							</div>
 						</q-card-section>
 					</q-card>
-
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
@@ -251,8 +253,8 @@ defineOptions({
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Submit" :loading="isSubmitLoading" :disable="!isStep4Valid" @click="() => {
-							if (isStep4Valid) {
+						<q-btn color="primary" label="Submit" :loading="isSubmitLoading" :disable="!isStep3Valid" @click="() => {
+							if (isStep3Valid) {
 								submitUserCourseMutation();
 							}
 						}" />
