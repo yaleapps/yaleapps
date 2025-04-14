@@ -1,6 +1,8 @@
 import { type } from "arktype";
 
 export type CourseSummary = {
+	course_id: CourseId;
+	same_course_id: SameCourseId;
 	same_course_and_profs_id: SameCourseAndProfessorsId;
 	course_codes: string[];
 	title: string;
@@ -8,8 +10,13 @@ export type CourseSummary = {
 	course_professors: Professor[];
 };
 
+const CourseId = type("number#CourseId");
 const SameCourseId = type("number#SameCourseId");
 const SameCourseAndProfessorsId = type("number#SameCourseAndProfessorsId");
+
+export type CourseId = typeof CourseId.infer;
+export type SameCourseId = typeof SameCourseId.infer;
+export type SameCourseAndProfessorsId = typeof SameCourseAndProfessorsId.infer;
 
 const Professor = type({
 	professor_id: "number",
@@ -19,7 +26,7 @@ const Professor = type({
 export const CourseFromCourseTableApi = type({
 	areas: "('Hu' | 'So' | 'Sc')[]",
 	colsem: "boolean",
-	course_id: "number",
+	course_id: CourseId,
 	course_professors: type({
 		professor: Professor,
 	}).array(),
@@ -49,7 +56,5 @@ export const CourseFromCourseTableApi = type({
 	last_updated: "string | null",
 });
 
-export type SameCourseId = typeof SameCourseId.infer;
-export type SameCourseAndProfessorsId = typeof SameCourseAndProfessorsId.infer;
 export type CourseFromCourseTableApi = typeof CourseFromCourseTableApi.infer;
 export type Professor = typeof Professor.infer;

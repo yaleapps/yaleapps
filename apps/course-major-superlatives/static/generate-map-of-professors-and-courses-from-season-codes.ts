@@ -60,6 +60,7 @@ async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
 			}
 			for (const {
 				course_id,
+				same_course_id,
 				same_course_and_profs_id,
 				listings,
 				title,
@@ -81,6 +82,7 @@ async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
 				}
 				const courseSummary = {
 					course_id,
+					same_course_id,
 					same_course_and_profs_id,
 					course_codes: listings.map((l) => l.course_code),
 					title,
@@ -88,7 +90,7 @@ async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
 					course_professors: course_professors.map(
 						({ professor }) => professor,
 					),
-				};
+				} satisfies CourseSummary;
 				if (coursesMap.has(same_course_and_profs_id)) {
 					const existingCourseSummary = coursesMap.get(
 						same_course_and_profs_id,
