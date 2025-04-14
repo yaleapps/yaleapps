@@ -222,7 +222,9 @@ defineOptions({
 								formStore.selectedFavoriteMajorCourses[majorName] = val;
 							}" :label="`The course(s) that made you fall in love with ${majorName}.`" />
 						</q-card-section>
+					</template>
 
+					<template v-for="majorName in formStore.major" :key="majorName">
 						<q-card-section>
 							<div class="text-h6 q-mb-md">
 								How satisfied are you with {{ majorName }}?
