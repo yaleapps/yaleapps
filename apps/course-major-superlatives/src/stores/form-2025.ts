@@ -17,18 +17,15 @@ export const use2025FormStore = defineStore(
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
 		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
-		const selectedUnderratedCourses = ref<CourseSummary[]>([]);
 		const selectedOverratedCourses = ref<CourseSummary[]>([]);
 		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
 		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
+		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
 		const bedtime = ref<string>("10:00 PM");
 		const remarks = ref("");
 
 		// New Yale Life & Wellness fields
 		const studySpot = ref<string[]>([]);
-		const extracurricularCount = ref<string | null>(null);
-		const diningTime = ref<string | null>(null);
-		const officeHoursFrequency = ref<string | null>(null);
 
 		const selectedFavoriteMajorCourses = ref<Record<string, CourseSummary[]>>(
 			{},
@@ -64,19 +61,16 @@ export const use2025FormStore = defineStore(
 			selectedFavoriteCourses,
 			selectedGuttiestCourses,
 			selectedQuintessentiallyYaleCourse,
-			selectedUnderratedCourses,
 			selectedOverratedCourses,
 			selectedBestLectureCourses,
 			selectedBestSeminarCourses,
+			selectedFavoriteDistributionalCourses,
 			selectedFavoriteMajorCourses,
 			selectedMajorSatisfaction,
 			bedtime,
 			remarks,
 			// New Yale Life & Wellness fields
 			studySpot,
-			extracurricularCount,
-			diningTime,
-			officeHoursFrequency,
 			isFormValid: computed(() => {
 				return (
 					email.value &&
@@ -105,19 +99,17 @@ export const use2025FormStore = defineStore(
 						selected_guttiest_courses: selectedGuttiestCourses.value,
 						selected_quintessentially_yale_course:
 							selectedQuintessentiallyYaleCourse.value,
-						selected_underrated_courses: selectedUnderratedCourses.value,
 						selected_overrated_courses: selectedOverratedCourses.value,
 						selected_best_lecture_courses: selectedBestLectureCourses.value,
 						selected_best_seminar_courses: selectedBestSeminarCourses.value,
+						selected_favorite_distributional_courses:
+							selectedFavoriteDistributionalCourses.value,
 						selected_favorite_major_courses: selectedFavoriteMajorCourses.value,
 						selected_major_satisfaction: selectedMajorSatisfaction.value,
 						bedtime: bedtime.value,
 						remarks: remarks.value,
 						// New Yale Life & Wellness fields
 						study_spot: studySpot.value,
-						extracurricular_count: extracurricularCount.value,
-						dining_time: diningTime.value,
-						office_hours_frequency: officeHoursFrequency.value,
 					});
 
 					if (error) throw error;
@@ -135,19 +127,16 @@ export const use2025FormStore = defineStore(
 				selectedFavoriteCourses.value = [];
 				selectedGuttiestCourses.value = [];
 				selectedQuintessentiallyYaleCourse.value = [];
-				selectedUnderratedCourses.value = [];
 				selectedOverratedCourses.value = [];
 				selectedBestLectureCourses.value = [];
 				selectedBestSeminarCourses.value = [];
+				selectedFavoriteDistributionalCourses.value = [];
 				selectedFavoriteMajorCourses.value = {};
 				selectedMajorSatisfaction.value = {};
 				bedtime.value = "10:00 PM";
 				remarks.value = "";
 				// Reset new Yale Life & Wellness fields
 				studySpot.value = [];
-				extracurricularCount.value = null;
-				diningTime.value = null;
-				officeHoursFrequency.value = null;
 			},
 		};
 	},
