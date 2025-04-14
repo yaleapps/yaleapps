@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/vue-query';
 import { type } from 'arktype';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
+import { onMounted } from 'vue';
 
 const formStore = use2025FormStore()
 
@@ -27,7 +28,7 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 	enabled: false,
 });
 
-async function verifyEmail() {
+async function submitEmailToSeeResults() {
 	if (!isValidEmail(formStore.email)) {
 		alert('Please enter a valid Yale email address.');
 		return;
@@ -38,6 +39,12 @@ async function verifyEmail() {
 		alert('You have not submitted the form yet. Please submit the form first to see the results.');
 	}
 }
+
+onMounted(() => {
+	if (formStore.email && formStore.email.trim() !== '') {
+		submitEmailToSeeResults();
+	}
+});
 </script>
 
 <template>
@@ -56,11 +63,12 @@ async function verifyEmail() {
 					<div class="row q-col-gutter-md">
 						<div class="col-12 col-sm-8">
 							<q-input v-model="formStore.email" filled label="Yale Email"
-								:rules="[(val) => isValidEmail(val) || 'Please enter a valid Yale email']" @keyup.enter="verifyEmail" />
+								:rules="[(val) => isValidEmail(val) || 'Please enter a valid Yale email']"
+								@keyup.enter="submitEmailToSeeResults" />
 						</div>
 						<div class="col-12 col-sm-4">
 							<q-btn color="primary" label="View Results" class="full-width" :loading="isLoading"
-								@click="verifyEmail" />
+								@click="submitEmailToSeeResults" />
 						</div>
 					</div>
 				</template>
