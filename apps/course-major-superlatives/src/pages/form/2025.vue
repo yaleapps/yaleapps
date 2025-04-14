@@ -67,8 +67,8 @@ defineOptions({
 
 <template>
 	<q-page padding>
-		<q-stepper v-model="activeStep" class="shadow-0 tw:max-w-4xl q-mx-auto" :vertical="$q.screen.width < 600" animated>
-			<q-step :name="0" title="Introduction">
+		<q-stepper v-model="activeStep" class="shadow-0 tw:max-w-4xl q-mx-auto" animated>
+			<q-step :name="0" :title="$q.screen.width < 600 ? '' : 'Introduction'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
@@ -133,7 +133,7 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="1" title="Overall Favorites">
+			<q-step :name="1" :title="$q.screen.width < 600 ? '' : 'Overall Favorites'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
@@ -210,7 +210,7 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="2" title="Course Categories">
+			<q-step :name="2" :title="$q.screen.width < 600 ? '' : 'Course Categories'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
@@ -272,7 +272,7 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="3" title="Final Reflections">
+			<q-step :name="3" :title="$q.screen.width < 600 ? '' : 'Final Reflections'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
