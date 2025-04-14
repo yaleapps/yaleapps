@@ -34,8 +34,7 @@ const isStep1Valid = computed(() => {
 const isStep2Valid = computed(() => {
 	return formStore.selectedFavoriteProfessors.length > 0 &&
 		formStore.selectedFavoriteCourses.length > 0 &&
-		formStore.selectedGuttiestCourses.length > 0 &&
-		formStore.selectedFavoriteDistributionalCourses.length > 0
+		formStore.selectedGuttiestCourses.length > 0
 });
 
 const isStep3Valid = computed(() => {
@@ -43,11 +42,13 @@ const isStep3Valid = computed(() => {
 	const isEveryMajorHasSelectedMajorSatisfaction = formStore.major.every((major) => formStore.selectedMajorSatisfaction[major] !== undefined);
 	return formStore.major.length > 0 &&
 		isEveryMajorHasSelectedFavoriteMajorCourses &&
-		isEveryMajorHasSelectedMajorSatisfaction;
+		isEveryMajorHasSelectedMajorSatisfaction
 });
 
 const isStep4Valid = computed(() => {
-	return formStore.studySpot?.length > 0 && formStore.bedtime;
+	return formStore.selectedFavoriteDistributionalCourses.length > 0 &&
+		formStore.selectedQuintessentiallyYaleCourse.length > 0 &&
+		formStore.selectedRegrettedCourses.length > 0
 });
 
 function nextStep() {
@@ -152,7 +153,7 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Most <span class="text-weight-bold">chill</span> course at Yale?
+							<span class="text-weight-bold">Guttiest</span> course at Yale?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedGuttiestCourses"
@@ -161,27 +162,10 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best <span class="text-weight-bold"> writing, science, QR, social science, and/or humanities </span>
-							credits?
-							<span class="text-red">*</span>
+							Any remarks or words to defend your choices?
 						</div>
-						<SelectCourses v-model="formStore.selectedFavoriteDistributionalCourses"
-							label="The easiest science credit I ever took was..." />
-					</q-card-section>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							Most <span class="text-weight-bold">unique</span> course?
-						</div>
-						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
-							label='The most "quintessentially Yale" course for me were...' />
-					</q-card-section>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-sm">
-							Most <span class="text-weight-bold">regretted</span> course?
-						</div>
-						<SelectCourses v-model="formStore.selectedRegrettedCourses" label="I most regret taking ..." />
+						<q-input v-model="formStore.remarks" filled
+							label="Share any additional thoughts about your courses, professors, or overall Yale experience (optional)." />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -201,6 +185,32 @@ defineOptions({
 							</div>
 						</q-card-section>
 					</q-card>
+
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Most <span class="text-weight-bold">unique</span> course?
+						</div>
+						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
+							label='The most "quintessentially Yale" course for me were...' />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-sm">
+							Most <span class="text-weight-bold">regretted</span> course?
+						</div>
+						<SelectCourses v-model="formStore.selectedRegrettedCourses" label="I most regret taking ..." />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							Best <span class="text-weight-bold"> writing, science, QR, social science, and/or humanities </span>
+							credits?
+							<span class="text-red">*</span>
+						</div>
+						<SelectCourses v-model="formStore.selectedFavoriteDistributionalCourses"
+							label="The easiest science credit I ever took was..." />
+					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
@@ -238,14 +248,6 @@ defineOptions({
 							</div>
 						</q-card-section>
 					</template>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							Any remarks or words to share about your Yale experience?
-						</div>
-						<q-input v-model="formStore.remarks" filled
-							label="Share any additional thoughts about your courses, professors, or overall Yale experience (optional)." />
-					</q-card-section>
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
