@@ -35,7 +35,6 @@ export const use2025FormStore = defineStore(
 		const residentialCollege = ref<ResidentialCollege | null>(null);
 		const studySpot = ref<string[]>([]);
 		const bedtime = ref<string>("10:00 PM");
-		const finalRemarks = ref("");
 
 		// Initialize empty arrays and default satisfaction for each major when major changes
 		watch(major, (newMajors) => {
@@ -82,7 +81,6 @@ export const use2025FormStore = defineStore(
 			residentialCollege,
 			studySpot,
 			bedtime,
-			finalRemarks,
 
 			submitForm: async () => {
 				try {
@@ -111,7 +109,6 @@ export const use2025FormStore = defineStore(
 						residential_college: residentialCollege.value,
 						study_spot: studySpot.value,
 						bedtime: bedtime.value,
-						final_remarks: finalRemarks.value,
 					});
 
 					if (error) throw error;
@@ -146,7 +143,6 @@ export const use2025FormStore = defineStore(
 				residentialCollege.value = null;
 				studySpot.value = [];
 				bedtime.value = "10:00 PM";
-				finalRemarks.value = "";
 			},
 		};
 	},
