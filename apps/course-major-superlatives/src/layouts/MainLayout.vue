@@ -12,7 +12,6 @@ import { CURRENT_YEAR } from 'src/router/routes';
 				<q-btn round flat icon="mdi-github"
 					href="https://github.com/yaleapps/yaleapps/tree/main/apps/course-major-superlatives/" target="_blank" />
 				<q-btn stretch flat icon="bar_chart" :to="`/results/${CURRENT_YEAR}`" >Results</q-btn>
-				<!-- <q-btn round flat icon="info" to="/about" /> -->
 				<q-toggle v-model="$q.dark.mode" color="blue-grey-5" @click="$q.dark.toggle()" />
 			</q-toolbar>
 		</q-header>
