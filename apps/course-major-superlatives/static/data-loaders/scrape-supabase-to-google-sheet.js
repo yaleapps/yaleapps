@@ -86,6 +86,7 @@ function fetchDataFromSupabase(supabaseUrl, supabaseAnonKey, supabaseTableName) 
 function writeDataToSheet(data, sheetName) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 
+  if (data.length === 0) return;
   const cols = Object.keys(data[0]);
 
   sheet.getRange(HEADER_ROW_INDEX, 1, 1, cols.length).setValues([cols]);
