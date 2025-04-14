@@ -33,7 +33,7 @@ export const CourseFromCourseTableApi = type({
 	credits: "number",
 	description: "string",
 	extra_info:
-		"'ACTIVE' | 'CANCELLED' | 'CLOSED' | 'MOVED_TO_FALL_TERM' | 'MOVED_TO_SPRING_TERM'",
+		"'ACTIVE' | 'CANCELLED' | 'CLOSED' | 'MOVED_TO_FALL_TERM' | 'MOVED_TO_SPRING_TERM' | 'NUMBER_CHANGED'",
 	final_exam: "string | null",
 	fysem: "boolean",
 	last_offered_course_id: "number | null",
