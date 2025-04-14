@@ -16,7 +16,7 @@
 		<q-page-container>
 			<router-view />
 			<q-footer class="text-center bg-dark">
-				&copy; Table Labs 2023
+				&copy; 2025 Yale Course Superlatives
 			</q-footer>
 		</q-page-container>
 	</q-layout>
