@@ -23,8 +23,6 @@ export const use2025FormStore = defineStore(
 
 		// Section 3: Course Categories
 		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
-		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
-		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
 		const selectedRegrettedCourses = ref<CourseSummary[]>([]);
 
 		// Section 4: Major Reflections
@@ -74,8 +72,6 @@ export const use2025FormStore = defineStore(
 
 			// Section 3: Course Categories
 			selectedFavoriteDistributionalCourses,
-			selectedBestLectureCourses,
-			selectedBestSeminarCourses,
 			selectedRegrettedCourses,
 
 			// Section 4: Major Reflections
@@ -90,13 +86,13 @@ export const use2025FormStore = defineStore(
 
 			submitForm: async () => {
 				try {
-					const { error } = await supabase.from("superlatives_2023").insert({
+					const { error } = await supabase.from("superlatives_2025").insert({
 						// Section 1
 						email: email.value,
 						class_year: classYear.value,
 						major: major.value,
 
-						// Section 2
+						// Section 2: Overall Favorites
 						selected_favorite_professors: selectedFavoriteProfessors.value,
 						selected_favorite_courses: selectedFavoriteCourses.value,
 						selected_guttiest_courses: selectedGuttiestCourses.value,
@@ -104,18 +100,14 @@ export const use2025FormStore = defineStore(
 							selectedQuintessentiallyYaleCourse.value,
 						remarks: remarks.value,
 
-						// Section 3
+						// Section 3: Category Favorites
 						selected_favorite_distributional_courses:
 							selectedFavoriteDistributionalCourses.value,
-						selected_best_lecture_courses: selectedBestLectureCourses.value,
-						selected_best_seminar_courses: selectedBestSeminarCourses.value,
-						selected_overrated_courses: selectedRegrettedCourses.value,
+						selected_regretted_courses: selectedRegrettedCourses.value,
 
-						// Section 4
+						// Section 4: Major Reflections
 						selected_favorite_major_courses: selectedFavoriteMajorCourses.value,
 						selected_major_satisfaction: selectedMajorSatisfaction.value,
-
-						// Section 5
 						residential_college: residentialCollege.value,
 						study_spot: studySpot.value,
 						bedtime: bedtime.value,
@@ -144,8 +136,6 @@ export const use2025FormStore = defineStore(
 
 				// Section 3
 				selectedFavoriteDistributionalCourses.value = [];
-				selectedBestLectureCourses.value = [];
-				selectedBestSeminarCourses.value = [];
 				selectedRegrettedCourses.value = [];
 
 				// Section 4

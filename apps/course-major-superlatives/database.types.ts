@@ -1,4 +1,4 @@
-import type { CourseSummary } from "src/types/types";
+import type { CourseSummary, Professor } from "src/types/types";
 
 export type Json =
 	| string
@@ -22,7 +22,7 @@ export type Database = {
 					selected_favorite_distributional_courses: CourseSummary[];
 					selected_favorite_lecture_courses: CourseSummary[];
 					selected_favorite_major_courses: CourseSummary[];
-					selected_favorite_professors: CourseSummary[];
+					selected_favorite_professors: Professor[];
 					selected_favorite_seminar_courses: CourseSummary[];
 					selected_guttiest_courses: CourseSummary[];
 				};
@@ -36,7 +36,7 @@ export type Database = {
 					selected_favorite_distributional_courses: CourseSummary[];
 					selected_favorite_lecture_courses: CourseSummary[];
 					selected_favorite_major_courses: CourseSummary[];
-					selected_favorite_professors: CourseSummary[];
+					selected_favorite_professors: Professor[];
 					selected_favorite_seminar_courses: CourseSummary[];
 					selected_guttiest_courses: CourseSummary[];
 				};
@@ -50,7 +50,7 @@ export type Database = {
 					selected_favorite_distributional_courses?: CourseSummary[];
 					selected_favorite_lecture_courses?: CourseSummary[];
 					selected_favorite_major_courses?: CourseSummary[];
-					selected_favorite_professors?: CourseSummary[];
+					selected_favorite_professors?: Professor[];
 					selected_favorite_seminar_courses?: CourseSummary[];
 					selected_guttiest_courses?: CourseSummary[];
 				};
