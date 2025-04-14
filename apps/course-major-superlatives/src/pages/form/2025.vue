@@ -241,38 +241,6 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Where do you usually study?
-						</div>
-						<q-select v-model="formStore.studySpot" :options="[
-							'Sterling Memorial Library',
-							'Bass Library',
-							'Residential College Library',
-							'Common Room',
-							'Your Room',
-							'Cross Campus',
-							'Coffee Shop',
-							'Other'
-						]" filled label="Favorite study spot" multiple />
-					</q-card-section>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							What time do you usually go to bed?
-						</div>
-						<q-select v-model="formStore.bedtime" :options="[
-							'8:00 PM',
-							'9:00 PM',
-							'10:00 PM',
-							'11:00 PM',
-							'12:00 AM',
-							'1:00 AM',
-							'2:00 AM',
-							'3:00 AM'
-						]" filled label="Typical bedtime" />
-					</q-card-section>
-
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
 							Any remarks or words to share about your Yale experience?
 						</div>
 						<q-input v-model="formStore.remarks" filled
