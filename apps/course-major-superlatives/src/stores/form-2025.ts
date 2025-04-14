@@ -1,38 +1,34 @@
 import type { CourseSummary, Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import type { ResidentialCollege } from "@repo/constants";
 
 export const use2025FormStore = defineStore(
 	"2025-form",
 	() => {
-		// Section 1: Introduction
+		// Section 1: Your Yale Identity
 		const email = ref("");
 		const classYear = ref<"2024" | "2025" | "2026" | "2027" | "2028" | null>(
 			null,
 		);
-		const major = ref<string[]>([]);
+		const residentialCollege = ref<ResidentialCollege | null>(null);
 
-		// Section 2: Overall Favorites
+		// Section 2: The Hall of Fame
 		const selectedFavoriteProfessors = ref<Professor[]>([]);
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
-		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
 		const remarks = ref("");
 
-		// Section 3: Course Categories
-		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
+		// Section 3: Academic Superlatives
+		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
 		const selectedRegrettedCourses = ref<CourseSummary[]>([]);
-
-		// Section 4: Major Reflections
+		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
+		const major = ref<string[]>([]);
 		const selectedFavoriteMajorCourses = ref<Record<string, CourseSummary[]>>(
 			{},
 		);
 		const selectedMajorSatisfaction = ref<Record<string, number>>({});
-
-		// Section 5: Yale Life
-		const residentialCollege = ref<ResidentialCollege | null>(null);
 
 		// Initialize empty arrays and default satisfaction for each major when major changes
 		watch(major, (newMajors) => {
@@ -55,54 +51,48 @@ export const use2025FormStore = defineStore(
 		});
 
 		return {
-			// Section 1: Introduction
+			// Section 1: Your Yale Identity
 			email,
 			classYear,
-			major,
+			residentialCollege,
 
-			// Section 2: Overall Favorites
+			// Section 2: The Hall of Fame
 			selectedFavoriteProfessors,
 			selectedFavoriteCourses,
 			selectedGuttiestCourses,
-			selectedQuintessentiallyYaleCourse,
 			remarks,
 
-			// Section 3: Course Categories
-			selectedFavoriteDistributionalCourses,
+			// Section 3: Academic Superlatives
+			selectedQuintessentiallyYaleCourse,
 			selectedRegrettedCourses,
-
-			// Section 4: Major Reflections
+			selectedFavoriteDistributionalCourses,
+			major,
 			selectedFavoriteMajorCourses,
 			selectedMajorSatisfaction,
-
-			// Section 5: Yale Life
-			residentialCollege,
 
 			submitForm: async () => {
 				try {
 					const { error } = await supabase.from("superlatives_2025").insert({
-						// Section 1
+						// Section 1: Your Yale Identity
 						email: email.value,
 						class_year: classYear.value,
-						major: major.value,
+						residential_college: residentialCollege.value,
 
-						// Section 2: Overall Favorites
+						// Section 2: The Hall of Fame
 						selected_favorite_professors: selectedFavoriteProfessors.value,
 						selected_favorite_courses: selectedFavoriteCourses.value,
 						selected_guttiest_courses: selectedGuttiestCourses.value,
-						selected_quintessentially_yale_course:
-							selectedQuintessentiallyYaleCourse.value,
 						remarks: remarks.value,
 
-						// Section 3: Category Favorites
+						// Section 3: Academic Superlatives
+						selected_quintessentially_yale_course:
+							selectedQuintessentiallyYaleCourse.value,
+						selected_regretted_courses: selectedRegrettedCourses.value,
 						selected_favorite_distributional_courses:
 							selectedFavoriteDistributionalCourses.value,
-						selected_regretted_courses: selectedRegrettedCourses.value,
-
-						// Section 4: Major Reflections
+						major: major.value,
 						selected_favorite_major_courses: selectedFavoriteMajorCourses.value,
 						selected_major_satisfaction: selectedMajorSatisfaction.value,
-						residential_college: residentialCollege.value,
 					});
 
 					if (error) throw error;
@@ -113,28 +103,24 @@ export const use2025FormStore = defineStore(
 			},
 
 			resetForm: () => {
-				// Section 1
+				// Section 1: Your Yale Identity
 				email.value = "";
 				classYear.value = null;
-				major.value = [];
+				residentialCollege.value = null;
 
-				// Section 2
+				// Section 2: The Hall of Fame
 				selectedFavoriteProfessors.value = [];
 				selectedFavoriteCourses.value = [];
 				selectedGuttiestCourses.value = [];
-				selectedQuintessentiallyYaleCourse.value = [];
 				remarks.value = "";
 
-				// Section 3
-				selectedFavoriteDistributionalCourses.value = [];
+				// Section 3: Academic Superlatives
+				selectedQuintessentiallyYaleCourse.value = [];
 				selectedRegrettedCourses.value = [];
-
-				// Section 4
+				selectedFavoriteDistributionalCourses.value = [];
+				major.value = [];
 				selectedFavoriteMajorCourses.value = {};
 				selectedMajorSatisfaction.value = {};
-
-				// Section 5
-				residentialCollege.value = null;
 			},
 		};
 	},
