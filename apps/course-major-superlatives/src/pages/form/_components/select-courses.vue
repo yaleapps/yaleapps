@@ -55,9 +55,9 @@ function getQuasarIcon(course: CourseSummary) {
 <template>
 	<q-select v-model="modelValue" :label="label" :options="filteredCourses" option-value="course_id"
 		:option-label="getDisplayText" multiple use-input use-chips filled menu-self="top middle"
-		menu-anchor="bottom middle" @filter="(val, update) => {
+		menu-anchor="bottom middle" @filter="(q, update) => {
 			update(
-				() => query = val,
+				() => query = q,
 				(ref) => {
 					ref.setOptionIndex(-1);
 					ref.moveOptionSelection(1, true);

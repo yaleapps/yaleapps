@@ -7,7 +7,8 @@
 				<q-avatar color="white" text-color="amber" icon="emoji_events" />
 				<q-btn class=" text-h6" stretch no-caps flat to="/" label="Course Superlatives" />
 				<q-space />
-				<q-btn round flat icon="mdi-github" href="https://github.com/braden-w/coursetable-labs" target="_blank" />
+				<q-btn round flat icon="mdi-github"
+					href="https://github.com/yaleapps/yaleapps/tree/main/apps/course-major-superlatives/" target="_blank" />
 				<!-- <q-btn round flat icon="info" to="/about" /> -->
 				<q-toggle v-model="$q.dark.mode" color="blue-grey-5" @click="$q.dark.toggle()" />
 			</q-toolbar>
@@ -16,7 +17,7 @@
 		<q-page-container>
 			<router-view />
 			<q-footer class="text-center bg-dark">
-				&copy; Table Labs 2023
+				&copy; 2025 Yale Course Superlatives
 			</q-footer>
 		</q-page-container>
 	</q-layout>

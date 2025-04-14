@@ -1,48 +1,59 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { useFormStore } from 'src/stores/form';
+import { use2025FormStore } from 'src/stores/form-2025';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
+import SelectResidentialCollege from './_components/select-residential-college.vue';
 import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
 import { type } from 'arktype';
 
-const formStore = useFormStore();
+const formStore = use2025FormStore();
 const router = useRouter();
 
-const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
+const { mutate: submitUserCourseMutation, isPending: isSubmitPending } = useMutation({
 	mutationFn: () => formStore.submitForm(),
 	onSuccess: () => router.push('/success'),
+	onError: () => {
+		alert('An error occurred. Please try again.');
+	}
 });
 
 function isValidEmail(email: string) {
 	const Email = type("string.email")
 	const result = Email(email);
-	return !(result instanceof type.errors)
+	return !(result instanceof type.errors) && email.endsWith("@yale.edu")
 }
 
 const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(formStore.email) && formStore.major.length > 0;
+	return isValidEmail(formStore.email) &&
+		formStore.classYear &&
+		formStore.residentialCollege;
 });
 
 const isStep2Valid = computed(() => {
-	return (
-		formStore.selectedFavoriteProfessors.length > 0 &&
+	return formStore.selectedFavoriteProfessors.length > 0 &&
 		formStore.selectedFavoriteCourses.length > 0 &&
 		formStore.selectedGuttiestCourses.length > 0
-	);
 });
 
 const isStep3Valid = computed(() => {
-	return (
-		formStore.selectedFavoriteMajorCourses.length > 0 &&
-		formStore.selectedFavoriteDistributionalCourses.length > 0
+	const isEveryMajorHasSelectedFavoriteMajorCourses = formStore.major.every((major) =>
+		(formStore.selectedFavoriteMajorCourses[major]?.length ?? 0) > 0
 	);
+	const isEveryMajorHasSelectedMajorSatisfaction = formStore.major.every((major) =>
+		formStore.selectedMajorSatisfaction[major] !== undefined
+	);
+	return formStore.selectedFavoriteDistributionalCourses.length > 0 &&
+		formStore.selectedQuintessentiallyYaleCourse.length > 0 &&
+		formStore.selectedRegrettedCourses.length > 0 && formStore.major.length > 0 &&
+		isEveryMajorHasSelectedFavoriteMajorCourses &&
+		isEveryMajorHasSelectedMajorSatisfaction
 });
 
 function nextStep() {
@@ -65,34 +76,45 @@ defineOptions({
 
 <template>
 	<q-page padding>
-		<q-stepper v-model="activeStep" class="shadow-0 tw:max-w-4xl q-mx-auto" :vertical="$q.screen.width < 600" animated>
-			<q-step :name="0" title="Introduction">
+		<q-stepper v-model="activeStep" class="shadow-0 tw:max-w-4xl q-mx-auto" animated>
+			<q-step :name="0" :title="$q.screen.width < 600 ? '' : 'Introduction'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
 							<div class="text-h4 q-mb-lg">
-								What are your favorite courses and professors at Yale?
+								What are the best courses and professors at Yale?
 							</div>
 							<p class="text-subtitle1">
 								As we wrap up the school year, let's reflect on the courses and professors that
-								defined our college experiences. You must participate to see results.
+								defined our college experiences.
+								<span class="text-weight-bold">
+									You must participate to see results.
+								</span>
 							</p>
 						</q-card-section>
 					</q-card>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							What is your email address? <span class="text-red">*</span>
+							What is your Yale email address? <span class="text-red">*</span>
 						</div>
-						<q-input v-model="formStore.email" filled label="Email"
+						<q-input v-model="formStore.email" filled label="Email" autocapitalize="off"
 							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']" />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							What is your major? <span class="text-red">*</span>
+							What is your class year? <span class="text-red">*</span>
 						</div>
-						<SelectMajor v-model="formStore.major" />
+						<q-select v-model="formStore.classYear" :options="['2024', '2025', '2026', '2027', '2028']" filled
+							label="Class Year" />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-md">
+							What is your residential college? <span class="text-red">*</span>
+						</div>
+						<SelectResidentialCollege v-model="formStore.residentialCollege" />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -101,15 +123,17 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="1" title="Overall Favorites">
+			<q-step :name="1" :title="$q.screen.width < 600 ? '' : 'Overall Favorites'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
 							<div class="text-h4 q-mb-md">Overall Favorites</div>
 							<div class="text-subtitle1">
 								Please answer the required questions regarding your overall favorite professors and
-								courses. To access your past courses, you can click "Course History" on
-								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
+								courses. To access your past courses, you can click the ellipses, then "Class History" on
+								<a class="tw:text-blue-500 tw:hover:underline tw:hover:text-blue-600 tw:font-medium tw:transition"
+									href="https://degreeaudit.yale.edu/" target="_blank" rel="noopener noreferrer"> Yale Degree Audit
+								</a>.
 							</div>
 						</q-card-section>
 					</q-card>
@@ -125,7 +149,7 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best <span class="text-weight-bold"> overall </span> courses at Yale?
+							Best <span class="text-weight-bold">overall</span> courses at Yale?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedFavoriteCourses"
@@ -134,18 +158,19 @@ defineOptions({
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							<span class="text-weight-bold">Chillest</span> courses at Yale?
+							<span class="text-weight-bold">Guttiest</span> course at Yale?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedGuttiestCourses"
-							label="The guttiest courses you've ever taken. No stress, no worries." />
+							label="The chillest course I've ever taken was..." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
 							Any remarks or words to defend your choices?
 						</div>
-						<q-input v-model="formStore.remarks" filled label="Your remarks." />
+						<q-input v-model="formStore.remarks" filled
+							label="Share any additional thoughts about your courses, professors, or overall Yale experience (optional)." />
 					</q-card-section>
 
 					<div class="q-mt-md">
@@ -155,62 +180,84 @@ defineOptions({
 				</q-step-content>
 			</q-step>
 
-			<q-step :name="2" title="Category Favorites">
+			<q-step :name="2" :title="$q.screen.width < 600 ? '' : 'Academic Superlatives'">
 				<q-step-content>
 					<q-card flat>
 						<q-card-section>
-							<div class="text-h4 q-mb-md">Category Favorites</div>
+							<div class="text-h4 q-mb-md">Academic Superlatives</div>
 							<div class="text-subtitle1">
-								Please answer the following questions regarding domain-specific courses. To access
-								your past courses, you can click "Course History" on
-								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
+								Vote for your standout courses across different categories - from your major to distribution
+								requirements.
 							</div>
 						</q-card-section>
 					</q-card>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best courses in your major(s):
-							<span class="text-weight-bold">{{ formStore.major.join(', ') }}</span>
-							<span class="text-red">*</span>
+							Most <span class="text-weight-bold">unique</span> course?
 						</div>
-						<SelectCourses v-model="formStore.selectedFavoriteMajorCourses"
-							label="The course(s) that made you fall in love with your major." />
+						<SelectCourses v-model="formStore.selectedQuintessentiallyYaleCourse"
+							label='The most "quintessentially Yale" course for me were...' />
+					</q-card-section>
+
+					<q-card-section>
+						<div class="text-h6 q-mb-sm">
+							Most <span class="text-weight-bold">regretted</span> course?
+						</div>
+						<SelectCourses v-model="formStore.selectedRegrettedCourses" label="I most regret taking ..." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best
-							<span class="text-weight-bold">
-								writing, science, QR, social science, or humanities
-							</span>
+							Best <span class="text-weight-bold"> writing, science, QR, social science, and/or humanities </span>
 							credits?
 							<span class="text-red">*</span>
 						</div>
 						<SelectCourses v-model="formStore.selectedFavoriteDistributionalCourses"
-							label="The distributional classes that you loved outside of your major." />
+							label="The easiest science credit I ever took was..." />
 					</q-card-section>
 
 					<q-card-section>
 						<div class="text-h6 q-mb-md">
-							Best <span class="text-weight-bold">lecture</span> courses?
+							What is your major? <span class="text-red">*</span>
 						</div>
-						<SelectCourses v-model="formStore.selectedFavoriteLectureCourses"
-							label="Your favorite lecture courses of all time at Yale." />
+						<SelectMajor v-model="formStore.major" />
 					</q-card-section>
 
-					<q-card-section>
-						<div class="text-h6 q-mb-md">
-							Best <span class="text-weight-bold">seminar</span> courses?
-						</div>
-						<SelectCourses v-model="formStore.selectedFavoriteSeminarCourses"
-							label="Your favorite seminars of all time at Yale." />
-					</q-card-section>
+					<template v-for="majorName in formStore.major" :key="majorName">
+						<q-card-section>
+							<div class="text-h6 q-mb-md">
+								Best courses in your major: <span class="text-weight-bold">{{ majorName }}</span>
+								<span class="text-red">*</span>
+							</div>
+							<SelectCourses :model-value="formStore.selectedFavoriteMajorCourses[majorName] ?? []" @update:model-value="(val) => {
+								if (!formStore.selectedFavoriteMajorCourses[majorName]) {
+									formStore.selectedFavoriteMajorCourses[majorName] = [];
+								}
+								formStore.selectedFavoriteMajorCourses[majorName] = val;
+							}" :label="`The course(s) that made you fall in love with ${majorName}.`" />
+						</q-card-section>
+					</template>
+
+					<template v-for="majorName in formStore.major" :key="majorName">
+						<q-card-section>
+							<div class="text-h6 q-mb-md">
+								How satisfied are you with {{ majorName }}?
+								<span class="text-red">*</span>
+							</div>
+							<q-rating :model-value="formStore.selectedMajorSatisfaction[majorName] ?? 5" @update:model-value="(val) => {
+								formStore.selectedMajorSatisfaction[majorName] = val;
+							}" size="2em" :max="10" icon="star_border" icon-selected="star" color="primary" />
+							<div class="text-caption q-mt-sm">
+								1 = Very Dissatisfied, 10 = Very Satisfied
+							</div>
+						</q-card-section>
+					</template>
 
 					<div class="q-mt-md">
 						<q-btn color="primary" label="Previous" class="q-mr-sm" @click="previousStep" />
-						<q-btn color="primary" label="Submit" :disable="!isStep3Valid" :loading="isSubmitLoading" @click="() => {
-							if (formStore.isFormValid) {
+						<q-btn color="primary" label="Submit" :loading="isSubmitPending" :disable="!isStep3Valid" @click="() => {
+							if (isStep3Valid) {
 								submitUserCourseMutation();
 							}
 						}" />

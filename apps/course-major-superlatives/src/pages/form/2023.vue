@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMutation } from '@tanstack/vue-query';
-import { useFormStore } from 'src/stores/form';
+import { use2023FormStore } from 'src/stores/form-2023';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectCourses from './_components/select-courses.vue';
@@ -10,7 +10,7 @@ import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
 import { type } from 'arktype';
 
-const formStore = useFormStore();
+const formStore = use2023FormStore();
 const router = useRouter();
 
 const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMutation({
@@ -162,7 +162,7 @@ defineOptions({
 							<div class="text-h4 q-mb-md">Category Favorites</div>
 							<div class="text-subtitle1">
 								Please answer the following questions regarding domain-specific courses. To access
-								your past courses, you can click "Course History" on
+								your past courses, you can click "Class History" on
 								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
 							</div>
 						</q-card-section>
