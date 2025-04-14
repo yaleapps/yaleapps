@@ -8,6 +8,7 @@ export async function saveCoursesMap(
 ) {
 	const { promises: fs } = await import("node:fs");
 	const courses = Array.from(coursesMap.entries());
+	courses.sort((a, b) => a[0] - b[0]);
 	await fs.writeFile(
 		"apps/course-major-superlatives/static/courses.json",
 		JSON.stringify(courses),

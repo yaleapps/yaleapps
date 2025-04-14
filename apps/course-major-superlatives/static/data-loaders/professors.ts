@@ -5,6 +5,7 @@ export async function saveProfessorsMap(
 ): Promise<void> {
 	const { promises: fs } = await import("node:fs");
 	const professors = Array.from(professorsMap.entries());
+	professors.sort((a, b) => a[0] - b[0]);
 	await fs.writeFile(
 		"apps/course-major-superlatives/static/professors.json",
 		JSON.stringify(professors),
