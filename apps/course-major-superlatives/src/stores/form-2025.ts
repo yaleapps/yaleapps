@@ -1,4 +1,4 @@
-import type { CourseSummary } from "src/types/types";
+import type { CourseSummary, Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { computed, ref, watch } from "vue";
@@ -15,7 +15,7 @@ export const use2025FormStore = defineStore(
 		const major = ref<string[]>([]);
 
 		// Section 2: Overall Favorites
-		const selectedFavoriteProfessors = ref<string[]>([]);
+		const selectedFavoriteProfessors = ref<Professor[]>([]);
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
 		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);

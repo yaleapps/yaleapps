@@ -1,4 +1,4 @@
-import type { CourseSummary } from "src/types/types";
+import type { CourseSummary, Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { computed, ref } from "vue";
@@ -8,7 +8,7 @@ export const use2023FormStore = defineStore(
 	() => {
 		const email = ref("");
 		const major = ref<string[]>([]);
-		const selectedFavoriteProfessors = ref<string[]>([]);
+		const selectedFavoriteProfessors = ref<Professor[]>([]);
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
 		const selectedFavoriteMajorCourses = ref<CourseSummary[]>([]);
@@ -41,7 +41,7 @@ export const use2023FormStore = defineStore(
 			}),
 			submitForm: async () => {
 				try {
-					const { error } = await supabase.from("UserCourse").insert({
+					const { error } = await supabase.from("superlatives_2023").insert({
 						email: email.value,
 						major: major.value,
 						selected_favorite_professors: selectedFavoriteProfessors.value,
