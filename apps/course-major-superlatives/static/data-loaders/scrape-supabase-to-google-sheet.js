@@ -7,11 +7,11 @@ const HEADER_ROW_INDEX = 1;
 const DATA_START_ROW_INDEX = HEADER_ROW_INDEX + 1;
 
 /**
- * Processes an array of row values from Supabase to ensure they're properly serialized for Google Sheets.
+ * Processes a row from Supabase to ensure it's properly serialized for Google Sheets.
  *
  * You can customize this function to handle different data types as needed.
  *
- * @param {Array<any>} rowValues - Array of values from a Supabase row that need to be written to Google Sheets
+ * @param {Record<string, any>} row - Object where the keys are the column names and the values are the column values from a Supabase row that need to be written to Google Sheets
  * @returns {Array<string>} An array of serialized values safe for Google Sheets insertion
  *
  * @remarks
@@ -20,12 +20,12 @@ const DATA_START_ROW_INDEX = HEADER_ROW_INDEX + 1;
  * - Used by writeToSheet() to process each row before insertion
  *
  * @example
- * const row = ['text', { complex: 'object' }, ['array'], null];
- * const processed = processRowValues(row);
+ * const row = { text: 'text', complex: { complex: 'object' }, array: ['array'], null: null };
+ * const processed = processRow(row);
  * // Returns: ['text', '{"complex":"object"}', '["array"]', '']
  */
-function processRowValues(rowValues) {
-  return rowValues.map((value) => {
+function processRow(row) {
+  return Object.entries(row).map(([key, value]) => {
     if (value === null || value === undefined) {
       return '';
     }
@@ -87,10 +87,7 @@ function writeDataToSheet(data, sheetName) {
   const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 
   const cols = Object.keys(data[0]);
-  const rows = data.map((row) => Object.values(row));
 
   sheet.getRange(HEADER_ROW_INDEX, 1, 1, cols.length).setValues([cols]);
-  sheet
-    .getRange(DATA_START_ROW_INDEX, 1, rows.length, cols.length)
-    .setValues(rows.map(processRowValues));
+  sheet.getRange(DATA_START_ROW_INDEX, 1, data.length, cols.length).setValues(data.map(processRow));
 }
