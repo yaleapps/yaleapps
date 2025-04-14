@@ -1,8 +1,8 @@
 <script lang="ts" setup>
-import { RESIDENTIAL_COLLEGE_NAMES, type ResidentialCollege } from "@repo/constants";
+import { RESIDENTIAL_COLLEGE_NAMES, type ResidentialCollegeName } from "@repo/constants";
 import { computed, ref } from "vue";
 
-const modelValue = defineModel<ResidentialCollege | null>({ required: true });
+const modelValue = defineModel<ResidentialCollegeName | null>({ required: true });
 const query = ref('');
 
 const filteredColleges = computed(() => {

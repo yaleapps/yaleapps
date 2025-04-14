@@ -58,7 +58,7 @@ export const RESIDENTIAL_COLLEGES = [
 	},
 ] as const;
 
-export type ResidentialCollege = (typeof RESIDENTIAL_COLLEGES)[number];
+type ResidentialCollege = (typeof RESIDENTIAL_COLLEGES)[number];
 
 export const RESIDENTIAL_COLLEGE_NAMES = [
 	"Benjamin Franklin",
@@ -76,6 +76,8 @@ export const RESIDENTIAL_COLLEGE_NAMES = [
 	"Timothy Dwight",
 	"Trumbull",
 ] as const satisfies readonly ResidentialCollege["name"][];
+
+export type ResidentialCollegeName = (typeof RESIDENTIAL_COLLEGE_NAMES)[number];
 
 export const RESIDENTIAL_COLLEGE_ABBREVIATIONS = [
 	"BF",
