@@ -162,7 +162,7 @@ defineOptions({
 							<div class="text-h4 q-mb-md">Category Favorites</div>
 							<div class="text-subtitle1">
 								Please answer the following questions regarding domain-specific courses. To access
-								your past courses, you can click "Course History" on
+								your past courses, you can click "Class History" on
 								<a href="https://degreeaudit.yale.edu/" target="_blank"> Yale Degree Audit </a>.
 							</div>
 						</q-card-section>

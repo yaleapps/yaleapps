@@ -7,30 +7,37 @@ import type { ResidentialCollege } from "@repo/constants";
 export const use2025FormStore = defineStore(
 	"2025-form",
 	() => {
+		// Section 1: Introduction
 		const email = ref("");
 		const classYear = ref<"2024" | "2025" | "2026" | "2027" | "2028" | null>(
 			null,
 		);
-		const residentialCollege = ref<ResidentialCollege | null>(null);
 		const major = ref<string[]>([]);
+
+		// Section 2: Overall Favorites
 		const selectedFavoriteProfessors = ref<string[]>([]);
 		const selectedFavoriteCourses = ref<CourseSummary[]>([]);
 		const selectedGuttiestCourses = ref<CourseSummary[]>([]);
 		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
-		const selectedOverratedCourses = ref<CourseSummary[]>([]);
-		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
-		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
-		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
-		const bedtime = ref<string>("10:00 PM");
 		const remarks = ref("");
 
-		// New Yale Life & Wellness fields
-		const studySpot = ref<string[]>([]);
+		// Section 3: Course Categories
+		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
+		const selectedBestLectureCourses = ref<CourseSummary[]>([]);
+		const selectedBestSeminarCourses = ref<CourseSummary[]>([]);
+		const selectedRegrettedCourses = ref<CourseSummary[]>([]);
 
+		// Section 4: Major Reflections
 		const selectedFavoriteMajorCourses = ref<Record<string, CourseSummary[]>>(
 			{},
 		);
 		const selectedMajorSatisfaction = ref<Record<string, number>>({});
+
+		// Section 5: Yale Life
+		const residentialCollege = ref<ResidentialCollege | null>(null);
+		const studySpot = ref<string[]>([]);
+		const bedtime = ref<string>("10:00 PM");
+		const finalRemarks = ref("");
 
 		// Initialize empty arrays and default satisfaction for each major when major changes
 		watch(major, (newMajors) => {
@@ -53,63 +60,66 @@ export const use2025FormStore = defineStore(
 		});
 
 		return {
+			// Section 1: Introduction
 			email,
 			classYear,
-			residentialCollege,
 			major,
+
+			// Section 2: Overall Favorites
 			selectedFavoriteProfessors,
 			selectedFavoriteCourses,
 			selectedGuttiestCourses,
 			selectedQuintessentiallyYaleCourse,
-			selectedOverratedCourses,
+			remarks,
+
+			// Section 3: Course Categories
+			selectedFavoriteDistributionalCourses,
 			selectedBestLectureCourses,
 			selectedBestSeminarCourses,
-			selectedFavoriteDistributionalCourses,
+			selectedRegrettedCourses,
+
+			// Section 4: Major Reflections
 			selectedFavoriteMajorCourses,
 			selectedMajorSatisfaction,
-			bedtime,
-			remarks,
-			// New Yale Life & Wellness fields
+
+			// Section 5: Yale Life
+			residentialCollege,
 			studySpot,
-			isFormValid: computed(() => {
-				return (
-					email.value &&
-					classYear.value &&
-					residentialCollege.value &&
-					major.value.length > 0 &&
-					selectedFavoriteProfessors.value.length > 0 &&
-					selectedFavoriteCourses.value.length > 0 &&
-					selectedGuttiestCourses.value.length > 0 &&
-					selectedQuintessentiallyYaleCourse.value.length > 0 &&
-					// Check if we have favorite courses for each major
-					major.value.every(
-						(m) => (selectedFavoriteMajorCourses.value[m] || []).length > 0,
-					)
-				);
-			}),
+			bedtime,
+			finalRemarks,
+
 			submitForm: async () => {
 				try {
-					const { error } = await supabase.from("UserCourse").insert({
+					const { error } = await supabase.from("superlatives_2023").insert({
+						// Section 1
 						email: email.value,
 						class_year: classYear.value,
-						residential_college: residentialCollege.value,
 						major: major.value,
+
+						// Section 2
 						selected_favorite_professors: selectedFavoriteProfessors.value,
 						selected_favorite_courses: selectedFavoriteCourses.value,
 						selected_guttiest_courses: selectedGuttiestCourses.value,
 						selected_quintessentially_yale_course:
 							selectedQuintessentiallyYaleCourse.value,
-						selected_overrated_courses: selectedOverratedCourses.value,
-						selected_best_lecture_courses: selectedBestLectureCourses.value,
-						selected_best_seminar_courses: selectedBestSeminarCourses.value,
+						remarks: remarks.value,
+
+						// Section 3
 						selected_favorite_distributional_courses:
 							selectedFavoriteDistributionalCourses.value,
+						selected_best_lecture_courses: selectedBestLectureCourses.value,
+						selected_best_seminar_courses: selectedBestSeminarCourses.value,
+						selected_overrated_courses: selectedRegrettedCourses.value,
+
+						// Section 4
 						selected_favorite_major_courses: selectedFavoriteMajorCourses.value,
 						selected_major_satisfaction: selectedMajorSatisfaction.value,
-						bedtime: bedtime.value,
-						remarks: remarks.value,
-						// New Yale Life & Wellness fields
+
+						// Section 5
+						residential_college: residentialCollege.value,
 						study_spot: studySpot.value,
+						bedtime: bedtime.value,
+						final_remarks: finalRemarks.value,
 					});
 
 					if (error) throw error;
@@ -118,25 +128,35 @@ export const use2025FormStore = defineStore(
 					throw error;
 				}
 			},
+
 			resetForm: () => {
+				// Section 1
 				email.value = "";
-				classYear.value = "2025";
-				residentialCollege.value = null;
+				classYear.value = null;
 				major.value = [];
+
+				// Section 2
 				selectedFavoriteProfessors.value = [];
 				selectedFavoriteCourses.value = [];
 				selectedGuttiestCourses.value = [];
 				selectedQuintessentiallyYaleCourse.value = [];
-				selectedOverratedCourses.value = [];
+				remarks.value = "";
+
+				// Section 3
+				selectedFavoriteDistributionalCourses.value = [];
 				selectedBestLectureCourses.value = [];
 				selectedBestSeminarCourses.value = [];
-				selectedFavoriteDistributionalCourses.value = [];
+				selectedRegrettedCourses.value = [];
+
+				// Section 4
 				selectedFavoriteMajorCourses.value = {};
 				selectedMajorSatisfaction.value = {};
-				bedtime.value = "10:00 PM";
-				remarks.value = "";
-				// Reset new Yale Life & Wellness fields
+
+				// Section 5
+				residentialCollege.value = null;
 				studySpot.value = [];
+				bedtime.value = "10:00 PM";
+				finalRemarks.value = "";
 			},
 		};
 	},
