@@ -66,8 +66,13 @@ async function verifyEmail() {
 				</template>
 
 				<template v-else>
-					<div class="text-subtitle1 q-mb-xl">
+					<div class="text-subtitle1 q-mb-sm">
 						Here are the aggregated results from the Class of 2025's course and professor superlatives!
+					</div>
+
+					<div class="text-subtitle1 q-mb-xl">
+						This page is being continuously updated with new styling and results. Please check back regularly as more
+						responses come in and the chart styling is updated!
 					</div>
 
 					<div class="text-h5 q-mb-md">Most Popular Professors</div>
