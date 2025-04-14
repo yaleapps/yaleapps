@@ -11,191 +11,54 @@ export type Json =
 export type Database = {
 	public: {
 		Tables: {
-			Courses: {
-				Row: {
-					all_course_codes: Json | null;
-					areas: Json | null;
-					average_gut_rating: number | null;
-					average_professor: number | null;
-					average_rating: number | null;
-					average_rating_same_professors: number | null;
-					average_workload: number | null;
-					average_workload_same_professors: number | null;
-					classnotes: string | null;
-					course_code: string | null;
-					course_id: number;
-					credits: number | null;
-					description: string | null;
-					final_exam: string | null;
-					flag_info: Json | null;
-					locations_summary: string | null;
-					number: string | null;
-					professor_names: Json | null;
-					regnotes: string | null;
-					requirements: string | null;
-					same_course_id: number | null;
-					school: string | null;
-					season_code: string | null;
-					section: string | null;
-					skills: Json | null;
-					times_summary: string | null;
-					title: string | null;
-				};
-				Insert: {
-					all_course_codes?: Json | null;
-					areas?: Json | null;
-					average_gut_rating?: number | null;
-					average_professor?: number | null;
-					average_rating?: number | null;
-					average_rating_same_professors?: number | null;
-					average_workload?: number | null;
-					average_workload_same_professors?: number | null;
-					classnotes?: string | null;
-					course_code?: string | null;
-					course_id: number;
-					credits?: number | null;
-					description?: string | null;
-					final_exam?: string | null;
-					flag_info?: Json | null;
-					locations_summary?: string | null;
-					number?: string | null;
-					professor_names?: Json | null;
-					regnotes?: string | null;
-					requirements?: string | null;
-					same_course_id?: number | null;
-					school?: string | null;
-					season_code?: string | null;
-					section?: string | null;
-					skills?: Json | null;
-					times_summary?: string | null;
-					title?: string | null;
-				};
-				Update: {
-					all_course_codes?: Json | null;
-					areas?: Json | null;
-					average_gut_rating?: number | null;
-					average_professor?: number | null;
-					average_rating?: number | null;
-					average_rating_same_professors?: number | null;
-					average_workload?: number | null;
-					average_workload_same_professors?: number | null;
-					classnotes?: string | null;
-					course_code?: string | null;
-					course_id?: number;
-					credits?: number | null;
-					description?: string | null;
-					final_exam?: string | null;
-					flag_info?: Json | null;
-					locations_summary?: string | null;
-					number?: string | null;
-					professor_names?: Json | null;
-					regnotes?: string | null;
-					requirements?: string | null;
-					same_course_id?: number | null;
-					school?: string | null;
-					season_code?: string | null;
-					section?: string | null;
-					skills?: Json | null;
-					times_summary?: string | null;
-					title?: string | null;
-				};
-				Relationships: [];
-			};
-			EvaluationNarratives: {
-				Row: {
-					comment: string;
-					comment_compound: number;
-					course_id: number;
-					id: number;
-				};
-				Insert: {
-					comment: string;
-					comment_compound: number;
-					course_id: number;
-					id: number;
-				};
-				Update: {
-					comment?: string;
-					comment_compound?: number;
-					course_id?: number;
-					id?: number;
-				};
-				Relationships: [
-					{
-						foreignKeyName: "EvaluationNarratives_course_id_fkey";
-						columns: ["course_id"];
-						isOneToOne: false;
-						referencedRelation: "Courses";
-						referencedColumns: ["course_id"];
-					},
-				];
-			};
 			superlatives_2023: {
 				Row: {
 					created_at: string | null;
-					email: string | null;
+					email: string;
 					id: number;
-					major: string[] | null;
+					major: string[];
 					remarks: string | null;
-					selected_favorite_courses: CourseSummary[] | null;
-					selected_favorite_distributional_courses: CourseSummary[] | null;
-					selected_favorite_lecture_courses: CourseSummary[] | null;
-					selected_favorite_major_courses: CourseSummary[] | null;
-					selected_favorite_professors: string[] | null;
-					selected_favorite_seminar_courses: CourseSummary[] | null;
-					selected_guttiest_courses: CourseSummary[] | null;
+					selected_favorite_courses: CourseSummary[];
+					selected_favorite_distributional_courses: CourseSummary[];
+					selected_favorite_lecture_courses: CourseSummary[];
+					selected_favorite_major_courses: CourseSummary[];
+					selected_favorite_professors: CourseSummary[];
+					selected_favorite_seminar_courses: CourseSummary[];
+					selected_guttiest_courses: CourseSummary[];
 				};
 				Insert: {
 					created_at?: string | null;
-					email?: string | null;
+					email: string;
 					id?: number;
-					major?: Json | null;
+					major: string[];
 					remarks?: string | null;
-					selected_favorite_courses?: Json | null;
-					selected_favorite_distributional_courses?: Json | null;
-					selected_favorite_lecture_courses?: Json | null;
-					selected_favorite_major_courses?: Json | null;
-					selected_favorite_professors?: Json | null;
-					selected_favorite_seminar_courses?: Json | null;
-					selected_guttiest_courses?: Json | null;
+					selected_favorite_courses: CourseSummary[];
+					selected_favorite_distributional_courses: CourseSummary[];
+					selected_favorite_lecture_courses: CourseSummary[];
+					selected_favorite_major_courses: CourseSummary[];
+					selected_favorite_professors: CourseSummary[];
+					selected_favorite_seminar_courses: CourseSummary[];
+					selected_guttiest_courses: CourseSummary[];
 				};
 				Update: {
 					created_at?: string | null;
-					email?: string | null;
+					email?: string;
 					id?: number;
-					major?: Json | null;
+					major?: string[];
 					remarks?: string | null;
-					selected_favorite_courses?: Json | null;
-					selected_favorite_distributional_courses?: Json | null;
-					selected_favorite_lecture_courses?: Json | null;
-					selected_favorite_major_courses?: Json | null;
-					selected_favorite_professors?: Json | null;
-					selected_favorite_seminar_courses?: Json | null;
-					selected_guttiest_courses?: Json | null;
+					selected_favorite_courses?: CourseSummary[];
+					selected_favorite_distributional_courses?: CourseSummary[];
+					selected_favorite_lecture_courses?: CourseSummary[];
+					selected_favorite_major_courses?: CourseSummary[];
+					selected_favorite_professors?: CourseSummary[];
+					selected_favorite_seminar_courses?: CourseSummary[];
+					selected_guttiest_courses?: CourseSummary[];
 				};
 				Relationships: [];
 			};
 		};
 		Views: {
-			CoursesDisplayDropdown: {
-				Row: {
-					all_course_codes: Json | null;
-					same_course_id: number | null;
-					title: string | null;
-				};
-				Relationships: [];
-			};
-			evaluationnarrativestocourses202303: {
-				Row: {
-					all_course_codes: Json | null;
-					areas: Json | null;
-					comment: string | null;
-					comment_compound: number | null;
-					skills: Json | null;
-					title: string | null;
-				};
-				Relationships: [];
-			};
+			[_ in never]: never;
 		};
 		Functions: {
 			[_ in never]: never;
