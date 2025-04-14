@@ -1,10 +1,10 @@
 const SUPABASE_URL = 'https://your_supabase_url_here';
 const SUPABASE_ANON_KEY = 'your_supabase_anon_key_here';
-const TABLE = 'your_table_name_here';
-const SHEET = 'your_sheet_name_here';
+const SUPABASE_TABLE_NAME = 'your_supabase_table_name_here';
+const GOOGLE_SHEET_NAME = 'your_google_sheet_name_here';
 
-const HEADER_ROW = 1;
-const DATA_START_ROW = HEADER_ROW + 1;
+const HEADER_ROW_INDEX = 1;
+const DATA_START_ROW_INDEX = HEADER_ROW_INDEX + 1;
 
 /**
  * Processes an array of row values from Supabase to ensure they're properly serialized for Google Sheets.
@@ -45,42 +45,34 @@ function processRowValues(rowValues) {
  *
  * @returns {void}
  */
-function mainFunction() {
-  clearEntireSpreadsheet();
-  fetchDataAndWriteToSheet();
-}
-
-/**
- * Clears all content from the specified Google Sheet.
- * This includes all data, formatting, and formulas.
- *
- * @returns {void}
- * @throws {Error} If the sheet is not found or if the clear operation fails
- */
-function clearEntireSpreadsheet() {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET);
+function writeSupabaseTableToSheet() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(GOOGLE_SHEET_NAME);
   sheet.clear();
+  const data = fetchDataFromSupabase(SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_TABLE_NAME);
+  writeDataToSheet(data, GOOGLE_SHEET_NAME);
 }
 
 /**
- * Fetches data from Supabase and writes it to the Google Sheet.
+ * Fetches data from Supabase and returns it as an array of objects.
  * Uses the Supabase REST API to retrieve data and processes it for sheet insertion.
  *
- * @returns {void}
+ * @param {string} supabaseUrl - The URL of the Supabase instance
+ * @param {string} supabaseAnonKey - The anonymous key for the Supabase instance
+ * @param {string} supabaseTableName - The name of the table to fetch data from
+ *
+ * @returns {Array<Record<string, any>>} An array of objects containing the data from Supabase
  * @throws {Error} If the Supabase API request fails or if data processing encounters an error
  */
-function fetchDataAndWriteToSheet() {
-  const url = `${SUPABASE_URL}/rest/v1/${TABLE}`;
-  const options = {
+function fetchDataFromSupabase(supabaseUrl, supabaseAnonKey, supabaseTableName) {
+  const response = UrlFetchApp.fetch(`${supabaseUrl}/rest/v1/${supabaseTableName}`, {
     headers: {
-      Apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      Apikey: supabaseAnonKey,
+      Authorization: `Bearer ${supabaseAnonKey}`,
       'Content-Type': 'application/json',
     },
-  };
-  const response = UrlFetchApp.fetch(url, options);
+  });
   const jsonData = JSON.parse(response.getContentText());
-  writeToSheet(jsonData);
+  return jsonData;
 }
 
 /**
@@ -91,12 +83,14 @@ function fetchDataAndWriteToSheet() {
  * @returns {void}
  * @throws {Error} If the sheet is not found or if writing operations fail
  */
-function writeToSheet(data) {
-  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET);
+function writeDataToSheet(data, sheetName) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
 
   const cols = Object.keys(data[0]);
   const rows = data.map((row) => Object.values(row));
 
-  sheet.getRange(HEADER_ROW, 1, 1, cols.length).setValues([cols]);
-  sheet.getRange(DATA_START_ROW, 1, rows.length, cols.length).setValues(rows.map(processRowValues));
+  sheet.getRange(HEADER_ROW_INDEX, 1, 1, cols.length).setValues([cols]);
+  sheet
+    .getRange(DATA_START_ROW_INDEX, 1, rows.length, cols.length)
+    .setValues(rows.map(processRowValues));
 }
