@@ -1,6 +1,6 @@
 import type { RouteRecordRaw } from "vue-router";
 
-const CURRENT_YEAR = "2025";
+export const CURRENT_YEAR = "2025";
 
 const routes: RouteRecordRaw[] = [
 	{
