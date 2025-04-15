@@ -6,15 +6,10 @@ import { supabase } from 'src/supabase';
 import { onMounted } from 'vue';
 import SuperlativeChart from 'src/components/SuperlativeChart.vue';
 import { useSuperlativesData } from 'src/composables/useSuperlativesData';
+import { isValidYaleEmail } from '@repo/utils';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
-
-function isValidEmail(email: string) {
-	const Email = type("string.email")
-	const result = Email(email);
-	return !(result instanceof type.errors) && email.endsWith("@yale.edu")
-}
 
 const { data: submissionData, isLoading, error, refetch } = useQuery({
 	queryKey: ['submission', formStore.email],
@@ -32,7 +27,7 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 });
 
 async function submitEmailToSeeResults() {
-	if (!isValidEmail(formStore.email)) {
+	if (!isValidYaleEmail(formStore.email)) {
 		alert('Please enter a valid Yale email address.');
 		return;
 	}
@@ -60,19 +55,16 @@ onMounted(() => {
 
 				<template v-if="!submissionData">
 					<div class="text-subtitle1 q-mb-md">
-						Enter your Yale email to view the results. You must have submitted the form to access the results.
+						Enter your Yale email to view the results. You must have submitted the 2025 form to access the results.
 					</div>
 
-					<div class="row q-col-gutter-md">
-						<div class="col-12 col-sm-8">
-							<q-input v-model="formStore.email" filled label="Yale Email"
-								:rules="[(val) => isValidEmail(val) || 'Please enter a valid Yale email']"
-								@keyup.enter="submitEmailToSeeResults" />
-						</div>
-						<div class="col-12 col-sm-4">
-							<q-btn color="primary" label="View Results" class="full-width" :loading="isLoading"
-								@click="submitEmailToSeeResults" />
-						</div>
+					<q-input v-model="formStore.email" filled label="Yale Email" class="tw:flex-1"
+						:rules="[(val) => isValidYaleEmail(val) ?? 'Please enter a valid Yale email']"
+						@keyup.enter="submitEmailToSeeResults" />
+
+					<div class="tw:flex tw:flex-row tw:gap-2">
+						<q-btn color="primary" label="View Results" :loading="isLoading" @click="submitEmailToSeeResults" />
+						<q-btn type="a" to="/form/2025" label="Go to 2025 form " />
 					</div>
 				</template>
 
