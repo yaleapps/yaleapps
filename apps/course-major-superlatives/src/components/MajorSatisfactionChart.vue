@@ -14,8 +14,8 @@ import {
   Tooltip,
   type TooltipItem
 } from 'chart.js';
-import {computed, ref} from 'vue';
-import {Bar} from 'vue-chartjs';
+import { computed, ref } from 'vue';
+import { Bar } from 'vue-chartjs';
 
 ChartJS.register(
   Title,
@@ -272,7 +272,7 @@ function getMajorDistributionData(majorStat: MajorStat): ChartData<'bar'> {
     labels: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
     datasets: [{
       data: majorStat.ratings,
-      backgroundColor: Array.from({ length: 10 }, (_, i) => 
+      backgroundColor: Array.from({ length: 10 }, (_, i) =>
         `hsl(${Math.floor(220 + (i * 14))}, 70%, ${50 + (i * 5)}%)`
       ),
       borderRadius: 6,
@@ -299,15 +299,11 @@ function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
 <template>
   <div class="tw:space-y-4">
     <div class="tw:flex tw:justify-end tw:space-x-2">
-      <q-btn-toggle
-        v-model="activeView"
-        flat
-        :options="[
-          { label: 'Satisfaction Ratings', value: 'satisfaction' },
-          { label: 'Rating Distribution', value: 'distribution' },
-          { label: 'Major Popularity', value: 'popularity' }
-        ]"
-      />
+      <q-btn-toggle v-model="activeView" flat :options="[
+        { label: 'Satisfaction Ratings', value: 'satisfaction' },
+        { label: 'Rating Distribution', value: 'distribution' },
+        { label: 'Major Popularity', value: 'popularity' }
+      ]" />
     </div>
 
     <div class="tw:relative tw:w-full tw:overflow-hidden">
@@ -315,16 +311,10 @@ function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
         <!-- Distribution View -->
         <template v-if="activeView === 'distribution'">
           <div class="tw:grid tw:grid-cols-1 md:tw:grid-cols-2 lg:tw:grid-cols-3 tw:gap-6">
-            <div
-              v-for="majorStat in props.data"
-              :key="majorStat.major"
-              class="tw:bg-white tw:rounded-lg tw:shadow-sm tw:p-4"
-            >
+            <div v-for="majorStat in props.data" :key="majorStat.major"
+              class="tw:bg-white tw:rounded-lg tw:shadow-sm tw:p-4">
               <div :style="{ height: '250px' }">
-                <Bar
-                  :data="getMajorDistributionData(majorStat)"
-                  :options="getMajorChartOptions(majorStat)"
-                />
+                <Bar :data="getMajorDistributionData(majorStat)" :options="getMajorChartOptions(majorStat)" />
               </div>
               <div class="tw:mt-2 tw:text-sm tw:text-gray-600">
                 Average: {{ majorStat.average.toFixed(2) }} | Responses: {{ majorStat.totalRatings }}
@@ -332,18 +322,14 @@ function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
             </div>
           </div>
         </template>
-        
+
         <!-- Other Views -->
         <template v-else>
           <div :style="{ width: '100%', minWidth: '600px', height: `${minChartHeight}px` }">
-            <Bar
-              :data="
-                activeView === 'satisfaction' 
-                  ? satisfactionChartData 
-                  : popularityChartData
-              "
-              :options="chartOptions"
-            />
+            <Bar :data="activeView === 'satisfaction'
+              ? satisfactionChartData
+              : popularityChartData
+              " :options="chartOptions" />
           </div>
         </template>
       </div>
@@ -375,4 +361,4 @@ function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
       </ul>
     </q-banner>
   </div>
-</template> 
+</template>
