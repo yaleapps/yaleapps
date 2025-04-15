@@ -19,7 +19,7 @@ interface MajorStats {
 	totalRatings: number;
 }
 
-export function useSuperlativesData() {
+export function useSuperlativesChartData() {
 	const { data, isLoading, error } = useQuery({
 		queryKey: ["superlatives2025"],
 		queryFn: async () => {

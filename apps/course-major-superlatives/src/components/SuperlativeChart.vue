@@ -12,7 +12,7 @@ import {
   type Scale,
 } from 'chart.js';
 import { computed } from 'vue';
-import type { AggregatedCourseData, AggregatedProfessorData } from 'src/composables/useSuperlativesData';
+import type { AggregatedCourseData, AggregatedProfessorData } from 'src/composables/useSuperlativesChartData';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 

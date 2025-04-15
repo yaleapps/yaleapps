@@ -2,7 +2,7 @@
 import { isValidYaleEmail } from '@repo/utils';
 import { useQuery } from '@tanstack/vue-query';
 import SuperlativeChart from 'src/components/SuperlativeChart.vue';
-import { useSuperlativesData } from 'src/composables/useSuperlativesData';
+import { useSuperlativesChartData } from 'src/composables/useSuperlativesChartData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted, ref, computed } from 'vue';
@@ -10,7 +10,7 @@ import EmailInput from '../form/_components/email-input.vue';
 import MajorSatisfactionChart from 'src/components/MajorSatisfactionChart.vue';
 
 const formStore = use2025FormStore();
-const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
+const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesChartData();
 
 // Query for user's submission (for access control)
 const { data: userSubmission, isLoading: isLoadingUserSubmission, error: userError, refetch: refetchUser } = useQuery({
