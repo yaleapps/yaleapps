@@ -32,21 +32,24 @@ export function useSuperlativesChartData() {
 		},
 	});
 
-	function aggregateCourses(
-		courses: CourseSummary[][],
-	): AggregatedCourseData[] {
-		const courseMap = new Map<
-			SameCourseAndProfessorsId,
-			AggregatedCourseData
-		>();
+	function aggregateCourses<TKey extends CourseSummary[keyof CourseSummary]>({
+		courses,
+		getAggregationKey,
+	}: {
+		courses: CourseSummary[][];
+		/** Function that returns a unique identifier for the course to aggregate by */
+		getAggregationKey: (course: CourseSummary) => TKey;
+	}): AggregatedCourseData[] {
+		const courseMap = new Map<TKey, AggregatedCourseData>();
 
 		for (const course of courses.flat()) {
-			const existing = courseMap.get(course.same_course_and_profs_id);
+			const key = getAggregationKey(course);
+			const existing = courseMap.get(key);
 
 			if (existing) {
 				existing.count++;
 			} else {
-				courseMap.set(course.same_course_and_profs_id, {
+				courseMap.set(key, {
 					...course,
 					count: 1,
 				});
@@ -150,24 +153,31 @@ export function useSuperlativesChartData() {
 		if (!data.value) return null;
 
 		return {
-			favoriteCourses: aggregateCourses(
-				data.value.map((d) => d.selected_favorite_courses),
-			),
+			favoriteCourses: aggregateCourses({
+				courses: data.value.map((d) => d.selected_favorite_courses),
+				getAggregationKey: (course) => course.same_course_and_profs_id,
+			}),
 			favoriteProfessors: aggregateProfessors(
 				data.value.map((d) => d.selected_favorite_professors),
 			),
-			distributionalCourses: aggregateCourses(
-				data.value.map((d) => d.selected_favorite_distributional_courses),
-			),
-			guttiestCourses: aggregateCourses(
-				data.value.map((d) => d.selected_guttiest_courses),
-			),
-			regrettedCourses: aggregateCourses(
-				data.value.map((d) => d.selected_regretted_courses),
-			),
-			quintessentialCourses: aggregateCourses(
-				data.value.map((d) => d.selected_quintessentially_yale_course),
-			),
+			distributionalCourses: aggregateCourses({
+				courses: data.value.map(
+					(d) => d.selected_favorite_distributional_courses,
+				),
+				getAggregationKey: (course) => course.same_course_and_profs_id,
+			}),
+			guttiestCourses: aggregateCourses({
+				courses: data.value.map((d) => d.selected_guttiest_courses),
+				getAggregationKey: (course) => course.same_course_and_profs_id,
+			}),
+			regrettedCourses: aggregateCourses({
+				courses: data.value.map((d) => d.selected_regretted_courses),
+				getAggregationKey: (course) => course.same_course_and_profs_id,
+			}),
+			quintessentialCourses: aggregateCourses({
+				courses: data.value.map((d) => d.selected_quintessentially_yale_course),
+				getAggregationKey: (course) => course.same_course_and_profs_id,
+			}),
 			majorStats: aggregateMajorStats(),
 		};
 	});
