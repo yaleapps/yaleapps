@@ -83,6 +83,15 @@ onMounted(() => {
 						<q-spinner-dots size="50px" color="primary" />
 					</q-inner-loading>
 
+					<div class="tw:bg-blue-50 tw:rounded-lg tw:p-4 tw:mb-4 tw:text-sm tw:text-blue-700">
+						<div class="tw:font-medium tw:mb-1">📊 About These Results</div>
+						<ul class="tw:list-disc tw:ml-4 tw:space-y-1">
+							<li>Results may be influenced by class sizes - larger classes naturally receive more votes</li>
+							<li>Course popularity can vary by semester and year</li>
+							<li>These results reflect student opinions and experiences, not official evaluations</li>
+						</ul>
+					</div>
+
 					<template v-if="chartData">
 						<q-tabs v-model="activeTab" class="tw:rounded-2xl bg-primary text-white" align="justify">
 							<q-tab name="professors" icon="school" label="Professors" />
