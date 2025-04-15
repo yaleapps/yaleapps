@@ -1,12 +1,11 @@
 <script setup lang="ts">
+import { isValidYaleEmail } from '@repo/utils';
 import { useQuery } from '@tanstack/vue-query';
-import { type } from 'arktype';
+import SuperlativeChart from 'src/components/SuperlativeChart.vue';
+import { useSuperlativesData } from 'src/composables/useSuperlativesData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted } from 'vue';
-import SuperlativeChart from 'src/components/SuperlativeChart.vue';
-import { useSuperlativesData } from 'src/composables/useSuperlativesData';
-import { isValidYaleEmail } from '@repo/utils';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
