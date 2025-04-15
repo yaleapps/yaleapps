@@ -4,8 +4,11 @@ import { type } from 'arktype';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted } from 'vue';
+import SuperlativeChart from 'src/components/SuperlativeChart.vue';
+import { useSuperlativesData } from 'src/composables/useSuperlativesData';
 
-const formStore = use2025FormStore()
+const formStore = use2025FormStore();
+const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
 
 function isValidEmail(email: string) {
 	const Email = type("string.email")
@@ -79,34 +82,45 @@ onMounted(() => {
 					</div>
 
 					<div class="text-subtitle1 q-mb-xl">
-						This page is being continuously updated with new styling and results. Please check back regularly as more
-						responses come in and the chart styling is updated!
+						This page shows real-time results as responses come in. The charts update automatically as new submissions
+						are received.
 					</div>
 
-					<div class="text-h5 q-mb-md">Most Popular Professors</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=773708567&amp;format=interactive">
-					</iframe>
+					<q-inner-loading :showing="isLoadingCharts">
+						<q-spinner-dots size="50px" color="primary" />
+					</q-inner-loading>
 
-					<div class="text-h5 q-mb-md">Most Popular Courses</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=1313887668&amp;format=interactive"></iframe>
+					<template v-if="chartData">
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors" type="professor"
+								color="#2563eb" />
+						</div>
 
-					<div class="text-h5 q-mb-md">Guttiest Courses</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=1475776771&amp;format=interactive"></iframe>
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" type="course"
+								color="#16a34a" />
+						</div>
 
-					<div class="text-h5 q-mb-md">Most Unique Courses</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=643668628&amp;format=interactive"></iframe>
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" type="course"
+								color="#dc2626" />
+						</div>
 
-					<div class="text-h5 q-mb-md">Most Regretted Courses</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=2018550264&amp;format=interactive"></iframe>
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
+								type="course" color="#9333ea" />
+						</div>
 
-					<div class="text-h5 q-mb-md">Favorite Distributional Courses</div>
-					<iframe class="tw:w-full tw:h-[400px] tw:mb-8" seamless frameborder="0" scrolling="no"
-						src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTJxsgQFo3drZ6W1OY5DIJrET2QYW1HjEl0Rr-Kav5gTl7N9y0jQ6l0Z2IJvgpLA6Vt7Mb0BfQIwSnM/pubchart?oid=1132528705&amp;format=interactive"></iframe>
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" type="course"
+								color="#ea580c" />
+						</div>
+
+						<div class="q-mb-xl">
+							<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
+								type="course" color="#0d9488" />
+						</div>
+					</template>
 				</template>
 			</q-card-section>
 		</q-card>
