@@ -92,33 +92,29 @@ onMounted(() => {
 
 					<template v-if="chartData">
 						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors" type="professor"
-								color="#2563eb" />
+							<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors" color="#2563eb" />
 						</div>
 
 						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" type="course"
-								color="#16a34a" />
+							<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a" />
 						</div>
 
 						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" type="course"
-								color="#dc2626" />
+							<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626" />
 						</div>
 
 						<div class="q-mb-xl">
 							<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
-								type="course" color="#9333ea" />
+								color="#9333ea" />
 						</div>
 
 						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" type="course"
-								color="#ea580c" />
+							<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c" />
 						</div>
 
 						<div class="q-mb-xl">
 							<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
-								type="course" color="#0d9488" />
+								color="#0d9488" />
 						</div>
 					</template>
 				</template>

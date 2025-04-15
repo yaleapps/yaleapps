@@ -12,28 +12,19 @@ import {
   type Scale,
 } from 'chart.js';
 import { computed } from 'vue';
+import type { AggregatedCourseData, AggregatedProfessorData } from 'src/composables/useSuperlativesData';
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
-interface Props {
-  data: Array<{
-    courseName?: string;
-    courseCode?: string;
-    name?: string;
-    count: number;
-  }>;
+const props = defineProps<{
+  data: AggregatedCourseData[] | AggregatedProfessorData[];
   title: string;
-  type: 'course' | 'professor';
   color?: string;
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  color: '#2563eb', // Default to blue-600
-});
+}>()
 
 const chartData = computed(() => ({
   labels: props.data.map(item =>
-    props.type === 'course'
+    'courseCode' in item
       ? `${item.courseCode}: ${item.courseName}`
       : `${item.name}`
   ),
@@ -144,10 +135,20 @@ const chartOptions = computed(() => ({
     },
   },
 }));
+
+// Calculate minimum width based on number of items
+const minChartWidth = computed(() => {
+  // Allocate at least 100px per bar for readability
+  return Math.max(props.data.length * 100, 400);
+});
 </script>
 
 <template>
-  <div class="tw:h-[400px] tw:w-full">
-    <Bar :data="chartData" :options="chartOptions" />
+  <div class="tw:relative tw:w-full tw:overflow-hidden">
+    <div class="tw:overflow-x-auto tw:pb-4">
+      <div :style="{ width: '100%', minWidth: `${minChartWidth}px`, height: '400px' }">
+        <Bar :data="chartData" :options="chartOptions" />
+      </div>
+    </div>
   </div>
 </template>
