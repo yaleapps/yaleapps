@@ -5,7 +5,7 @@ import SuperlativeChart from 'src/components/SuperlativeChart.vue';
 import { useSuperlativesData } from 'src/composables/useSuperlativesData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
@@ -24,6 +24,8 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 	},
 	enabled: false,
 });
+
+const activeTab = ref('professors');
 
 async function submitEmailToSeeResults() {
 	if (!isValidYaleEmail(formStore.email)) {
@@ -82,31 +84,43 @@ onMounted(() => {
 					</q-inner-loading>
 
 					<template v-if="chartData">
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors" color="#2563eb" />
-						</div>
+						<q-tabs v-model="activeTab" dense class="bg-primary text-white shadow-2 q-mb-md" align="justify">
+							<q-tab name="professors" icon="school" label="Professors" />
+							<q-tab name="courses" icon="book" label="Top Courses" />
+							<q-tab name="gutsy" icon="thumb_up" label="Gutsy" />
+							<q-tab name="yale" icon="account_balance" label="Yale Spirit" />
+							<q-tab name="regrets" icon="warning" label="Regrets" />
+							<q-tab name="distributionals" icon="category" label="Distributionals" />
+						</q-tabs>
 
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a" />
-						</div>
+						<q-tab-panels v-model="activeTab" animated>
+							<q-tab-panel name="professors">
+								<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors"
+									color="#2563eb" />
+							</q-tab-panel>
 
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626" />
-						</div>
+							<q-tab-panel name="courses">
+								<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a" />
+							</q-tab-panel>
 
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
-								color="#9333ea" />
-						</div>
+							<q-tab-panel name="gutsy">
+								<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626" />
+							</q-tab-panel>
 
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c" />
-						</div>
+							<q-tab-panel name="yale">
+								<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
+									color="#9333ea" />
+							</q-tab-panel>
 
-						<div class="q-mb-xl">
-							<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
-								color="#0d9488" />
-						</div>
+							<q-tab-panel name="regrets">
+								<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c" />
+							</q-tab-panel>
+
+							<q-tab-panel name="distro">
+								<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
+									color="#0d9488" />
+							</q-tab-panel>
+						</q-tab-panels>
 					</template>
 				</template>
 			</q-card-section>
