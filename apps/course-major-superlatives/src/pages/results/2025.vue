@@ -6,6 +6,7 @@ import { useSuperlativesData } from 'src/composables/useSuperlativesData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted, ref } from 'vue';
+import EmailInput from '../form/_components/email-input.vue';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
@@ -15,9 +16,8 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 	queryFn: async () => {
 		const { data, error } = await supabase
 			.from('superlatives_2025')
-			.select('*')
-			.eq('email', formStore.email.toLowerCase())
-			.single();
+			.select('email')
+			.eq('email', formStore.email);
 
 		if (error) throw error;
 		return data;
@@ -34,7 +34,7 @@ async function submitEmailToSeeResults() {
 	}
 	await refetch();
 
-	if (!submissionData.value) {
+	if (submissionData.value?.length === 0) {
 		alert('You have not submitted the form yet. Please submit the form first to see the results.');
 	}
 }
@@ -59,9 +59,7 @@ onMounted(() => {
 						Enter your Yale email to view the results. You must have submitted the 2025 form to access the results.
 					</div>
 
-					<q-input v-model="formStore.email" filled label="Yale Email" class="tw:flex-1"
-						:rules="[(val) => isValidYaleEmail(val) ?? 'Please enter a valid Yale email']"
-						@keyup.enter="submitEmailToSeeResults" />
+					<EmailInput v-model="formStore.email" class="tw:flex-1" @keyup.enter="submitEmailToSeeResults" />
 
 					<div class="tw:flex tw:flex-row tw:gap-2">
 						<q-btn color="primary" label="View Results" :loading="isLoading" @click="submitEmailToSeeResults" />

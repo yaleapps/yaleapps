@@ -7,6 +7,7 @@ import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
 import SelectResidentialCollege from './_components/select-residential-college.vue';
+import EmailInput from './_components/email-input.vue';
 import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
 import { isValidYaleEmail } from '@repo/utils';
@@ -93,10 +94,7 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							What is your Yale email address? <span class="text-red">*</span>
 						</div>
-						<q-input :model-value="formStore.email"
-							@update:model-value="value => formStore.email = value?.toString().toLowerCase() ?? ''" filled
-							label="Email" autocapitalize="off"
-							:rules="[(val) => isValidYaleEmail(val) || 'Please enter a valid Yale email']" />
+						<EmailInput v-model="formStore.email" />
 					</q-card-section>
 
 					<q-card-section>
