@@ -85,9 +85,7 @@ const chartOptions = computed(() => ({
         title: (tooltipItems: { label: string }[]) => {
           const item = tooltipItems[0];
           if (!item?.label) return '';
-          return item.label.length > 50
-            ? `${item.label.substring(0, 50)}...`
-            : item.label;
+          return item.label;
         },
         label: (context: { formattedValue: string }) => {
           return `${context.formattedValue} votes`;
