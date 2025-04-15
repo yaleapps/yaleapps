@@ -19,7 +19,6 @@ interface Props {
     courseName?: string;
     courseCode?: string;
     name?: string;
-    department?: string;
     count: number;
   }>;
   title: string;
@@ -35,7 +34,7 @@ const chartData = computed(() => ({
   labels: props.data.map(item =>
     props.type === 'course'
       ? `${item.courseCode}: ${item.courseName}`
-      : `${item.name} (${item.department})`
+      : `${item.name}`
   ),
   datasets: [
     {
