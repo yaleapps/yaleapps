@@ -8,7 +8,7 @@ import { CURRENT_YEAR } from 'src/router/routes';
 		<q-header>
 			<q-toolbar class="tw:mx-auto tw:max-w-4xl tw:gap-2">
 				<q-avatar color="white" text-color="amber" icon="emoji_events" />
-				<q-btn class=" text-h6" stretch no-caps flat to="/"
+				<q-btn class="text-h6" stretch flat to="/"
 					:label="$q.screen.width < 600 ? 'Superlatives' : 'Course Superlatives'" />
 				<q-space />
 				<q-btn round flat icon="mdi-github"
