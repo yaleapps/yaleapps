@@ -89,6 +89,77 @@ const popularityChartData = computed<ChartData<'bar'>>(() => {
   };
 });
 
+// Individual major distribution chart options
+const individualChartOptions = computed<ChartOptions<'bar'>>(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  indexAxis: 'x',
+  plugins: {
+    legend: {
+      display: false,
+    },
+    title: {
+      display: true,
+      text: '',  // Will be set per chart
+      font: {
+        size: 16,
+        weight: 'bold',
+        family: "'Inter', system-ui, sans-serif",
+      },
+      padding: {
+        top: 10,
+        bottom: 15,
+      },
+      color: '#1e293b',
+    },
+    tooltip: {
+      backgroundColor: '#1e293b',
+      titleFont: {
+        size: 13,
+        family: "'Inter', system-ui, sans-serif",
+      },
+      bodyFont: {
+        size: 12,
+        family: "'Inter', system-ui, sans-serif",
+      },
+      padding: 8,
+      cornerRadius: 6,
+      callbacks: {
+        title: (items: TooltipItem<'bar'>[]) => items[0]?.label ?? '',
+        label: (context) => `${context.formattedValue} responses`,
+      }
+    },
+  },
+  scales: {
+    y: {
+      beginAtZero: true,
+      grid: {
+        display: true,
+        color: '#e2e8f0',
+      },
+      border: {
+        display: false,
+      },
+      ticks: {
+        maxRotation: 0,
+        minRotation: 0,
+      }
+    },
+    x: {
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false,
+      },
+      ticks: {
+        maxRotation: 0,
+        minRotation: 0,
+      }
+    },
+  },
+}));
+
 // Common chart options
 const chartOptions = computed<ChartOptions<'bar'>>(() => ({
   responsive: true,
@@ -194,6 +265,35 @@ const minChartHeight = computed(() => {
   }
   return 400; // Fixed height for vertical charts
 });
+
+// Generate chart data for a single major
+function getMajorDistributionData(majorStat: MajorStat): ChartData<'bar'> {
+  return {
+    labels: Array.from({ length: 10 }, (_, i) => `${i + 1}`),
+    datasets: [{
+      data: majorStat.ratings,
+      backgroundColor: Array.from({ length: 10 }, (_, i) => 
+        `hsl(${Math.floor(220 + (i * 14))}, 70%, ${50 + (i * 5)}%)`
+      ),
+      borderRadius: 6,
+    }],
+  };
+}
+
+// Get options for individual major chart
+function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
+  return {
+    ...individualChartOptions.value,
+    plugins: {
+      ...individualChartOptions.value.plugins,
+      title: {
+        ...individualChartOptions.value.plugins?.title,
+        display: true,
+        text: majorStat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')
+      }
+    }
+  };
+}
 </script>
 
 <template>
@@ -212,18 +312,40 @@ const minChartHeight = computed(() => {
 
     <div class="tw:relative tw:w-full tw:overflow-hidden">
       <div class="tw:overflow-x-auto tw:pb-4">
-        <div :style="{ width: '100%', minWidth: '600px', height: `${minChartHeight}px` }">
-          <Bar
-            :data="
-              activeView === 'satisfaction' 
-                ? satisfactionChartData 
-                : activeView === 'distribution'
-                  ? distributionChartData
+        <!-- Distribution View -->
+        <template v-if="activeView === 'distribution'">
+          <div class="tw:grid tw:grid-cols-1 md:tw:grid-cols-2 lg:tw:grid-cols-3 tw:gap-6">
+            <div
+              v-for="majorStat in props.data"
+              :key="majorStat.major"
+              class="tw:bg-white tw:rounded-lg tw:shadow-sm tw:p-4"
+            >
+              <div :style="{ height: '250px' }">
+                <Bar
+                  :data="getMajorDistributionData(majorStat)"
+                  :options="getMajorChartOptions(majorStat)"
+                />
+              </div>
+              <div class="tw:mt-2 tw:text-sm tw:text-gray-600">
+                Average: {{ majorStat.average.toFixed(2) }} | Responses: {{ majorStat.totalRatings }}
+              </div>
+            </div>
+          </div>
+        </template>
+        
+        <!-- Other Views -->
+        <template v-else>
+          <div :style="{ width: '100%', minWidth: '600px', height: `${minChartHeight}px` }">
+            <Bar
+              :data="
+                activeView === 'satisfaction' 
+                  ? satisfactionChartData 
                   : popularityChartData
-            "
-            :options="chartOptions"
-          />
-        </div>
+              "
+              :options="chartOptions"
+            />
+          </div>
+        </template>
       </div>
     </div>
 
@@ -239,9 +361,10 @@ const minChartHeight = computed(() => {
           <li>Higher bars indicate greater satisfaction</li>
         </template>
         <template v-else-if="activeView === 'distribution'">
-          <li>Shows detailed breakdown of ratings (1-10) for each major</li>
-          <li>Colors indicate different rating values</li>
-          <li>Length of segments shows number of responses for each rating</li>
+          <li>Each chart shows rating distribution for a single major</li>
+          <li>X-axis shows ratings (1-10), Y-axis shows number of responses</li>
+          <li>Colors indicate rating values (darker = higher rating)</li>
+          <li>Average rating and total responses shown below each chart</li>
         </template>
         <template v-else>
           <li>Shows number of students in each major</li>
