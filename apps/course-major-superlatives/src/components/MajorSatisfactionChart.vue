@@ -289,7 +289,7 @@ function getMajorChartOptions(majorStat: MajorStat): ChartOptions<'bar'> {
       title: {
         ...individualChartOptions.value.plugins?.title,
         display: true,
-        text: majorStat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')
+        text: majorStat.major
       }
     }
   };
