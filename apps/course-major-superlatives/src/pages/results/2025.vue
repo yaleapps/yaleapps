@@ -2,7 +2,7 @@
 import { isValidYaleEmail } from '@repo/utils';
 import { useQuery } from '@tanstack/vue-query';
 import SuperlativeChart from 'src/components/SuperlativeChart.vue';
-import { useSuperlativesChartData } from 'src/composables/useSuperlativesChartData';
+import { type CourseAggregationLevel, useSuperlativesChartData } from 'src/composables/useSuperlativesChartData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted, ref, computed } from 'vue';
@@ -10,7 +10,8 @@ import EmailInput from '../form/_components/email-input.vue';
 import MajorSatisfactionChart from 'src/components/MajorSatisfactionChart.vue';
 
 const formStore = use2025FormStore();
-const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesChartData();
+const aggregationLevel = ref<CourseAggregationLevel>('course');
+const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesChartData(aggregationLevel);
 
 // Query for user's submission (for access control)
 const { data: userSubmission, isLoading: isLoadingUserSubmission, error: userError, refetch: refetchUser } = useQuery({
@@ -106,6 +107,11 @@ onMounted(() => {
 							<li>Results may be influenced by class sizes - larger classes naturally receive more votes</li>
 							<li>Course popularity can vary by semester and year</li>
 							<li>These results reflect student opinions and experiences, not official evaluations</li>
+							<li>
+								{{ aggregationLevel === 'course-and-professor'
+									? 'Courses are shown separately for each professor'
+									: 'All sections of the same course are combined' }}
+							</li>
 						</ul>
 					</q-banner>
 
@@ -132,26 +138,41 @@ onMounted(() => {
 								</q-tab-panel>
 
 								<q-tab-panel name="courses">
+									<q-toggle v-model="aggregationLevel" :true-value="'course-and-professor'" :false-value="'course'"
+										:label="aggregationLevel === 'course-and-professor' ? 'Professor-specific courses' : 'All course sections'"
+										color="primary" />
 									<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a"
 										disclaimer="Results may vary based on class capacity" />
 								</q-tab-panel>
 
 								<q-tab-panel name="gutsy">
+									<q-toggle v-model="aggregationLevel" :true-value="'course-and-professor'" :false-value="'course'"
+										:label="aggregationLevel === 'course-and-professor' ? 'Professor-specific courses' : 'All course sections'"
+										color="primary" />
 									<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626"
 										disclaimer="Based on student experiences" />
 								</q-tab-panel>
 
 								<q-tab-panel name="yale">
+									<q-toggle v-model="aggregationLevel" :true-value="'course-and-professor'" :false-value="'course'"
+										:label="aggregationLevel === 'course-and-professor' ? 'Professor-specific courses' : 'All course sections'"
+										color="primary" />
 									<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
 										color="#9333ea" disclaimer="Based on student perception" />
 								</q-tab-panel>
 
 								<q-tab-panel name="regrets">
+									<q-toggle v-model="aggregationLevel" :true-value="'course-and-professor'" :false-value="'course'"
+										:label="aggregationLevel === 'course-and-professor' ? 'Professor-specific courses' : 'All course sections'"
+										color="primary" />
 									<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c"
 										disclaimer="Individual experiences may vary" />
 								</q-tab-panel>
 
 								<q-tab-panel name="distributionals">
+									<q-toggle v-model="aggregationLevel" :true-value="'course-and-professor'" :false-value="'course'"
+										:label="aggregationLevel === 'course-and-professor' ? 'Professor-specific courses' : 'All course sections'"
+										color="primary" />
 									<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
 										color="#0d9488" disclaimer="Popularity varies by major requirements" />
 								</q-tab-panel>

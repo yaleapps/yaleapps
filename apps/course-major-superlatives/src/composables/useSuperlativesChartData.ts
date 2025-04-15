@@ -5,11 +5,13 @@ import type {
 	Professor,
 	SameCourseAndProfessorsId,
 } from "src/types/types";
-import { computed } from "vue";
+import { computed, ref, type Ref } from "vue";
 
 export type AggregatedCourseData = CourseSummary & { count: number };
 
 export type AggregatedProfessorData = Professor & { count: number };
+
+export type CourseAggregationLevel = "course" | "course-and-professor";
 
 interface MajorStats {
 	major: string;
@@ -19,9 +21,11 @@ interface MajorStats {
 	totalRatings: number;
 }
 
-export function useSuperlativesChartData() {
+export function useSuperlativesChartData(
+	aggregationLevel: Ref<CourseAggregationLevel>,
+) {
 	const { data, isLoading, error } = useQuery({
-		queryKey: ["superlatives2025"],
+		queryKey: ["superlatives2025", aggregationLevel],
 		queryFn: async () => {
 			const { data, error } = await supabase
 				.from("superlatives_2025")
@@ -32,18 +36,19 @@ export function useSuperlativesChartData() {
 		},
 	});
 
-	function aggregateCourses<TKey extends CourseSummary[keyof CourseSummary]>({
+	function aggregateCourses({
 		courses,
-		getAggregationKey,
 	}: {
 		courses: CourseSummary[][];
-		/** Function that returns a unique identifier for the course to aggregate by */
-		getAggregationKey: (course: CourseSummary) => TKey;
 	}): AggregatedCourseData[] {
-		const courseMap = new Map<TKey, AggregatedCourseData>();
+		const courseMap = new Map<string | number, AggregatedCourseData>();
 
 		for (const course of courses.flat()) {
-			const key = getAggregationKey(course);
+			const key =
+				aggregationLevel.value === "course"
+					? course.same_course_id
+					: course.same_course_and_profs_id;
+
 			const existing = courseMap.get(key);
 
 			if (existing) {
@@ -155,7 +160,6 @@ export function useSuperlativesChartData() {
 		return {
 			favoriteCourses: aggregateCourses({
 				courses: data.value.map((d) => d.selected_favorite_courses),
-				getAggregationKey: (course) => course.same_course_and_profs_id,
 			}),
 			favoriteProfessors: aggregateProfessors(
 				data.value.map((d) => d.selected_favorite_professors),
@@ -164,19 +168,15 @@ export function useSuperlativesChartData() {
 				courses: data.value.map(
 					(d) => d.selected_favorite_distributional_courses,
 				),
-				getAggregationKey: (course) => course.same_course_and_profs_id,
 			}),
 			guttiestCourses: aggregateCourses({
 				courses: data.value.map((d) => d.selected_guttiest_courses),
-				getAggregationKey: (course) => course.same_course_and_profs_id,
 			}),
 			regrettedCourses: aggregateCourses({
 				courses: data.value.map((d) => d.selected_regretted_courses),
-				getAggregationKey: (course) => course.same_course_and_profs_id,
 			}),
 			quintessentialCourses: aggregateCourses({
 				courses: data.value.map((d) => d.selected_quintessentially_yale_course),
-				getAggregationKey: (course) => course.same_course_and_profs_id,
 			}),
 			majorStats: aggregateMajorStats(),
 		};
