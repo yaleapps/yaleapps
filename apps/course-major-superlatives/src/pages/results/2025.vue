@@ -79,7 +79,7 @@ onMounted(() => {
 						are received.
 					</div>
 
-					<q-banner rounded class="bg-info tw:text-blue-700 q-mb-md">
+					<q-banner rounded class="bg-info q-mb-md">
 						<template v-slot:avatar>
 							📊
 						</template>
