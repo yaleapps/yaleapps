@@ -74,23 +74,31 @@ onMounted(() => {
 						Here are the aggregated results from the Class of 2025's course and professor superlatives!
 					</div>
 
-					<div class="text-subtitle1 q-mb-xl">
+					<div class="text-subtitle1 q-mb-md">
 						This page shows real-time results as responses come in. The charts update automatically as new submissions
 						are received.
 					</div>
 
-					<q-inner-loading :showing="isLoadingCharts">
-						<q-spinner-dots size="50px" color="primary" />
-					</q-inner-loading>
-
-					<div class="tw:bg-blue-50 tw:rounded-lg tw:p-4 tw:mb-4 tw:text-sm tw:text-blue-700">
-						<div class="tw:font-medium tw:mb-1">📊 About These Results</div>
+					<q-banner inline-actions rounded dense class="bg-info tw:text-blue-700 q-mb-md">
+						<template v-slot:avatar>
+							📊
+						</template>
+						<div class="text-subtitle2 q-mb-sm">About These Results</div>
 						<ul class="tw:list-disc tw:ml-4 tw:space-y-1">
 							<li>Results may be influenced by class sizes - larger classes naturally receive more votes</li>
 							<li>Course popularity can vary by semester and year</li>
 							<li>These results reflect student opinions and experiences, not official evaluations</li>
 						</ul>
-					</div>
+						<template v-slot:action>
+							<q-btn flat>
+								<q-icon name="close" />
+							</q-btn>
+						</template>
+					</q-banner>
+
+					<q-inner-loading :showing="isLoadingCharts">
+						<q-spinner-dots size="50px" color="primary" />
+					</q-inner-loading>
 
 					<template v-if="chartData">
 						<q-tabs v-model="activeTab" class="tw:rounded-2xl bg-primary text-white" align="justify">
