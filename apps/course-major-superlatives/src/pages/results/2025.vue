@@ -84,7 +84,7 @@ onMounted(() => {
 					</q-inner-loading>
 
 					<template v-if="chartData">
-						<q-tabs v-model="activeTab" dense class="bg-primary text-white shadow-2 q-mb-md" align="justify">
+						<q-tabs v-model="activeTab" class="tw:rounded-2xl bg-primary text-white" align="justify">
 							<q-tab name="professors" icon="school" label="Professors" />
 							<q-tab name="courses" icon="book" label="Top Courses" />
 							<q-tab name="gutsy" icon="thumb_up" label="Gutsy" />
