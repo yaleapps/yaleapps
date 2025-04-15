@@ -9,6 +9,7 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
+  type Scale,
 } from 'chart.js';
 import { computed } from 'vue';
 
@@ -41,8 +42,9 @@ const chartData = computed(() => ({
       label: 'Number of Votes',
       data: props.data.map(item => item.count),
       backgroundColor: props.color,
-      borderRadius: 6,
-      maxBarThickness: 40,
+      borderRadius: 8,
+      maxBarThickness: 50,
+      borderSkipped: false,
     },
   ],
 }));
@@ -58,24 +60,41 @@ const chartOptions = computed(() => ({
       display: true,
       text: props.title,
       font: {
-        size: 16,
-        weight: 'bold',
+        size: 20,
+        weight: 'bold' as const,
+        family: "'Inter', system-ui, sans-serif",
       },
       padding: {
-        top: 10,
-        bottom: 20,
+        top: 20,
+        bottom: 30,
       },
+      color: '#1e293b', // slate-800
     },
     tooltip: {
-      backgroundColor: '#1e293b', // slate-800
+      backgroundColor: '#1e293b',
       titleFont: {
         size: 14,
+        family: "'Inter', system-ui, sans-serif",
       },
       bodyFont: {
         size: 13,
+        family: "'Inter', system-ui, sans-serif",
       },
       padding: 12,
       cornerRadius: 8,
+      displayColors: false,
+      callbacks: {
+        title: (tooltipItems: { label: string }[]) => {
+          const item = tooltipItems[0];
+          if (!item?.label) return '';
+          return item.label.length > 50
+            ? `${item.label.substring(0, 50)}...`
+            : item.label;
+        },
+        label: (context: { formattedValue: string }) => {
+          return `${context.formattedValue} votes`;
+        }
+      }
     },
   },
   scales: {
@@ -83,10 +102,20 @@ const chartOptions = computed(() => ({
       beginAtZero: true,
       ticks: {
         stepSize: 1,
+        font: {
+          family: "'Inter', system-ui, sans-serif",
+          size: 12,
+        },
+        padding: 8,
       },
       grid: {
-        display: false,
+        display: true,
+        color: '#e2e8f0', // slate-200
+        drawBorder: false,
       },
+      border: {
+        display: false,
+      }
     },
     x: {
       grid: {
@@ -95,7 +124,23 @@ const chartOptions = computed(() => ({
       ticks: {
         maxRotation: 45,
         minRotation: 45,
+        font: {
+          family: "'Inter', system-ui, sans-serif",
+          size: 12,
+        },
+        padding: 8,
+        callback: function (this: Scale, tickValue: string | number) {
+          const index = typeof tickValue === 'number' ? tickValue : Number.parseInt(tickValue, 10);
+          const label = chartData.value.labels[index];
+          if (!label) return '';
+          return label.length > 30
+            ? `${label.substring(0, 30)}...`
+            : label;
+        }
       },
+      border: {
+        display: false,
+      }
     },
   },
 }));
