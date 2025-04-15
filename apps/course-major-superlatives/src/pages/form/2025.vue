@@ -93,7 +93,9 @@ defineOptions({
 						<div class="text-h6 q-mb-md">
 							What is your Yale email address? <span class="text-red">*</span>
 						</div>
-						<q-input v-model="formStore.email" filled label="Email" autocapitalize="off"
+						<q-input :model-value="formStore.email"
+							@update:model-value="value => formStore.email = value?.toString().toLowerCase() ?? ''" filled
+							label="Email" autocapitalize="off"
 							:rules="[(val) => isValidYaleEmail(val) || 'Please enter a valid Yale email']" />
 					</q-card-section>
 
