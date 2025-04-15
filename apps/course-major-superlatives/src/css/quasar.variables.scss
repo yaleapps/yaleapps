@@ -25,9 +25,9 @@ $elevation-penumbra: rgba($shadow-color, .05) !default;
 $elevation-ambient: rgba($shadow-color, .03) !default;
 
 $dark-shadow-color: #fff !default;
-$dark-elevation-umbra: rgba($dark-shadow-color, .07) !default;
-$dark-elevation-penumbra: rgba($dark-shadow-color, .05) !default;
-$dark-elevation-ambient: rgba($dark-shadow-color, .03) !default;
+$elevation-dark-umbra: rgba($dark-shadow-color, .07) !default;
+$elevation-dark-penumbra: rgba($dark-shadow-color, .05) !default;
+$elevation-dark-ambient: rgba($dark-shadow-color, .03) !default;
 
 $text-weights: (thin: 100, light: 200, regular: 300, medium: 400, bold: 500, bolder: 800) !default;
 
@@ -44,3 +44,19 @@ $body1:     (size: 1rem,     line-height: 1.5rem,   letter-spacing: .03125em,  w
 $body2:     (size: .875rem,  line-height: 1.25rem,  letter-spacing: .01786em,  weight: 300) !default;
 $overline:  (size: .75rem,   line-height: 2rem,     letter-spacing: .16667em,  weight: 400) !default;
 $caption:   (size: .75rem,   line-height: 1.25rem,  letter-spacing: .03333em,  weight: 300) !default;
+
+$shadow-0  : 0 0 0 $elevation-umbra, 0 0 0 $elevation-penumbra, 0 0 0 $elevation-ambient !default;
+$dark-shadow-0  : 0 0 0 $elevation-dark-umbra, 0 0 0 $elevation-dark-penumbra, 0 0 0 $elevation-dark-ambient !default;
+
+$button-shadow                            : $shadow-0 !default;
+$button-shadow-active                     : $shadow-0 !default;
+$table-box-shadow                         : $shadow-0 !default;
+$table-box-shadow-dark                    : $dark-shadow-0 !default;
+
+$layout-shadow                            : $shadow-0 !default;
+$layout-shadow-dark                       : $dark-shadow-0 !default;
+
+$menu-box-shadow                          : $shadow-0 !default;
+$menu-box-shadow-dark                     : $dark-shadow-0 !default;
+
+$rating-shadow                            : $shadow-0 !default;
