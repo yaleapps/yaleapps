@@ -2,7 +2,6 @@
 import Fuse from "fuse.js";
 import { useCoursesStore } from "src/stores/data/courses";
 import type { CourseSummary } from "src/types/types";
-import { getDisplayText } from "src/utils/getDisplayText";
 import { computed, ref } from "vue";
 
 const modelValue = defineModel<CourseSummary[]>({ required: true });
@@ -49,6 +48,11 @@ function getQuasarIcon(course: CourseSummary) {
 		}
 	}
 	return "school";
+}
+
+
+function getDisplayText(course: CourseSummary) {
+	return `${course.course_codes.join(" | ")} | ${course.title}`;
 }
 </script>
 
