@@ -22,12 +22,18 @@ const props = defineProps<{
   color?: string;
 }>()
 
+function isCourse(item: AggregatedCourseData | AggregatedProfessorData): item is AggregatedCourseData {
+  return 'course_codes' in item;
+}
+
 const chartData = computed(() => ({
-  labels: props.data.map(item =>
-    'courseCode' in item
-      ? `${item.courseCode}: ${item.courseName}`
-      : `${item.name}`
-  ),
+  labels: props.data.map(item => {
+    if (isCourse(item)) {
+      return `${item.title} (${item.course_codes.join(' | ')})`;
+    }
+    return `${item.name}`;
+
+  }),
   datasets: [
     {
       label: 'Number of Votes',

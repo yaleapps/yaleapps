@@ -1,19 +1,15 @@
 import { useQuery } from "@tanstack/vue-query";
 import { supabase } from "src/supabase";
-import type { CourseSummary, Professor } from "src/types/types";
+import type {
+	CourseSummary,
+	Professor,
+	SameCourseAndProfessorsId,
+} from "src/types/types";
 import { computed } from "vue";
 
-type AggregatedCourseData = {
-	courseName: string;
-	courseCode: string;
-	count: number;
-};
+export type AggregatedCourseData = CourseSummary & { count: number };
 
-type AggregatedProfessorData = {
-	name: string;
-	professorId: number;
-	count: number;
-};
+export type AggregatedProfessorData = Professor & { count: number };
 
 export function useSuperlativesData() {
 	const { data, isLoading, error } = useQuery({
@@ -31,26 +27,25 @@ export function useSuperlativesData() {
 	function aggregateCourses(
 		courses: CourseSummary[][],
 	): AggregatedCourseData[] {
-		const courseMap = new Map<string, AggregatedCourseData>();
+		const courseMap = new Map<
+			SameCourseAndProfessorsId,
+			AggregatedCourseData
+		>();
 
 		for (const course of courses.flat()) {
-			const key = `${course.course_codes.join(" | ")}-${course.title}`;
-			const existing = courseMap.get(key);
+			const existing = courseMap.get(course.same_course_and_profs_id);
 
 			if (existing) {
 				existing.count++;
 			} else {
-				courseMap.set(key, {
-					courseName: course.title,
-					courseCode: course.course_codes.join(" | "),
+				courseMap.set(course.same_course_and_profs_id, {
+					...course,
 					count: 1,
 				});
 			}
 		}
 
-		return Array.from(courseMap.values())
-			.sort((a, b) => b.count - a.count)
-			.slice(0, 10);
+		return Array.from(courseMap.values());
 	}
 
 	function aggregateProfessors(
@@ -66,16 +61,13 @@ export function useSuperlativesData() {
 				existing.count++;
 			} else {
 				profMap.set(key, {
-					name: prof.name,
-					professorId: prof.professor_id,
+					...prof,
 					count: 1,
 				});
 			}
 		}
 
-		return Array.from(profMap.values())
-			.sort((a, b) => b.count - a.count)
-			.slice(0, 10);
+		return Array.from(profMap.values());
 	}
 
 	const transformedData = computed(() => {
