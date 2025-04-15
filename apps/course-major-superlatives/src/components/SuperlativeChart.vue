@@ -22,34 +22,98 @@ const props = defineProps<{
   color?: string;
 }>()
 
+// Color utility for superlative categories
+const superlativeColors = {
+  favorite: {
+    base: 'hsl(340, 85%, 65%)',  // Warm pink
+    hover: 'hsl(340, 85%, 70%)'
+  },
+  guttiest: {
+    base: 'hsl(280, 70%, 65%)',  // Purple
+    hover: 'hsl(280, 70%, 70%)'
+  },
+  professor: {
+    base: 'hsl(200, 75%, 60%)',  // Ocean blue
+    hover: 'hsl(200, 75%, 65%)'
+  },
+  regret: {
+    base: 'hsl(15, 75%, 65%)',   // Coral
+    hover: 'hsl(15, 75%, 70%)'
+  },
+  unique: {
+    base: 'hsl(150, 60%, 60%)',  // Mint
+    hover: 'hsl(150, 60%, 65%)'
+  },
+  default: {
+    base: 'hsl(220, 70%, 60%)',  // Default blue
+    hover: 'hsl(220, 70%, 65%)'
+  }
+};
+
+// Helper to determine color based on title
+function getChartColor(title: string) {
+  const lowerTitle = title.toLowerCase();
+  if (lowerTitle.includes('favorite')) return superlativeColors.favorite;
+  if (lowerTitle.includes('gutti')) return superlativeColors.guttiest;
+  if (lowerTitle.includes('professor')) return superlativeColors.professor;
+  if (lowerTitle.includes('regret')) return superlativeColors.regret;
+  if (lowerTitle.includes('unique') || lowerTitle.includes('quintessential')) return superlativeColors.unique;
+  return superlativeColors.default;
+}
+
 function isCourse(item: AggregatedCourseData | AggregatedProfessorData): item is AggregatedCourseData {
   return 'course_codes' in item;
 }
 
-const chartData = computed(() => ({
-  labels: props.data.map(item => {
-    if (isCourse(item)) {
-      return `${item.title} (${item.course_codes.join(' | ')})`;
-    }
-    return `${item.name}`;
+const chartData = computed(() => {
+  // Create a gradient effect based on position and vote count
+  const baseHue = props.title.toLowerCase().includes('quintessential') ? 270 : // Purple for quintessential
+    props.title.toLowerCase().includes('professor') ? 200 : // Blue for professors
+      props.title.toLowerCase().includes('regret') ? 15 : // Coral for regrets
+        props.title.toLowerCase().includes('gutti') ? 280 : // Purple for guttiest
+          340; // Pink for others
 
-  }),
-  datasets: [
-    {
-      label: 'Number of Votes',
-      data: props.data.map(item => item.count),
-      backgroundColor: props.color,
-      borderRadius: 8,
-      maxBarThickness: 50,
-      borderSkipped: false,
-    },
-  ],
-}));
+  return {
+    labels: props.data.map(item => {
+      if (isCourse(item)) {
+        return `${item.title} (${item.course_codes.join(' | ')})`;
+      }
+      return `${item.name}`;
+    }),
+    datasets: [
+      {
+        label: 'Number of Votes',
+        data: props.data.map(item => item.count),
+        backgroundColor: props.data.map((_, index) => {
+          // More subtle gradient with higher minimum lightness
+          // Calculate percentage through the list (0 to 1)
+          const progress = index / (props.data.length - 1);
+          // Lightness now ranges from 65% to 75%
+          const lightness = 65 + (progress * 10);
+          // Saturation now ranges from 85% to 70%
+          const saturation = 85 - (progress * 15);
+          return `hsl(${baseHue}, ${saturation}%, ${lightness}%)`;
+        }),
+        hoverBackgroundColor: props.data.map((_, index) => {
+          const progress = index / (props.data.length - 1);
+          // Hover states are slightly brighter
+          const lightness = 60 + (progress * 10);
+          const saturation = 90 - (progress * 15);
+          return `hsl(${baseHue}, ${saturation}%, ${lightness}%)`;
+        }),
+        borderRadius: 8,
+        maxBarThickness: 50,
+        borderSkipped: false,
+      },
+    ],
+  };
+});
 
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
   indexAxis: 'y' as const,
+  animation: { duration: 500 },
   plugins: {
     legend: {
       display: false,
@@ -66,7 +130,7 @@ const chartOptions = computed(() => ({
         top: 20,
         bottom: 30,
       },
-      color: '#1e293b', // slate-800
+      color: '#1e293b',
     },
     tooltip: {
       backgroundColor: '#1e293b',
@@ -80,7 +144,7 @@ const chartOptions = computed(() => ({
       },
       padding: 12,
       cornerRadius: 8,
-      displayColors: false,
+      displayColors: true,
       callbacks: {
         title: (tooltipItems: { label: string }[]) => {
           const item = tooltipItems[0];
