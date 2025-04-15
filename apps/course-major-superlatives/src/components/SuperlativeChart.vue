@@ -49,6 +49,7 @@ const chartData = computed(() => ({
 const chartOptions = computed(() => ({
   responsive: true,
   maintainAspectRatio: false,
+  indexAxis: 'y' as const,
   plugins: {
     legend: {
       display: false,
@@ -98,29 +99,6 @@ const chartOptions = computed(() => ({
     y: {
       beginAtZero: true,
       ticks: {
-        stepSize: 1,
-        font: {
-          family: "'Inter', system-ui, sans-serif",
-          size: 12,
-        },
-        padding: 8,
-      },
-      grid: {
-        display: true,
-        color: '#e2e8f0', // slate-200
-        drawBorder: false,
-      },
-      border: {
-        display: false,
-      }
-    },
-    x: {
-      grid: {
-        display: false,
-      },
-      ticks: {
-        maxRotation: 45,
-        minRotation: 45,
         font: {
           family: "'Inter', system-ui, sans-serif",
           size: 12,
@@ -130,10 +108,33 @@ const chartOptions = computed(() => ({
           const index = typeof tickValue === 'number' ? tickValue : Number.parseInt(tickValue, 10);
           const label = chartData.value.labels[index];
           if (!label) return '';
-          return label.length > 30
-            ? `${label.substring(0, 30)}...`
+          return label.length > 40
+            ? `${label.substring(0, 40)}...`
             : label;
         }
+      },
+      grid: {
+        display: false,
+      },
+      border: {
+        display: false,
+      }
+    },
+    x: {
+      grid: {
+        display: true,
+        color: '#e2e8f0', // slate-200
+        drawBorder: false,
+      },
+      ticks: {
+        maxRotation: 0,
+        minRotation: 0,
+        stepSize: 1,
+        font: {
+          family: "'Inter', system-ui, sans-serif",
+          size: 12,
+        },
+        padding: 8,
       },
       border: {
         display: false,
@@ -142,17 +143,17 @@ const chartOptions = computed(() => ({
   },
 }));
 
-// Calculate minimum width based on number of items
-const minChartWidth = computed(() => {
-  // Allocate at least 100px per bar for readability
-  return Math.max(props.data.length * 100, 400);
+// Calculate minimum height based on number of items
+const minChartHeight = computed(() => {
+  // Allocate at least 40px per bar for readability
+  return Math.max(props.data.length * 40, 300);
 });
 </script>
 
 <template>
   <div class="tw:relative tw:w-full tw:overflow-hidden">
     <div class="tw:overflow-x-auto tw:pb-4">
-      <div :style="{ width: '100%', minWidth: `${minChartWidth}px`, height: '400px' }">
+      <div :style="{ width: '100%', minWidth: '400px', height: `${minChartHeight}px` }">
         <Bar :data="chartData" :options="chartOptions" />
       </div>
     </div>
