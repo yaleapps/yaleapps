@@ -5,15 +5,16 @@ import SuperlativeChart from 'src/components/SuperlativeChart.vue';
 import { useSuperlativesData } from 'src/composables/useSuperlativesData';
 import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, computed } from 'vue';
 import EmailInput from '../form/_components/email-input.vue';
 import MajorSatisfactionChart from 'src/components/MajorSatisfactionChart.vue';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
 
-const { data: submissionData, isLoading, error, refetch } = useQuery({
-	queryKey: ['submission', formStore.email],
+// Query for user's submission (for access control)
+const { data: userSubmission, isLoading: isLoadingUserSubmission, error: userError, refetch: refetchUser } = useQuery({
+	queryKey: ['user-submission', formStore.email],
 	queryFn: async () => {
 		const { data, error } = await supabase
 			.from('superlatives_2025')
@@ -26,6 +27,24 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 	enabled: false,
 });
 
+const hasSubmitted = computed(() => (userSubmission?.value?.length ?? 0) > 0);
+
+const { data: allSubmissions, isLoading: isLoadingAllSubmissions } = useQuery({
+	queryKey: ['all-submissions'],
+	queryFn: async () => {
+		const { data, error } = await supabase
+			.from('superlatives_2025')
+			.select('*');  // We need all fields to match the expected type
+
+		if (error) throw error;
+		return data;
+	},
+	enabled: hasSubmitted.value,
+});
+
+const submissionData = computed(() => userSubmission?.value ?? []);
+const isLoadingState = computed(() => isLoadingUserSubmission.value || isLoadingAllSubmissions.value);
+
 const activeTab = ref('professors');
 
 async function submitEmailToSeeResults() {
@@ -33,9 +52,9 @@ async function submitEmailToSeeResults() {
 		alert('Please enter a valid Yale email address.');
 		return;
 	}
-	await refetch();
+	await refetchUser();
 
-	if (submissionData.value?.length === 0) {
+	if (!(userSubmission?.value?.length ?? 0)) {
 		alert('You have not submitted the form yet. Please submit the form first to see the results.');
 	}
 }
@@ -63,7 +82,7 @@ onMounted(() => {
 					<EmailInput v-model="formStore.email" class="tw:flex-1" @keyup.enter="submitEmailToSeeResults" />
 
 					<div class="tw:flex tw:flex-row tw:gap-2">
-						<q-btn color="primary" label="View Results" :loading="isLoading" @click="submitEmailToSeeResults" />
+						<q-btn color="primary" label="View Results" :loading="isLoadingState" @click="submitEmailToSeeResults" />
 						<q-btn type="a" to="/form/2025" label="Go to 2025 form " />
 					</div>
 				</template>
@@ -138,7 +157,8 @@ onMounted(() => {
 								</q-tab-panel>
 
 								<q-tab-panel name="majors">
-									<MajorSatisfactionChart :data="submissionData" title="Major Satisfaction Analysis" color="#0891b2" />
+									<MajorSatisfactionChart :data="chartData?.majorStats || []" title="Major Satisfaction Analysis"
+										color="#0891b2" />
 								</q-tab-panel>
 							</q-tab-panels>
 						</template>

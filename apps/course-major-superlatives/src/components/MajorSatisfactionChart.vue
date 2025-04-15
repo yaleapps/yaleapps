@@ -1,20 +1,21 @@
 <!-- A specialized chart component for major satisfaction visualization -->
 <script setup lang="ts">
-import { Bar } from 'vue-chartjs';
 import {
-  Chart as ChartJS,
-  Title,
-  Tooltip,
-  Legend,
   BarElement,
   CategoryScale,
-  LinearScale,
-  Colors,
-  type TooltipItem,
   type ChartData,
+  Chart as ChartJS,
+  type ChartOptions,
+  Colors,
+  Legend,
+  LinearScale,
+  type ScriptableContext,
+  Title,
+  Tooltip,
+  type TooltipItem
 } from 'chart.js';
-import { computed, ref } from 'vue';
-import type { Major } from '@repo/constants';
+import {computed, ref} from 'vue';
+import {Bar} from 'vue-chartjs';
 
 ChartJS.register(
   Title,
@@ -26,86 +27,73 @@ ChartJS.register(
   Colors
 );
 
+interface MajorStat {
+  major: string;
+  average: number;
+  count: number;
+  ratings: number[];
+  totalRatings: number;
+}
 
 const props = defineProps<{
-  data: Record<Major, number>[];
+  data: MajorStat[];
   title?: string;
-  color?: string;
 }>();
 
 // Track active view
-const activeView = ref<'average' | 'distribution'>('average');
+const activeView = ref<'satisfaction' | 'distribution' | 'popularity'>('satisfaction');
 
-// Process data to get major statistics
-const majorStats = computed(() => {
-  const stats = new Map<string, { total: number; count: number; ratings: number[] }>();
-  
-  // Process each submission
-  for (const submission of props.data) {
-    // Get all majors and their satisfaction ratings
-    for (const [major, rating] of Object.entries(submission.selected_major_satisfaction)) {
-      if (!stats.has(major)) {
-        stats.set(major, { total: 0, count: 0, ratings: Array(10).fill(0) });
-      }
-      const majorStat = stats.get(major);
-      if (!majorStat) continue;
-      
-      majorStat.total += rating;
-      majorStat.count++;
-      majorStat.ratings[rating - 1]++; // Adjust for 0-based array
-    }
-  }
-
-  // Convert to array and sort by average satisfaction
-  return Array.from(stats.entries())
-    .map(([major, data]) => ({
-      major,
-      average: data.total / data.count,
-      count: data.count,
-      ratings: data.ratings,
-    }))
-    .sort((a, b) => b.average - a.average);
-});
-
-// Chart data for average satisfaction
-const averageChartData = computed(() => ({
-  labels: majorStats.value.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
+// Chart data for satisfaction ratings
+const satisfactionChartData = computed<ChartData<'bar'>>(() => ({
+  labels: props.data.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
   datasets: [
     {
-      label: 'Average Satisfaction',
-      data: majorStats.value.map(stat => stat.average.toFixed(2)),
-      backgroundColor: props.color || '#2563eb',
+      label: 'Average Satisfaction (out of 10)',
+      data: props.data.map(stat => Number(stat.average.toFixed(2))),
+      backgroundColor: props.data.map(
+        (_, i) => `hsl(${220 + (i * 360 / props.data.length)}, 70%, 60%)`
+      ),
       borderRadius: 8,
-      maxBarThickness: 50,
-    },
-    {
-      label: 'Number of Responses',
-      data: majorStats.value.map(stat => stat.count),
-      backgroundColor: '#94a3b8',
-      borderRadius: 8,
-      maxBarThickness: 50,
     }
   ],
 }));
 
 // Chart data for rating distribution
-const distributionChartData = computed(() => ({
-  labels: majorStats.value.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
+const distributionChartData = computed<ChartData<'bar'>>(() => ({
+  labels: props.data.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
   datasets: Array.from({ length: 10 }, (_, i) => ({
     label: `Rating ${i + 1}`,
-    data: majorStats.value.map(stat => stat.ratings[i]),
-    backgroundColor: `hsl(${Math.floor(220 + (i * 14))}, 100%, ${50 + (i * 5)}%)`,
+    data: props.data.map(stat => stat.ratings[i] || 0),
+    backgroundColor: `hsl(${Math.floor(220 + (i * 14))}, 70%, ${50 + (i * 5)}%)`,
     stack: 'ratings',
     borderRadius: 8,
-    maxBarThickness: 50,
   })),
 }));
 
+// Chart data for major popularity
+const popularityChartData = computed<ChartData<'bar'>>(() => {
+  const sortedData = [...props.data].sort((a, b) => b.count - a.count);
+  return {
+    labels: sortedData.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
+    datasets: [
+      {
+        label: 'Number of Students',
+        data: sortedData.map(stat => stat.count),
+        backgroundColor: (ctx: ScriptableContext<'bar'>) => {
+          const count = ctx.chart?.data?.datasets?.[0]?.data?.length ?? 0;
+          return `hsl(${150 + (ctx.dataIndex * 360 / count)}, 70%, 60%)`;
+        },
+        borderRadius: 8,
+      }
+    ],
+  };
+});
+
 // Common chart options
-const chartOptions = computed(() => ({
+const chartOptions = computed<ChartOptions<'bar'>>(() => ({
   responsive: true,
   maintainAspectRatio: false,
-  indexAxis: 'y' as const,
+  indexAxis: activeView.value === 'distribution' ? 'y' : 'x',
   plugins: {
     legend: {
       display: true,
@@ -113,10 +101,10 @@ const chartOptions = computed(() => ({
     },
     title: {
       display: true,
-      text: props.title || 'Major Satisfaction Analysis',
+      text: getChartTitle(),
       font: {
         size: 20,
-        weight: 'bold' as const,
+        weight: 'bold',
         family: "'Inter', system-ui, sans-serif",
       },
       padding: {
@@ -144,12 +132,11 @@ const chartOptions = computed(() => ({
           return item.label;
         },
         label: (context: TooltipItem<"bar">) => {
-          if (activeView.value === 'average') {
-            const datasetLabel = context.dataset.label;
-            if (datasetLabel === 'Average Satisfaction') {
-              return `Average: ${context.formattedValue}/10`;
-            }
-            return `${context.formattedValue} responses`;
+          if (activeView.value === 'satisfaction') {
+            return `Average Rating: ${context.formattedValue}/10`;
+          }
+          if (activeView.value === 'popularity') {
+            return `${context.formattedValue} students`;
           }
           return `${context.dataset.label}: ${context.formattedValue} responses`;
         }
@@ -159,14 +146,6 @@ const chartOptions = computed(() => ({
   scales: {
     y: {
       beginAtZero: true,
-      grid: {
-        display: false,
-      },
-      border: {
-        display: false,
-      }
-    },
-    x: {
       grid: {
         display: true,
         color: '#e2e8f0',
@@ -179,12 +158,41 @@ const chartOptions = computed(() => ({
         minRotation: 0,
       }
     },
+    x: {
+      grid: {
+        display: true,
+        color: '#e2e8f0',
+      },
+      border: {
+        display: false,
+      },
+      ticks: {
+        maxRotation: activeView.value === 'distribution' ? 0 : 45,
+        minRotation: activeView.value === 'distribution' ? 0 : 45,
+      }
+    },
   },
 }));
 
-// Calculate minimum height based on number of majors
+function getChartTitle() {
+  switch (activeView.value) {
+    case 'satisfaction':
+      return 'Major Satisfaction Ratings';
+    case 'distribution':
+      return 'Rating Distribution by Major';
+    case 'popularity':
+      return 'Major Popularity';
+    default:
+      return props.title || 'Major Analysis';
+  }
+}
+
+// Calculate minimum height based on view type and data
 const minChartHeight = computed(() => {
-  return Math.max(majorStats.value.length * 40, 300);
+  if (activeView.value === 'distribution') {
+    return Math.max(props.data.length * 40, 300);
+  }
+  return 400; // Fixed height for vertical charts
 });
 </script>
 
@@ -195,8 +203,9 @@ const minChartHeight = computed(() => {
         v-model="activeView"
         flat
         :options="[
-          { label: 'Average Satisfaction', value: 'average' },
-          { label: 'Rating Distribution', value: 'distribution' }
+          { label: 'Satisfaction Ratings', value: 'satisfaction' },
+          { label: 'Rating Distribution', value: 'distribution' },
+          { label: 'Major Popularity', value: 'popularity' }
         ]"
       />
     </div>
@@ -205,7 +214,13 @@ const minChartHeight = computed(() => {
       <div class="tw:overflow-x-auto tw:pb-4">
         <div :style="{ width: '100%', minWidth: '600px', height: `${minChartHeight}px` }">
           <Bar
-            :data="activeView === 'average' ? averageChartData : distributionChartData"
+            :data="
+              activeView === 'satisfaction' 
+                ? satisfactionChartData 
+                : activeView === 'distribution'
+                  ? distributionChartData
+                  : popularityChartData
+            "
             :options="chartOptions"
           />
         </div>
@@ -218,9 +233,21 @@ const minChartHeight = computed(() => {
       </template>
       <div class="text-subtitle2 q-mb-sm">About This Visualization</div>
       <ul class="tw:list-disc tw:ml-4 tw:space-y-1">
-        <li>Average view shows mean satisfaction rating and response count per major</li>
-        <li>Distribution view shows detailed breakdown of ratings (1-10) for each major</li>
-        <li>Longer bars indicate more responses in that category</li>
+        <template v-if="activeView === 'satisfaction'">
+          <li>Shows average satisfaction rating for each major</li>
+          <li>Ratings are on a scale of 1-10</li>
+          <li>Higher bars indicate greater satisfaction</li>
+        </template>
+        <template v-else-if="activeView === 'distribution'">
+          <li>Shows detailed breakdown of ratings (1-10) for each major</li>
+          <li>Colors indicate different rating values</li>
+          <li>Length of segments shows number of responses for each rating</li>
+        </template>
+        <template v-else>
+          <li>Shows number of students in each major</li>
+          <li>Sorted by popularity (most to least common)</li>
+          <li>Includes all declared majors from responses</li>
+        </template>
         <li>Consider sample size when interpreting results</li>
       </ul>
     </q-banner>
