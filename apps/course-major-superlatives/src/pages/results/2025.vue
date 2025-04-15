@@ -139,8 +139,8 @@ onMounted(() => {
 
 								<q-tab-panel name="courses">
 									<q-tabs v-model="aggregationLevel" class="tw:rounded-lg q-mb-md" narrow-indicator align="justify">
-										<q-tab name="course" label="All course sections" />
-										<q-tab name="course-and-professor" label="Professor-specific courses" />
+										<q-tab name="course" label="All Course Sections Together" />
+										<q-tab name="course-and-professor" label="View Sections By Individual Professor" />
 									</q-tabs>
 									<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a"
 										disclaimer="Results may vary based on class capacity" />
@@ -148,8 +148,8 @@ onMounted(() => {
 
 								<q-tab-panel name="gutsy">
 									<q-tabs v-model="aggregationLevel" class="tw:rounded-lg q-mb-md" narrow-indicator align="justify">
-										<q-tab name="course" label="All course sections" />
-										<q-tab name="course-and-professor" label="Professor-specific courses" />
+										<q-tab name="course" label="All Course Sections Together" />
+										<q-tab name="course-and-professor" label="View Sections By Individual Professor" />
 									</q-tabs>
 									<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626"
 										disclaimer="Based on student experiences" />
@@ -157,8 +157,8 @@ onMounted(() => {
 
 								<q-tab-panel name="yale">
 									<q-tabs v-model="aggregationLevel" class="tw:rounded-lg q-mb-md" narrow-indicator align="justify">
-										<q-tab name="course" label="All course sections" />
-										<q-tab name="course-and-professor" label="Professor-specific courses" />
+										<q-tab name="course" label="All Course Sections Together" />
+										<q-tab name="course-and-professor" label="View Sections By Individual Professor" />
 									</q-tabs>
 									<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
 										color="#9333ea" disclaimer="Based on student perception" />
@@ -166,8 +166,8 @@ onMounted(() => {
 
 								<q-tab-panel name="regrets">
 									<q-tabs v-model="aggregationLevel" class="tw:rounded-lg q-mb-md" narrow-indicator align="justify">
-										<q-tab name="course" label="All course sections" />
-										<q-tab name="course-and-professor" label="Professor-specific courses" />
+										<q-tab name="course" label="All Course Sections Together" />
+										<q-tab name="course-and-professor" label="View Sections By Individual Professor" />
 									</q-tabs>
 									<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c"
 										disclaimer="Individual experiences may vary" />
@@ -175,8 +175,8 @@ onMounted(() => {
 
 								<q-tab-panel name="distributionals">
 									<q-tabs v-model="aggregationLevel" class="tw:rounded-lg q-mb-md" narrow-indicator align="justify">
-										<q-tab name="course" label="All course sections" />
-										<q-tab name="course-and-professor" label="Professor-specific courses" />
+										<q-tab name="course" label="All Course Sections Together" />
+										<q-tab name="course-and-professor" label="View Sections By Individual Professor" />
 									</q-tabs>
 									<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
 										color="#0d9488" disclaimer="Popularity varies by major requirements" />
