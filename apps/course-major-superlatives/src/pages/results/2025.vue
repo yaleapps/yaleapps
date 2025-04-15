@@ -79,7 +79,7 @@ onMounted(() => {
 						are received.
 					</div>
 
-					<q-banner inline-actions rounded dense class="bg-info tw:text-blue-700 q-mb-md">
+					<q-banner rounded class="bg-info tw:text-blue-700 q-mb-md">
 						<template v-slot:avatar>
 							📊
 						</template>
@@ -89,11 +89,6 @@ onMounted(() => {
 							<li>Course popularity can vary by semester and year</li>
 							<li>These results reflect student opinions and experiences, not official evaluations</li>
 						</ul>
-						<template v-slot:action>
-							<q-btn flat>
-								<q-icon name="close" />
-							</q-btn>
-						</template>
 					</q-banner>
 
 					<q-card>
@@ -113,30 +108,33 @@ onMounted(() => {
 
 							<q-tab-panels v-model="activeTab" animated>
 								<q-tab-panel name="professors">
-									<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors"
-										color="#2563eb" />
+									<SuperlativeChart :data="chartData.favoriteProfessors" title="Most Popular Professors" color="#2563eb"
+										disclaimer="Results may vary based on class sizes" />
 								</q-tab-panel>
 
 								<q-tab-panel name="courses">
-									<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a" />
+									<SuperlativeChart :data="chartData.favoriteCourses" title="Most Popular Courses" color="#16a34a"
+										disclaimer="Results may vary based on class capacity" />
 								</q-tab-panel>
 
 								<q-tab-panel name="gutsy">
-									<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626" />
+									<SuperlativeChart :data="chartData.guttiestCourses" title="Guttiest Courses" color="#dc2626"
+										disclaimer="Based on student experiences" />
 								</q-tab-panel>
 
 								<q-tab-panel name="yale">
 									<SuperlativeChart :data="chartData.quintessentialCourses" title="Most Quintessentially Yale Courses"
-										color="#9333ea" />
+										color="#9333ea" disclaimer="Based on student perception" />
 								</q-tab-panel>
 
 								<q-tab-panel name="regrets">
-									<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c" />
+									<SuperlativeChart :data="chartData.regrettedCourses" title="Most Regretted Courses" color="#ea580c"
+										disclaimer="Individual experiences may vary" />
 								</q-tab-panel>
 
-								<q-tab-panel name="distro">
+								<q-tab-panel name="distributionals">
 									<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
-										color="#0d9488" />
+										color="#0d9488" disclaimer="Popularity varies by major requirements" />
 								</q-tab-panel>
 							</q-tab-panels>
 						</template>
