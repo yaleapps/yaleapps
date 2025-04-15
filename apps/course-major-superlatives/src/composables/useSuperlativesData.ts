@@ -45,7 +45,7 @@ export function useSuperlativesData() {
 			}
 		}
 
-		return Array.from(courseMap.values());
+		return Array.from(courseMap.values()).sort((a, b) => b.count - a.count);
 	}
 
 	function aggregateProfessors(
@@ -67,7 +67,7 @@ export function useSuperlativesData() {
 			}
 		}
 
-		return Array.from(profMap.values());
+		return Array.from(profMap.values()).sort((a, b) => b.count - a.count);
 	}
 
 	const transformedData = computed(() => {
