@@ -185,3 +185,5 @@ export const MAJORS = [
 	"Urban Studies (B.A.)",
 	"Women’s, Gender, and Sexuality Studies (B.A.)",
 ] as const;
+
+export type Major = (typeof MAJORS)[number];

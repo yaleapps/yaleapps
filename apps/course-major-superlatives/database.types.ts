@@ -1,4 +1,7 @@
+import type { Major } from "@repo/constants";
 import type { CourseSummary, Professor } from "src/types/types";
+export type FavoriteMajorCourses = Partial<Record<Major, CourseSummary[]>>;
+export type MajorSatisfaction = Partial<Record<Major, number>>;
 
 export type Json =
 	| string
@@ -21,7 +24,7 @@ export type Database = {
 					selected_favorite_courses: CourseSummary[];
 					selected_favorite_distributional_courses: CourseSummary[];
 					selected_favorite_lecture_courses: CourseSummary[];
-					selected_favorite_major_courses: CourseSummary[];
+					selected_favorite_major_courses: FavoriteMajorCourses;
 					selected_favorite_professors: Professor[];
 					selected_favorite_seminar_courses: CourseSummary[];
 					selected_guttiest_courses: CourseSummary[];
@@ -35,7 +38,7 @@ export type Database = {
 					selected_favorite_courses: CourseSummary[];
 					selected_favorite_distributional_courses: CourseSummary[];
 					selected_favorite_lecture_courses: CourseSummary[];
-					selected_favorite_major_courses: CourseSummary[];
+					selected_favorite_major_courses: FavoriteMajorCourses;
 					selected_favorite_professors: Professor[];
 					selected_favorite_seminar_courses: CourseSummary[];
 					selected_guttiest_courses: CourseSummary[];
@@ -49,8 +52,8 @@ export type Database = {
 					selected_favorite_courses?: CourseSummary[];
 					selected_favorite_distributional_courses?: CourseSummary[];
 					selected_favorite_lecture_courses?: CourseSummary[];
-					selected_favorite_major_courses?: CourseSummary[];
-					selected_favorite_professors?: CourseSummary[];
+					selected_favorite_major_courses?: FavoriteMajorCourses;
+					selected_favorite_professors?: Professor[];
 					selected_favorite_seminar_courses?: CourseSummary[];
 					selected_guttiest_courses?: CourseSummary[];
 				};
@@ -67,10 +70,10 @@ export type Database = {
 					residential_college: string;
 					selected_favorite_courses: CourseSummary[];
 					selected_favorite_distributional_courses: CourseSummary[];
-					selected_favorite_major_courses: Record<string, CourseSummary[]>;
+					selected_favorite_major_courses: FavoriteMajorCourses;
 					selected_favorite_professors: Professor[];
 					selected_guttiest_courses: CourseSummary[];
-					selected_major_satisfaction: Record<string, number>;
+					selected_major_satisfaction: MajorSatisfaction;
 					selected_quintessentially_yale_course: CourseSummary[];
 					selected_regretted_courses: CourseSummary[];
 				};
@@ -84,10 +87,10 @@ export type Database = {
 					residential_college: string;
 					selected_favorite_courses: CourseSummary[];
 					selected_favorite_distributional_courses: CourseSummary[];
-					selected_favorite_major_courses: Record<string, CourseSummary[]>;
+					selected_favorite_major_courses: FavoriteMajorCourses;
 					selected_favorite_professors: Professor[];
 					selected_guttiest_courses: CourseSummary[];
-					selected_major_satisfaction: Record<string, number>;
+					selected_major_satisfaction: MajorSatisfaction;
 					selected_quintessentially_yale_course: CourseSummary[];
 					selected_regretted_courses: CourseSummary[];
 				};
@@ -101,10 +104,10 @@ export type Database = {
 					residential_college?: string;
 					selected_favorite_courses?: CourseSummary[];
 					selected_favorite_distributional_courses?: CourseSummary[];
-					selected_favorite_major_courses?: Record<string, CourseSummary[]> ;
+					selected_favorite_major_courses?: FavoriteMajorCourses;
 					selected_favorite_professors?: Professor[];
 					selected_guttiest_courses?: CourseSummary[];
-					selected_major_satisfaction?: Record<string, number>;
+					selected_major_satisfaction?: MajorSatisfaction;
 					selected_quintessentially_yale_course?: CourseSummary[];
 					selected_regretted_courses?: CourseSummary[];
 				};

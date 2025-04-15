@@ -7,6 +7,7 @@ import { use2025FormStore } from 'src/stores/form-2025';
 import { supabase } from 'src/supabase';
 import { onMounted, ref } from 'vue';
 import EmailInput from '../form/_components/email-input.vue';
+import MajorSatisfactionChart from 'src/components/MajorSatisfactionChart.vue';
 
 const formStore = use2025FormStore();
 const { data: chartData, isLoading: isLoadingCharts } = useSuperlativesData();
@@ -102,6 +103,7 @@ onMounted(() => {
 								<q-tab name="yale" icon="account_balance" label="Yale Spirit" />
 								<q-tab name="regrets" icon="warning" label="Regrets" />
 								<q-tab name="distributionals" icon="category" label="Distributionals" />
+								<q-tab name="majors" icon="trending_up" label="Major Analysis" />
 							</q-tabs>
 
 							<q-tab-panels v-model="activeTab" animated>
@@ -133,6 +135,10 @@ onMounted(() => {
 								<q-tab-panel name="distributionals">
 									<SuperlativeChart :data="chartData.distributionalCourses" title="Favorite Distributional Courses"
 										color="#0d9488" disclaimer="Popularity varies by major requirements" />
+								</q-tab-panel>
+
+								<q-tab-panel name="majors">
+									<MajorSatisfactionChart :data="submissionData" title="Major Satisfaction Analysis" color="#0891b2" />
 								</q-tab-panel>
 							</q-tab-panels>
 						</template>

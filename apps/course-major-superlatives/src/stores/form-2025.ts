@@ -2,7 +2,8 @@ import type { CourseSummary, Professor } from "src/types/types";
 import { defineStore } from "pinia";
 import { supabase } from "src/supabase";
 import { ref, watch } from "vue";
-import type { ResidentialCollegeName } from "@repo/constants";
+import type { Major, ResidentialCollegeName } from "@repo/constants";
+import type { FavoriteMajorCourses, MajorSatisfaction } from "app/database.types";
 
 export const use2025FormStore = defineStore(
 	"2025-form",
@@ -24,18 +25,16 @@ export const use2025FormStore = defineStore(
 		const selectedQuintessentiallyYaleCourse = ref<CourseSummary[]>([]);
 		const selectedRegrettedCourses = ref<CourseSummary[]>([]);
 		const selectedFavoriteDistributionalCourses = ref<CourseSummary[]>([]);
-		const major = ref<string[]>([]);
-		const selectedFavoriteMajorCourses = ref<Record<string, CourseSummary[]>>(
-			{},
-		);
-		const selectedMajorSatisfaction = ref<Record<string, number>>({});
+		const major = ref<Major[]>([]);
+		const selectedFavoriteMajorCourses = ref<FavoriteMajorCourses>({});
+		const selectedMajorSatisfaction = ref<MajorSatisfaction>({});
 
 		// Initialize empty arrays and default satisfaction for each major when major changes
 		watch(major, (newMajors) => {
-			const newCoursesMap: Record<string, CourseSummary[]> = {
+			const newCoursesMap = {
 				...selectedFavoriteMajorCourses.value,
 			};
-			const newSatisfactionMap: Record<string, number> = {
+			const newSatisfactionMap = {
 				...selectedMajorSatisfaction.value,
 			};
 			for (const m of newMajors) {
