@@ -16,7 +16,7 @@ const { data: submissionData, isLoading, error, refetch } = useQuery({
 		const { data, error } = await supabase
 			.from('superlatives_2025')
 			.select('*')
-			.eq('email', formStore.email)
+			.eq('email', formStore.email.toLowerCase())
 			.single();
 
 		if (error) throw error;

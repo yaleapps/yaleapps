@@ -82,7 +82,7 @@ export const use2025FormStore = defineStore(
 						throw new Error("Residential college is required");
 					}
 					const { error } = await supabase.from("superlatives_2025").insert({
-						email: email.value,
+						email: email.value.toLowerCase(),
 						class_year: classYear.value,
 						residential_college: residentialCollege.value as string,
 
