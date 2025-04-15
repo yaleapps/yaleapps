@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import { isValidYaleEmail } from '@repo/utils';
 import { useMutation } from '@tanstack/vue-query';
+import { useCoursesStore } from 'src/stores/data/courses';
+import { useProfessorsStore } from 'src/stores/data/professors';
 import { use2023FormStore } from 'src/stores/form-2023';
 import { computed, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import SelectCourses from './_components/select-courses.vue';
 import SelectMajor from './_components/select-major.vue';
 import SelectProfessors from './_components/select-professors.vue';
-import { useCoursesStore } from 'src/stores/data/courses';
-import { useProfessorsStore } from 'src/stores/data/professors';
-import { type } from 'arktype';
 
 const formStore = use2023FormStore();
 const router = useRouter();
@@ -18,16 +18,11 @@ const { mutate: submitUserCourseMutation, isPending: isSubmitLoading } = useMuta
 	onSuccess: () => router.push('/success'),
 });
 
-function isValidEmail(email: string) {
-	const Email = type("string.email")
-	const result = Email(email);
-	return !(result instanceof type.errors)
-}
 
 const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(formStore.email) && formStore.major.length > 0;
+	return isValidYaleEmail(formStore.email) && formStore.major.length > 0;
 });
 
 const isStep2Valid = computed(() => {
@@ -85,7 +80,7 @@ defineOptions({
 							What is your email address? <span class="text-red">*</span>
 						</div>
 						<q-input v-model="formStore.email" filled label="Email"
-							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']" />
+							:rules="[(val) => isValidYaleEmail(val) || 'Please enter a valid Yale email']" />
 					</q-card-section>
 
 					<q-card-section>

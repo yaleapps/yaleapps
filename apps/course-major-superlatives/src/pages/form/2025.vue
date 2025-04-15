@@ -9,7 +9,7 @@ import SelectProfessors from './_components/select-professors.vue';
 import SelectResidentialCollege from './_components/select-residential-college.vue';
 import { useCoursesStore } from 'src/stores/data/courses';
 import { useProfessorsStore } from 'src/stores/data/professors';
-import { type } from 'arktype';
+import { isValidYaleEmail } from '@repo/utils';
 
 const formStore = use2025FormStore();
 const router = useRouter();
@@ -22,16 +22,11 @@ const { mutate: submitUserCourseMutation, isPending: isSubmitPending } = useMuta
 	}
 });
 
-function isValidEmail(email: string) {
-	const Email = type("string.email")
-	const result = Email(email);
-	return !(result instanceof type.errors) && email.endsWith("@yale.edu")
-}
 
 const activeStep = ref(0);
 
 const isStep1Valid = computed(() => {
-	return isValidEmail(formStore.email) &&
+	return isValidYaleEmail(formStore.email) &&
 		formStore.classYear &&
 		formStore.residentialCollege;
 });
@@ -99,7 +94,7 @@ defineOptions({
 							What is your Yale email address? <span class="text-red">*</span>
 						</div>
 						<q-input v-model="formStore.email" filled label="Email" autocapitalize="off"
-							:rules="[(val) => isValidEmail(val) || 'Please enter a valid email']" />
+							:rules="[(val) => isValidYaleEmail(val) || 'Please enter a valid Yale email']" />
 					</q-card-section>
 
 					<q-card-section>

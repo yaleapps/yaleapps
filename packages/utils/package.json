@@ -1,0 +1,9 @@
+{
+	"name": "@repo/utils",
+	"exports": {
+		".": "./index.ts"
+	},
+	"dependencies": {
+		"arktype": "^2.1.9"
+	}
+}
