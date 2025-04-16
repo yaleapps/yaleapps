@@ -1,4 +1,4 @@
-<!-- A specialized chart component for major satisfaction visualization -->
+<!-- A specialized chart component for major popularity visualization -->
 <script setup lang="ts">
 import {
   BarElement,
@@ -9,6 +9,7 @@ import {
   Colors,
   Legend,
   LinearScale,
+  type ScriptableContext,
   Title,
   Tooltip,
   type TooltipItem
@@ -39,20 +40,24 @@ const props = defineProps<{
   title?: string;
 }>();
 
-// Chart data for satisfaction ratings
-const chartData = computed<ChartData<'bar'>>(() => ({
-  labels: props.data.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
-  datasets: [
-    {
-      label: 'Average Satisfaction (out of 10)',
-      data: props.data.map(stat => Number(stat.average.toFixed(2))),
-      backgroundColor: props.data.map(
-        (_, i) => `hsl(${220 + (i * 360 / props.data.length)}, 70%, 60%)`
-      ),
-      borderRadius: 8,
-    }
-  ],
-}));
+// Chart data for major popularity
+const chartData = computed<ChartData<'bar'>>(() => {
+  const sortedData = [...props.data].sort((a, b) => b.count - a.count);
+  return {
+    labels: sortedData.map(stat => stat.major.replace(' (B.A.)', '').replace(' (B.S.)', '')),
+    datasets: [
+      {
+        label: 'Number of Students',
+        data: sortedData.map(stat => stat.count),
+        backgroundColor: (ctx: ScriptableContext<'bar'>) => {
+          const count = ctx.chart?.data?.datasets?.[0]?.data?.length ?? 0;
+          return `hsl(${150 + (ctx.dataIndex * 360 / count)}, 70%, 60%)`;
+        },
+        borderRadius: 8,
+      }
+    ],
+  };
+});
 
 // Chart options
 const chartOptions = computed<ChartOptions<'bar'>>(() => ({
@@ -66,7 +71,7 @@ const chartOptions = computed<ChartOptions<'bar'>>(() => ({
     },
     title: {
       display: true,
-      text: props.title || 'Major Satisfaction Ratings',
+      text: props.title || 'Major Popularity',
       font: {
         size: 20,
         weight: 'bold',
@@ -97,7 +102,7 @@ const chartOptions = computed<ChartOptions<'bar'>>(() => ({
           return item.label;
         },
         label: (context: TooltipItem<"bar">) => {
-          return `Average Rating: ${context.formattedValue}/10`;
+          return `${context.formattedValue} students`;
         }
       }
     },
@@ -128,7 +133,6 @@ const chartOptions = computed<ChartOptions<'bar'>>(() => ({
       ticks: {
         maxRotation: 0,
         minRotation: 0,
-        max: 10,
       }
     },
   },
@@ -154,10 +158,10 @@ const minChartHeight = computed(() => Math.max(props.data.length * 40, 400));
       </template>
       <div class="text-subtitle2 q-mb-sm">About This Visualization</div>
       <ul class="tw:list-disc tw:ml-4 tw:space-y-1">
-        <li>Shows average satisfaction rating for each major</li>
-        <li>Ratings are on a scale of 1-10</li>
-        <li>Higher bars indicate greater satisfaction</li>
-        <li>Consider sample size when interpreting results</li>
+        <li>Shows number of students in each major</li>
+        <li>Sorted by popularity (most to least common)</li>
+        <li>Includes all declared majors from responses</li>
+        <li>Consider that some students may have multiple majors</li>
       </ul>
     </q-banner>
   </div>

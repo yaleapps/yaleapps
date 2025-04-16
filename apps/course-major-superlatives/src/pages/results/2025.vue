@@ -8,6 +8,8 @@ import { supabase } from 'src/supabase';
 import { onMounted, ref, computed } from 'vue';
 import EmailInput from '../form/_components/email-input.vue';
 import MajorSatisfactionChart from 'src/components/MajorSatisfactionChart.vue';
+import MajorDistributionChart from 'src/components/MajorDistributionChart.vue';
+import MajorPopularityChart from 'src/components/MajorPopularityChart.vue';
 
 const formStore = use2025FormStore();
 const aggregationLevel = ref<CourseAggregationLevel>('course');
@@ -128,7 +130,9 @@ onMounted(() => {
 								<q-tab name="yale" icon="account_balance" label="Yale Spirit" />
 								<q-tab name="regrets" icon="warning" label="Regrets" />
 								<q-tab name="distributionals" icon="category" label="Distributionals" />
-								<q-tab name="majors" icon="trending_up" label="Major Analysis" />
+								<q-tab name="major-satisfaction" icon="sentiment_satisfied" label="Major Satisfaction" />
+								<q-tab name="major-distribution" icon="bar_chart" label="Major Ratings" />
+								<q-tab name="major-popularity" icon="trending_up" label="Major Popularity" />
 							</q-tabs>
 
 							<q-tab-panels v-model="activeTab" animated>
@@ -182,9 +186,16 @@ onMounted(() => {
 										color="#0d9488" disclaimer="Popularity varies by major requirements" />
 								</q-tab-panel>
 
-								<q-tab-panel name="majors">
-									<MajorSatisfactionChart :data="chartData?.majorStats || []" title="Major Satisfaction Analysis"
-										color="#0891b2" />
+								<q-tab-panel name="major-satisfaction">
+									<MajorSatisfactionChart :data="chartData?.majorStats || []" title="Major Satisfaction Ratings" />
+								</q-tab-panel>
+
+								<q-tab-panel name="major-distribution">
+									<MajorDistributionChart :data="chartData?.majorStats || []" title="Major Rating Distribution" />
+								</q-tab-panel>
+
+								<q-tab-panel name="major-popularity">
+									<MajorPopularityChart :data="chartData?.majorStats || []" title="Major Popularity" />
 								</q-tab-panel>
 							</q-tab-panels>
 						</template>
