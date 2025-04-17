@@ -1,0 +1,14 @@
+{
+  "name": "buttery-book-vite",
+  "version": "2.0",
+  "description": "An app that answers one simple question: which butteries are open right now?",
+  "author": "Braden Wong <bmw02002turbo@gmail.com>",
+  "private": true,
+  "dependencies": {
+    "@capacitor/android": "^4.0.0-beta.0",
+    "@capacitor/cli": "^4.0.0",
+    "@capacitor/core": "^4.0.0",
+    "@capacitor/ios": "^4.0.0",
+    "@capacitor/splash-screen": "^4.2.0"
+  }
+}
