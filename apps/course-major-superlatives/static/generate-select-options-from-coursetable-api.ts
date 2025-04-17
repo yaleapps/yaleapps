@@ -1,48 +1,31 @@
 import { type SeasonCode, getSeasonCodeForDate } from "@repo/db/utils";
+import { type } from "arktype";
 import {
 	CourseFromCourseTableApi,
 	type CourseSummary,
 	type Professor,
 	type SameCourseAndProfessorsId,
 } from "src/types/types";
-import { type } from "arktype";
-import { saveCoursesMap } from "./data-loaders/courses";
-import { saveProfessorsMap } from "./data-loaders/professors";
+import { saveCourseOptions } from "./courses";
+import { saveProfessorOptions } from "./professors";
 
-function getSeasonCodesBetweenDates(
-	startDate: Date,
-	endDate: Date,
-): SeasonCode[] {
-	const startSeasonCode = getSeasonCodeForDate(startDate);
-	const endSeasonCode = getSeasonCodeForDate(endDate);
+const currentDate = new Date();
+const fiveYearsAgo = new Date();
+fiveYearsAgo.setFullYear(currentDate.getFullYear() - 5);
+const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
+	fiveYearsAgo,
+	currentDate,
+);
 
-	const startYear = Number.parseInt(startSeasonCode.slice(0, 4));
-	const endYear = Number.parseInt(endSeasonCode.slice(0, 4));
-	const startSeason = startSeasonCode.slice(4);
-	const endSeason = endSeasonCode.slice(4);
+const { professorOptions, courseOptions } =
+	await generateProfessorAndCourseSelectOptionsForSeasonCodes(
+		fiveYearSeasonCodes,
+	);
 
-	const seasonCodes: SeasonCode[] = [];
-	const seasons = ["01", "02", "03"] as const; // spring, summer, fall
+await saveProfessorOptions(professorOptions);
+await saveCourseOptions(courseOptions);
 
-	for (let year = startYear; year <= endYear; year++) {
-		for (const season of seasons) {
-			const seasonCode = `${year}${season}` as SeasonCode;
-			// Skip seasons before start season in start year
-			if (year === startYear && season < startSeason) {
-				continue;
-			}
-			// Skip seasons after end season in end year
-			if (year === endYear && season > endSeason) {
-				break;
-			}
-			seasonCodes.push(seasonCode);
-		}
-	}
-
-	return seasonCodes;
-}
-
-async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
+async function generateProfessorAndCourseSelectOptionsForSeasonCodes(
 	seasonCodes: string[],
 ) {
 	const professorsMap = new Map<number, Professor>();
@@ -104,19 +87,42 @@ async function generateMapOfProfessorsAndCoursesFromSeasonCodes(
 			}
 		}),
 	);
-	return { professorsMap, coursesMap };
+	const professorOptions = Array.from(professorsMap.values());
+	professorOptions.sort((a, b) => a.professor_id - b.professor_id);
+	const courseOptions = Array.from(coursesMap.values());
+	courseOptions.sort((a, b) => a.course_id - b.course_id);
+	return { professorOptions, courseOptions };
 }
 
-const currentDate = new Date();
-const fiveYearsAgo = new Date();
-fiveYearsAgo.setFullYear(currentDate.getFullYear() - 5);
-const fiveYearSeasonCodes = getSeasonCodesBetweenDates(
-	fiveYearsAgo,
-	currentDate,
-);
+function getSeasonCodesBetweenDates(
+	startDate: Date,
+	endDate: Date,
+): SeasonCode[] {
+	const startSeasonCode = getSeasonCodeForDate(startDate);
+	const endSeasonCode = getSeasonCodeForDate(endDate);
 
-const { professorsMap, coursesMap } =
-	await generateMapOfProfessorsAndCoursesFromSeasonCodes(fiveYearSeasonCodes);
+	const startYear = Number.parseInt(startSeasonCode.slice(0, 4));
+	const endYear = Number.parseInt(endSeasonCode.slice(0, 4));
+	const startSeason = startSeasonCode.slice(4);
+	const endSeason = endSeasonCode.slice(4);
 
-await saveProfessorsMap(professorsMap);
-await saveCoursesMap(coursesMap);
+	const seasonCodes: SeasonCode[] = [];
+	const seasons = ["01", "02", "03"] as const; // spring, summer, fall
+
+	for (let year = startYear; year <= endYear; year++) {
+		for (const season of seasons) {
+			const seasonCode = `${year}${season}` as SeasonCode;
+			// Skip seasons before start season in start year
+			if (year === startYear && season < startSeason) {
+				continue;
+			}
+			// Skip seasons after end season in end year
+			if (year === endYear && season > endSeason) {
+				break;
+			}
+			seasonCodes.push(seasonCode);
+		}
+	}
+
+	return seasonCodes;
+}
