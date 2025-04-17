@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Yale Buttery Book</string>
+    <string name="title_activity_main">Yale Buttery Book</string>
+    <string name="package_name">yalebutterybook.com</string>
+    <string name="custom_url_scheme">yalebutterybook.com</string>
+</resources>

@@ -1,0 +1,7 @@
+{
+  "appId": "yalebutterybook.com",
+  "appName": "Yale Buttery Book",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "www"
+}
