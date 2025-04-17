@@ -1,0 +1,268 @@
+[
+  {
+    "id": 5,
+    "created_at": "2025-04-14T08:10:16.265448+00:00",
+    "email": "braden.wong@yale.edu",
+    "class_year": "2025",
+    "residential_college": "Grace Hopper",
+    "major": [
+      "Computer Science (B.A. or B.S.)",
+      "Ethics, Politics, and Economics (B.A.)"
+    ],
+    "selected_favorite_professors": [
+      {
+        "name": "Martin Postle",
+        "professor_id": 1556
+      }
+    ],
+    "selected_favorite_courses": [
+      {
+        "title": "Writing About Music in the U.K.",
+        "course_id": 220230421,
+        "description": "It has been said that writing about music is like dancing about architecture–and indeed, evoking melody, harmony, and rhythm with words can challenge even the most observant and eloquent among us. In this course, students read and discuss writing on music by British and Commonwealth scholars and critics (e.g., Simon Frith and Dick Hebdige), journalists (Julie Burchill and Caitlin Moran), and even a novelist or two (Nick Hornby and Zadie Smith)–as well as a few Americans. They also attend multiple musical performances, including some musical theater; visit London exhibits, neighborhoods, and sites important in the history of British pop, rock, and reggae; and travel by train to Liverpool. The focus is on Anglo-American popular music of the past half-century-plus, and among the concepts to be investigated are style and taste. Written assignments include a critical review of a performance, a feature article, a literary essay on a musical topic, and an academic paper. The goal of the course is for students to improve their skills at observation, description, and analysis of culture.",
+        "course_codes": [
+          "BRST 214"
+        ],
+        "course_professors": [
+          {
+            "name": "Adam Sexton",
+            "professor_id": 2494
+          }
+        ],
+        "same_course_and_profs_id": 220230421
+      }
+    ],
+    "selected_guttiest_courses": [
+      {
+        "title": "Elementary German I",
+        "course_id": 210120668,
+        "description": "A beginning content- and task-based course that focuses on the acquisition of spoken and written communication skills, as well as on the development of cultural awareness and of foundations in grammar and vocabulary. Topics such as school, family life, and housing. Course materials include a variety of authentic readings, a feature film, and shorter video clips. Tutors are available for extra help.",
+        "course_codes": [
+          "GMAN 110"
+        ],
+        "course_professors": [
+          {
+            "name": "Thorsten Wilhelm",
+            "professor_id": 7805
+          }
+        ],
+        "same_course_and_profs_id": 170120613
+      }
+    ],
+    "selected_quintessentially_yale_course": [
+      {
+        "title": "Writing About Music in the U.K.",
+        "course_id": 220230421,
+        "description": "It has been said that writing about music is like dancing about architecture–and indeed, evoking melody, harmony, and rhythm with words can challenge even the most observant and eloquent among us. In this course, students read and discuss writing on music by British and Commonwealth scholars and critics (e.g., Simon Frith and Dick Hebdige), journalists (Julie Burchill and Caitlin Moran), and even a novelist or two (Nick Hornby and Zadie Smith)–as well as a few Americans. They also attend multiple musical performances, including some musical theater; visit London exhibits, neighborhoods, and sites important in the history of British pop, rock, and reggae; and travel by train to Liverpool. The focus is on Anglo-American popular music of the past half-century-plus, and among the concepts to be investigated are style and taste. Written assignments include a critical review of a performance, a feature article, a literary essay on a musical topic, and an academic paper. The goal of the course is for students to improve their skills at observation, description, and analysis of culture.",
+        "course_codes": [
+          "BRST 214"
+        ],
+        "course_professors": [
+          {
+            "name": "Adam Sexton",
+            "professor_id": 2494
+          }
+        ],
+        "same_course_and_profs_id": 220230421
+      },
+      {
+        "title": "Senior Project I",
+        "course_id": 240231091,
+        "description": "A project of creative work formulated and executed by the student under the supervision of an adviser designated in accordance with the direction of the student's interest. Proposals for senior projects are submitted on the appropriate form to the School of Art Undergraduate Studies Committee (USC) for review and approval at the end of the term preceding the last resident term. Projects are reviewed and graded by an interdisciplinary faculty committee made up of members of the School of Art faculty. An exhibition of selected work done in the project is expected of each student.",
+        "course_codes": [
+          "ART 495"
+        ],
+        "course_professors": [
+          {
+            "name": "Byron Kim",
+            "professor_id": 3196
+          }
+        ],
+        "same_course_and_profs_id": 240231091
+      }
+    ],
+    "selected_regretted_courses": [
+      {
+        "title": "The View from the Island: Greece and Rome in Britain",
+        "course_id": 240231033,
+        "description": "This course offers, through case studies, a stratigraphic overview of the reception of Greco-Roman literature and culture in the British Isles. It is not intended as a history or material culture course; rather, as a study in classical reception: that is, how Greek and Roman material has been transmitted, translated, excerpted, interpreted, rewritten, re-imaged and represented in Britain from the Roman conquest through to the present. After a week’s introduction to the British Isles from the point of view of antiquity, we concentrate on material from the 18th-21st centuries. Each class asks students both to see antiquity through the eyes of the work/authors/artists assigned and to critique that gaze from their own, contemporary perspective.",
+        "course_codes": [
+          "BRST 167"
+        ],
+        "course_professors": [
+          {
+            "name": "Christina Kraus",
+            "professor_id": 3385
+          }
+        ],
+        "same_course_and_profs_id": 240231033
+      },
+      {
+        "title": "Writing About London",
+        "course_id": 230230682,
+        "description": "Students in this course explore the city in four ways: reading about London, in a variety of genres; writing about London, with an emphasis on craft; visiting London sites; and getting to know one Londoner with an interesting occupation. We’ll ask such questions as: Can a place be presented not only as setting but as character? If so, in different works, what kind of character is London (hero, lover, villain, annoying relative)? As writers, how can we create atmosphere? How can multisensory description bring the reader into our experience? Why do certain places stay with us? What does our relationship with a place say about us? Students write three short personal essays on their own experiences of London (Food, Walk, and Night). Then they devote their time to profiling a Londoner found in the online Yellow Pages (Yell.com)—for instance, the owner of a kebab shop, a seller of secondhand books, a hydrographic surveyor of the River Thames. Students critique and support each other’s writing in a weekly workshop devoted to two essays.",
+        "course_codes": [
+          "BRST 216"
+        ],
+        "course_professors": [
+          {
+            "name": "Anne Fadiman",
+            "professor_id": 2898
+          }
+        ],
+        "same_course_and_profs_id": 230230682
+      }
+    ],
+    "selected_favorite_distributional_courses": [
+      {
+        "title": "Writing About London",
+        "course_id": 230230682,
+        "description": "Students in this course explore the city in four ways: reading about London, in a variety of genres; writing about London, with an emphasis on craft; visiting London sites; and getting to know one Londoner with an interesting occupation. We’ll ask such questions as: Can a place be presented not only as setting but as character? If so, in different works, what kind of character is London (hero, lover, villain, annoying relative)? As writers, how can we create atmosphere? How can multisensory description bring the reader into our experience? Why do certain places stay with us? What does our relationship with a place say about us? Students write three short personal essays on their own experiences of London (Food, Walk, and Night). Then they devote their time to profiling a Londoner found in the online Yellow Pages (Yell.com)—for instance, the owner of a kebab shop, a seller of secondhand books, a hydrographic surveyor of the River Thames. Students critique and support each other’s writing in a weekly workshop devoted to two essays.",
+        "course_codes": [
+          "BRST 216"
+        ],
+        "course_professors": [
+          {
+            "name": "Anne Fadiman",
+            "professor_id": 2898
+          }
+        ],
+        "same_course_and_profs_id": 230230682
+      },
+      {
+        "title": "University Physics",
+        "course_id": 240311818,
+        "description": "A broad introduction to classical and modern physics for students who have some previous preparation in physics and mathematics. Fall-term topics include Newtonian mechanics, gravitation, waves, and thermodynamics. Spring-term topics include electromagnetism, special relativity, and quantum physics.",
+        "course_codes": [
+          "PHYS 180"
+        ],
+        "course_professors": [
+          {
+            "name": "Adriane Steinacker",
+            "professor_id": 2520
+          }
+        ],
+        "same_course_and_profs_id": 170311929
+      }
+    ],
+    "selected_favorite_major_courses": {
+      "Astronomy (B.A.)": [
+        {
+          "title": "London and the Legacies of Empire",
+          "course_id": 230230684,
+          "description": "For three centuries, London was at the heart of a global empire. But from earlier than we might imagine, it was also a city where postcolonial futures began to be imagined. This class examines some of the paradoxes of London’s global history—it was the center of imperial power, but also of anti-imperial networks; the source and beneficiary of many of the racist ideologies of the nineteenth century, but also a place where racial and cultural boundaries were shattered in public culture and everyday life. Taught in the context of urgent contemporary debates about colonial legacies and decolonization, this class looks to histories that have been forgotten or marginalized, to tell a different story about London’s urban identity.",
+          "course_codes": [
+            "BRST 205"
+          ],
+          "course_professors": [
+            {
+              "name": "Sunil Amrith",
+              "professor_id": 2205
+            }
+          ],
+          "same_course_and_profs_id": 230230684
+        }
+      ],
+      "Astrophysics (B.S.)": [],
+      "African Studies (B.A.)": [
+        {
+          "title": "Jewish Philosophy",
+          "course_id": 240128583,
+          "description": "Introduction to Jewish philosophy, including classical rationalism of Maimonides, classical kabbalah, and Franz Rosenzweig's inheritance of both traditions. Critical examination of concepts arising in and from Jewish life and experience, in a way that illuminates universal problems of leading a meaningful human life in a multicultural and increasingly globalized world. No previous knowledge of Judaism is required.",
+          "course_codes": [
+            "GMAN 254",
+            "JDST 335",
+            "RLST 249",
+            "PHIL 274"
+          ],
+          "course_professors": [
+            {
+              "name": "Paul Franks",
+              "professor_id": 6745
+            }
+          ],
+          "same_course_and_profs_id": 110310912
+        },
+        {
+          "title": "University Physics",
+          "course_id": 240311818,
+          "description": "A broad introduction to classical and modern physics for students who have some previous preparation in physics and mathematics. Fall-term topics include Newtonian mechanics, gravitation, waves, and thermodynamics. Spring-term topics include electromagnetism, special relativity, and quantum physics.",
+          "course_codes": [
+            "PHYS 180"
+          ],
+          "course_professors": [
+            {
+              "name": "Adriane Steinacker",
+              "professor_id": 2520
+            }
+          ],
+          "same_course_and_profs_id": 170311929
+        }
+      ],
+      "Chemical Engineering (B.S.)": [],
+      "Biomedical Engineering (B.S.)": [
+        {
+          "title": "London and the Legacies of Empire",
+          "course_id": 230230684,
+          "description": "For three centuries, London was at the heart of a global empire. But from earlier than we might imagine, it was also a city where postcolonial futures began to be imagined. This class examines some of the paradoxes of London’s global history—it was the center of imperial power, but also of anti-imperial networks; the source and beneficiary of many of the racist ideologies of the nineteenth century, but also a place where racial and cultural boundaries were shattered in public culture and everyday life. Taught in the context of urgent contemporary debates about colonial legacies and decolonization, this class looks to histories that have been forgotten or marginalized, to tell a different story about London’s urban identity.",
+          "course_codes": [
+            "BRST 205"
+          ],
+          "course_professors": [
+            {
+              "name": "Sunil Amrith",
+              "professor_id": 2205
+            }
+          ],
+          "same_course_and_profs_id": 230230684
+        }
+      ],
+      "African American Studies (B.A.)": [],
+      "Computer Science (B.A. or B.S.)": [
+        {
+          "title": "Data Structures and Programming Techniques",
+          "course_id": 220120905,
+          "description": "Topics include programming in C; data structures (arrays, stacks, queues, lists, trees, heaps, graphs); sorting and searching; storage allocation and management; data abstraction; programming style; testing and debugging; writing efficient programs.",
+          "course_codes": [
+            "CPSC 223"
+          ],
+          "course_professors": [
+            {
+              "name": "James Aspnes",
+              "professor_id": 4708
+            }
+          ],
+          "same_course_and_profs_id": 120121624
+        }
+      ],
+      "Ethics, Politics, and Economics (B.A.)": [
+        {
+          "title": "Classics of Ethics, Politics, and Economics",
+          "course_id": 220121097,
+          "description": "A critical examination of classic and contemporary works that treat problems of ethics, politics, and economics as unities. Topics include changing conceptions of private and public spheres, the content and domain of individual freedom, and ethical and political limits to the market. Readings from the works of Aristotle, Hobbes, Locke, Smith, Bentham, Mill, Hegel, Marx, Hayek, Rawls, and others.",
+          "course_codes": [
+            "EP&E 215"
+          ],
+          "course_professors": [
+            {
+              "name": "Boris Kapustin",
+              "professor_id": 3125
+            }
+          ],
+          "same_course_and_profs_id": 100124496
+        }
+      ]
+    },
+    "selected_major_satisfaction": {
+      "Astronomy (B.A.)": 5,
+      "Astrophysics (B.S.)": 5,
+      "African Studies (B.A.)": 9,
+      "Chemical Engineering (B.S.)": 5,
+      "Biomedical Engineering (B.S.)": 8,
+      "African American Studies (B.A.)": 5,
+      "Computer Science (B.A. or B.S.)": 5,
+      "Ethics, Politics, and Economics (B.A.)": 9
+    },
+    "remarks": ""
+  }
+]

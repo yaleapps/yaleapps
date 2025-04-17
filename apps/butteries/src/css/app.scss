@@ -1,0 +1,11 @@
+// app global css in SCSS form
+@import "tailwindcss" prefix(tw) source("../");
+
+body {
+  background-color: #dddddd;
+  --q-info: #EEF6FF;
+}
+
+.body--dark {
+  --q-info: #00356b;
+}

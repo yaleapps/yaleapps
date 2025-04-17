@@ -1,0 +1,6 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "course-major-superlatives",
+	"compatibility_date": "04-12-2025",
+	"pages_build_output_dir": "./dist/spa"
+}
